@@ -1,13 +1,13 @@
 # Paul's GenAI Test Tools (Typescript)
 
-Personal playground for experimneting with LLMs and GenAI in general - may not be useful to others. 
+A personal playground for experiencing LLMs and GenAI, in general - may not be useful to others. 
 
 Current test tools:
 
-* Test an MongoDB Connection (`src/test-mdb-connection.ts`)
+* Test a MongoDB Connection (`src/test-mdb-connection.ts`)
 * Test various LLM providers models - embeddings models + completions small/large models (`src/test-pluggable-llm.ts`)
-* Test an LLM under load, analysing files in a codebase concurrently (`src/test-treewalk-llm.ts`)
-* Test giving all the source files in one go in a prompt, with a question, to an LLM which has a large token size limit (`src/test-merge-all-files-llm.ts`)
+* Test an LLM under load, analyzing files in a codebase concurrently (`src/test-treewalk-llm.ts`)
+* Test giving all the source files in one go in a prompt, with a question, to an LLM that has a large token size limit (`src/test-merge-all-files-llm.ts`)
 
 
 ## Prerequisites
@@ -41,9 +41,14 @@ Current test tools:
 
 ## How To Debug/Run
 
-It is easiest to debug using VS Code. Open the project in VS Code, first in the "Explorer" select the "src/test-***.ts" file you want to run, then from the "Activity Bar" (left-panel) select the "Run and Debug" view and then execute the pre-confgigured task "Run and Debug TypeScript" which will run the Typescript compiler first, and then if successful, it will run the program in debug mode showing its output inthe "Debug Console" of the "Status Bar" (bottom-panel). 
+It is easiest to debug using VS Code and by following these steps:
 
-You can of couse also run the "test" TypeScript files from the terminal using the `node` command.
+    1. Open the project in VS Code
+    1. In the _Explorer_ select the "src/test-*.ts" file you want to run
+    1. From the _Activity Bar_ (left panel), select the _Run and Debug_ view
+    1. Execute the pre-configured task _Run and Debug TypeScript_ - this will run the Typescript compiler first, and then, if successful, it will run the program in debug mode, showing its output in the _Debug Console_ of the _Status Bar_ (bottom panel). 
+
+You can also run the "test" TypeScript files from the terminal using the `node` command.
 
 
 ## Running The Project's Unit Tests
