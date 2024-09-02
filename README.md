@@ -43,10 +43,10 @@ Current test tools:
 
 It is easiest to debug using VS Code and by following these steps:
 
-    -  Open the project in VS Code
-    -  In the _Explorer_ select the "src/test-*.ts" file you want to run
-    -  From the _Activity Bar_ (left panel), select the _Run and Debug_ view
-    -  Execute the pre-configured task _Run and Debug TypeScript_ - this will run the Typescript compiler first, and then, if successful, it will run the program in debug mode, showing its output in the _Debug Console_ of the _Status Bar_ (bottom panel). 
+1. Open the project in VS Code
+1. In the _Explorer_ select the "src/test-*.ts" file you want to run
+1. From the _Activity Bar_ (left panel), select the _Run and Debug_ view
+1. Execute the pre-configured task _Run and Debug TypeScript_ - this will run the Typescript compiler first, and then, if successful, it will run the program in debug mode, showing its output in the _Debug Console_ of the _Status Bar_ (bottom panel). 
 
 You can also run the "test" TypeScript files from the terminal using the `node` command.
 
