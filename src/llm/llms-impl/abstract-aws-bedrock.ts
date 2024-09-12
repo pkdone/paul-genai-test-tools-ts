@@ -1,21 +1,11 @@
-import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
-import { getEnvVar } from "../../utils/envvar-utils";
-import envConst from "../../types/env-constants";
-import { llmConst, BEDROCK_ERROR_MSG_TOKENS_PATTERNS } from "../../types/llm-constants";
-import { LLMInvocationPurpose, LLMResponseStatus, LLMModelSizeNames, LLMContext, LLMError, LLMFunctionResponse } from "../../types/llm-types";
-import AbstractLLM from "./abstract-llm";
+import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, ModelErrorException,
+         ModelStreamErrorException, ResourceNotFoundException, ServiceQuotaExceededException, 
+         ServiceUnavailableException, ThrottlingException, ModelNotReadyException, 
+         ModelTimeoutException, ValidationException } from "@aws-sdk/client-bedrock-runtime";
+import { llmAPIErrorPatterns } from "../../types/llm-constants";
+import { LLMPurpose, LLMConfiguredModelTypes, LLMContext, LLMFunctionResponse } from "../../types/llm-types";
+import AbstractLLM from "../abstract-llm";
 const UTF8_ENCODING = "utf8";
-
-
-/**
- * Type to define the Bedrock API parameters
- */ 
-export type BedrockParams = {
-  modelId: any,
-  contentType: string
-  accept: string
-  body: string,
-};
 
 
 /**
@@ -24,23 +14,21 @@ export type BedrockParams = {
 export abstract class AbstractAWSBedrock extends AbstractLLM {
   // Private fields
   private embeddingsModelName: string;
-  private completionsModelSmallName: string;
-  private completionsModelLargeName: string;
+  private completionsModelRegularName: string;
+  private completionsModelPremiumName: string;
   private client: BedrockRuntimeClient;
 
 
   /**
    * Constructor.
    */
-  constructor(embeddingsModel: string, completionsModelSmall: string | null, completionsModelLarge: string | null, embeddingsModelName: string, completionsModelSmallName: string, completionsModelLargeName: string) { 
-    super(embeddingsModel, completionsModelSmall,completionsModelLarge );
+  constructor(embeddingsModel: string, completionsModelRegular: string | null, completionsModelPremium: string | null, embeddingsModelName: string, completionsModelRegularName: string, completionsModelPremiumName: string) { 
+    super(embeddingsModel, completionsModelRegular,completionsModelPremium );
     this.embeddingsModelName = embeddingsModelName;
-    this.completionsModelSmallName = completionsModelSmallName;
-    this.completionsModelLargeName = completionsModelLargeName;
-    this.client = new BedrockRuntimeClient([{
-      region: getEnvVar<string>(envConst.ENV_AWS_API_REGION),
-      apiVersion: llmConst.AWS_API_VERSION,
-    }]);
+    this.completionsModelRegularName = completionsModelRegularName;
+    this.completionsModelPremiumName = completionsModelPremiumName;
+    this.client = new BedrockRuntimeClient();
+    console.log("AWS Bedrock client created");
   }
 
   
@@ -48,7 +36,7 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
    * Abstract method to be overriden. Assemble the AWS Bedrock API parameters structure for the 
    * specific models and prompt.
    */
-  protected abstract buildFullLLMParameters(taskType: LLMInvocationPurpose, model: string, prompt: string): BedrockParams;
+  protected abstract buildFullLLMParameters(taskType: LLMPurpose, model: string, prompt: string): InvokeModelCommandInput;
 
 
   /**
@@ -67,57 +55,52 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
   /**
    * Get the names of the models this plug-in provides.
    */ 
-  public getModelsNames(): LLMModelSizeNames {
+  public getModelsNames(): LLMConfiguredModelTypes {
     return {
       embeddings: this.embeddingsModelName,
-      small: this.completionsModelSmallName,
-      large: this.completionsModelLargeName,
+      regular: this.completionsModelRegularName,
+      premium: this.completionsModelPremiumName,
     };
   }  
 
 
   /**
    * Execute the prompt against the LLM and return the LLM's answer.
+   * 
+   * NOTE: `rawResponse["$metadata"]?.httpStatusCode` shows the response status code. However, this
+   * always seems to be 200 if no exceptions thrown. Other codes like 400 or 429 only appear in the
+   * `error`object thrown by the API, so only accessible from the catch block.
    */
-  protected async runLLMTask(model: string, taskType: LLMInvocationPurpose, prompt: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse> {
-    let result = { status: LLMResponseStatus.UNKNOWN, request: prompt, context };
+  protected async runLLMTask(model: string, taskType: LLMPurpose, prompt: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse> {
 
     try {
+      // Invoke LLM
       const fullParameters = this.buildFullLLMParameters(taskType, model, prompt);
       const command = new InvokeModelCommand(fullParameters);
       const rawResponse = await this.client.send(command);
-      
-      // NOTE: `rawResponse["$metadata"]?.httpStatusCode` shows the response status code. However,
-      //  this always seems to be 200. Other codes like 400 or 429 only appear in the `error`
-      //  object thrown by the API, so only accessible from the catch block below.
-
-      if (!rawResponse?.body) throw new Error("LLM response was empty");
+      if (!rawResponse?.body) throw new Error("LLM raw response was completely empty");
       const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(UTF8_ENCODING));
-      const stopReason = llmResponse?.stop_reason || llmResponse?.results?.[0]?.completionReason;
+      if (!llmResponse) throw new Error("LLM response when converted to JSON was empty");
+
+      // Capture response content
       const responseContent = llmResponse.embedding || llmResponse?.completion || llmResponse?.content?.[0]?.text || llmResponse?.results[0]?.outputText;
 
-      if (stopReason === "max_tokens" || stopReason === "LENGTH" || !responseContent) {
-        const promptTokens = llmResponse?.inputTextTokenCount || llmResponse?.usage?.input_tokens;
-        const completionTokens = llmResponse?.results?.[0]?.tokenCount || llmResponse?.usage?.output_tokens;
-        Object.assign(result, { status: LLMResponseStatus.EXCEEDED, tokensUage: this.extractTokensAmountFromMetadataOrGuessFromContent(model, prompt, responseContent, promptTokens, completionTokens, null) });  
-      } else if (this.isLLMOverloaded(taskType, responseContent)) {
-        Object.assign(result, { status: LLMResponseStatus.OVERLOADED });  
-      } else {
-        result = this.postProcessAsJSONIfNeededGettingNewResult(result, model, taskType, responseContent, doReturnJSON);          
-      }
-    } catch (error: unknown) {
-      const baseError = error as Error;
+      // Capture response reason
+      const finishReason = llmResponse?.stop_reason || llmResponse?.results?.[0]?.completionReason;
+      const isIncompleteResponse = ((finishReason === "max_tokens") || (finishReason === "LENGTH") || !responseContent);
 
-      if (this.isTokenLimitExceeded(baseError)) {
-        Object.assign(result, {status: LLMResponseStatus.EXCEEDED, tokensUage: this.extractTokensAmountAndLimitFromErrorMsg(model, BEDROCK_ERROR_MSG_TOKENS_PATTERNS, baseError.toString()) });
-      } else if (this.isLLMOverloaded(taskType, null, baseError)) {
-        Object.assign(result, { status: LLMResponseStatus.OVERLOADED });  
-      } else {
-        throw error;
-      }
+      // Capture token usage  (for 3 settings below, first option is for Titan LLMs, second is Claude LLMs)
+      const promptTokens = llmResponse?.inputTextTokenCount ?? llmResponse?.usage?.input_tokens ?? -1;
+      const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? llmResponse?.usage?.output_tokens ?? -1;
+      const maxTotalTokens = -1;
+      const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
+      
+      // Process successful response
+      return this.captureLLMResponseFromSuccessfulCall(prompt, context, isIncompleteResponse, model, responseContent, tokenUsage, taskType, doReturnJSON);
+    } catch (error: unknown) {
+      // Process error response
+      return this.captureLLMResponseFromThrownError(error, prompt, context, model, llmAPIErrorPatterns.BEDROCK_ERROR_MSG_TOKENS_PATTERNS);
     }
-    
-    return result;
   }
 
 
@@ -125,33 +108,42 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
    * See if the contents of the responses indicate inability to fully process request due to 
    * overloading.
    */
-  private isLLMOverloaded(taskType: LLMInvocationPurpose, responseContent : string | null, error: Error | null = null): boolean {  
-    if (taskType === LLMInvocationPurpose.COMPLETION) {    
-      const firstPartLowerResponse = responseContent
-                                  ? (responseContent.substring(0, 100).toLowerCase())
-                                  : "";
-      const lowerErrorMSg = error
-                          ? (error.toString().toLowerCase())
-                          : "";
-      const blankError = error as unknown;
-      const llmError = blankError as LLMError;                                            
-      return (llmError?.code === 429) ||
-             (llmError?.code === "429") || 
-             (llmError?.["$metadata"]?.httpStatusCode === 429) ||
-             (firstPartLowerResponse.includes("unable to respond")) ||
-             (lowerErrorMSg.includes("timed out"));
-    } else {
-      return false;
-    } 
+  protected isLLMOverloaded(error: unknown): boolean { 
+    // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
+    return ((error instanceof ThrottlingException) || 
+            (error instanceof ModelTimeoutException));
   }
 
 
   /**
    * Check to see if error code indicates potential token limit has been execeeded
    */
-  private isTokenLimitExceeded(error: Error): boolean {
-    const lowercaseContent = error.toString().toLowerCase();      
-    return lowercaseContent.includes("too many input tokens") ||
-           lowercaseContent.includes("expected maxlength");
+  protected isTokenLimitExceeded(error: unknown): boolean {
+    if (error instanceof ValidationException) {
+      const lowercaseContent = error.message.toLowerCase();    
+
+      if ((lowercaseContent.includes("too many input tokens")) ||
+          (lowercaseContent.includes("expected maxlength")) ||
+          (lowercaseContent.includes("input is too long"))) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+
+  /** 
+   * Debug currently non-checked error types.
+   */
+  private debugCurrentlyNonCheckedErrorTypes(error: unknown) {
+    if (error instanceof ModelErrorException) console.log(`ModelErrorException: ${error.message}`);
+    if (error instanceof ModelStreamErrorException) console.log(`ModelStreamErrorException: ${error.message}`);
+    if (error instanceof ResourceNotFoundException) console.log(`ResourceNotFoundException: ${error.message}`);
+    if (error instanceof ServiceQuotaExceededException) console.log(`ServiceQuotaExceededException: ${error.message}`);
+    if (error instanceof ServiceUnavailableException) console.log(`ServiceUnavailableException: ${error.message}`);
+    if (error instanceof ValidationException) console.log(`ValidationException: ${error.message}`);
+    if (error instanceof ModelNotReadyException) console.log(`ModelNotReadyException: ${error.message}`);
   }
 }
+

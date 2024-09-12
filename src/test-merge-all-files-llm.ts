@@ -5,7 +5,7 @@ import { getEnvVar } from "./utils/envvar-utils";
 import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } from "./utils/basics-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
 import LLMRouter from "./llm/llm-router";
-import { LLMModelSize } from "./types/llm-types";
+import { LLMModelQuality } from "./types/llm-types";
 
 
 /**
@@ -109,7 +109,7 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, content: str
   let response = "";
 
   try {
-    response = await llmRouter.executeCompletion(resource, fullPrompt, LLMModelSize.SMALL_PLUS, false, context) as string;
+    response = await llmRouter.executeCompletion(resource, fullPrompt, LLMModelQuality.REGULAR_PLUS, false, context) as string;
   } catch (error) {
     const baseError = error as Error;
     console.error("Problem introspecting and processing source files", baseError, baseError.stack);    

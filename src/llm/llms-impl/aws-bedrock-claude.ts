@@ -1,8 +1,9 @@
+import { InvokeModelCommandInput } from "@aws-sdk/client-bedrock-runtime";
 import { llmConst } from "../../types/llm-constants";
-import envConst from "../../types/env-constants";
-import { getEnvVar } from "../../utils/envvar-utils";
-import { LLMInvocationPurpose } from "../../types/llm-types";
-import {AbstractAWSBedrock, BedrockParams } from "./abstract-aws-bedrock";
+import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35, MODEL_NOT_SPECIFIED } 
+       from "../../types/llm-models";
+import { LLMPurpose } from "../../types/llm-types";
+import {AbstractAWSBedrock } from "./abstract-aws-bedrock";
 
 
 /** 
@@ -14,24 +15,13 @@ class AWSBedrockClaude extends AbstractAWSBedrock {
    * Constructor.
    */
   constructor() { 
-    const claudeCompletionsModelVersion = getEnvVar<number>(envConst.ENV_AWS_CLAUDE_MODEL_VERSION, 3);
-    let completionsModel;
-    
-    if (claudeCompletionsModelVersion === 2) {
-      completionsModel = llmConst.AWS_API_COMPLETIONS_MODEL_LARGE_CLAUDE2;
-    } else if (claudeCompletionsModelVersion === 3.5) {
-      completionsModel = llmConst.AWS_API_COMPLETIONS_MODEL_LARGE_CLAUDE35;
-    } else {
-      completionsModel = llmConst.AWS_API_COMPLETIONS_MODEL_LARGE_CLAUDE3;
-    }
-
     super(
-      llmConst.AWS_API_EMBEDDINGS_MODEL,
+      AWS_EMBEDDINGS_MODEL_TITAN_V1,
       null,
-      completionsModel,
-      llmConst.AWS_API_EMBEDDINGS_MODEL,
-      llmConst.MODEL_NOT_SPECIFIED,
-      completionsModel
+      ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35,
+      AWS_EMBEDDINGS_MODEL_TITAN_V1,
+      MODEL_NOT_SPECIFIED,
+      ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35
     ); 
   }
 
@@ -39,15 +29,15 @@ class AWSBedrockClaude extends AbstractAWSBedrock {
   /**
    * Assemble the AWS Bedrock API parameters structure for Titan models and prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMInvocationPurpose, model: string, prompt: string): BedrockParams {
-    const maxTokenCount = llmConst.MODEL_100K_MAX_OUTPUT_TOKENS;
+  protected buildFullLLMParameters(taskType: LLMPurpose, model: string, prompt: string): InvokeModelCommandInput  {
     let body = "";
 
-    if (taskType === LLMInvocationPurpose.EMBEDDINGS) {
+    if (taskType === LLMPurpose.EMBEDDINGS) {
       body = JSON.stringify({
         inputText: prompt,
       });
     } else {
+      const maxTokenCount = llmModels[model].maxTotalTokens;
       body = JSON.stringify({
         anthropic_version: "bedrock-2023-05-31",
         messages: [
@@ -72,7 +62,7 @@ class AWSBedrockClaude extends AbstractAWSBedrock {
       modelId: model,
       contentType: llmConst.RESPONSE_JSON_CONTENT_TYPE,
       accept: llmConst.RESPONSE_ANY_CONTENT_TYPE,
-      body,       
+      body,      
     };
   }  
 }

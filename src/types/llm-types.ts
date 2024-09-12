@@ -1,31 +1,41 @@
 /**
- * Enum to define the model sizes
+ * Enum to define the model quality required (regular, regular+, premium)
  */
-export enum LLMModelSize {
-  SMALL = "small",
-  SMALL_PLUS = "small+",
-  MEDIUM = "medium",
-  LARGE = "large",
+export enum LLMModelQuality {
+  REGULAR = "regular",
+  REGULAR_PLUS = "regular+",
+  PREMIUM = "premium",
 };
 
 
 /**
  * Types to define the status types statistics
  */
-export type LLMModelSizeNames = {
+export type LLMConfiguredModelTypes = {
   embeddings: string,
-  small: string,
-  large: string,
+  regular: string,
+  premium: string,
 };
 
 
 /**
  * Enum to define the LLM task type
  */
-export enum LLMInvocationPurpose { 
+export enum LLMPurpose { 
   EMBEDDINGS = "embeddings",
   COMPLETION = "completion",
 };
+
+
+/**
+ * Enum to define the main characteristics of the LLM model.
+ */
+export interface LLMModelMetadata {
+  purpose: LLMPurpose;
+  maxDimensions?: number;
+  maxCompletionTokens?: number;
+  maxTotalTokens: number;
+}
 
 
 /**
@@ -51,7 +61,7 @@ export enum LLMResponseStatus {
 export type LLMResponseTokensUsage = {
   promptTokens: number,
   completionTokens: number,
-  totalTokens: number,
+  maxTotalTokens: number,
 };
 
 
@@ -67,6 +77,7 @@ export type LLMGeneratedContent = string | number[] | null;
 export type LLMFunctionResponse = {
   status: LLMResponseStatus,
   request: string,
+  model: string,
   context: LLMContext,
   generated?: LLMGeneratedContent,
   tokensUage?: LLMResponseTokensUsage,
@@ -83,11 +94,11 @@ export type LLMFunction = (content: string, doReturnJSON: boolean, context: LLMC
  * Interface for LLM provider
  */
 export interface LLMProviderImpl {
-  getModelsNames(): LLMModelSizeNames,
-  getAvailableCompletionModelSizes(): LLMModelSize[],
+  getModelsNames(): LLMConfiguredModelTypes,
+  getAvailableCompletionModelSizes(): LLMModelQuality[],
   generateEmbeddings: LLMFunction,
-  executeCompletionSmall: LLMFunction,
-  executeCompletionLarge: LLMFunction,
+  executeCompletionRegular: LLMFunction,
+  executeCompletionPremium: LLMFunction,
   close(): Promise<void>,
 };
 
@@ -97,6 +108,7 @@ export interface LLMProviderImpl {
  */
 export type LLMError = {
   code?: number | string,
+  message?: string,
   status?: number | string,
   type?: string,
   error?: {
@@ -104,10 +116,6 @@ export type LLMError = {
   },
   response?: {
     status?: number
-  },
-  context?: LLMContext,
-  "$metadata"?: {
-    httpStatusCode: number,
   },
 };
 

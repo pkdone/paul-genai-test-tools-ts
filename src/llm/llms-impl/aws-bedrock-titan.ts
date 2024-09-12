@@ -1,6 +1,9 @@
+import { InvokeModelCommandInput } from "@aws-sdk/client-bedrock-runtime";
 import { llmConst } from "../../types/llm-constants";
-import { LLMInvocationPurpose } from "../../types/llm-types";
-import {AbstractAWSBedrock, BedrockParams } from "./abstract-aws-bedrock";
+import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1, 
+         MODEL_NOT_SPECIFIED } from "../../types/llm-models";
+import { LLMPurpose } from "../../types/llm-types";
+import {AbstractAWSBedrock } from "./abstract-aws-bedrock";
 
 
 /**
@@ -12,12 +15,12 @@ class AWSBedrockTitan extends AbstractAWSBedrock {
    */
   constructor() { 
     super(
-      llmConst.AWS_API_EMBEDDINGS_MODEL,
-      llmConst.AWS_API_COMPLETIONS_MODEL_SMALL_TITAN,
+      AWS_EMBEDDINGS_MODEL_TITAN_V1,
+      AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1,
       null,
-      llmConst.AWS_API_EMBEDDINGS_MODEL,
-      llmConst.AWS_API_COMPLETIONS_MODEL_SMALL_TITAN,
-      llmConst.MODEL_NOT_SPECIFIED
+      AWS_EMBEDDINGS_MODEL_TITAN_V1,
+      AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1,
+      MODEL_NOT_SPECIFIED
     );
   }
 
@@ -25,17 +28,15 @@ class AWSBedrockTitan extends AbstractAWSBedrock {
   /**
    * Assemble the AWS Bedrock API parameters structure for Titan models and prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMInvocationPurpose, model: string, prompt: string): BedrockParams {
-    const maxTokenCount = (model === this.completionsModelSmall) ? 
-                          llmConst.MODEL_8K_MAX_OUTPUT_TOKENS : 
-                          llmConst.MODEL_32K_MAX_OUTPUT_TOKENS;
+  protected buildFullLLMParameters(taskType: LLMPurpose, model: string, prompt: string): InvokeModelCommandInput {
     let body = "";    
 
-    if (taskType === LLMInvocationPurpose.EMBEDDINGS) {
+    if (taskType === LLMPurpose.EMBEDDINGS) {
       body = JSON.stringify({
         inputText: prompt,
       });
     } else {
+      const maxTokenCount = llmModels[model].maxTotalTokens;      
       body = JSON.stringify({
         inputText: prompt,
         textGenerationConfig: {
@@ -50,7 +51,7 @@ class AWSBedrockTitan extends AbstractAWSBedrock {
       modelId: model,
       contentType: llmConst.RESPONSE_JSON_CONTENT_TYPE,
       accept: llmConst.RESPONSE_ANY_CONTENT_TYPE,
-      body, 
+      body,
     };;
   }  
 }

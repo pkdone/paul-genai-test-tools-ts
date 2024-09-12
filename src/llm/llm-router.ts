@@ -1,12 +1,13 @@
 import { llmConst } from "../types/llm-constants";
+import { llmModels } from "../types/llm-models";
 import { withRetry } from "../utils/control-utils";
-import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelSize, LLMInvocationPurpose,
+import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse, LLMResponseTokensUsage } 
   from "../types/llm-types";
 import LLMStats from "./llm-stats";
 import OpenAIGPT from "./llms-impl/openai-gpt";
 import AzureOpenAIGPT from "./llms-impl/azure-openai-gpt";
-import { GcpVertexAIGemini } from "./llms-impl/gcp-vertexai-gemini";
+import GcpVertexAIGemini from "./llms-impl/gcp-vertexai-gemini";
 import AWSBedrockTitan from "./llms-impl/aws-bedrock-titan";
 import AWSBedrockClaude from "./llms-impl/aws-bedrock-claude";
 
@@ -24,8 +25,8 @@ class LLMRouter {
   private llmImpl: LLMProviderImpl;
   private llmStats: LLMStats;
   private doLogEachResource: boolean;
-  private loggedMissingSmallModelWarning: boolean;
-  private loggedMissingLargeModelWarning: boolean;
+  private loggedMissingRegularModelWarning: boolean;
+  private loggedMissingPremiumModelWarning: boolean;
 
 
   /**
@@ -36,9 +37,9 @@ class LLMRouter {
     this.llmImpl = this.initializeLLMImplementation(llmProviderName);
     this.llmStats = new LLMStats(doLogLLMInvocationEvents);
     this.doLogEachResource = false;
-    this.loggedMissingSmallModelWarning = false;
-    this.loggedMissingLargeModelWarning = false;
-    this.log(`Initiated LLM(s) from: ${this.llmProviderName}`);
+    this.loggedMissingRegularModelWarning = false;
+    this.loggedMissingPremiumModelWarning = false;
+    this.log(`Initiated LLMs from: ${this.llmProviderName}`);
   }
 
   
@@ -47,11 +48,11 @@ class LLMRouter {
    */
   private initializeLLMImplementation(providerName: string): LLMProviderImpl {
     switch (providerName) {
-      case llmConst.OPENAI_GPT_LLM: return new OpenAIGPT();
-      case llmConst.AZURE_OPENAI_GPT_LLM: return new AzureOpenAIGPT();
-      case llmConst.GCP_VERTEXAI_GEMINI_LLM: return new GcpVertexAIGemini();
-      case llmConst.AWS_BEDROCK_TITAN_LLM: return new AWSBedrockTitan();
-      case llmConst.AWS_BEDROCK_CLAUDE_LLM: return new AWSBedrockClaude();
+      case llmConst.OPENAI_GPT_MODELS: return new OpenAIGPT();
+      case llmConst.AZURE_OPENAI_GPT_MODELS: return new AzureOpenAIGPT();
+      case llmConst.GCP_VERTEXAI_GEMINI_MODELS: return new GcpVertexAIGemini();
+      case llmConst.AWS_BEDROCK_TITAN_MODELS: return new AWSBedrockTitan();
+      case llmConst.AWS_BEDROCK_CLAUDE_MODELS: return new AWSBedrockClaude();
       default: throw new Error("No valid LLM implementation specified via the 'LLM' environment variable");
     }
   }
@@ -69,8 +70,8 @@ class LLMRouter {
    * Get the description of models the chosen plug-in provides.
    */
   public getModelsUsedDescription(): string {
-    const { embeddings, small, large } = this.llmImpl.getModelsNames();
-    return `${this.llmProviderName} (embeddings: ${embeddings}, completions-small: ${small}, completions-large: ${large})`;
+    const { embeddings, regular, premium } = this.llmImpl.getModelsNames();
+    return `${this.llmProviderName} (embeddings: ${embeddings}, completions-regular: ${regular}, completions-premium: ${premium})`;
   }  
 
 
@@ -80,9 +81,9 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  public async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}, autoTruncateAtSize: number = 0): Promise<LLMGeneratedContent> {
-    context.purpose = LLMInvocationPurpose.EMBEDDINGS;
-    const llmFunc: LLMFunction = this.llmImpl.generateEmbeddings.bind(this.llmImpl);
+  public async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}): Promise<LLMGeneratedContent> {
+    context.purpose = LLMPurpose.EMBEDDINGS;
+    const llmFunc = this.llmImpl.generateEmbeddings.bind(this.llmImpl);
     return await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
   }
 
@@ -93,11 +94,11 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  public async executeCompletion(resourceName: string, prompt: string, modelSize: LLMModelSize, doReturnJSON: boolean = false, context: LLMContext = {}, autoTruncateAtSize: number = 0): Promise<LLMGeneratedContent> {
-    context.purpose = LLMInvocationPurpose.COMPLETION;
-    const modelSizesSupported: LLMModelSize[] = this.llmImpl.getAvailableCompletionModelSizes();
+  public async executeCompletion(resourceName: string, prompt: string, modelSize: LLMModelQuality, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
+    context.purpose = LLMPurpose.COMPLETION;
+    const modelSizesSupported = this.llmImpl.getAvailableCompletionModelSizes();
     modelSize = this.adjustModelSizesBasedOnAvailability(modelSizesSupported, modelSize);
-    context.model = (modelSize === LLMModelSize.SMALL_PLUS) ? LLMModelSize.SMALL : modelSize;
+    context.modelQuality = (modelSize === LLMModelQuality.REGULAR_PLUS) ? LLMModelQuality.REGULAR : modelSize;
     const result = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, this.getModelSizeCompletionFunctions(modelSize), doReturnJSON);
     return result;
   }  
@@ -121,28 +122,19 @@ class LLMRouter {
         if (this.doLogEachResource) this.log(`GO: ${resourceName}`);
         let llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, doReturnJSON, context);
 
-        if (!llmResponse) {
-          llmResponse = { status: LLMResponseStatus.OVERLOADED, request: prompt, context };
-        }
-
-        if (llmResponse.status === LLMResponseStatus.COMPLETED) {
+        if (llmResponse?.status === LLMResponseStatus.COMPLETED) {
           result = llmResponse.generated || null;
           this.llmStats.recordSuccess();
           break;
-        } else if (llmResponse.status === LLMResponseStatus.EXCEEDED || llmResponse.status === LLMResponseStatus.OVERLOADED) {
-          if (llmResponse.status === LLMResponseStatus.EXCEEDED) {
-            this.logWithContext(`LLM prompt token size ${llmResponse.tokensUage?.promptTokens} and completion token size ${llmResponse.tokensUage?.completionTokens} exceeded limit (total limit is ${llmResponse.tokensUage?.totalTokens} - this value might be lower than the LLM's max token limit to reflect that its internal completions limit was hit)`, context);
-          } else {
-            this.logWithContext(`LLM problem processing prompt for completion with current LLM model because it is overloaded or timing out (even after retries)`, context);
-          }
+        } else if ((!llmResponse) || (llmResponse.status === LLMResponseStatus.OVERLOADED)) {
+          this.logWithContext(`LLM problem processing prompt for completion with current LLM model because it is overloaded or timing out, even after retries`, context);
+          break;
+        } else if (llmResponse.status === LLMResponseStatus.EXCEEDED) {
+          this.logWithContext(`LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens} plus completion tokens used ${llmResponse.tokensUage?.completionTokens} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens}, or: 2) the model's completion tokens limit`, context);
 
-          // If 'totalTokens'' specified, and no bigger LLMs available, then need to get drastic and
-          // try cropping the prompt, even if LLM signalled 'overload' not 'exceeded'.
-          // For most LLM implmentations 'totalTokens' will only be present if 'exceeded' and not
-          // 'overladed', but GCP LLM is an exception.
-          if (llmResponse.tokensUage?.totalTokens && (llmFuncIndex + 1) >= llmFuncs.length) { 
-            const percentToReduce = (llmResponse.status === LLMResponseStatus.EXCEEDED) ? llmConst.TOKEN_LIMIT_SAFETY_CHARS_BUFFER_PERCENTAGE : llmConst.TOKEN_GUESS_REDUCTION_PERCENTAGE;
-            currentPrompt = this.reducePromptSizeToTokenLimit(currentPrompt, llmResponse.tokensUage, percentToReduce);
+          if ((llmFuncIndex + 1) >= llmFuncs.length) { 
+            if (!llmResponse.tokensUage) throw new Error("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present");
+            currentPrompt = this.reducePromptSizeToTokenLimit(currentPrompt, llmResponse.model, llmResponse.tokensUage );
             this.llmStats.recordCrop();
             continue;  // Don't attempt to move up to next [non-existent] LLM size - want to try current LLM with ths cut down prompt size
           }  
@@ -150,7 +142,7 @@ class LLMRouter {
           throw new Error(`An unknown error occurred while attempting to process prompt for completion for resource '${resourceName}'`);
         }
 
-        context.model = LLMModelSize.LARGE;
+        context.modelQuality = LLMModelQuality.PREMIUM;
         llmFuncIndex++;
 
         if (llmFuncIndex < llmFuncs.length) {
@@ -175,19 +167,23 @@ class LLMRouter {
   /**
    * Reduce the size of the prompt to be inside the LLM's indicated token limit.
    */
-  private reducePromptSizeToTokenLimit(prompt: string, tokensUage: LLMResponseTokensUsage, percentReduction: number): string {
-    const charsPerToken = prompt.length / tokensUage.promptTokens;
-    const charsLimit = tokensUage.totalTokens * charsPerToken;
-    const completionCharsNeeded = Math.max(
-      (llmConst.RESERVED_COMPLETION_MIN_TOKENS - tokensUage.completionTokens),
-      (tokensUage.completionTokens * llmConst.COMPLETION_TOKEN_MIN_RATIO)
-    ) * charsPerToken;
-    const promptCharsAvailableNoBuffer = charsLimit - completionCharsNeeded;
-    const promptCharsAvailable = Math.max(
-      Math.floor((100 - percentReduction) / 100 * promptCharsAvailableNoBuffer),
-      llmConst.MINIMUM_CHARS_FOR_PROMPT
-    );
-    return prompt.substring(0, promptCharsAvailable);
+  private reducePromptSizeToTokenLimit(prompt: string, model: string, tokensUage: LLMResponseTokensUsage): string {
+    const { promptTokens, completionTokens, maxTotalTokens } = tokensUage;
+    const maxCompletionTokensLimit = llmModels[model].maxCompletionTokens; // will be undefined if for embeddings
+    let reductionRatio = 1;
+    
+    // If all the LLM#s available completion tokens have been consumed then will need to reduce prompt size to try influence any subsequenet generated completion to be smaller
+    if (maxCompletionTokensLimit && (completionTokens >= (maxCompletionTokensLimit - llmConst.COMPLETION_MAX_TOKENS_LIMIT_BUFFER))) {
+      reductionRatio = Math.min((maxCompletionTokensLimit / (completionTokens + 1)), llmConst.COMPLETION_TOKENS_REDUCE_MIN_RATIO);
+    }
+
+    // If the total tokens used is more than the total tokens available then reduce the prompt size proportionally
+    if (reductionRatio >= 1) {
+      reductionRatio = Math.min((maxTotalTokens / (promptTokens + completionTokens + 1)), llmConst.PROMPT_TOKENS_REDUCE_MIN_RATIO);
+    }
+
+    const newPromptSize = Math.floor(prompt.length * reductionRatio);
+    return prompt.substring(0, newPromptSize);
   }
 
 
@@ -210,16 +206,16 @@ class LLMRouter {
   /**
    * Retrieve the functions to be used based on the model size.
    */
-  private getModelSizeCompletionFunctions(modelSize: LLMModelSize): LLMFunction[] {
+  private getModelSizeCompletionFunctions(modelSize: LLMModelQuality): LLMFunction[] {
     const modelFuncs = [];
     
-    if (modelSize === LLMModelSize.SMALL) {
-      modelFuncs.push(this.llmImpl.executeCompletionSmall.bind(this.llmImpl));
-    } else if (modelSize === LLMModelSize.LARGE) {
-      modelFuncs.push(this.llmImpl.executeCompletionLarge.bind(this.llmImpl));
-    } else if (modelSize === LLMModelSize.SMALL_PLUS) {
-      modelFuncs.push(this.llmImpl.executeCompletionSmall.bind(this.llmImpl));
-      modelFuncs.push(this.llmImpl.executeCompletionLarge.bind(this.llmImpl));
+    if (modelSize === LLMModelQuality.REGULAR) {
+      modelFuncs.push(this.llmImpl.executeCompletionRegular.bind(this.llmImpl));
+    } else if (modelSize === LLMModelQuality.PREMIUM) {
+      modelFuncs.push(this.llmImpl.executeCompletionPremium.bind(this.llmImpl));
+    } else if (modelSize === LLMModelQuality.REGULAR_PLUS) {
+      modelFuncs.push(this.llmImpl.executeCompletionRegular.bind(this.llmImpl));
+      modelFuncs.push(this.llmImpl.executeCompletionPremium.bind(this.llmImpl));
     }
     
     return modelFuncs;
@@ -229,30 +225,30 @@ class LLMRouter {
   /**
    * Adjust the model size based on availability and log warnings if necessary.
    */
-  private adjustModelSizesBasedOnAvailability(modelSizesSupported: LLMModelSize[], modelSize: LLMModelSize): LLMModelSize {
+  private adjustModelSizesBasedOnAvailability(modelSizesSupported: LLMModelQuality[], modelSize: LLMModelQuality): LLMModelQuality {
     if (!modelSizesSupported || modelSizesSupported.length <= 0) {
       throw new Error("The LLM implementation doesn't implement a completions model of any size");
     }
 
-    if (modelSize === LLMModelSize.SMALL || modelSize === LLMModelSize.SMALL_PLUS) {
-      if (!modelSizesSupported.includes(LLMModelSize.SMALL)) {
-        if (!this.loggedMissingSmallModelWarning) {
-          this.log("WARNING: Requested LLM completion model size of small does not exist, so only using large size model");
-          this.loggedMissingSmallModelWarning = true;
+    if (modelSize === LLMModelQuality.REGULAR || modelSize === LLMModelQuality.REGULAR_PLUS) {
+      if (!modelSizesSupported.includes(LLMModelQuality.REGULAR)) {
+        if (!this.loggedMissingRegularModelWarning) {
+          this.log("WARNING: Requested LLM completion model type of 'regular' does not exist, so only using 'premium' model");
+          this.loggedMissingRegularModelWarning = true;
         }
 
-        modelSize = LLMModelSize.LARGE;
+        modelSize = LLMModelQuality.PREMIUM;
       }
     }
 
-    if (modelSize === LLMModelSize.LARGE || modelSize === LLMModelSize.SMALL_PLUS) {
-      if (!modelSizesSupported.includes(LLMModelSize.LARGE)) {
-        if (!this.loggedMissingLargeModelWarning) {
-          this.log("WARNING: Requested LLM completion model size of large does not exist, so only using small size model");
-          this.loggedMissingLargeModelWarning = true;
+    if (modelSize === LLMModelQuality.PREMIUM || modelSize === LLMModelQuality.REGULAR_PLUS) {
+      if (!modelSizesSupported.includes(LLMModelQuality.PREMIUM)) {
+        if (!this.loggedMissingPremiumModelWarning) {
+          this.log("WARNING: Requested LLM completion model type of 'premium' does not exist, so only using 'reular' model");
+          this.loggedMissingPremiumModelWarning = true;
         }
 
-        modelSize = LLMModelSize.SMALL;
+        modelSize = LLMModelQuality.REGULAR;
       }
     }
 

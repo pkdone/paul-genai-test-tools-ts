@@ -3,16 +3,21 @@ import { VertexAI, ModelParams, RequestOptions, FinishReason, HarmCategory, Harm
          IllegalArgumentError } from "@google-cloud/vertexai";
 import { getEnvVar } from "../../utils/envvar-utils";
 import envConst from "../../types/env-constants";
-import { llmConst } from "../../types/llm-constants";
-import { LLMInvocationPurpose, LLMResponseStatus, LLMModelSizeNames, LLMContext,
+import { llmConst, llmAPIErrorPatterns } from "../../types/llm-constants";
+import { GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15, GCP_COMPLETIONS_MODEL_GEMINI_PRO15 } from "../../types/llm-models";
+import { LLMPurpose, LLMConfiguredModelTypes, LLMContext,
          LLMFunctionResponse } from "../../types/llm-types";
-import AbstractLLM from "./abstract-llm";
+import AbstractLLM from "../abstract-llm";
+
+
+// Constants
+const VERTEXAI_TERMINAL_FINISH_REASONS = [FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT, FinishReason.RECITATION, FinishReason.SAFETY, FinishReason.SPII];
 
 
 /**
  * Class for the GCP Vertex AI Gemini service.
  */
-export class GcpVertexAIGemini extends AbstractLLM {
+class GcpVertexAIGemini extends AbstractLLM {
   // Private fields
   private client: VertexAI;
 
@@ -21,7 +26,7 @@ export class GcpVertexAIGemini extends AbstractLLM {
    * Constructor
    */
   constructor() {
-    super(llmConst.GCP_API_EMBEDDINGS_MODEL_GECKO, llmConst.GCP_API_COMPLETIONS_MODEL_SMALL_GEMINI, llmConst.GCP_API_COMPLETIONS_MODEL_LARGE_GEMINI);
+    super(GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15, GCP_COMPLETIONS_MODEL_GEMINI_PRO15);
     const project = getEnvVar<string>(envConst.ENV_GCP_API_PROJECTID);
     const location = getEnvVar<string>(envConst.ENV_GCP_API_LOCATION);
     this.client = new VertexAI({project, location});
@@ -31,11 +36,11 @@ export class GcpVertexAIGemini extends AbstractLLM {
   /**
    * Get the names of the models this plug-in provides.
    */
-  public getModelsNames(): LLMModelSizeNames {
+  public getModelsNames(): LLMConfiguredModelTypes {
     return {
-      embeddings: llmConst.GCP_API_EMBEDDINGS_MODEL_GECKO,
-      small: llmConst.GCP_API_COMPLETIONS_MODEL_SMALL_GEMINI,
-      large: llmConst.GCP_API_COMPLETIONS_MODEL_LARGE_GEMINI,
+      embeddings: GCP_EMBEDDINGS_MODEL_ADA_GECKO,
+      regular: GCP_COMPLETIONS_MODEL_GEMINI_FLASH15,
+      premium: GCP_COMPLETIONS_MODEL_GEMINI_PRO15,
     };
   }  
 
@@ -43,39 +48,37 @@ export class GcpVertexAIGemini extends AbstractLLM {
   /**
    * Execute the prompt against the LLM and return the LLM's answer.
    */
-  protected async runLLMTask(model: string, taskType: LLMInvocationPurpose, prompt: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse> {
-    let result: LLMFunctionResponse = { status: LLMResponseStatus.UNKNOWN, request: prompt, context };
+  protected async runLLMTask(model: string, taskType: LLMPurpose, prompt: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse> {
     
     try {
+      // Invoke LLM
       const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, model)
       const llm = this.client.getGenerativeModel(modelParams, requestOptions);
       const llmResponses = await llm.generateContent(prompt);
       const usageMetadata = llmResponses?.response?.usageMetadata;
       const llmResponse = llmResponses?.response?.candidates?.[0];
-      const finishReason = llmResponse?.finishReason ?? FinishReason.OTHER;      
+      if (!llmResponse) throw new Error("LLM response was completely empty");
+
+      // Capture response content
       const responseContent = llmResponse?.content?.parts?.[0]?.text ?? "";
 
-      if (finishReason === FinishReason.STOP) {
-        if (!responseContent) throw new Error("LLM response was empty");
-        result = this.postProcessAsJSONIfNeededGettingNewResult(result, model, taskType, responseContent, doReturnJSON);          
-      } else if ([FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT, FinishReason.RECITATION, FinishReason.SAFETY, FinishReason.SPII].includes(finishReason)) {
-        throw new Error(`LLM response was not safely completed - reason given: ${finishReason}`);
-      } else {
-        const promptTokens = usageMetadata?.promptTokenCount;
-        const completionTokens = usageMetadata?.candidatesTokenCount;
-        const totalTokens = usageMetadata?.totalTokenCount;
-        const tokensUage = this.extractTokensAmountFromMetadataOrGuessFromContent(model, prompt, responseContent, promptTokens, completionTokens, totalTokens)
-        Object.assign(result, { status: LLMResponseStatus.EXCEEDED, tokensUage});  
-      }
-    } catch (error: unknown) {
-      if (this.isLLMOverloaded(error)) {
-        Object.assign(result, { status: LLMResponseStatus.OVERLOADED });  
-      } else {
-        throw error;
-      }
-    }
+      // Capture response reason
+      const finishReason = llmResponse?.finishReason ?? FinishReason.OTHER;      
+      if (VERTEXAI_TERMINAL_FINISH_REASONS.includes(finishReason)) throw new Error(`LLM response was not safely completed - reason given: ${finishReason}`);
+      const isIncompleteResponse = ((finishReason !== FinishReason.STOP)) || (!responseContent);
+      
+      // Capture token usage
+      const promptTokens = usageMetadata?.promptTokenCount ?? -1;
+      const completionTokens = usageMetadata?.candidatesTokenCount ?? -1;
+      const maxTotalTokens = -1;  // Not using "usageMetadata?.totalTokenCount" as that is total of prompt + cpompletion tokens tokens and not the max limit
+      const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
 
-    return result;
+      // Process successful response
+      return this.captureLLMResponseFromSuccessfulCall(prompt, context, isIncompleteResponse, model, responseContent, tokenUsage, taskType, doReturnJSON);
+    } catch (error: unknown) {
+      // Process error response
+      return this.captureLLMResponseFromThrownError(error, prompt, context, model, llmAPIErrorPatterns.VERTEXAI_ERROR_MSG_TOKENS_PATTERNS);
+    }
   }
 
 
@@ -111,13 +114,21 @@ export class GcpVertexAIGemini extends AbstractLLM {
   /**
    * See if the respnse error indicated that the LLM was overloaded.
    */
-  private isLLMOverloaded(error: unknown): boolean {  
-    if ((error instanceof GoogleApiError) && (error.code === 429)) {
-      return true;
-    }
+  protected isLLMOverloaded(error: unknown): boolean {  
+    // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
 
     if (error instanceof Error) {
-      const errMsg = error.message.toLowerCase();
+      const errMsg = error.message?.toLowerCase() || "";
+
+      if ((error instanceof GoogleApiError) && 
+          (error.code === 429)) {
+        return true;
+      }
+
+      if ((error instanceof ClientError) && 
+          (errMsg.includes("429 too many requests"))) {
+        return true;
+      }      
 
       if ((errMsg.includes("reason given: recitation")) ||
           (errMsg.includes("exception posting request to model"))) {
@@ -125,31 +136,30 @@ export class GcpVertexAIGemini extends AbstractLLM {
       }
     }
 
-    if (error instanceof GoogleApiError) {
-      console.log("GoogleApiError");
-      return false;
-    }
-
-    if (error instanceof ClientError) {
-      console.log("ClientError");
-      return false;
-    }
-    
-    if (error instanceof GoogleAuthError) {
-      console.log("GoogleAuthError");
-      return false;
-    }
-
-    if (error instanceof GoogleGenerativeAIError) {
-      console.log("GoogleGenerativeAIError");
-      return false;
-    }
-
-    if (error instanceof IllegalArgumentError) {
-      console.log("IllegalArgumentError");
-      return false;
-    }
-
     return false;
   }  
+
+
+  /**
+   * Check to see if error code indicates potential token limit has been execeeded - this should
+   * not occur with error object thrown so always returns false
+   */
+  protected isTokenLimitExceeded(error: unknown): boolean {    
+    return false;
+  }  
+  
+
+  /** 
+   * Debug currently non-checked error types.
+   */
+  private debugCurrentlyNonCheckedErrorTypes(error: unknown) {
+    if (error instanceof GoogleApiError) console.log(`GoogleApiError ${error.message}`);
+    if (error instanceof ClientError) console.log(`ClientError ${error.message}`);
+    if (error instanceof GoogleAuthError) console.log(`GoogleAuthError ${error.message}`);
+    if (error instanceof GoogleGenerativeAIError) console.log(`GoogleGenerativeAIError ${error.message}`);
+    if (error instanceof IllegalArgumentError) console.log(`IllegalArgumentError ${error.message}`);
+  }
 }
+
+
+export default GcpVertexAIGemini;

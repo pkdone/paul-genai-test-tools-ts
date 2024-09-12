@@ -5,7 +5,7 @@ A personal playground for experiencing LLMs and GenAI, in general - may not be u
 Current test tools:
 
 * Test a MongoDB Connection (`src/test-mdb-connection.ts`)
-* Test various LLM providers models - embeddings models + completions small/large models (`src/test-pluggable-llm.ts`)
+* Test various LLM providers models - embeddings models + completions regular/premium models (`src/test-pluggable-llm.ts`)
 * Test an LLM under load, analyzing files in a codebase concurrently (`src/test-treewalk-llm.ts`)
 * Test giving all the source files in one go in a prompt, with a question, to an LLM that has a large token size limit (`src/test-merge-all-files-llm.ts`)
 
@@ -27,8 +27,8 @@ Current test tools:
 1. Ensure you have can leverage LLMs from OpenAI, Azure OpenAI, GCP Vertex AI or AWS Bedrock API, with the following three models types available to use, along with appropriate API keys / credentials:
 
     -  __Embeddings model__ for generating vector embeddings 
-    -  __Text completions model with small token limit__ for generating text and JSON content for dealing with small inputs 
-    -  __Text completions model with large token limit__ for generating text and JSON content for dealing with large inputs 
+    -  __Text completions 'regular'model, typically with a small token limit__ for generating text and JSON content for dealing with smaller inputs 
+    -  __Text completions 'premium' model, typically with a large token limit__ for generating text and JSON content for dealing with larger inputs 
 
 1. From the root folder of this project, run the following command to copy an example environment configuration file to a new file into the same root folder called `.env`, and then edit the values for the properties shown in this new `.env` file to reflect your specific environment settings:
 
@@ -49,7 +49,7 @@ It is easiest to debug using VS Code and by following these steps:
 1. Execute the pre-configured task _Run and Debug TypeScript_
     - this will run the Typescript compiler first, and then, if successful, it will run the program in debug mode, showing its output in the _Debug Console_ of the _Status Bar_ (bottom panel). 
 
-You can also run the "test" TypeScript files from the terminal using the `node` command.
+You can also run the "dist/test*.js" JavaScript files (first compiled from TypeScript using the `tsc` command) from the terminal using the `node` command.
 
 
 ## Running The Project's Unit Tests
@@ -59,3 +59,33 @@ Execute the 'test' command from the project's root folder.
   ```console
   npm test
   ```
+
+
+## Application to LLM Authentication Notes
+
+### OpenAI / Azure
+
+Specify your API key for that service in `.env`.
+
+
+### GCP Vertex AI
+
+```console
+gcloud auth login
+gcloud auth application-default login
+```
+
+### AWS Bedrock
+
+Use MDB MANA access to AWS accounts to get SSO start URL, then using the AWS CLI run:
+
+```console
+aws configure sso
+```
+
+Then edit the file `~/.aws/config` and rename the line `[profile ...]` for the newly generated profile section `[default]` instead, then run:
+
+```
+aws sso login
+aws sts get-caller-identity        # tests cli works
+```

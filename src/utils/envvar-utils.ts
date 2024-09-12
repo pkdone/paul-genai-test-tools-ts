@@ -15,15 +15,15 @@ config();
 export function getEnvVar<T = unknown>(envVarName: string, defaultValue: T | undefined = undefined): T {
   const value = process.env[envVarName];
 
-  if (value === undefined) {
-    if (defaultValue === undefined) {
-      throw new Error(`Environment variable "${envVarName}" is not set.`);
+  if (!value) {
+    if (!defaultValue) {
+      throw new Error(`Environment variable "${envVarName}" is not set`);
     } else {
       return defaultValue;
     }
+  } else {
+    return convertToType(value) as T;
   }
-
-  return convertToType(value) as T;
 }
 
 

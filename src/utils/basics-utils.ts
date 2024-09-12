@@ -56,7 +56,7 @@ export async function clearDirectory(dirPath: string) {
         jobs.push((async () => {
           try {
             await fs.rm(filePath, { recursive: true, force: true });
-          } catch (error: any) {            
+          } catch (error: any) {                        
             if (error.code !== "ENOENT") {
               console.error(`When clearing a directory, unable to remove the file: ${filePath}`, error.message, error.stack);    
             }

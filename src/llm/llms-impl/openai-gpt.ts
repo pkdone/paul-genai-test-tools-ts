@@ -1,8 +1,11 @@
-import { OpenAI } from "openai";
+import { OpenAI, BadRequestError, AuthenticationError, PermissionDeniedError, NotFoundError, 
+         UnprocessableEntityError, RateLimitError, InternalServerError } from "openai";
 import envConst from "../../types/env-constants";
 import { getEnvVar } from "../../utils/envvar-utils";
 import { llmConst } from "../../types/llm-constants";
-import { LLMModelSizeNames } from "../../types/llm-types";
+import { GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3, GPT_COMPLETIONS_MODEL_GPT4_TURBO,
+         GPT_COMPLETIONS_MODEL_GPT4_O } from "../../types/llm-models";
+import { LLMConfiguredModelTypes, LLMError } from "../../types/llm-types";
 import AbstractGPT from "./abstract-gpt";
 
 
@@ -20,7 +23,7 @@ class OpenAIGPT extends AbstractGPT {
   constructor() { 
     const apiKey = getEnvVar<string>(envConst.ENV_OPENAI_LLM_API_KEY);
     if (!apiKey) throw new Error("The following environment variable must be specified if using OpenAI: 'OPENAI_LLM_API_KEY'");
-    super(llmConst.GPT_API_EMBEDDINGS_MODEL, llmConst.GPT_API_COMPLETIONS_MODEL_SMALL, llmConst.GPT_API_COMPLETIONS_MODEL_XLARGE);
+    super(GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3, GPT_COMPLETIONS_MODEL_GPT4_O, GPT_COMPLETIONS_MODEL_GPT4_O);
     this.client = new OpenAI({ apiKey })       
   }
 
@@ -28,11 +31,11 @@ class OpenAIGPT extends AbstractGPT {
   /**
    * Get the names of the models this plug-in provides.
    */ 
-  public getModelsNames(): LLMModelSizeNames {
+  public getModelsNames(): LLMConfiguredModelTypes {
     return {
-      embeddings: llmConst.GPT_API_EMBEDDINGS_MODEL,
-      small: llmConst.GPT_API_COMPLETIONS_MODEL_SMALL,
-      large: llmConst.GPT_API_COMPLETIONS_MODEL_XLARGE,
+      embeddings: GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3,
+      regular: GPT_COMPLETIONS_MODEL_GPT4_TURBO,
+      premium: GPT_COMPLETIONS_MODEL_GPT4_O,
     };
   }
 
@@ -56,6 +59,37 @@ class OpenAIGPT extends AbstractGPT {
       messages: [{ role: "user", content: prompt } ],
     };
     return await this.client.chat.completions.create(params);
+  }
+
+
+  /**
+   * See if an error object indicates a network issue or throttling event.
+   */
+  protected isLLMOverloaded(error: unknown): boolean {
+    // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
+    return ((error instanceof RateLimitError) || (error instanceof InternalServerError));
+  }
+
+
+  /**
+   * Check to see if error code indicates potential token limit has been exceeded.
+   */
+  protected isTokenLimitExceeded(error: unknown): boolean {
+    const llmError = error as LLMError;
+    return llmError.code === "context_length_exceeded" ||
+           llmError.type === "invalid_request_error";
+  }
+  
+  
+  /** 
+   * Debug currently non-checked error types.
+   */
+  private debugCurrentlyNonCheckedErrorTypes(error: unknown) {
+    if (error instanceof BadRequestError) console.log("BadRequestError");
+    if (error instanceof AuthenticationError) console.log("AuthenticationError");
+    if (error instanceof PermissionDeniedError) console.log("PermissionDeniedError");
+    if (error instanceof NotFoundError) console.log("NotFoundError");
+    if (error instanceof UnprocessableEntityError) console.log("UnprocessableEntityError");
   }
 }
 

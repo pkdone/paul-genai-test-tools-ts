@@ -93,7 +93,7 @@ export async function withRetry<T>(
  * @param {RetryFunc<T>} asyncTryFunc - The asynchronous function to attempt, which can be any function returning a Promise<T>.
  * @param {unknown[]} args - Arguments to pass to the `asyncTryFunc`.
  * @param {boolean} logTimeouts - If true, logs timeout errors to the console.
- * @returns {Promise<T | undefined>} A promise that resolves with the function's return value or undefined if a timeout occurs.
+ * @returns {Promise<T | null>} A promise that resolves with the function's return value or undefined if a timeout occurs.
  * @throws {Error} Any error other than RetryableTimeoutError is thrown to be handled by the caller.
  */
 async function executeFunctionWithTimeout<T>(

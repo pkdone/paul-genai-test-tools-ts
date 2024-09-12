@@ -10,7 +10,7 @@ class LLMStats {
   private statusTypes: LLMStatsCategoriesSummary = {
     SUCCESS: { description: "LLM invocation suceeded", symbol: ">", count: 0 },
     FAILURE: { description: "LLM invocation failed so no data produced", symbol: "!", count: 0 },
-    STEPUP: { description: "Stepped up to LLM with larger tokens limit", symbol: "+", count: 0 },
+    STEPUP: { description: "Stepped up to a premimum LLM to hopeully provide larger tokens limit", symbol: "+", count: 0 },
     RETRY: { description: "Retried calling LLM due to overload or network issue", symbol: "?", count: 0 },
     CROP: { description: "Cropping prompt due to excessive size, before resending", symbol: "-", count: 0 },
   };
@@ -57,8 +57,8 @@ class LLMStats {
 
 
   /**
-   * Log reactive truncate event occurrence, due to be told a smaller size to crop to, and print
-   * its symbol
+   * Log reactive truncate event occurrence, capturing that a smaller size prompt is required by 
+   * cropping, and print its symbol
    */
   public recordCrop(): void {
     this.record(this.statusTypes.CROP);
