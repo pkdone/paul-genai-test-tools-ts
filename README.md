@@ -1,4 +1,4 @@
-# Paul's GenAI Test Tools (Typescript)
+# Paul's GenAI Test Tools (using TypeScript)
 
 A personal playground for experiencing LLMs and GenAI, in general - may not be useful to others. 
 
@@ -16,7 +16,7 @@ Current test tools:
 
     - [Node.js JavaScript runtime](https://nodejs.dev/en/download/package-manager/)
     - [`npm` package manager CLI](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-    - [Typescript npm package](https://www.npmjs.com/package/typescript)
+    - [TypeScript npm package](https://www.npmjs.com/package/typescript)
   
 1. Install the project's required Node/NPM packages. 
 
@@ -47,9 +47,9 @@ It is easiest to debug using VS Code and by following these steps:
 1. In the _Explorer_ select the "src/test-*.ts" file you want to run
 1. From the _Activity Bar_ (left panel), select the _Run and Debug_ view
 1. Execute the pre-configured task _Run and Debug TypeScript_
-    - this will run the Typescript compiler first, and then, if successful, it will run the program in debug mode, showing its output in the _Debug Console_ of the _Status Bar_ (bottom panel). 
+    - this will run the TypeScript compiler first, and then, if successful, it will run the program in debug mode, showing its output in the _Debug Console_ of the _Status Bar_ (bottom panel). 
 
-You can also run the "dist/test*.js" JavaScript files (first compiled from TypeScript using the `tsc` command) from the terminal using the `node` command.
+You can also run the `node dist/test*.js` JavaScript files (first compiled from TypeScript using the `tsc` command) from the terminal using the `node` command.
 
 
 ## Running The Project's Unit Tests
@@ -65,7 +65,7 @@ Execute the 'test' command from the project's root folder.
 
 ### OpenAI / Azure
 
-Specify your API key for that service in `.env`.
+Specify your API key for your own OpenAI or Azure service in `.env`.
 
 
 ### GCP Vertex AI
@@ -77,7 +77,7 @@ gcloud auth application-default login
 
 ### AWS Bedrock
 
-Use MDB MANA access to AWS accounts to get SSO start URL, then using the AWS CLI run:
+Use MDB MANA to access to AWS accounts to get SSO start URL, then using the AWS CLI run:
 
 ```console
 aws configure sso
@@ -85,7 +85,7 @@ aws configure sso
 
 Then edit the file `~/.aws/config` and rename the line `[profile ...]` for the newly generated profile section `[default]` instead, then run:
 
-```
+``` console
 aws sso login
 aws sts get-caller-identity        # tests cli works
 ```
