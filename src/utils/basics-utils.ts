@@ -56,8 +56,8 @@ export async function clearDirectory(dirPath: string) {
         jobs.push((async () => {
           try {
             await fs.rm(filePath, { recursive: true, force: true });
-          } catch (error: any) {                        
-            if (error.code !== "ENOENT") {
+          } catch (error: unknown) {
+            if (error instanceof Error && "code" in error && error.code !== 'ENOENT') {
               console.error(`When clearing a directory, unable to remove the file: ${filePath}`, error.message, error.stack);    
             }
           }
@@ -66,8 +66,8 @@ export async function clearDirectory(dirPath: string) {
     }
 
     await Promise.all(jobs);
-  } catch (error: any) {
-    if (error.code !== "ENOENT") {
+  } catch (error: unknown) {
+    if (error instanceof Error && "code" in error && error.code !== 'ENOENT') {
       console.error(`Unable to recursively clear contents of directory: ${dirPath}`, error, error.stack);
     }
   }

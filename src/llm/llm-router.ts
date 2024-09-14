@@ -1,9 +1,9 @@
 import { llmConst } from "../types/llm-constants";
-import { llmModels } from "../types/llm-models";
 import { withRetry } from "../utils/control-utils";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
-         LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse, LLMResponseTokensUsage } 
+         LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } 
   from "../types/llm-types";
+import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import LLMStats from "./llm-stats";
 import OpenAIGPT from "./llms-impl/openai-gpt";
 import AzureOpenAIGPT from "./llms-impl/azure-openai-gpt";
@@ -27,6 +27,7 @@ class LLMRouter {
   private doLogEachResource: boolean;
   private loggedMissingRegularModelWarning: boolean;
   private loggedMissingPremiumModelWarning: boolean;
+  private loggedMissingModelWarning: { [key: string]: boolean } = { regular: false, premium: false };
 
 
   /**
@@ -89,24 +90,24 @@ class LLMRouter {
 
 
   /**
-   * Send the prompt to the LLM for a particular model context size and retrieve the LLM's answer.
+   * Send the prompt to the LLM for a particular model quality and retrieve the LLM's answer.
    *
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  public async executeCompletion(resourceName: string, prompt: string, modelSize: LLMModelQuality, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
+  public async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQuality, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
     context.purpose = LLMPurpose.COMPLETION;
-    const modelSizesSupported = this.llmImpl.getAvailableCompletionModelSizes();
-    modelSize = this.adjustModelSizesBasedOnAvailability(modelSizesSupported, modelSize);
-    context.modelQuality = (modelSize === LLMModelQuality.REGULAR_PLUS) ? LLMModelQuality.REGULAR : modelSize;
-    const result = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, this.getModelSizeCompletionFunctions(modelSize), doReturnJSON);
+    const modelQualitiesSupported = this.llmImpl.getAvailableCompletionModelQualities();
+    startingModelQuality = this.adjustStartingModelQualityBasedOnAvailability(modelQualitiesSupported, startingModelQuality);
+    context.modelQuality = (startingModelQuality === LLMModelQuality.REGULAR_PLUS) ? LLMModelQuality.REGULAR : startingModelQuality;
+    const result = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, this.getModelQualityCompletionFunctions(startingModelQuality), doReturnJSON);
     return result;
   }  
 
 
   /**
    * Executes an LLM function applying a series of before and after non-functional aspects (e.g.
-   * retries, stepping up LLM context window sizes, truncating large prompts)..
+   * retries, stepping up LLM qualities, truncating large prompts)..
    *
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
@@ -134,9 +135,9 @@ class LLMRouter {
 
           if ((llmFuncIndex + 1) >= llmFuncs.length) { 
             if (!llmResponse.tokensUage) throw new Error("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present");
-            currentPrompt = this.reducePromptSizeToTokenLimit(currentPrompt, llmResponse.model, llmResponse.tokensUage );
+            currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.model, llmResponse.tokensUage );
             this.llmStats.recordCrop();
-            continue;  // Don't attempt to move up to next [non-existent] LLM size - want to try current LLM with ths cut down prompt size
+            continue;  // Don't attempt to move up to next [non-existent] LLM quality - want to try current LLM with ths cut down prompt size
           }  
         } else {
           throw new Error(`An unknown error occurred while attempting to process prompt for completion for resource '${resourceName}'`);
@@ -149,8 +150,7 @@ class LLMRouter {
           this.llmStats.recordStepUp();
         }
       } catch (error: unknown) {
-        const baseError = error as Error;
-        this.logErrWithContext(baseError, context);
+        this.logErrWithContext(error, context);
         break;
       }
     }
@@ -162,29 +162,6 @@ class LLMRouter {
 
     return result;
   } 
-
-
-  /**
-   * Reduce the size of the prompt to be inside the LLM's indicated token limit.
-   */
-  private reducePromptSizeToTokenLimit(prompt: string, model: string, tokensUage: LLMResponseTokensUsage): string {
-    const { promptTokens, completionTokens, maxTotalTokens } = tokensUage;
-    const maxCompletionTokensLimit = llmModels[model].maxCompletionTokens; // will be undefined if for embeddings
-    let reductionRatio = 1;
-    
-    // If all the LLM#s available completion tokens have been consumed then will need to reduce prompt size to try influence any subsequenet generated completion to be smaller
-    if (maxCompletionTokensLimit && (completionTokens >= (maxCompletionTokensLimit - llmConst.COMPLETION_MAX_TOKENS_LIMIT_BUFFER))) {
-      reductionRatio = Math.min((maxCompletionTokensLimit / (completionTokens + 1)), llmConst.COMPLETION_TOKENS_REDUCE_MIN_RATIO);
-    }
-
-    // If the total tokens used is more than the total tokens available then reduce the prompt size proportionally
-    if (reductionRatio >= 1) {
-      reductionRatio = Math.min((maxTotalTokens / (promptTokens + completionTokens + 1)), llmConst.PROMPT_TOKENS_REDUCE_MIN_RATIO);
-    }
-
-    const newPromptSize = Math.floor(prompt.length * reductionRatio);
-    return prompt.substring(0, newPromptSize);
-  }
 
 
   /**
@@ -204,16 +181,17 @@ class LLMRouter {
 
 
   /**
-   * Retrieve the functions to be used based on the model size.
+   * Retrieve the specific LLM's embedding/completion functions to be used based on the desired
+   * model quality.
    */
-  private getModelSizeCompletionFunctions(modelSize: LLMModelQuality): LLMFunction[] {
+  private getModelQualityCompletionFunctions(modelQuality: LLMModelQuality): LLMFunction[] {
     const modelFuncs = [];
     
-    if (modelSize === LLMModelQuality.REGULAR) {
+    if (modelQuality === LLMModelQuality.REGULAR) {
       modelFuncs.push(this.llmImpl.executeCompletionRegular.bind(this.llmImpl));
-    } else if (modelSize === LLMModelQuality.PREMIUM) {
+    } else if (modelQuality === LLMModelQuality.PREMIUM) {
       modelFuncs.push(this.llmImpl.executeCompletionPremium.bind(this.llmImpl));
-    } else if (modelSize === LLMModelQuality.REGULAR_PLUS) {
+    } else if (modelQuality === LLMModelQuality.REGULAR_PLUS) {
       modelFuncs.push(this.llmImpl.executeCompletionRegular.bind(this.llmImpl));
       modelFuncs.push(this.llmImpl.executeCompletionPremium.bind(this.llmImpl));
     }
@@ -223,36 +201,49 @@ class LLMRouter {
 
 
   /**
-   * Adjust the model size based on availability and log warnings if necessary.
+   * Adjust the starting model quality used based on availability and log warnings if necessary.
    */
-  private adjustModelSizesBasedOnAvailability(modelSizesSupported: LLMModelQuality[], modelSize: LLMModelQuality): LLMModelQuality {
-    if (!modelSizesSupported || modelSizesSupported.length <= 0) {
-      throw new Error("The LLM implementation doesn't implement a completions model of any size");
+  private adjustStartingModelQualityBasedOnAvailability(invocableModelQualitiesAvailable: LLMModelQuality[], startingModelQuality: LLMModelQuality): LLMModelQuality {
+    if (!invocableModelQualitiesAvailable || invocableModelQualitiesAvailable.length <= 0) {
+      throw new Error("The LLM implementation doesn't implement any completions model quality");
     }
 
-    if (modelSize === LLMModelQuality.REGULAR || modelSize === LLMModelQuality.REGULAR_PLUS) {
-      if (!modelSizesSupported.includes(LLMModelQuality.REGULAR)) {
-        if (!this.loggedMissingRegularModelWarning) {
-          this.log("WARNING: Requested LLM completion model type of 'regular' does not exist, so only using 'premium' model");
-          this.loggedMissingRegularModelWarning = true;
+    startingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
+      [LLMModelQuality.REGULAR, LLMModelQuality.REGULAR_PLUS], 
+      startingModelQuality, 
+      invocableModelQualitiesAvailable, 
+      LLMModelQuality.REGULAR,
+      llmConst.REGULAR_MODEL_QUALITY_NAME, 
+      LLMModelQuality.PREMIUM,
+      llmConst.PREMIUM_MODEL_QUALITY_NAME);
+    startingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
+        [LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS], 
+        startingModelQuality, 
+        invocableModelQualitiesAvailable, 
+        LLMModelQuality.PREMIUM,
+        llmConst.PREMIUM_MODEL_QUALITY_NAME, 
+        LLMModelQuality.REGULAR,
+        llmConst.REGULAR_MODEL_QUALITY_NAME);
+    return startingModelQuality;
+  }
+
+
+  /**
+   * Function to adjust the model quality used based on availability and log warning if necessary.
+   */
+  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQuality[], startingModelQuality: LLMModelQuality, invocableModelQualitiesAvailable: LLMModelQuality[], targetModelQuality: LLMModelQuality, targetModelQualityName: string, fallbackModelQuality: LLMModelQuality, fallbackModelQualityName: string) {
+    if (categoryOfModelQualityOptions.includes(startingModelQuality)) {
+      if (!invocableModelQualitiesAvailable.includes(targetModelQuality)) {
+        if (!this.loggedMissingModelWarning[targetModelQualityName]) {
+          this.log(`WARNING: Requested LLM completion model type of '${targetModelQualityName}' does not exist, so will only attempt to use '${fallbackModelQualityName}' model`);
+          this.loggedMissingModelWarning[targetModelQualityName] = true;
         }
 
-        modelSize = LLMModelQuality.PREMIUM;
+        startingModelQuality = fallbackModelQuality;
       }
     }
 
-    if (modelSize === LLMModelQuality.PREMIUM || modelSize === LLMModelQuality.REGULAR_PLUS) {
-      if (!modelSizesSupported.includes(LLMModelQuality.PREMIUM)) {
-        if (!this.loggedMissingPremiumModelWarning) {
-          this.log("WARNING: Requested LLM completion model type of 'premium' does not exist, so only using 'reular' model");
-          this.loggedMissingPremiumModelWarning = true;
-        }
-
-        modelSize = LLMModelQuality.REGULAR;
-      }
-    }
-
-    return modelSize;
+    return startingModelQuality;
   }
 
 
@@ -284,8 +275,9 @@ class LLMRouter {
    * Log both the error content and also any context associated with work being done when the 
    * error occurred, add the context to the error object and then throw the augmented error.
    */
-  private logErrWithContext(error: Error, context: LLMContext): void {
-    console.error(error, error.stack);
+  private logErrWithContext(error: unknown, context: LLMContext): void {
+    const stack = (error instanceof Error) ? error.stack : undefined;
+    console.error(error, stack);
     const errAsJson = JSON.stringify(error);
 
     if (errAsJson && errAsJson.length > 5) {
@@ -319,10 +311,6 @@ class LLMRouter {
       }
     }
   }
-
-
-  // Unit test hooks into private methods
-  TEST_reducePromptSizeToTokenLimit = this.reducePromptSizeToTokenLimit;
 }
 
 

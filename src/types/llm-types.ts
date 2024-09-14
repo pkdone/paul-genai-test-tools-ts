@@ -95,29 +95,13 @@ export type LLMFunction = (content: string, doReturnJSON: boolean, context: LLMC
  */
 export interface LLMProviderImpl {
   getModelsNames(): LLMConfiguredModelTypes,
-  getAvailableCompletionModelSizes(): LLMModelQuality[],
+  getAvailableCompletionModelQualities(): LLMModelQuality[],
   generateEmbeddings: LLMFunction,
   executeCompletionRegular: LLMFunction,
   executeCompletionPremium: LLMFunction,
   close(): Promise<void>,
 };
 
-
-/**
- * Type to define the LLM error and its various optional properties
- */
-export type LLMError = {
-  code?: number | string,
-  message?: string,
-  status?: number | string,
-  type?: string,
-  error?: {
-    code?: number | string
-  },
-  response?: {
-    status?: number
-  },
-};
 
 
 /**

@@ -59,13 +59,15 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
           if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name)) {
             queue.push(fullPath);
           }
-        } else {
-          files.push(fullPath);
+        } else if (entry.isFile()) {
+          if (!entry.name.toLowerCase().startsWith(appConst.FILENAME_PREFIX_IGNORE)) {
+            files.push(fullPath);
+          }
         }
       }
     } catch (error) {
-      const baseError = error as Error;
-      console.error(`Failed to read directory: ${directory}`, baseError, baseError.stack);    
+      const stack = (error instanceof Error) ? error.stack : undefined;
+      console.error(`Failed to read directory: ${directory}`, error, stack);    
     }
   }
 
@@ -74,23 +76,14 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
 
 
 /**
- * Function to merge the content of all source files and ask questions of it to an LLM
+ * Function to merge the content of all source files and ask questions against it to an LLM
  */
 async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, filepaths: string[], srcDirPath: string) {
-  let mergedContent = "";
-
-  for (const filepath of filepaths) {
-    const relativeFilepath = filepath.replace(srcDirPath + "/", "");
-    const type = getFileSuffix(filepath).toLowerCase();
-    if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type)) continue;  // Skip file if it has binary content
-    const content = await readFile(filepath);
-    mergedContent += "\n``` " + relativeFilepath + "\n" + content.trim() + "\n```\n";
-  }
-
+  let codeBlocksContent = await mergeSourceFilesContent(filepaths, srcDirPath);
   const jobs = [];
   
   for (const prompt of PROMPTS) {
-    jobs.push(async () => executePromptAgainstCodebase(prompt, mergedContent, llmRouter));    
+    jobs.push(async () => executePromptAgainstCodebase(prompt, codeBlocksContent, llmRouter));    
   }
 
   const jobResults = await promiseAllThrottled<string>(jobs, appConst.MAX_CONCURRENCY);
@@ -99,31 +92,94 @@ async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, 
 
 
 /**
- * Function to execute a prompt against a codebase and return the result.
+ * Function to merge the content of all source files.
  */
-async function executePromptAgainstCodebase(prompt: TemplatePrompt, content: string, llmRouter: LLMRouter): Promise<string> {
+async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string) {
+  let mergedContent = "";
+
+  for (const filepath of filepaths) {
+    const relativeFilepath = filepath.replace(srcDirPath + "/", "");
+    const type = getFileSuffix(filepath).toLowerCase();
+    if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type)) continue; // Skip file if it has binary content
+    const content = await readFile(filepath);
+    mergedContent += "\n``` " + relativeFilepath + "\n" + content.trim() + "\n```\n";
+  }
+
+  return mergedContent;
+}
+
+
+/**
+ * Function to execute a prompt against a codebase and return the LLM's response.
+ */
+async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksContents: string, llmRouter: LLMRouter): Promise<string> {
   const resource = prompt.key;
   const context = { resource };
-  const promptWithPrefix = `${PROMPT_PREFIX}${prompt.question}`;
-  const fullPrompt = `${promptWithPrefix}${content}`;
+  const promptFirstPart = `${PROMPT_PREFIX} ${prompt.question} ${PROMPT_SUFFIX}`;
+  const fullPrompt = `${promptFirstPart}\n${codeBlocksContents}`;
   let response = "";
 
   try {
     response = await llmRouter.executeCompletion(resource, fullPrompt, LLMModelQuality.REGULAR_PLUS, false, context) as string;
   } catch (error) {
-    const baseError = error as Error;
-    console.error("Problem introspecting and processing source files", baseError, baseError.stack);    
-    response = baseError.message;
+    const stack = (error instanceof Error) ? error.stack : undefined;
+    console.error("Problem introspecting and processing source files", error, stack);    
+    const errMessage = (error instanceof Error) ? error.message : "Problem processing files";
+    response = errMessage;
   } 
 
-  return `\n< ${prompt.key}\n${promptWithPrefix}>\n\n${response}\n==========================================================\n\n`;
+  return `\n< ${prompt.key}\n${promptFirstPart}>\n\n${response}\n==========================================================\n\n`;
 }
 
 
 // Prompts
-const PROMPT_PREFIX = `Act as a programmer analyzing the code in a legacy application where the 
-content of each file in the application's codebase is shown below in a code block. `;
+const PROMPT_PREFIX = `Act as a programmer analyzing the code in a TypeScript application where the 
+content of each file in the application's codebase is shown below in a code block.`;
+const PROMPT_SUFFIX = `Provide references to the specific part(s) of the code that needs 
+improvement with suggestions on how to improve.`;
 const PROMPTS: TemplatePrompt[] = [
+  {
+    key: "KEY-IMPROVEMNTS",
+    question:
+`Identify the top 10 key areas to improve the code in terms of clarity, conciseness, following
+Javascript best practices, and ensuring the code is maintainable and scalable.`,
+  },
+  {
+    key: "BAD-COMMENTS",
+    question:
+`Identify the top 10 class/function comments which are innacurate or missing.`,
+  },  
+  {
+    key: "MODERN-JAVASCRIPT",
+    question:
+`Identify any bits of code which aren't fully leveraging the capabilities of the more modern aspects
+of newer versions of JavaScript up to the 14th Edition of ECMAScript (ECMAScript 2023).`,
+  },  
+  {
+    key: "BAD-PRACTICE",
+    question:
+`Identify any bits of code that could leverage 'const' rather then 'let' for variable declarations.`,
+  },    
+  {
+    key: "CODE-ORGANIZATION",
+    question:
+`Identify what parts of the codebase are not well-organized, and highlight which files contain
+ multiple unrelated functions.`,
+  },    
+  {
+    key: "CODE-CONSISTENCY",
+    question:
+`Identify what parts of the codebase use an inconsistent coding style, such as different
+indentation levels and variable naming conventions.`,
+  },    
+];
+
+
+// Alternate Prompts
+const PROMPT_PREFIX_ALT = `Act as a programmer analyzing the code in a legacy application where the 
+content of each file in the application's codebase is shown below in a code block.`;
+const PROMPT_SUFFIX_ALT = ``;
+const PROMPTS_ALT: TemplatePrompt[] = [
   {
     key: "DETAILED-DESCRIPTION",
     question:
@@ -134,7 +190,7 @@ const PROMPTS: TemplatePrompt[] = [
     key: "BUSINESS-PROCESSES",
     question:
 `Provide a list of the inherent business processes (a collection tasks to achieve a business goal 
-for the user or the system) that exist across the software applications's codebase,
+for the user or the system) that exist across the software applications's codebase.
 `
   },
   {

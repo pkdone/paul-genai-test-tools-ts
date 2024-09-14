@@ -46,8 +46,8 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
     try {
       this.client.destroy();
     } catch (error: unknown) {
-      const baseError = error as Error;
-      console.error("Error when calling destroy on AWSBedroc LLM", baseError, baseError.stack);
+      const stack = (error instanceof Error) ? error.stack : undefined;
+      console.error("Error when calling destroy on AWSBedroc LLM", error, stack);
     }
   }
 

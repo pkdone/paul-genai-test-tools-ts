@@ -4,7 +4,8 @@ import { getEnvVar } from "../../utils/envvar-utils";
 import { llmConst } from "../../types/llm-constants";
 import { GPT_EMBEDDINGS_MODEL_ADA002, GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k } 
        from "../../types/llm-models";
-import { LLMConfiguredModelTypes, LLMError } from "../../types/llm-types";
+import { LLMConfiguredModelTypes } from "../../types/llm-types";
+import { GPTLLMError } from "../../types/gpt-types";
 import AbstractGPT from "./abstract-gpt";
 
 
@@ -67,7 +68,7 @@ class AzureOpenAIGPT extends AbstractGPT {
    * See if an error object indicates a network issue or throttling event.
    */
   protected isLLMOverloaded(error: unknown): boolean {
-    const llmError  = error as LLMError;
+    const llmError  = error as GPTLLMError;
     return llmError.code === 429 ||
            llmError.code === "429" || 
            llmError.status === 429 ||
@@ -81,7 +82,7 @@ class AzureOpenAIGPT extends AbstractGPT {
    * Check to see if error code indicates potential token limit has been exceeded.
    */
   protected isTokenLimitExceeded(error: unknown): boolean {
-    const llmError = error as LLMError;
+    const llmError = error as GPTLLMError;
     return llmError.code === "context_length_exceeded" ||
            llmError.type === "invalid_request_error";
   }

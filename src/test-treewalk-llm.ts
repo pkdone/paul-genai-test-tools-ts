@@ -51,8 +51,8 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
         }
       }
     } catch (error) {
-      const baseError = error as Error;
-      console.error(`Failed to read directory: ${directory}`, baseError, baseError.stack);    
+      const stack = (error instanceof Error) ? error.stack : undefined;
+      console.error(`Failed to read directory: ${directory}`, error, stack);    
     }
   }
 
@@ -61,7 +61,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
 
 
 /**
- * Function to feed files through LLM concurrently.
+ * Function to process files concurrently using the LLM.
  */
 async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, filepaths: string[]) {
   const jobs = [];
@@ -69,10 +69,10 @@ async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, filepaths: str
   for (const filepath of filepaths) {
     jobs.push(async () => {
       try {
-        await captureMetadataForFileFViaLLM(llmRouter, filepath);   
+        await captureMetadataForFileViaLLM(llmRouter, filepath);   
       } catch (error) {
-        const baseError = error as Error;
-        console.error("Problem introspecting and processing source files", baseError, baseError.stack);    
+        const stack = (error instanceof Error) ? error.stack : undefined;
+        console.error("Problem introspecting and processing source files", error, stack);    
       }
     });
   }
@@ -82,9 +82,9 @@ async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, filepaths: str
 
 
 /**
- * Function to capture metadata for a file via LLM.
+ * Function to capture metadata for a file using the LLM.
  */
-async function captureMetadataForFileFViaLLM(llmRouter: LLMRouter, filepath: string): Promise<void> {
+async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, filepath: string): Promise<void> {
   const type = getFileSuffix(filepath).toLowerCase();
   if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type)) return;  // Skip file if it has binary content
   let content = await readFile(filepath);
@@ -97,7 +97,7 @@ async function captureMetadataForFileFViaLLM(llmRouter: LLMRouter, filepath: str
 
 
 /**
- * Function to get the prompt for the LLM.
+ * Function to generate the prompt for the LLM based on the file content.
  */
 function getPrompt(content: string): string {
   const prompt = `

@@ -41,7 +41,6 @@ abstract class AbstractGPT extends AbstractLLM {
                               ? await this.runGPTGetEmbeddings(model, prompt)
                               : await this.runGPTGetCompletion(model, prompt);
       const llmResponse = llmResponses?.data?.[0] ?? llmResponses?.choices?.[0];
-      if (!llmResponse) throw new Error("LLM response was completely empty");
 
       // Capture response content
       const responseContent = llmResponse.embedding || llmResponse.message?.content;

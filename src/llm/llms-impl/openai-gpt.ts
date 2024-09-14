@@ -5,7 +5,8 @@ import { getEnvVar } from "../../utils/envvar-utils";
 import { llmConst } from "../../types/llm-constants";
 import { GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3, GPT_COMPLETIONS_MODEL_GPT4_TURBO,
          GPT_COMPLETIONS_MODEL_GPT4_O } from "../../types/llm-models";
-import { LLMConfiguredModelTypes, LLMError } from "../../types/llm-types";
+import { LLMConfiguredModelTypes } from "../../types/llm-types";
+import { GPTLLMError } from "../../types/gpt-types";
 import AbstractGPT from "./abstract-gpt";
 
 
@@ -75,7 +76,7 @@ class OpenAIGPT extends AbstractGPT {
    * Check to see if error code indicates potential token limit has been exceeded.
    */
   protected isTokenLimitExceeded(error: unknown): boolean {
-    const llmError = error as LLMError;
+    const llmError = error as GPTLLMError;
     return llmError.code === "context_length_exceeded" ||
            llmError.type === "invalid_request_error";
   }

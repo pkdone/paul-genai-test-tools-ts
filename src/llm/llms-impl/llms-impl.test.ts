@@ -1,14 +1,14 @@
 import AzureOpenAIGPT from "./azure-openai-gpt";
-import AWSBedrockClaude from "./aws-bedrock-claude";
 import { GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k, 
          ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35 } from "../../types/llm-models";
 import { llmAPIErrorPatterns } from "../../types/llm-constants";
+import { extractTokensAmountFromMetadataDefaultingMissingValues, 
+   extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
 
 
 test(`AzureOpenAIGPT extract tokens from error msg 1`, () => {
-  const llm = new AzureOpenAIGPT();
   const errorMsg = "This model's maximum context length is 8191 tokens, however you requested 10346 tokens (10346 in your prompt; 5 for the completion). Please reduce your prompt; or completion length.";
-  expect(llm.TEST_extractTokensAmountAndLimitFromErrorMsg(GPT_COMPLETIONS_MODEL_GPT4, llmAPIErrorPatterns.GPT_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
+  expect(extractTokensAmountAndLimitFromErrorMsg(GPT_COMPLETIONS_MODEL_GPT4, llmAPIErrorPatterns.GPT_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
    .toStrictEqual({
       "completionTokens": 5,
       "promptTokens": 10346,
@@ -18,9 +18,8 @@ test(`AzureOpenAIGPT extract tokens from error msg 1`, () => {
 
 
 test(`AzureOpenAIGPT extract tokens from error msg 2`, () => {
-  const llm = new AzureOpenAIGPT();
   const errorMsg = "This model's maximum context length is 8192 tokens. However, your messages resulted in 8545 tokens. Please reduce the length of the messages.";
-  expect(llm.TEST_extractTokensAmountAndLimitFromErrorMsg(GPT_COMPLETIONS_MODEL_GPT4, llmAPIErrorPatterns.GPT_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
+  expect(extractTokensAmountAndLimitFromErrorMsg(GPT_COMPLETIONS_MODEL_GPT4, llmAPIErrorPatterns.GPT_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
    .toStrictEqual({
       "completionTokens": 0,
       "promptTokens": 8545,
@@ -30,9 +29,8 @@ test(`AzureOpenAIGPT extract tokens from error msg 2`, () => {
 
 
 test(`AWSBedrockClaude extract tokens from error msg 1`, () => {
-  const llm = new AWSBedrockClaude();
   const errorMsg = "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 1048576, request input token count: 1049999 ";
-  expect(llm.TEST_extractTokensAmountAndLimitFromErrorMsg(ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35, llmAPIErrorPatterns.BEDROCK_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
+  expect(extractTokensAmountAndLimitFromErrorMsg(ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35, llmAPIErrorPatterns.BEDROCK_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
    .toStrictEqual({
       "completionTokens": 0,
       "promptTokens": 1049999,
@@ -42,9 +40,8 @@ test(`AWSBedrockClaude extract tokens from error msg 1`, () => {
 
 
 test(`AWSBedrockClaude extract tokens from error msg 2`, () => {
-  const llm = new AWSBedrockClaude();
   const errorMsg = "ValidationException: Malformed input request: expected maxLength: 2097152, actual: 2300000, please reformat your input and try again.";
-  expect(llm.TEST_extractTokensAmountAndLimitFromErrorMsg(ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35, llmAPIErrorPatterns.BEDROCK_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
+  expect(extractTokensAmountAndLimitFromErrorMsg(ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35, llmAPIErrorPatterns.BEDROCK_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
    .toStrictEqual({
       "completionTokens": 0,
       "promptTokens": 219346,
@@ -54,9 +51,8 @@ test(`AWSBedrockClaude extract tokens from error msg 2`, () => {
 
 
 test(`AWSBedrockClaude extract tokens from error msg 3`, () => {
-   const llm = new AWSBedrockClaude();
    const errorMsg = "Input is too long for requested model.";
-   expect(llm.TEST_extractTokensAmountAndLimitFromErrorMsg(ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35, llmAPIErrorPatterns.BEDROCK_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
+   expect(extractTokensAmountAndLimitFromErrorMsg(ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35, llmAPIErrorPatterns.BEDROCK_ERROR_MSG_TOKENS_PATTERNS, "dummy prompt", errorMsg))
     .toStrictEqual({
        "completionTokens": 0,
        "promptTokens": 200001,
@@ -66,13 +62,12 @@ test(`AWSBedrockClaude extract tokens from error msg 3`, () => {
 
 
 test(`AbstractLLM extract tokens from metadtata 1`, () => {
-   const llm = new AzureOpenAIGPT();
    const tokenUsage = {
       promptTokens: 200,
       completionTokens: 0,
       maxTotalTokens: -1,
    };
-   expect(llm.TEST_extractTokensAmountFromMetadataDefaultingMissingValues(GPT_COMPLETIONS_MODEL_GPT4_32k, tokenUsage))
+   expect(extractTokensAmountFromMetadataDefaultingMissingValues(GPT_COMPLETIONS_MODEL_GPT4_32k, tokenUsage))
       .toStrictEqual({
          "completionTokens": 0,
          "promptTokens": 200,
@@ -82,13 +77,12 @@ test(`AbstractLLM extract tokens from metadtata 1`, () => {
 
 
  test(`AbstractLLM extract tokens from metadtata 2`, () => {
-   const llm = new AzureOpenAIGPT();
    const tokenUsage = {
       promptTokens: 32760,
       completionTokens: -1,
       maxTotalTokens: -1,
    };
-   expect(llm.TEST_extractTokensAmountFromMetadataDefaultingMissingValues(GPT_COMPLETIONS_MODEL_GPT4_32k, tokenUsage))
+   expect(extractTokensAmountFromMetadataDefaultingMissingValues(GPT_COMPLETIONS_MODEL_GPT4_32k, tokenUsage))
       .toStrictEqual({
          "completionTokens": 0,
          "promptTokens": 32760,
@@ -98,13 +92,12 @@ test(`AbstractLLM extract tokens from metadtata 1`, () => {
 
 
  test(`AbstractLLM extract tokens from metadtata 3`, () => {
-   const llm = new AzureOpenAIGPT();
    const tokenUsage = {
       promptTokens: -1,
       completionTokens: 200,
       maxTotalTokens: -1,
    };
-   expect(llm.TEST_extractTokensAmountFromMetadataDefaultingMissingValues(GPT_COMPLETIONS_MODEL_GPT4_32k, tokenUsage))
+   expect(extractTokensAmountFromMetadataDefaultingMissingValues(GPT_COMPLETIONS_MODEL_GPT4_32k, tokenUsage))
       .toStrictEqual({
          "completionTokens": 200,
          "promptTokens": 32568,
