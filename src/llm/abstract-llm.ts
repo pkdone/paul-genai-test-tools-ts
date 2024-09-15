@@ -11,9 +11,9 @@ import { LLMModelQuality, LLMContext, LLMPurpose, LLMResponseTokensUsage, LLMPro
  * implemented by an extended class that implements a specific LLM integration.
  */
 abstract class AbstractLLM implements LLMProviderImpl {
-  protected embeddingsModel: string;
-  protected completionsModelRegular: string | null;
-  protected completionsModelPremium: string | null;
+  protected readonly embeddingsModel: string;
+  protected readonly completionsModelRegular: string | null;
+  protected readonly completionsModelPremium: string | null;
 
 
   /**
@@ -65,16 +65,13 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * object.
    */
   protected captureLLMResponseFromSuccessfulCall(request: string, context: LLMContext, isIncompleteResponse: boolean, model: string, responseContent: LLMGeneratedContent, tokenUsage: LLMResponseTokensUsage, taskType: LLMPurpose, doReturnJSON: boolean) {
-    let result = { status: LLMResponseStatus.UNKNOWN, request, context, model };
+    const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, model };
 
     if (isIncompleteResponse) {
-      const tokensUage = extractTokensAmountFromMetadataDefaultingMissingValues(model, tokenUsage);
-      Object.assign(result, { status: LLMResponseStatus.EXCEEDED, tokensUage });
+      return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountFromMetadataDefaultingMissingValues(model, tokenUsage) };
     } else {
-      result = postProcessAsJSONIfNeededGeneratingNewResult(result, model, taskType, responseContent, doReturnJSON);
+      return postProcessAsJSONIfNeededGeneratingNewResult(skeletonResponse, model, taskType, responseContent, doReturnJSON);
     }
-    
-    return result;
   }
 
 
@@ -83,17 +80,15 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * object.
    */
   protected captureLLMResponseFromThrownError(error: unknown, request: string, context: LLMContext, model: string, patternDefinitions: LLMErrorMsgRegExPattern[]): LLMFunctionResponse {
-    let result = { status: LLMResponseStatus.UNKNOWN, request, context, model };
+    const skeletonResponse = { request, context, model };
 
     if (this.isLLMOverloaded(error)) {
-      Object.assign(result, { status: LLMResponseStatus.OVERLOADED });
-    } else if ((error instanceof Error) && ("message" in error) && this.isTokenLimitExceeded(error)) {
-      Object.assign(result, { status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountAndLimitFromErrorMsg(model, patternDefinitions, request, error.message) });
+      return { ...skeletonResponse, status: LLMResponseStatus.OVERLOADED };
+    } else if (this.isTokenLimitExceeded(error)) {
+      return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountAndLimitFromErrorMsg(model, patternDefinitions, request, (error as Error).message) };
     } else {
       throw error;
     }
-
-    return result;
   }
 
     

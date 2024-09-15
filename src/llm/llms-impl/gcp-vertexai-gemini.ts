@@ -19,7 +19,7 @@ const VERTEXAI_TERMINAL_FINISH_REASONS = [FinishReason.BLOCKLIST, FinishReason.P
  */
 class GcpVertexAIGemini extends AbstractLLM {
   // Private fields
-  private client: VertexAI;
+  private readonly client: VertexAI;
 
 
   /**
@@ -92,7 +92,8 @@ class GcpVertexAIGemini extends AbstractLLM {
         candidateCount: 1,
         topP: llmConst.TOP_P_LOWEST,
         topK: llmConst.TOP_K_LOWEST,
-        temperature: llmConst.ZERO_TEMP,    
+        temperature: llmConst.ZERO_TEMP,   
+        // maxOutputTokens: llmModels[model].maxTotalTokens,   // Can't set this cos GCP API hardcoded to low max tokens - errror: ClientError: [VertexAI.ClientError]: got status: 400 Bad Request. {"error":{"code":400,"message":"Unable to submit request because it has a maxOutputTokens value of 1048576 but the supported range is from 1 (inclusive) to 8193 (exclusive). Update the value and try again.","status":"INVALID_ARGUMENT"}}
       },
       safetySettings: [
         { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },

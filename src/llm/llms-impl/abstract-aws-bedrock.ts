@@ -13,10 +13,10 @@ const UTF8_ENCODING = "utf8";
  */
 export abstract class AbstractAWSBedrock extends AbstractLLM {
   // Private fields
-  private embeddingsModelName: string;
-  private completionsModelRegularName: string;
-  private completionsModelPremiumName: string;
-  private client: BedrockRuntimeClient;
+  private readonly embeddingsModelName: string;
+  private readonly completionsModelRegularName: string;
+  private readonly completionsModelPremiumName: string;
+  private readonly client: BedrockRuntimeClient;
 
 
   /**
@@ -111,7 +111,8 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
   protected isLLMOverloaded(error: unknown): boolean { 
     // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
     return ((error instanceof ThrottlingException) || 
-            (error instanceof ModelTimeoutException));
+            (error instanceof ModelTimeoutException)  ||
+            (error instanceof ServiceUnavailableException));
   }
 
 
@@ -141,7 +142,6 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
     if (error instanceof ModelStreamErrorException) console.log(`ModelStreamErrorException: ${error.message}`);
     if (error instanceof ResourceNotFoundException) console.log(`ResourceNotFoundException: ${error.message}`);
     if (error instanceof ServiceQuotaExceededException) console.log(`ServiceQuotaExceededException: ${error.message}`);
-    if (error instanceof ServiceUnavailableException) console.log(`ServiceUnavailableException: ${error.message}`);
     if (error instanceof ValidationException) console.log(`ValidationException: ${error.message}`);
     if (error instanceof ModelNotReadyException) console.log(`ModelNotReadyException: ${error.message}`);
   }

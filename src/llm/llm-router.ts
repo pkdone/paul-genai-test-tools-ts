@@ -21,13 +21,11 @@ import AWSBedrockClaude from "./llms-impl/aws-bedrock-claude";
  */
 class LLMRouter {
   // Private fields
-  private llmProviderName: string;
-  private llmImpl: LLMProviderImpl;
-  private llmStats: LLMStats;
-  private doLogEachResource: boolean;
-  private loggedMissingRegularModelWarning: boolean;
-  private loggedMissingPremiumModelWarning: boolean;
-  private loggedMissingModelWarning: { [key: string]: boolean } = { regular: false, premium: false };
+  private readonly llmProviderName: string;
+  private readonly llmImpl: LLMProviderImpl;
+  private readonly llmStats: LLMStats;
+  private readonly doLogEachResource: boolean;
+  private readonly loggedMissingModelWarning: { [key: string]: boolean } = { regular: false, premium: false };
 
 
   /**
@@ -38,8 +36,6 @@ class LLMRouter {
     this.llmImpl = this.initializeLLMImplementation(llmProviderName);
     this.llmStats = new LLMStats(doLogLLMInvocationEvents);
     this.doLogEachResource = false;
-    this.loggedMissingRegularModelWarning = false;
-    this.loggedMissingPremiumModelWarning = false;
     this.log(`Initiated LLMs from: ${this.llmProviderName}`);
   }
 
@@ -140,7 +136,7 @@ class LLMRouter {
             continue;  // Don't attempt to move up to next [non-existent] LLM quality - want to try current LLM with ths cut down prompt size
           }  
         } else {
-          throw new Error(`An unknown error occurred while attempting to process prompt for completion for resource '${resourceName}'`);
+          throw new Error(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse?.status}'`);
         }
 
         context.modelQuality = LLMModelQuality.PREMIUM;
@@ -187,15 +183,14 @@ class LLMRouter {
   private getModelQualityCompletionFunctions(modelQuality: LLMModelQuality): LLMFunction[] {
     const modelFuncs = [];
     
-    if (modelQuality === LLMModelQuality.REGULAR) {
+    if ([LLMModelQuality.REGULAR, LLMModelQuality.REGULAR_PLUS].includes(modelQuality)) { 
       modelFuncs.push(this.llmImpl.executeCompletionRegular.bind(this.llmImpl));
-    } else if (modelQuality === LLMModelQuality.PREMIUM) {
-      modelFuncs.push(this.llmImpl.executeCompletionPremium.bind(this.llmImpl));
-    } else if (modelQuality === LLMModelQuality.REGULAR_PLUS) {
-      modelFuncs.push(this.llmImpl.executeCompletionRegular.bind(this.llmImpl));
+    }
+
+    if ([LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS].includes(modelQuality)) { 
       modelFuncs.push(this.llmImpl.executeCompletionPremium.bind(this.llmImpl));
     }
-    
+
     return modelFuncs;
   }
 
@@ -217,13 +212,13 @@ class LLMRouter {
       LLMModelQuality.PREMIUM,
       llmConst.PREMIUM_MODEL_QUALITY_NAME);
     startingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
-        [LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS], 
-        startingModelQuality, 
-        invocableModelQualitiesAvailable, 
-        LLMModelQuality.PREMIUM,
-        llmConst.PREMIUM_MODEL_QUALITY_NAME, 
-        LLMModelQuality.REGULAR,
-        llmConst.REGULAR_MODEL_QUALITY_NAME);
+      [LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS], 
+      startingModelQuality, 
+      invocableModelQualitiesAvailable, 
+      LLMModelQuality.PREMIUM,
+      llmConst.PREMIUM_MODEL_QUALITY_NAME, 
+      LLMModelQuality.REGULAR,
+      llmConst.REGULAR_MODEL_QUALITY_NAME);
     return startingModelQuality;
   }
 

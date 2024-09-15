@@ -4,7 +4,8 @@ import envConst from "../../types/env-constants";
 import { getEnvVar } from "../../utils/envvar-utils";
 import { llmConst } from "../../types/llm-constants";
 import { GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3, GPT_COMPLETIONS_MODEL_GPT4_TURBO,
-         GPT_COMPLETIONS_MODEL_GPT4_O } from "../../types/llm-models";
+         GPT_COMPLETIONS_MODEL_GPT4_O, 
+         llmModels} from "../../types/llm-models";
 import { LLMConfiguredModelTypes } from "../../types/llm-types";
 import { GPTLLMError } from "../../types/gpt-types";
 import AbstractGPT from "./abstract-gpt";
@@ -15,7 +16,7 @@ import AbstractGPT from "./abstract-gpt";
  */
 class OpenAIGPT extends AbstractGPT {
   // Private fields
-  private client;
+  private readonly client;
 
 
   /**
@@ -57,6 +58,7 @@ class OpenAIGPT extends AbstractGPT {
     const params: OpenAI.Chat.ChatCompletionCreateParams = {
       model,
       temperature: llmConst.ZERO_TEMP,
+      max_completion_tokens: llmModels[model].maxCompletionTokens,
       messages: [{ role: "user", content: prompt } ],
     };
     return await this.client.chat.completions.create(params);

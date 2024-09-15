@@ -39,7 +39,7 @@ class AWSBedrockClaude extends AbstractAWSBedrock {
     } else {
       const maxTokenCount = llmModels[model].maxTotalTokens;
       body = JSON.stringify({
-        anthropic_version: "bedrock-2023-05-31",
+        anthropic_version: llmConst.AWS_ANTHROPIC_API_VERSION,
         messages: [
           {
             role: "user",

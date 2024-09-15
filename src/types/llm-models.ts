@@ -80,8 +80,8 @@ export const llmModels: { [key: string]: LLMModelMetadata } = {
   },
   [AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1]: {
     purpose: LLMPurpose.COMPLETION,
-    maxCompletionTokens: 8_192,
-    maxTotalTokens: 8_192,
+    maxCompletionTokens: 8_191,
+    maxTotalTokens: 8_191,
   },
   [ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35]: {
     purpose: LLMPurpose.COMPLETION,

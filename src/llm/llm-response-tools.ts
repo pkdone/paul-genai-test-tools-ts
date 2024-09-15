@@ -73,7 +73,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLM
       if (doReturnJSON) generatedContent = convertTextToJSON(generatedContent);
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: generatedContent };
     } catch (error) {
-      console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${model})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);
+      console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${model})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt - resource: ${skeletonResult.context?.filepath}`);
       return { ...skeletonResult, status: LLMResponseStatus.OVERLOADED };
     }
   } else {

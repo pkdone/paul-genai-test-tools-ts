@@ -6,14 +6,14 @@ import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary } from "../types/llm-
  */
 class LLMStats {
   // Private fields
-  private doPrintEventTicks: boolean;
-  private statusTypes: LLMStatsCategoriesSummary = {
+  private readonly doPrintEventTicks: boolean;
+  private readonly statusTypes: LLMStatsCategoriesSummary = {
     SUCCESS: { description: "LLM invocation suceeded", symbol: ">", count: 0 },
     FAILURE: { description: "LLM invocation failed so no data produced", symbol: "!", count: 0 },
     STEPUP: { description: "Stepped up to a premimum LLM to hopeully provide larger tokens limit", symbol: "+", count: 0 },
     RETRY: { description: "Retried calling LLM due to overload or network issue", symbol: "?", count: 0 },
     CROP: { description: "Cropping prompt due to excessive size, before resending", symbol: "-", count: 0 },
-  };
+  } as const;
 
 
   /**

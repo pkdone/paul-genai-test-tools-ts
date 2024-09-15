@@ -158,7 +158,8 @@ of newer versions of JavaScript up to the 14th Edition of ECMAScript (ECMAScript
   {
     key: "BAD-PRACTICE",
     question:
-`Identify any bits of code that could leverage 'const' rather then 'let' for variable declarations.`,
+`Identify any bits of code that aren't leveraging 'const' or even 'readonly' rather then 'let' for
+ variable declarations, when they could be.`,
   },    
   {
     key: "CODE-ORGANIZATION",

@@ -28,13 +28,13 @@ export enum LLMPurpose {
 
 
 /**
- * Enum to define the main characteristics of the LLM model.
+ * Type to define the main characteristics of the LLM model.
  */
-export interface LLMModelMetadata {
-  purpose: LLMPurpose;
-  maxDimensions?: number;
-  maxCompletionTokens?: number;
-  maxTotalTokens: number;
+export type LLMModelMetadata = {
+  readonly purpose: LLMPurpose;
+  readonly maxDimensions?: number;
+  readonly maxCompletionTokens?: number;
+  readonly maxTotalTokens: number;
 }
 
 
@@ -59,9 +59,9 @@ export enum LLMResponseStatus {
  * Type to define the token counts
  */ 
 export type LLMResponseTokensUsage = {
-  promptTokens: number,
-  completionTokens: number,
-  maxTotalTokens: number,
+  readonly promptTokens: number,
+  readonly completionTokens: number,
+  readonly maxTotalTokens: number,
 };
 
 
@@ -75,12 +75,12 @@ export type LLMGeneratedContent = string | number[] | null;
  * Type to define the LLM response
  */ 
 export type LLMFunctionResponse = {
-  status: LLMResponseStatus,
-  request: string,
-  model: string,
-  context: LLMContext,
-  generated?: LLMGeneratedContent,
-  tokensUage?: LLMResponseTokensUsage,
+  readonly status: LLMResponseStatus,
+  readonly request: string,
+  readonly model: string,
+  readonly context: LLMContext,
+  readonly generated?: LLMGeneratedContent,
+  readonly tokensUage?: LLMResponseTokensUsage,
 };
 
 
@@ -108,8 +108,8 @@ export interface LLMProviderImpl {
  * Type definitions for a partucular status
  */
 export type LLMStatsCategoryStatus = {
-  description: string,
-  symbol: string,
+  readonly description: string,
+  readonly symbol: string,
   count: number,
 };
 
@@ -118,12 +118,12 @@ export type LLMStatsCategoryStatus = {
  * Type to define the status types
  */ 
 export type LLMStatsCategoriesSummary = {
-  SUCCESS: LLMStatsCategoryStatus,
-  FAILURE: LLMStatsCategoryStatus,
-  STEPUP: LLMStatsCategoryStatus,
-  RETRY: LLMStatsCategoryStatus,
-  CROP: LLMStatsCategoryStatus,
-  TOTAL?: LLMStatsCategoryStatus,
+  readonly SUCCESS: LLMStatsCategoryStatus,
+  readonly FAILURE: LLMStatsCategoryStatus,
+  readonly STEPUP: LLMStatsCategoryStatus,
+  readonly RETRY: LLMStatsCategoryStatus,
+  readonly CROP: LLMStatsCategoryStatus,
+  readonly TOTAL?: LLMStatsCategoryStatus,
 };
 
 
@@ -131,6 +131,6 @@ export type LLMStatsCategoriesSummary = {
  * Type to define the pattern definition for the error messages
  */ 
 export type LLMErrorMsgRegExPattern = {
-  pattern: RegExp,
-  units: string,
+  readonly pattern: RegExp,
+  readonly units: string,
 };

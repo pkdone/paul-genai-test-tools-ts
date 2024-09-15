@@ -2,7 +2,7 @@ import { OpenAIClient, AzureKeyCredential, Embeddings, ChatCompletions } from "@
 import envConst from "../../types/env-constants";
 import { getEnvVar } from "../../utils/envvar-utils";
 import { llmConst } from "../../types/llm-constants";
-import { GPT_EMBEDDINGS_MODEL_ADA002, GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k } 
+import { GPT_EMBEDDINGS_MODEL_ADA002, GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k }
        from "../../types/llm-models";
 import { LLMConfiguredModelTypes } from "../../types/llm-types";
 import { GPTLLMError } from "../../types/gpt-types";
@@ -14,8 +14,8 @@ import AbstractGPT from "./abstract-gpt";
  */
 class AzureOpenAIGPT extends AbstractGPT {
   // Private fields
-  private client: OpenAIClient;
-  private modelToDeploymentMappings: { [key: string]: string };
+  private readonly client: OpenAIClient;
+  private readonly modelToDeploymentMappings: { [key: string]: string };
 
 
   /**
@@ -59,7 +59,10 @@ class AzureOpenAIGPT extends AbstractGPT {
    */
   protected async runGPTGetCompletion(model: string, prompt: string): Promise<ChatCompletions> {
     const messages = [{ role: 'user', content: prompt }];
-    const params = { temperature: llmConst.ZERO_TEMP };
+    const params = {
+      temperature: llmConst.ZERO_TEMP,
+      // maxTokens: llmModels[model].maxTotalTokens, // Doesn't seem to work properly with Azure API - causes weird long completion
+    };
     return await this.client.getChatCompletions(this.modelToDeploymentMappings[model], messages, params);
   }
 
