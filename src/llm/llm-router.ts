@@ -3,6 +3,7 @@ import { withRetry } from "../utils/control-utils";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } 
   from "../types/llm-types";
+import { getErrorText, getErrorStack } from "../utils/error-utils";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import LLMStats from "./llm-stats";
 import OpenAIGPT from "./llms-impl/openai-gpt";
@@ -271,14 +272,7 @@ class LLMRouter {
    * error occurred, add the context to the error object and then throw the augmented error.
    */
   private logErrWithContext(error: unknown, context: LLMContext): void {
-    const stack = (error instanceof Error) ? error.stack : undefined;
-    console.error(error, stack);
-    const errAsJson = JSON.stringify(error);
-
-    if (errAsJson && errAsJson.length > 5) {
-      this.log(JSON.stringify(error));
-    }
-
+    console.error(getErrorText(error), getErrorStack(error));
     this.logContext(context);
   }
 

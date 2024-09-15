@@ -6,6 +6,7 @@ import { readFile, readDirContents, getFileSuffix } from "./utils/basics-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
 import LLMRouter from "./llm/llm-router";
 import { LLMModelQuality } from "./types/llm-types";
+import { getErrorText, getErrorStack } from "./utils/error-utils";
 
 
 /**
@@ -50,9 +51,8 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
           files.push(fullPath);
         }
       }
-    } catch (error) {
-      const stack = (error instanceof Error) ? error.stack : undefined;
-      console.error(`Failed to read directory: ${directory}`, error, stack);    
+    } catch (error: unknown) {
+      console.error(`Failed to read directory: ${directory}`, getErrorText(error), getErrorStack(error));    
     }
   }
 
@@ -70,9 +70,8 @@ async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, filepaths: str
     jobs.push(async () => {
       try {
         await captureMetadataForFileViaLLM(llmRouter, filepath);   
-      } catch (error) {
-        const stack = (error instanceof Error) ? error.stack : undefined;
-        console.error("Problem introspecting and processing source files", error, stack);    
+      } catch (error: unknown) {
+        console.error("Problem introspecting and processing source files", getErrorText(error), getErrorStack(error));    
       }
     });
   }

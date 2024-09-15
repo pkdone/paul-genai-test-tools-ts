@@ -7,6 +7,7 @@ import { llmConst, llmAPIErrorPatterns } from "../../types/llm-constants";
 import { GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15, GCP_COMPLETIONS_MODEL_GEMINI_PRO15 } from "../../types/llm-models";
 import { LLMPurpose, LLMConfiguredModelTypes, LLMContext,
          LLMFunctionResponse } from "../../types/llm-types";
+import { getErrorText } from "../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
 
 
@@ -52,7 +53,7 @@ class GcpVertexAIGemini extends AbstractLLM {
     
     try {
       // Invoke LLM
-      const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, model)
+      const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, model);
       const llm = this.client.getGenerativeModel(modelParams, requestOptions);
       const llmResponses = await llm.generateContent(prompt);
       const usageMetadata = llmResponses?.response?.usageMetadata;
@@ -119,7 +120,7 @@ class GcpVertexAIGemini extends AbstractLLM {
     // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
 
     if (error instanceof Error) {
-      const errMsg = error.message?.toLowerCase() || "";
+      const errMsg = getErrorText(error).toLowerCase() || "";
 
       if ((error instanceof GoogleApiError) && 
           (error.code === 429)) {
@@ -154,11 +155,11 @@ class GcpVertexAIGemini extends AbstractLLM {
    * Debug currently non-checked error types.
    */
   private debugCurrentlyNonCheckedErrorTypes(error: unknown) {
-    if (error instanceof GoogleApiError) console.log(`GoogleApiError ${error.message}`);
-    if (error instanceof ClientError) console.log(`ClientError ${error.message}`);
-    if (error instanceof GoogleAuthError) console.log(`GoogleAuthError ${error.message}`);
-    if (error instanceof GoogleGenerativeAIError) console.log(`GoogleGenerativeAIError ${error.message}`);
-    if (error instanceof IllegalArgumentError) console.log(`IllegalArgumentError ${error.message}`);
+    if (error instanceof GoogleApiError) console.log(`GoogleApiError ${getErrorText(error)}`);
+    if (error instanceof ClientError) console.log(`ClientError ${getErrorText(error)}`);
+    if (error instanceof GoogleAuthError) console.log(`GoogleAuthError ${getErrorText(error)}`);
+    if (error instanceof GoogleGenerativeAIError) console.log(`GoogleGenerativeAIError ${getErrorText(error)}`);
+    if (error instanceof IllegalArgumentError) console.log(`IllegalArgumentError ${getErrorText(error)}`);
   }
 }
 

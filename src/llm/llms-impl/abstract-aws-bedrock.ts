@@ -5,6 +5,7 @@ import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, Mode
 import { llmAPIErrorPatterns } from "../../types/llm-constants";
 import { LLMPurpose, LLMConfiguredModelTypes, LLMContext, LLMFunctionResponse } from "../../types/llm-types";
 import AbstractLLM from "../abstract-llm";
+import { getErrorText, getErrorStack } from "../../utils/error-utils";
 const UTF8_ENCODING = "utf8";
 
 
@@ -46,8 +47,7 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
     try {
       this.client.destroy();
     } catch (error: unknown) {
-      const stack = (error instanceof Error) ? error.stack : undefined;
-      console.error("Error when calling destroy on AWSBedroc LLM", error, stack);
+      console.error("Error when calling destroy on AWSBedroc LLM", getErrorText(error), getErrorStack(error));
     }
   }
 
@@ -121,7 +121,7 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
    */
   protected isTokenLimitExceeded(error: unknown): boolean {
     if (error instanceof ValidationException) {
-      const lowercaseContent = error.message.toLowerCase();    
+      const lowercaseContent = getErrorText(error).toLowerCase();    
 
       if ((lowercaseContent.includes("too many input tokens")) ||
           (lowercaseContent.includes("expected maxlength")) ||
@@ -138,12 +138,12 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
    * Debug currently non-checked error types.
    */
   private debugCurrentlyNonCheckedErrorTypes(error: unknown) {
-    if (error instanceof ModelErrorException) console.log(`ModelErrorException: ${error.message}`);
-    if (error instanceof ModelStreamErrorException) console.log(`ModelStreamErrorException: ${error.message}`);
-    if (error instanceof ResourceNotFoundException) console.log(`ResourceNotFoundException: ${error.message}`);
-    if (error instanceof ServiceQuotaExceededException) console.log(`ServiceQuotaExceededException: ${error.message}`);
-    if (error instanceof ValidationException) console.log(`ValidationException: ${error.message}`);
-    if (error instanceof ModelNotReadyException) console.log(`ModelNotReadyException: ${error.message}`);
+    if (error instanceof ModelErrorException) console.log(`ModelErrorException: ${getErrorText(error)}`);
+    if (error instanceof ModelStreamErrorException) console.log(`ModelStreamErrorException: ${getErrorText(error)}`);
+    if (error instanceof ResourceNotFoundException) console.log(`ResourceNotFoundException: ${getErrorText(error)}`);
+    if (error instanceof ServiceQuotaExceededException) console.log(`ServiceQuotaExceededException: ${getErrorText(error)}`);
+    if (error instanceof ValidationException) console.log(`ValidationException: ${getErrorText(error)}`);
+    if (error instanceof ModelNotReadyException) console.log(`ModelNotReadyException: ${getErrorText(error)}`);
   }
 }
 

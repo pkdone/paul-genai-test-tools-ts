@@ -112,7 +112,7 @@ async function executeFunctionWithTimeout<T>(
     });
 
     result = await Promise.race([asyncTryFunc(...args), timeoutPromise]);
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof RetryableTimeoutError) {
       if (logTimeouts) {
         console.error("<retryable timeout error>");

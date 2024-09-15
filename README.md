@@ -24,7 +24,7 @@ Current test tools:
     npm install
     ```
 
-1. Ensure you have can leverage LLMs from OpenAI, Azure OpenAI, GCP Vertex AI or AWS Bedrock API, with the following three models types available to use, along with appropriate API keys / credentials:
+1. Ensure you have can leverage LLMs from OpenAI/Azure GPT, GCP Vertex AI or AWS Bedrock API, with the following three models types available to use, along with appropriate API keys / credentials:
 
     -  __Embeddings model__ for generating vector embeddings 
     -  __Text completions 'regular'model, typically with a small token limit__ for generating text and JSON content for dealing with smaller inputs 
@@ -63,9 +63,9 @@ Execute the 'test' command from the project's root folder.
 
 ## Application to LLM Authentication Notes
 
-### OpenAI / Azure
+### OpenAI / Azure GPT
 
-Specify your API key for your own OpenAI or Azure service in `.env`.
+Specify your API key for your own OpenAI or Azure GPT service in `.env`.
 
 
 ### GCP Vertex AI

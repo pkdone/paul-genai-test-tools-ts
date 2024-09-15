@@ -6,6 +6,7 @@ import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } f
 import { promiseAllThrottled } from "./utils/control-utils";
 import LLMRouter from "./llm/llm-router";
 import { LLMModelQuality } from "./types/llm-types";
+import { getErrorText, getErrorStack } from "./utils/error-utils";
 
 
 /**
@@ -65,9 +66,8 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
           }
         }
       }
-    } catch (error) {
-      const stack = (error instanceof Error) ? error.stack : undefined;
-      console.error(`Failed to read directory: ${directory}`, error, stack);    
+    } catch (error: unknown) {
+      console.error(`Failed to read directory: ${directory}`, getErrorText(error), getErrorStack(error));    
     }
   }
 
@@ -121,11 +121,9 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksCo
 
   try {
     response = await llmRouter.executeCompletion(resource, fullPrompt, LLMModelQuality.REGULAR_PLUS, false, context) as string;
-  } catch (error) {
-    const stack = (error instanceof Error) ? error.stack : undefined;
-    console.error("Problem introspecting and processing source files", error, stack);    
-    const errMessage = (error instanceof Error) ? error.message : "Problem processing files";
-    response = errMessage;
+  } catch (error: unknown) {
+    console.error("Problem introspecting and processing source files", getErrorText(error), getErrorStack(error));    
+    response = getErrorText(error);
   } 
 
   return `\n< ${prompt.key}\n${promptFirstPart}>\n\n${response}\n==========================================================\n\n`;
