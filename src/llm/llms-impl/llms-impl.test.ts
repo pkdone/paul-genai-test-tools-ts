@@ -106,31 +106,31 @@ test(`AbstractLLM extract tokens from metadtata 1`, () => {
  });
 
 
- test('OpenAIGPT count models', () => {
+ test("OpenAIGPT count models", () => {
    const llm = new AzureOpenAIGPT();
    expect(Object.keys(llm.getModelsNames()).length).toBe(3);
  });
 
 
- test('AbstractGPT try error overload code', () => {
+ test("AbstractGPT try error overload code", () => {
    const llm = new AzureOpenAIGPT();
    expect(llm.TEST_isLLMOverloaded({ code: 429 })).toBe(true);
  }); 
 
 
- test('AbstractGPT try error overload response status', () => {
+ test("AbstractGPT try error overload response status", () => {
    const llm = new AzureOpenAIGPT();
    expect(llm.TEST_isLLMOverloaded({ response: { status: 429 } })).toBe(true);
  }); 
 
 
- test('AbstractGPT try error token limit exceeded 1', () => {
+ test("AbstractGPT try error token limit exceeded 1", () => {
    const llm = new AzureOpenAIGPT();
    expect(llm.TEST_isTokenLimitExceeded({ code: "context_length_exceeded" })).toBe(true);   
  }); 
 
 
- test('AbstractGPT try error token limit exceeded 2', () => {
+ test("AbstractGPT try error token limit exceeded 2", () => {
    const llm = new AzureOpenAIGPT();
    expect(llm.TEST_isTokenLimitExceeded({ type: "invalid_request_error" })).toBe(true);   
  }); 

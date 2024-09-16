@@ -58,7 +58,7 @@ class AzureOpenAIGPT extends AbstractGPT {
    * Invoke the actual LLM's completion API directly.
    */
   protected async runGPTGetCompletion(model: string, prompt: string): Promise<ChatCompletions> {
-    const messages = [{ role: 'user', content: prompt }];
+    const messages = [{ role: "user", content: prompt }];
     const params = {
       temperature: llmConst.ZERO_TEMP,
       // maxTokens: llmModels[model].maxTotalTokens, // Doesn't seem to work properly with Azure API - causes weird long completion

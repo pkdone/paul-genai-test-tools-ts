@@ -27,7 +27,7 @@ export const MODEL_NOT_SPECIFIED = "n/a";
  * For Embeddings LLMs, the total allowed tokens is the amount of prompt tokens only (the response
  * is the embeddings array of numbers).
  */
-export const llmModels: { [key: string]: LLMModelMetadata } = {
+export const llmModels: Readonly<{ [key: string]: LLMModelMetadata }> = {
   [GPT_EMBEDDINGS_MODEL_ADA002]: {
     purpose: LLMPurpose.EMBEDDINGS,
     maxDimensions: 1_536,

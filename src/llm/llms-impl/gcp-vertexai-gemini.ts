@@ -50,7 +50,6 @@ class GcpVertexAIGemini extends AbstractLLM {
    * Execute the prompt against the LLM and return the LLM's answer.
    */
   protected async runLLMTask(model: string, taskType: LLMPurpose, prompt: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse> {
-    
     try {
       // Invoke LLM
       const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, model);

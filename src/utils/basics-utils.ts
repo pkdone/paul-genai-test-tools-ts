@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { promises as fs } from "fs";
+import path from "path";
 import { getErrorText, getErrorStack } from "./error-utils";
 const UTF8_ENCODING = "utf8";
 
@@ -58,7 +58,7 @@ export async function clearDirectory(dirPath: string) {
           try {
             await fs.rm(filePath, { recursive: true, force: true });
           } catch (error: unknown) {
-            if (error instanceof Error && "code" in error && error.code !== 'ENOENT') {
+            if (error instanceof Error && "code" in error && error.code !== "ENOENT") {
               console.error(`When clearing a directory, unable to remove the file: ${filePath}`, getErrorText(error), getErrorStack(error));    
             }
           }
@@ -68,7 +68,7 @@ export async function clearDirectory(dirPath: string) {
 
     await Promise.all(jobs);
   } catch (error: unknown) {
-    if (error instanceof Error && "code" in error && error.code !== 'ENOENT') {
+    if (error instanceof Error && "code" in error && error.code !== "ENOENT") {
       console.error(`Unable to recursively clear contents of directory: ${dirPath}`, error, error.stack);
     }
   }

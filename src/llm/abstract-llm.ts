@@ -81,7 +81,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * object.
    */
   protected captureLLMResponseFromThrownError(error: unknown, request: string, context: LLMContext, model: string, patternDefinitions: LLMErrorMsgRegExPattern[]): LLMFunctionResponse {
-    const skeletonResponse = { request, context, model };
+    const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, model };
 
     if (this.isLLMOverloaded(error)) {
       return { ...skeletonResponse, status: LLMResponseStatus.OVERLOADED };

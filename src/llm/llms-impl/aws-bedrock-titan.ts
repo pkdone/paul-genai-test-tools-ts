@@ -52,7 +52,7 @@ class AWSBedrockTitan extends AbstractAWSBedrock {
       contentType: llmConst.RESPONSE_JSON_CONTENT_TYPE,
       accept: llmConst.RESPONSE_ANY_CONTENT_TYPE,
       body,
-    };;
+    };
   }  
 }
 

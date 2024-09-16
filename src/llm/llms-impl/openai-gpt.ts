@@ -16,7 +16,7 @@ import AbstractGPT from "./abstract-gpt";
  */
 class OpenAIGPT extends AbstractGPT {
   // Private fields
-  private readonly client;
+  private readonly client: OpenAI;
 
 
   /**
