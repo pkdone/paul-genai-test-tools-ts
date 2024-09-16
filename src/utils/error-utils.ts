@@ -2,10 +2,12 @@
  * Function to get the error text from a thrown variable which may or may not be an Error object.
  */
 export function getErrorText(error: unknown): string {
-  if (error instanceof Error) {
+  if (!error) {
+    return "No error message available";
+  } else if (error instanceof Error) {
     return error.message;
   } else if (typeof error === "object") {
-    return JSON.stringify(error);
+    return "message" in error ? (error as { message: string }).message : JSON.stringify(error);
   } else {
     return String(error);
   }
