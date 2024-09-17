@@ -3,10 +3,10 @@ import { VertexAI, ModelParams, RequestOptions, FinishReason, HarmCategory, Harm
          IllegalArgumentError } from "@google-cloud/vertexai";
 import { getEnvVar } from "../../utils/envvar-utils";
 import envConst from "../../types/env-constants";
-import { llmConst, llmAPIErrorPatterns } from "../../types/llm-constants";
-import { GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15, GCP_COMPLETIONS_MODEL_GEMINI_PRO15 } from "../../types/llm-models";
-import { LLMPurpose, LLMConfiguredModelTypes, LLMContext,
-         LLMFunctionResponse } from "../../types/llm-types";
+import { llmConst } from "../../types/llm-constants";
+import { GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15,
+         GCP_COMPLETIONS_MODEL_GEMINI_PRO15 } from "../../types/llm-models";
+import { LLMConfiguredModelTypesNames, LLMPurpose, LLMImplResponseSummary } from "../../types/llm-types";
 import { getErrorText } from "../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
 
@@ -37,7 +37,7 @@ class GcpVertexAIGemini extends AbstractLLM {
   /**
    * Get the names of the models this plug-in provides.
    */
-  public getModelsNames(): LLMConfiguredModelTypes {
+  public getModelsNames(): LLMConfiguredModelTypesNames {
     return {
       embeddings: GCP_EMBEDDINGS_MODEL_ADA_GECKO,
       regular: GCP_COMPLETIONS_MODEL_GEMINI_FLASH15,
@@ -47,38 +47,31 @@ class GcpVertexAIGemini extends AbstractLLM {
 
 
   /**
-   * Execute the prompt against the LLM and return the LLM's answer.
+   * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async runLLMTask(model: string, taskType: LLMPurpose, prompt: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse> {
-    try {
-      // Invoke LLM
-      const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, model);
-      const llm = this.client.getGenerativeModel(modelParams, requestOptions);
-      const llmResponses = await llm.generateContent(prompt);
-      const usageMetadata = llmResponses?.response?.usageMetadata;
-      const llmResponse = llmResponses?.response?.candidates?.[0];
-      if (!llmResponse) throw new Error("LLM response was completely empty");
+  protected async invokeLLMSummarizingResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
+    // Invoke LLM
+    const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, model);
+    const llm = this.client.getGenerativeModel(modelParams, requestOptions);
+    const llmResponses = await llm.generateContent(prompt);
+    const usageMetadata = llmResponses?.response?.usageMetadata;
+    const llmResponse = llmResponses?.response?.candidates?.[0];
+    if (!llmResponse) throw new Error("LLM response was completely empty");
 
-      // Capture response content
-      const responseContent = llmResponse?.content?.parts?.[0]?.text ?? "";
+    // Capture response content
+    const responseContent = llmResponse?.content?.parts?.[0]?.text ?? "";
 
-      // Capture response reason
-      const finishReason = llmResponse?.finishReason ?? FinishReason.OTHER;      
-      if (VERTEXAI_TERMINAL_FINISH_REASONS.includes(finishReason)) throw new Error(`LLM response was not safely completed - reason given: ${finishReason}`);
-      const isIncompleteResponse = ((finishReason !== FinishReason.STOP)) || (!responseContent);
-      
-      // Capture token usage
-      const promptTokens = usageMetadata?.promptTokenCount ?? -1;
-      const completionTokens = usageMetadata?.candidatesTokenCount ?? -1;
-      const maxTotalTokens = -1;  // Not using "usageMetadata?.totalTokenCount" as that is total of prompt + cpompletion tokens tokens and not the max limit
-      const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
+    // Capture response reason
+    const finishReason = llmResponse?.finishReason ?? FinishReason.OTHER;
+    if (VERTEXAI_TERMINAL_FINISH_REASONS.includes(finishReason)) throw new Error(`LLM response was not safely completed - reason given: ${finishReason}`);
+    const isIncompleteResponse = ((finishReason !== FinishReason.STOP)) || (!responseContent);
 
-      // Process successful response
-      return this.captureLLMResponseFromSuccessfulCall(prompt, context, isIncompleteResponse, model, responseContent, tokenUsage, taskType, doReturnJSON);
-    } catch (error: unknown) {
-      // Process error response
-      return this.captureLLMResponseFromThrownError(error, prompt, context, model, llmAPIErrorPatterns.VERTEXAI_ERROR_MSG_TOKENS_PATTERNS);
-    }
+    // Capture token usage
+    const promptTokens = usageMetadata?.promptTokenCount ?? -1;
+    const completionTokens = usageMetadata?.candidatesTokenCount ?? -1;
+    const maxTotalTokens = -1; // Not using "usageMetadata?.totalTokenCount" as that is total of prompt + cpompletion tokens tokens and not the max limit
+    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
+    return { isIncompleteResponse, responseContent, tokenUsage };
   }
 
 
@@ -103,7 +96,6 @@ class GcpVertexAIGemini extends AbstractLLM {
         { category: HarmCategory.HARM_CATEGORY_UNSPECIFIED, threshold: HarmBlockThreshold.BLOCK_NONE },
       ],
     };
-
     const requestOptions = {
       timeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS,
     } as RequestOptions;

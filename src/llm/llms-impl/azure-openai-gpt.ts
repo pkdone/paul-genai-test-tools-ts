@@ -4,15 +4,15 @@ import { getEnvVar } from "../../utils/envvar-utils";
 import { llmConst } from "../../types/llm-constants";
 import { GPT_EMBEDDINGS_MODEL_ADA002, GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k }
        from "../../types/llm-models";
-import { LLMConfiguredModelTypes } from "../../types/llm-types";
+import { LLMConfiguredModelTypesNames } from "../../types/llm-types";
 import { GPTLLMError } from "../../types/gpt-types";
-import AbstractGPT from "./abstract-gpt";
+import BaseGPT from "./base-gpt";
 
 
 /**
  * Class for Azure's own managed version of the OpenAI service.
  */
-class AzureOpenAIGPT extends AbstractGPT {
+class AzureOpenAIGPT extends BaseGPT {
   // Private fields
   private readonly client: OpenAIClient;
   private readonly modelToDeploymentMappings: { [key: string]: string };
@@ -37,7 +37,7 @@ class AzureOpenAIGPT extends AbstractGPT {
   /**
    * Get the names of the models this plug-in provides.
    */
-  public getModelsNames(): LLMConfiguredModelTypes {
+  public getModelsNames(): LLMConfiguredModelTypesNames {
     return {
       embeddings: GPT_EMBEDDINGS_MODEL_ADA002,
       regular: GPT_COMPLETIONS_MODEL_GPT4,

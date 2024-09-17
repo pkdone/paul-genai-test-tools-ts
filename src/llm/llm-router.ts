@@ -1,6 +1,6 @@
 import { llmConst } from "../types/llm-constants";
 import { withRetry } from "../utils/control-utils";
-import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
+import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQualities, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } 
   from "../types/llm-types";
 import { getErrorText, getErrorStack } from "../utils/error-utils";
@@ -92,11 +92,11 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  public async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQuality, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
+  public async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQualities, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
     context.purpose = LLMPurpose.COMPLETION;
     const modelQualitiesSupported = this.llmImpl.getAvailableCompletionModelQualities();
     startingModelQuality = this.adjustStartingModelQualityBasedOnAvailability(modelQualitiesSupported, startingModelQuality);
-    context.modelQuality = (startingModelQuality === LLMModelQuality.REGULAR_PLUS) ? LLMModelQuality.REGULAR : startingModelQuality;
+    context.modelQuality = (startingModelQuality === LLMModelQualities.REGULAR_PLUS) ? LLMModelQualities.REGULAR : startingModelQuality;
     const result = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, this.getModelQualityCompletionFunctions(startingModelQuality), doReturnJSON);
     return result;
   }  
@@ -140,7 +140,7 @@ class LLMRouter {
           throw new Error(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse?.status}'`);
         }
 
-        context.modelQuality = LLMModelQuality.PREMIUM;
+        context.modelQuality = LLMModelQualities.PREMIUM;
         llmFuncIndex++;
 
         if (llmFuncIndex < llmFuncs.length) {
@@ -181,14 +181,14 @@ class LLMRouter {
    * Retrieve the specific LLM's embedding/completion functions to be used based on the desired
    * model quality.
    */
-  private getModelQualityCompletionFunctions(modelQuality: LLMModelQuality): LLMFunction[] {
+  private getModelQualityCompletionFunctions(modelQuality: LLMModelQualities): LLMFunction[] {
     const modelFuncs = [];
     
-    if ([LLMModelQuality.REGULAR, LLMModelQuality.REGULAR_PLUS].includes(modelQuality)) { 
+    if ([LLMModelQualities.REGULAR, LLMModelQualities.REGULAR_PLUS].includes(modelQuality)) { 
       modelFuncs.push(this.llmImpl.executeCompletionRegular.bind(this.llmImpl));
     }
 
-    if ([LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS].includes(modelQuality)) { 
+    if ([LLMModelQualities.PREMIUM, LLMModelQualities.REGULAR_PLUS].includes(modelQuality)) { 
       modelFuncs.push(this.llmImpl.executeCompletionPremium.bind(this.llmImpl));
     }
 
@@ -199,26 +199,26 @@ class LLMRouter {
   /**
    * Adjust the starting model quality used based on availability and log warnings if necessary.
    */
-  private adjustStartingModelQualityBasedOnAvailability(invocableModelQualitiesAvailable: LLMModelQuality[], startingModelQuality: LLMModelQuality): LLMModelQuality {
+  private adjustStartingModelQualityBasedOnAvailability(invocableModelQualitiesAvailable: LLMModelQualities[], startingModelQuality: LLMModelQualities): LLMModelQualities {
     if (!invocableModelQualitiesAvailable || invocableModelQualitiesAvailable.length <= 0) {
       throw new Error("The LLM implementation doesn't implement any completions model quality");
     }
 
     startingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
-      [LLMModelQuality.REGULAR, LLMModelQuality.REGULAR_PLUS], 
+      [LLMModelQualities.REGULAR, LLMModelQualities.REGULAR_PLUS], 
       startingModelQuality, 
       invocableModelQualitiesAvailable, 
-      LLMModelQuality.REGULAR,
+      LLMModelQualities.REGULAR,
       llmConst.REGULAR_MODEL_QUALITY_NAME, 
-      LLMModelQuality.PREMIUM,
+      LLMModelQualities.PREMIUM,
       llmConst.PREMIUM_MODEL_QUALITY_NAME);
     startingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
-      [LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS], 
+      [LLMModelQualities.PREMIUM, LLMModelQualities.REGULAR_PLUS], 
       startingModelQuality, 
       invocableModelQualitiesAvailable, 
-      LLMModelQuality.PREMIUM,
+      LLMModelQualities.PREMIUM,
       llmConst.PREMIUM_MODEL_QUALITY_NAME, 
-      LLMModelQuality.REGULAR,
+      LLMModelQualities.REGULAR,
       llmConst.REGULAR_MODEL_QUALITY_NAME);
     return startingModelQuality;
   }
@@ -227,7 +227,7 @@ class LLMRouter {
   /**
    * Function to adjust the model quality used based on availability and log warning if necessary.
    */
-  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQuality[], startingModelQuality: LLMModelQuality, invocableModelQualitiesAvailable: LLMModelQuality[], targetModelQuality: LLMModelQuality, targetModelQualityName: string, fallbackModelQuality: LLMModelQuality, fallbackModelQualityName: string) {
+  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQualities[], startingModelQuality: LLMModelQualities, invocableModelQualitiesAvailable: LLMModelQualities[], targetModelQuality: LLMModelQualities, targetModelQualityName: string, fallbackModelQuality: LLMModelQualities, fallbackModelQualityName: string) {
     if (categoryOfModelQualityOptions.includes(startingModelQuality)) {
       if (!invocableModelQualitiesAvailable.includes(targetModelQuality)) {
         if (!this.loggedMissingModelWarning[targetModelQualityName]) {

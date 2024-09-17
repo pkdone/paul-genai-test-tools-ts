@@ -2,8 +2,7 @@ import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, Mode
          ModelStreamErrorException, ResourceNotFoundException, ServiceQuotaExceededException, 
          ServiceUnavailableException, ThrottlingException, ModelNotReadyException, 
          ModelTimeoutException, ValidationException } from "@aws-sdk/client-bedrock-runtime";
-import { llmAPIErrorPatterns } from "../../types/llm-constants";
-import { LLMPurpose, LLMConfiguredModelTypes, LLMContext, LLMFunctionResponse } from "../../types/llm-types";
+import { LLMPurpose, LLMConfiguredModelTypesNames, LLMImplResponseSummary } from "../../types/llm-types";
 import AbstractLLM from "../abstract-llm";
 import { getErrorText, getErrorStack } from "../../utils/error-utils";
 const UTF8_ENCODING = "utf8";
@@ -12,7 +11,7 @@ const UTF8_ENCODING = "utf8";
 /**
  * Class for the public AWS Bedrock service (multiple possible LLMs)
  */
-export abstract class AbstractAWSBedrock extends AbstractLLM {
+abstract class BaseAWSBedrock extends AbstractLLM {
   // Private fields
   private readonly embeddingsModelName: string;
   private readonly completionsModelRegularName: string;
@@ -55,7 +54,7 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
   /**
    * Get the names of the models this plug-in provides.
    */ 
-  public getModelsNames(): LLMConfiguredModelTypes {
+  public getModelsNames(): LLMConfiguredModelTypesNames {
     return {
       embeddings: this.embeddingsModelName,
       regular: this.completionsModelRegularName,
@@ -65,45 +64,37 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
 
 
   /**
-   * Execute the prompt against the LLM and return the LLM's answer.
+   * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    * 
    * NOTE: `rawResponse["$metadata"]?.httpStatusCode` shows the response status code. However, this
    * always seems to be 200 if no exceptions thrown. Other codes like 400 or 429 only appear in the
    * `error`object thrown by the API, so only accessible from the catch block.
    */
-  protected async runLLMTask(model: string, taskType: LLMPurpose, prompt: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse> {
+  protected async invokeLLMSummarizingResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
+    // Invoke LLM
+    const fullParameters = this.buildFullLLMParameters(taskType, model, prompt);
+    const command = new InvokeModelCommand(fullParameters);
+    const rawResponse = await this.client.send(command);
+    if (!rawResponse?.body) throw new Error("LLM raw response was completely empty");
+    const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(UTF8_ENCODING));
+    if (!llmResponse) throw new Error("LLM response when converted to JSON was empty");
 
-    try {
-      // Invoke LLM
-      const fullParameters = this.buildFullLLMParameters(taskType, model, prompt);
-      const command = new InvokeModelCommand(fullParameters);
-      const rawResponse = await this.client.send(command);
-      if (!rawResponse?.body) throw new Error("LLM raw response was completely empty");
-      const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(UTF8_ENCODING));
-      if (!llmResponse) throw new Error("LLM response when converted to JSON was empty");
+    // Capture response content
+    const responseContent = llmResponse.embedding || llmResponse?.completion || llmResponse?.content?.[0]?.text || llmResponse?.results[0]?.outputText;
 
-      // Capture response content
-      const responseContent = llmResponse.embedding || llmResponse?.completion || llmResponse?.content?.[0]?.text || llmResponse?.results[0]?.outputText;
+    // Capture response reason
+    const finishReason = llmResponse?.stop_reason || llmResponse?.results?.[0]?.completionReason;
+    const isIncompleteResponse = ((finishReason === "max_tokens") || (finishReason === "LENGTH") || !responseContent);
 
-      // Capture response reason
-      const finishReason = llmResponse?.stop_reason || llmResponse?.results?.[0]?.completionReason;
-      const isIncompleteResponse = ((finishReason === "max_tokens") || (finishReason === "LENGTH") || !responseContent);
-
-      // Capture token usage  (for 3 settings below, first option is for Titan LLMs, second is Claude LLMs)
-      const promptTokens = llmResponse?.inputTextTokenCount ?? llmResponse?.usage?.input_tokens ?? -1;
-      const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? llmResponse?.usage?.output_tokens ?? -1;
-      const maxTotalTokens = -1;
-      const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
-      
-      // Process successful response
-      return this.captureLLMResponseFromSuccessfulCall(prompt, context, isIncompleteResponse, model, responseContent, tokenUsage, taskType, doReturnJSON);
-    } catch (error: unknown) {
-      // Process error response
-      return this.captureLLMResponseFromThrownError(error, prompt, context, model, llmAPIErrorPatterns.BEDROCK_ERROR_MSG_TOKENS_PATTERNS);
-    }
+    // Capture token usage  (for 3 settings below, first option is for Titan LLMs, second is Claude LLMs)
+    const promptTokens = llmResponse?.inputTextTokenCount ?? llmResponse?.usage?.input_tokens ?? -1;
+    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? llmResponse?.usage?.output_tokens ?? -1;
+    const maxTotalTokens = -1;
+    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
+    return { isIncompleteResponse, responseContent, tokenUsage };
   }
 
-
+  
   /**
    * See if the contents of the responses indicate inability to fully process request due to 
    * overloading.
@@ -147,3 +138,5 @@ export abstract class AbstractAWSBedrock extends AbstractLLM {
   }
 }
 
+
+export default BaseAWSBedrock;

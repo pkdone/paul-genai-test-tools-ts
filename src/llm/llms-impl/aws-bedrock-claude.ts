@@ -3,14 +3,14 @@ import { llmConst } from "../../types/llm-constants";
 import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35, MODEL_NOT_SPECIFIED } 
        from "../../types/llm-models";
 import { LLMPurpose } from "../../types/llm-types";
-import {AbstractAWSBedrock } from "./abstract-aws-bedrock";
+import BaseAWSBedrock from "./base-aws-bedrock";
 
 
 /** 
  * Class for the AWS Bedrock [Anthropic] Claude service.
  *
  */
-class AWSBedrockClaude extends AbstractAWSBedrock {
+class AWSBedrockClaude extends BaseAWSBedrock {
   /**
    * Constructor.
    */

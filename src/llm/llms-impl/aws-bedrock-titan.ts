@@ -3,13 +3,13 @@ import { llmConst } from "../../types/llm-constants";
 import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1, 
          MODEL_NOT_SPECIFIED } from "../../types/llm-models";
 import { LLMPurpose } from "../../types/llm-types";
-import {AbstractAWSBedrock } from "./abstract-aws-bedrock";
+import BaseAWSBedrock from "./base-aws-bedrock";
 
 
 /**
  * Class for the AWS Bedrock Titan service.
  */
-class AWSBedrockTitan extends AbstractAWSBedrock {
+class AWSBedrockTitan extends BaseAWSBedrock {
   /**
    * Constructor.
    */

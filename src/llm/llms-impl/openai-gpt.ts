@@ -6,15 +6,15 @@ import { llmConst } from "../../types/llm-constants";
 import { GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3, GPT_COMPLETIONS_MODEL_GPT4_TURBO,
          GPT_COMPLETIONS_MODEL_GPT4_O, 
          llmModels} from "../../types/llm-models";
-import { LLMConfiguredModelTypes } from "../../types/llm-types";
+import { LLMConfiguredModelTypesNames } from "../../types/llm-types";
 import { GPTLLMError } from "../../types/gpt-types";
-import AbstractGPT from "./abstract-gpt";
+import BaseGPT from "./base-gpt";
 
 
 /**
  * Class for the public OpenAI service.
  */
-class OpenAIGPT extends AbstractGPT {
+class OpenAIGPT extends BaseGPT {
   // Private fields
   private readonly client: OpenAI;
 
@@ -33,7 +33,7 @@ class OpenAIGPT extends AbstractGPT {
   /**
    * Get the names of the models this plug-in provides.
    */ 
-  public getModelsNames(): LLMConfiguredModelTypes {
+  public getModelsNames(): LLMConfiguredModelTypesNames {
     return {
       embeddings: GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3,
       regular: GPT_COMPLETIONS_MODEL_GPT4_TURBO,

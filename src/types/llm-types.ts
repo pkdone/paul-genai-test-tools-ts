@@ -1,7 +1,21 @@
+
+/**
+ * Interface for LLM implementation provider
+ */
+export interface LLMProviderImpl {
+  getModelsNames(): LLMConfiguredModelTypesNames,
+  getAvailableCompletionModelQualities(): LLMModelQualities[],
+  generateEmbeddings: LLMFunction,
+  executeCompletionRegular: LLMFunction,
+  executeCompletionPremium: LLMFunction,
+  close(): Promise<void>,
+};
+
+
 /**
  * Enum to define the model quality required (regular, regular+, premium)
  */
-export enum LLMModelQuality {
+export enum LLMModelQualities {
   REGULAR = "regular",
   REGULAR_PLUS = "regular+",
   PREMIUM = "premium",
@@ -11,7 +25,7 @@ export enum LLMModelQuality {
 /**
  * Types to define the status types statistics
  */
-export type LLMConfiguredModelTypes = {
+export type LLMConfiguredModelTypesNames = {
   embeddings: string,
   regular: string,
   premium: string,
@@ -83,7 +97,6 @@ export type LLMFunctionResponse = {
   readonly tokensUage?: LLMResponseTokensUsage,
 };
 
-
 /**
  * Type to define the embedding or completion function
  */
@@ -91,17 +104,13 @@ export type LLMFunction = (content: string, doReturnJSON: boolean, context: LLMC
 
 
 /**
- * Interface for LLM provider
+ * Type to define the summary of the processed LLm response
  */
-export interface LLMProviderImpl {
-  getModelsNames(): LLMConfiguredModelTypes,
-  getAvailableCompletionModelQualities(): LLMModelQuality[],
-  generateEmbeddings: LLMFunction,
-  executeCompletionRegular: LLMFunction,
-  executeCompletionPremium: LLMFunction,
-  close(): Promise<void>,
+export type LLMImplResponseSummary = {
+  isIncompleteResponse: boolean;
+  responseContent: string;
+  tokenUsage: LLMResponseTokensUsage;
 };
-
 
 
 /**

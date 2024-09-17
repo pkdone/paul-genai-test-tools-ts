@@ -5,7 +5,7 @@ import { getEnvVar } from "./utils/envvar-utils";
 import { readFile, readDirContents, getFileSuffix } from "./utils/basics-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
 import LLMRouter from "./llm/llm-router";
-import { LLMModelQuality } from "./types/llm-types";
+import { LLMModelQualities } from "./types/llm-types";
 import { getErrorText, getErrorStack } from "./utils/error-utils";
 
 
@@ -91,7 +91,7 @@ async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, filepath: stri
   if (!content) return;  // Skip empty files
   const context = { filepath };
   const _result1 = await llmRouter.generateEmbeddings(filepath, getPrompt(content), context);
-  const _result2 = await llmRouter.executeCompletion(filepath, getPrompt(content), LLMModelQuality.REGULAR_PLUS, true, context);
+  const _result2 = await llmRouter.executeCompletion(filepath, getPrompt(content), LLMModelQualities.REGULAR_PLUS, true, context);
 }
 
 

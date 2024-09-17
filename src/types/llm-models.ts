@@ -70,7 +70,7 @@ export const llmModels: Readonly<{ [key: string]: LLMModelMetadata }> = {
   },
   [GCP_COMPLETIONS_MODEL_GEMINI_PRO15]: {
     purpose: LLMPurpose.COMPLETION,
-    maxCompletionTokens: 8_192,   // For some reason the completion tokens limit here isn't hit when it is for Flash15 above
+    maxCompletionTokens: 8_192,   // For some reason the completion tokens limit here isn't always hit when it is for Flash15 above
     maxTotalTokens: 2_097_152,
   },
   [AWS_EMBEDDINGS_MODEL_TITAN_V1]: {
