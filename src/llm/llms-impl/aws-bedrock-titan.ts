@@ -1,8 +1,6 @@
-import { InvokeModelCommandInput } from "@aws-sdk/client-bedrock-runtime";
 import { llmConst } from "../../types/llm-constants";
 import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1, 
          MODEL_NOT_SPECIFIED } from "../../types/llm-models";
-import { LLMPurpose } from "../../types/llm-types";
 import BaseAWSBedrock from "./base-aws-bedrock";
 
 
@@ -26,34 +24,18 @@ class AWSBedrockTitan extends BaseAWSBedrock {
 
 
   /**
-   * Assemble the AWS Bedrock API parameters structure for Titan models and prompt.
+   * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, model: string, prompt: string): InvokeModelCommandInput {
-    let body = "";    
-
-    if (taskType === LLMPurpose.EMBEDDINGS) {
-      body = JSON.stringify({
-        inputText: prompt,
-      });
-    } else {
-      const maxTokenCount = llmModels[model].maxTotalTokens;      
-      body = JSON.stringify({
-        inputText: prompt,
-        textGenerationConfig: {
-          temperature: llmConst.ZERO_TEMP,
-          topP: llmConst.TOP_P_VLOW,
-          maxTokenCount,
-        },
-      });
-    }
-
-    return  { 
-      modelId: model,
-      contentType: llmConst.RESPONSE_JSON_CONTENT_TYPE,
-      accept: llmConst.RESPONSE_ANY_CONTENT_TYPE,
-      body,
-    };
-  }  
+  protected buildCompletionModelSpecificParamters(model: string, body: string, prompt: string): string {
+    return JSON.stringify({
+      inputText: prompt,
+      textGenerationConfig: {
+        temperature: llmConst.ZERO_TEMP,
+        topP: llmConst.TOP_P_VLOW,
+        maxTokenCount: llmModels[model].maxTotalTokens,
+      },
+    });
+  }
 }
 
 

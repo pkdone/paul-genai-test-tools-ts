@@ -5,6 +5,7 @@ import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, Mode
 import { LLMPurpose, LLMConfiguredModelTypesNames, LLMImplResponseSummary } from "../../types/llm-types";
 import AbstractLLM from "../abstract-llm";
 import { getErrorText, getErrorStack } from "../../utils/error-utils";
+import { llmConst } from "../../types/llm-constants";
 const UTF8_ENCODING = "utf8";
 
 
@@ -27,16 +28,16 @@ abstract class BaseAWSBedrock extends AbstractLLM {
     this.embeddingsModelName = embeddingsModelName;
     this.completionsModelRegularName = completionsModelRegularName;
     this.completionsModelPremiumName = completionsModelPremiumName;
-    this.client = new BedrockRuntimeClient();
+    this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS } });
     console.log("AWS Bedrock client created");
   }
 
   
   /**
    * Abstract method to be overriden. Assemble the AWS Bedrock API parameters structure for the 
-   * specific models and prompt.
+   * specific completions model hosted on Bedroc.
    */
-  protected abstract buildFullLLMParameters(taskType: LLMPurpose, model: string, prompt: string): InvokeModelCommandInput;
+  protected abstract buildCompletionModelSpecificParamters(model: string, body: string, prompt: string): string;
 
 
   /**
@@ -100,6 +101,30 @@ abstract class BaseAWSBedrock extends AbstractLLM {
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };
+  }
+
+
+  /**
+   * Assemble the AWS Bedrock API parameters structure for embeddings and completions models with 
+   * the prompt.
+   */
+  protected buildFullLLMParameters(taskType: LLMPurpose, model: string, prompt: string): InvokeModelCommandInput  {
+    let body = "";
+
+    if (taskType === LLMPurpose.EMBEDDINGS) {
+      body = JSON.stringify({
+        inputText: prompt,
+      });
+    } else {
+      body = this.buildCompletionModelSpecificParamters(model, body, prompt);
+    }
+
+    return {
+      modelId: model,
+      contentType: llmConst.RESPONSE_JSON_CONTENT_TYPE,
+      accept: llmConst.RESPONSE_ANY_CONTENT_TYPE,
+      body,
+    };
   }
 
   

@@ -1,8 +1,6 @@
-import { InvokeModelCommandInput } from "@aws-sdk/client-bedrock-runtime";
 import { llmConst } from "../../types/llm-constants";
 import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_CLAUDE_V35, MODEL_NOT_SPECIFIED } 
        from "../../types/llm-models";
-import { LLMPurpose } from "../../types/llm-types";
 import BaseAWSBedrock from "./base-aws-bedrock";
 
 
@@ -27,44 +25,28 @@ class AWSBedrockClaude extends BaseAWSBedrock {
 
 
   /**
-   * Assemble the AWS Bedrock API parameters structure for Titan models and prompt.
+   * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, model: string, prompt: string): InvokeModelCommandInput  {
-    let body = "";
-
-    if (taskType === LLMPurpose.EMBEDDINGS) {
-      body = JSON.stringify({
-        inputText: prompt,
-      });
-    } else {
-      const maxTokenCount = llmModels[model].maxTotalTokens;
-      body = JSON.stringify({
-        anthropic_version: llmConst.AWS_ANTHROPIC_API_VERSION,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: prompt,
-              },
-            ],
-          },
-        ],
-        temperature: llmConst.ZERO_TEMP,
-        top_p: llmConst.TOP_P_LOWEST,
-        top_k: llmConst.TOP_K_LOWEST,
-        max_tokens: maxTokenCount,
-      });
-    }
-    
-    return { 
-      modelId: model,
-      contentType: llmConst.RESPONSE_JSON_CONTENT_TYPE,
-      accept: llmConst.RESPONSE_ANY_CONTENT_TYPE,
-      body,      
-    };
-  }  
+  protected buildCompletionModelSpecificParamters(model: string, body: string, prompt: string): string {
+    return JSON.stringify({
+      anthropic_version: llmConst.AWS_ANTHROPIC_API_VERSION,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: prompt,
+            },
+          ],
+        },
+      ],
+      temperature: llmConst.ZERO_TEMP,
+      top_p: llmConst.TOP_P_LOWEST,
+      top_k: llmConst.TOP_K_LOWEST,
+      max_tokens: llmModels[model].maxTotalTokens,
+    });
+  }
 }
 
 
