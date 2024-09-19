@@ -11,6 +11,7 @@ import AzureOpenAIGPT from "./llms-impl/azure-openai-gpt";
 import GcpVertexAIGemini from "./llms-impl/gcp-vertexai-gemini";
 import AWSBedrockTitan from "./llms-impl/aws-bedrock-titan";
 import AWSBedrockClaude from "./llms-impl/aws-bedrock-claude";
+import AWSBedrockLlama from "./llms-impl/aws-bedrock-llama";
 
 
 /**
@@ -51,6 +52,7 @@ class LLMRouter {
       case llmConst.GCP_VERTEXAI_GEMINI_MODELS: return new GcpVertexAIGemini();
       case llmConst.AWS_BEDROCK_TITAN_MODELS: return new AWSBedrockTitan();
       case llmConst.AWS_BEDROCK_CLAUDE_MODELS: return new AWSBedrockClaude();
+      case llmConst.AWS_BEDROCK_LLAMA_MODELS: return new AWSBedrockLlama();
       default: throw new Error("No valid LLM implementation specified via the 'LLM' environment variable");
     }
   }
@@ -117,7 +119,7 @@ class LLMRouter {
 
     while (llmFuncIndex < llmFuncs.length) {
       try {
-        if (this.doLogEachResource) this.log(`GO: ${resourceName}`);
+        if (this.doLogEachResource) this.log(`PROCESS: ${resourceName}`);
         let llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, doReturnJSON, context);
 
         if (llmResponse?.status === LLMResponseStatus.COMPLETED) {

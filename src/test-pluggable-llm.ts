@@ -15,9 +15,11 @@ async function main(): Promise<void> {
   const prompt = await readFile(appConst.SAMPLE_PROMPT_FILEPATH);
   console.log("\n---PROMPT---");
   console.log(prompt);
+  /*
   console.log("\n\n---EMBEDDINGS---");
   const embeddingsResult = await llmRouter.generateEmbeddings("hard-coded-test-input", prompt);
   console.log(embeddingsResult);
+  */
   console.log("\n\n---COMPLETION (Regular LLM)---");
   const completionRegularResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, LLMModelQualities.REGULAR, false);
   console.log(completionRegularResult);
@@ -27,7 +29,7 @@ async function main(): Promise<void> {
   console.log(" ");
   await llmRouter.close();
   console.log(`END: ${new Date()}`);
-  process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running
+  process.exit();  // Force exit because some LLM API libraries may have indefinite background tasks running
 }
 
 

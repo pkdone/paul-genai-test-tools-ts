@@ -79,16 +79,24 @@ abstract class BaseAWSBedrock extends AbstractLLM {
     const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(UTF8_ENCODING));
     if (!llmResponse) throw new Error("LLM response when converted to JSON was empty");
 
-    // Capture response content
-    const responseContent = llmResponse.embedding || llmResponse?.completion || llmResponse?.content?.[0]?.text || llmResponse?.results[0]?.outputText;
+    // Capture response content and finish reasons
+    const responseContent = llmResponse?.embedding                // Titan embeddings
+                         || llmResponse?.results?.[0]?.outputText // Titan completion
+                         || llmResponse?.content?.[0]?.text       // Claude completion
+                         || llmResponse?.generation;              // Llama completion
 
-    // Capture response reason
-    const finishReason = llmResponse?.stop_reason || llmResponse?.results?.[0]?.completionReason;
-    const isIncompleteResponse = ((finishReason === "max_tokens") || (finishReason === "LENGTH") || !responseContent);
+    // Capture finish reason
+    const finishReason = llmResponse?.results?.[0]?.completionReason // Titan completion            
+                      || llmResponse?.stop_reason                    // Claude / Llama completion
+                      || "";                                         // Titan embeddings
+    const finishReasonLowercase = finishReason.toLowerCase();
+    const isIncompleteResponse = ((finishReasonLowercase === "max_tokens") // Titan completion
+                               || (finishReasonLowercase === "length")     // Claude (uppercase) / Llama (lowercase) completion
+                               || !responseContent);                       // No content - assume prompt maxed out total tokens available
 
-    // Capture token usage  (for 3 settings below, first option is for Titan LLMs, second is Claude LLMs)
-    const promptTokens = llmResponse?.inputTextTokenCount ?? llmResponse?.usage?.input_tokens ?? -1;
-    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? llmResponse?.usage?.output_tokens ?? -1;
+    // Capture token usage  (for 3 settings below, first option is for Titan completion, second is Claude completion, third is for Llama completion)
+    const promptTokens = llmResponse?.inputTextTokenCount ?? llmResponse?.usage?.input_tokens ?? llmResponse?.prompt_token_count ?? -1;
+    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? llmResponse?.usage?.output_tokens ?? llmResponse?.generation_token_count ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };
@@ -116,7 +124,8 @@ abstract class BaseAWSBedrock extends AbstractLLM {
 
       if ((lowercaseContent.includes("too many input tokens")) ||
           (lowercaseContent.includes("expected maxlength")) ||
-          (lowercaseContent.includes("input is too long"))) {
+          (lowercaseContent.includes("input is too long")) ||
+          (lowercaseContent.includes("please reduce the length of the prompt"))) {   // Llama
         return true;
       }
     }

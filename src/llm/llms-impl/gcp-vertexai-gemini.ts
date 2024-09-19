@@ -61,7 +61,7 @@ class GcpVertexAIGemini extends AbstractLLM {
     // Capture response content
     const responseContent = llmResponse?.content?.parts?.[0]?.text ?? "";
 
-    // Capture response reason
+    // Capture finish reason
     const finishReason = llmResponse?.finishReason ?? FinishReason.OTHER;
     if (VERTEXAI_TERMINAL_FINISH_REASONS.includes(finishReason)) throw new Error(`LLM response was not safely completed - reason given: ${finishReason}`);
     const isIncompleteResponse = ((finishReason !== FinishReason.STOP)) || (!responseContent);

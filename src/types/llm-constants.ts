@@ -1,4 +1,4 @@
-import { LLMErrorMsgRegExPattern } from "./llm-types";
+import { LLM_API_FAMILY, LLMErrorMsgRegExPattern } from "./llm-types";
 
 /**
  * Set of LLM related constants
@@ -9,6 +9,7 @@ export const llmConst = {
   GCP_VERTEXAI_GEMINI_MODELS: "GcpVertexAIGemini",
   AWS_BEDROCK_TITAN_MODELS: "AWSBedrockTitan",
   AWS_BEDROCK_CLAUDE_MODELS: "AWSBedrockClaude",
+  AWS_BEDROCK_LLAMA_MODELS: "AWSBedrockLlama",
   REGULAR_MODEL_QUALITY_NAME: "regular",
   PREMIUM_MODEL_QUALITY_NAME: "premium",
   MIN_RETRY_DELAY_MILLIS: 20 * 1000,
@@ -34,18 +35,20 @@ export const llmConst = {
  * Set of LLM error message patterns
  */
 export const llmAPIErrorPatterns: Readonly<{ [key: string]: LLMErrorMsgRegExPattern[] }> = {
-  GPT_ERROR_MSG_TOKENS_PATTERNS: [
+  [LLM_API_FAMILY.GPT]: [
     // 1. "This model's maximum context length is 8191 tokens, however you requested 10346 tokens (10346 in your prompt; 5 for the completion). Please reduce your prompt; or completion length.",
     { pattern: /max.*?(\d+) tokens.*?\(.*?(\d+).*?prompt.*?(\d+).*?completion/, units: "tokens" },
     // 2. "This model's maximum context length is 8192 tokens. However, your messages resulted in 8545 tokens. Please reduce the length of the messages."
     { pattern: /max.*?(\d+) tokens.*?(\d+) /, units: "tokens" },
   ] as const,
-  BEDROCK_ERROR_MSG_TOKENS_PATTERNS: [
+  [LLM_API_FAMILY.BEDROCK]: [
     // 1. "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 8192, request input token count: 9279 "
     { pattern: /ax input tokens.*?(\d+).*?request input token count.*?(\d+)/, units: "tokens" },
     // 2. "ValidationException: Malformed input request: expected maxLength: 50000, actual: 52611, please reformat your input and try again."
     { pattern: /maxLength.*?(\d+).*?actual.*?(\d+)/, units: "chars" },
+    // 3. Llama: "ValidationException: This model's maximum context length is 8192 tokens. Please reduce the length of the prompt"
+    { pattern: /maximum context length is ?(\d+) tokens/, units: "tokens" },
   ] as const,  
-  VERTEXAI_ERROR_MSG_TOKENS_PATTERNS: [
+  [LLM_API_FAMILY.VERTEXAI]: [
   ] as const,
 } as const;

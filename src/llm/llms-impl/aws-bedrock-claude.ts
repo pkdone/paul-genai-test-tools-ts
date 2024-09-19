@@ -1,6 +1,6 @@
 import { InvokeModelCommandInput } from "@aws-sdk/client-bedrock-runtime";
 import { llmConst } from "../../types/llm-constants";
-import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35, MODEL_NOT_SPECIFIED } 
+import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_CLAUDE_V35, MODEL_NOT_SPECIFIED } 
        from "../../types/llm-models";
 import { LLMPurpose } from "../../types/llm-types";
 import BaseAWSBedrock from "./base-aws-bedrock";
@@ -18,10 +18,10 @@ class AWSBedrockClaude extends BaseAWSBedrock {
     super(
       AWS_EMBEDDINGS_MODEL_TITAN_V1,
       null,
-      ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35,
+      AWS_COMPLETIONS_MODEL_CLAUDE_V35,
       AWS_EMBEDDINGS_MODEL_TITAN_V1,
       MODEL_NOT_SPECIFIED,
-      ANTHROPIC_COMPLETIONS_MODEL_CLAUDE_V35
+      AWS_COMPLETIONS_MODEL_CLAUDE_V35
     ); 
   }
 

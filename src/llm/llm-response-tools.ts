@@ -1,7 +1,7 @@
-import { llmConst } from "../types/llm-constants";
+import { llmAPIErrorPatterns, llmConst } from "../types/llm-constants";
 import { llmModels } from "../types/llm-models";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
-         LLMResponseStatus,LLMErrorMsgRegExPattern } from "../types/llm-types";
+         LLMResponseStatus } from "../types/llm-types";
 
 
 /**
@@ -21,21 +21,22 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(model: st
  * Function to extract token usage information and limit from LLM error message. Derives values
  * for all prompt/completions/maxTokens if not found in the error message.
  */
-export function extractTokensAmountAndLimitFromErrorMsg(model: string, patternDefinitions: LLMErrorMsgRegExPattern[], prompt: string, errorMsg: string): LLMResponseTokensUsage {
+export function extractTokensAmountAndLimitFromErrorMsg(model: string, prompt: string, errorMsg: string): LLMResponseTokensUsage {
   let promptTokens = -1;
   let completionTokens = 0;
   let maxTotalTokens = -1;    
+  const patternDefinitions = llmAPIErrorPatterns[llmModels[model].llmApi];
 
   if (patternDefinitions) {
     for (const patternDefinition of patternDefinitions) {
       const matches = errorMsg.match(patternDefinition.pattern);
 
-      if (matches && matches.length > 2) {
+      if (matches && matches.length > 1) {
         if (patternDefinition.units === "tokens") {
           maxTotalTokens = parseInt(matches[1], 10);
-          promptTokens = parseInt(matches[2], 10);
+          promptTokens =  matches.length > 2 ? parseInt(matches[2], 10): -1;
           completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
-        } else {
+        } else if (matches.length > 2) {
           const charsLimit = parseInt(matches[1], 10);
           const charsPrompt = parseInt(matches[2], 10);
           maxTotalTokens = llmModels[model].maxTotalTokens;  

@@ -42,7 +42,7 @@ abstract class BaseGPT extends AbstractLLM {
     // Capture response content
     const responseContent = llmResponse.embedding || llmResponse.message?.content;
 
-    // Capture response reason
+    // Capture finish reason
     const finishReason = llmResponse?.finishReason ?? llmResponse?.finish_reason;
     const isIncompleteResponse = (finishReason === "length") || (!responseContent);
 

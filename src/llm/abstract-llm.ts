@@ -4,7 +4,6 @@ import { extractTokensAmountFromMetadataDefaultingMissingValues,
 import { LLMModelQualities, LLMContext, LLMPurpose, LLMProviderImpl, LLMFunctionResponse, 
          LLMResponseStatus, LLMImplResponseSummary } from "../types/llm-types";
 import { getErrorText } from "../utils/error-utils";       
-import { llmAPIErrorPatterns } from "../types/llm-constants";
 
 
 /**
@@ -125,7 +124,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
       if (this.isLLMOverloaded(error)) {
         return { ...skeletonResponse, status: LLMResponseStatus.OVERLOADED };
       } else if (this.isTokenLimitExceeded(error)) {
-        return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountAndLimitFromErrorMsg(model, llmAPIErrorPatterns.GPT_ERROR_MSG_TOKENS_PATTERNS, request, getErrorText(error)) };
+        return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountAndLimitFromErrorMsg(model, request, getErrorText(error)) };
       } else {
         throw error;
       }
