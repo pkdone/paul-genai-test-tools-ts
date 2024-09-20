@@ -37,7 +37,13 @@ abstract class BaseAWSBedrock extends AbstractLLM {
    * Abstract method to be overriden. Assemble the AWS Bedrock API parameters structure for the 
    * specific completions model hosted on Bedroc.
    */
-  protected abstract buildCompletionModelSpecificParamters(model: string, body: string, prompt: string): string;
+  protected abstract buildCompletionModelSpecificParameters(model: string, body: string, prompt: string): string;
+
+  
+  /**
+   * Extract the relevant information from the LLM specific response.
+   */
+  protected abstract extractModelSpecificResponseMetadata(llmResponse: any): LLMImplResponseSummary;
 
 
   /**
@@ -72,35 +78,13 @@ abstract class BaseAWSBedrock extends AbstractLLM {
    * `error`object thrown by the API, so only accessible from the catch block.
    */
   protected async invokeLLMSummarizingResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
-    // Invoke LLM
     const fullParameters = this.buildFullLLMParameters(taskType, model, prompt);
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
     if (!rawResponse?.body) throw new Error("LLM raw response was completely empty");
     const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(UTF8_ENCODING));
     if (!llmResponse) throw new Error("LLM response when converted to JSON was empty");
-
-    // Capture response content and finish reasons
-    const responseContent = llmResponse?.embedding                // Titan embeddings
-                         || llmResponse?.results?.[0]?.outputText // Titan completion
-                         || llmResponse?.content?.[0]?.text       // Claude completion
-                         || llmResponse?.generation;              // Llama completion
-
-    // Capture finish reason
-    const finishReason = llmResponse?.results?.[0]?.completionReason // Titan completion            
-                      || llmResponse?.stop_reason                    // Claude / Llama completion
-                      || "";                                         // Titan embeddings
-    const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = ((finishReasonLowercase === "max_tokens") // Titan completion
-                               || (finishReasonLowercase === "length")     // Claude (uppercase) / Llama (lowercase) completion
-                               || !responseContent);                       // No content - assume prompt maxed out total tokens available
-
-    // Capture token usage  (for 3 settings below, first option is for Titan completion, second is Claude completion, third is for Llama completion)
-    const promptTokens = llmResponse?.inputTextTokenCount ?? llmResponse?.usage?.input_tokens ?? llmResponse?.prompt_token_count ?? -1;
-    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? llmResponse?.usage?.output_tokens ?? llmResponse?.generation_token_count ?? -1;
-    const maxTotalTokens = -1;
-    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
-    return { isIncompleteResponse, responseContent, tokenUsage };
+    return this.extractModelSpecificResponseMetadata(llmResponse);
   }
 
 
@@ -116,7 +100,7 @@ abstract class BaseAWSBedrock extends AbstractLLM {
         inputText: prompt,
       });
     } else {
-      body = this.buildCompletionModelSpecificParamters(model, body, prompt);
+      body = this.buildCompletionModelSpecificParameters(model, body, prompt);
     }
 
     return {

@@ -1,5 +1,5 @@
 import { extractSpecialTypeFromObj, convertToType } from "./envvar-utils";
-import { getFileSuffix } from "./basics-utils";
+import { getFileSuffix } from "./fs-utils";
 
 
 test("extract date from json", () => {

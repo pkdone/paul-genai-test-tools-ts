@@ -99,8 +99,7 @@ class LLMRouter {
     const modelQualitiesSupported = this.llmImpl.getAvailableCompletionModelQualities();
     startingModelQuality = this.adjustStartingModelQualityBasedOnAvailability(modelQualitiesSupported, startingModelQuality);
     context.modelQuality = (startingModelQuality === LLMModelQualities.REGULAR_PLUS) ? LLMModelQualities.REGULAR : startingModelQuality;
-    const result = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, this.getModelQualityCompletionFunctions(startingModelQuality), doReturnJSON);
-    return result;
+    return this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, this.getModelQualityCompletionFunctions(startingModelQuality), doReturnJSON);
   }  
 
 

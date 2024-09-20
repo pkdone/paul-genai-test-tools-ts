@@ -2,7 +2,7 @@ import path from "path";
 import appConst from "./types/app-constants";
 import envConst from "./types/env-constants";
 import { getEnvVar } from "./utils/envvar-utils";
-import { readFile, readDirContents, getFileSuffix } from "./utils/basics-utils";
+import { readFile, appendFile, readDirContents, getFileSuffix, clearDirectory } from "./utils/fs-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
 import LLMRouter from "./llm/llm-router";
 import { LLMModelQualities } from "./types/llm-types";
@@ -14,11 +14,13 @@ import { getErrorText, getErrorStack } from "./utils/error-utils";
  */
 async function main(): Promise<void> {
   console.log(`START: ${new Date()}`);
+  await clearDirectory(appConst.OUTPUT_DIR);  
+  const outputFilePath = path.join(__dirname, "..", appConst.OUTPUT_DIR, appConst.OUTPUT_SUMMARY_FILE);
   const srcDirPath = getEnvVar<string>(envConst.ENV_CODEBASE_DIR_PATH);
-  const files = await buildDirDescendingListOfFiles(srcDirPath);
+  const srcFilepaths = await buildDirDescendingListOfFiles(srcDirPath);
   const llmRouter = new LLMRouter(getEnvVar(envConst.ENV_LLM), getEnvVar(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
   llmRouter.displayLLMStatusSummary();
-  await feedFilesThruLLMConcurrently(llmRouter, files);
+  await feedFilesThruLLMConcurrently(llmRouter, srcFilepaths, outputFilePath);
   llmRouter.displayLLMStatusDetails();
   await llmRouter.close();
   console.log(`END: ${new Date()}`);
@@ -63,13 +65,13 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
 /**
  * Function to process files concurrently using the LLM.
  */
-async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, filepaths: string[]) {
+async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: string[], outputFilePath: string) {
   const jobs = [];
 
-  for (const filepath of filepaths) {
+  for (const srcFilepath of srcFilepaths) {
     jobs.push(async () => {
       try {
-        await captureMetadataForFileViaLLM(llmRouter, filepath);   
+        await captureMetadataForFileViaLLM(llmRouter, srcFilepath, outputFilePath);   
       } catch (error: unknown) {
         console.error("Problem introspecting and processing source files", getErrorText(error), getErrorStack(error));    
       }
@@ -83,15 +85,17 @@ async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, filepaths: str
 /**
  * Function to capture metadata for a file using the LLM.
  */
-async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, filepath: string): Promise<void> {
-  const type = getFileSuffix(filepath).toLowerCase();
+async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: string, outputFilePath: string): Promise<void> {
+  const type = getFileSuffix(srcFilepath).toLowerCase();
   if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type)) return;  // Skip file if it has binary content
-  let content = await readFile(filepath);
+  let content = await readFile(srcFilepath);
   content = content.trim();
   if (!content) return;  // Skip empty files
-  const context = { filepath };
-  const _result1 = await llmRouter.generateEmbeddings(filepath, getPrompt(content), context);
-  const _result2 = await llmRouter.executeCompletion(filepath, getPrompt(content), LLMModelQualities.REGULAR_PLUS, true, context);
+  const context = { filepath: srcFilepath };
+  const _embeddingsResult = await llmRouter.generateEmbeddings(srcFilepath, getPrompt(content), context);
+  const completionResult = await llmRouter.executeCompletion(srcFilepath, getPrompt(content), LLMModelQualities.REGULAR_PLUS, true, context);
+  const outputContent = `${JSON.stringify(completionResult, null, 2)}\n\n-----------------------------\n\n`;
+  appendFile(outputFilePath, outputContent);
 }
 
 

@@ -93,7 +93,7 @@ export type LLMResponseTokensUsage = {
 /**
  * Type to define the LLM error
  */
-export type LLMGeneratedContent = string | number[] | null;
+export type LLMGeneratedContent = string | object | number[] | null;
 
 
 /**

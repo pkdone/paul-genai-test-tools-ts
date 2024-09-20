@@ -2,7 +2,7 @@ import path from "path";
 import appConst from "./types/app-constants";
 import envConst from "./types/env-constants";
 import { getEnvVar } from "./utils/envvar-utils";
-import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } from "./utils/basics-utils";
+import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } from "./utils/fs-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
 import LLMRouter from "./llm/llm-router";
 import { LLMModelQualities } from "./types/llm-types";

@@ -70,7 +70,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLM
   if (taskType === LLMPurpose.COMPLETION) {
     try {
       if (typeof responseContent !== "string") throw new Error("Generated content is not a string");
-      let generatedContent = responseContent;
+      let generatedContent: string | object = responseContent;
       if (doReturnJSON) generatedContent = convertTextToJSON(generatedContent);
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: generatedContent };
     } catch (error: unknown) {
@@ -109,7 +109,7 @@ export function reducePromptSizeToTokenLimit(prompt: string, model: string, toke
 /**
  * Convert the LLM response content to JSON, trimming the content to only include the JSON part.
  */
-function convertTextToJSON(content: string): string {
+function convertTextToJSON(content: string): object {
   const startJSONIndex = content.indexOf("{");
   const endJSONIndex = content.lastIndexOf("}");
 

@@ -20,6 +20,14 @@ export async function writeFile(filepath: string, content: string) {
 }
 
 
+//
+// Append content to a file.
+//
+export async function appendFile(filepath: string, content: string) {
+  await fs.appendFile(filepath, content, UTF8_ENCODING);
+}
+
+
 /**
  * Get the handle of the files in a directory
  */
