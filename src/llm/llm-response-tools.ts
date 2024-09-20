@@ -12,7 +12,7 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(model: st
   let {promptTokens, completionTokens, maxTotalTokens } = tokenUsage;
   if (completionTokens < 0) completionTokens = 0;
   if (maxTotalTokens < 0) maxTotalTokens = llmModels[model].maxTotalTokens;
-  if (promptTokens < 0) promptTokens = Math.max(1, maxTotalTokens - completionTokens);
+  if (promptTokens < 0) promptTokens = Math.max(1, maxTotalTokens - completionTokens + 1);
   return { promptTokens, completionTokens, maxTotalTokens };
 }
 

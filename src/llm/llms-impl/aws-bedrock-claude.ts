@@ -1,12 +1,12 @@
 import { LLMImplResponseSummary } from "../../types/llm-types";
 import { llmConst } from "../../types/llm-constants";
-import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_CLAUDE_V35, MODEL_NOT_SPECIFIED } 
+import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_CLAUDE_V35 } 
        from "../../types/llm-models";
 import BaseAWSBedrock from "./base-aws-bedrock";
 
 
 /** 
- * Class for the AWS Bedrock [Anthropic] Claude service.
+ * Class for the AWS Bedrock [Anthropic] Claude LLMs.
  *
  */
 class AWSBedrockClaude extends BaseAWSBedrock {
@@ -18,9 +18,6 @@ class AWSBedrockClaude extends BaseAWSBedrock {
       AWS_EMBEDDINGS_MODEL_TITAN_V1,
       null,
       AWS_COMPLETIONS_MODEL_CLAUDE_V35,
-      AWS_EMBEDDINGS_MODEL_TITAN_V1,
-      MODEL_NOT_SPECIFIED,
-      AWS_COMPLETIONS_MODEL_CLAUDE_V35
     ); 
   }
 
@@ -56,8 +53,8 @@ class AWSBedrockClaude extends BaseAWSBedrock {
   protected extractModelSpecificResponseMetadata(llmResponse: any): LLMImplResponseSummary {
     const responseContent = llmResponse?.embedding // Titan embeddings
       || llmResponse?.content?.[0]?.text;          // Claude completion
-    const finishReason = llmResponse?.stop_reason  // Claude completion
-      || "";                                       // Titan embeddings
+    const finishReason = llmResponse?.stop_reason // Claude completion
+      || "";                                      // Titan embeddings
     const finishReasonLowercase = finishReason.toLowerCase();
     const isIncompleteResponse = ((finishReasonLowercase === "length") // Claude completion
       || !responseContent);                                            // No content - assume prompt maxed out total tokens available

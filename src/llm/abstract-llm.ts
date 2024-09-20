@@ -88,7 +88,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected abstract invokeLLMSummarizingResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary>;
+  protected abstract invokeLLMSpecificLLMSummarizingItsResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary>;
 
 
   /**
@@ -113,7 +113,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, model };
 
     try {
-      const { isIncompleteResponse, responseContent, tokenUsage } = await this.invokeLLMSummarizingResponse(taskType, model, request);
+      const { isIncompleteResponse, responseContent, tokenUsage } = await this.invokeLLMSpecificLLMSummarizingItsResponse(taskType, model, request);
 
       if (isIncompleteResponse) {
         return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountFromMetadataDefaultingMissingValues(model, tokenUsage) };

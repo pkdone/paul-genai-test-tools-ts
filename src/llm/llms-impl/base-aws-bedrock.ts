@@ -6,6 +6,7 @@ import { LLMPurpose, LLMConfiguredModelTypesNames, LLMImplResponseSummary } from
 import AbstractLLM from "../abstract-llm";
 import { getErrorText, getErrorStack } from "../../utils/error-utils";
 import { llmConst } from "../../types/llm-constants";
+import { MODEL_NOT_SPECIFIED } from "../../types/llm-models";
 const UTF8_ENCODING = "utf8";
 
 
@@ -23,11 +24,11 @@ abstract class BaseAWSBedrock extends AbstractLLM {
   /**
    * Constructor.
    */
-  constructor(embeddingsModel: string, completionsModelRegular: string | null, completionsModelPremium: string | null, embeddingsModelName: string, completionsModelRegularName: string, completionsModelPremiumName: string) { 
-    super(embeddingsModel, completionsModelRegular,completionsModelPremium );
-    this.embeddingsModelName = embeddingsModelName;
-    this.completionsModelRegularName = completionsModelRegularName;
-    this.completionsModelPremiumName = completionsModelPremiumName;
+  constructor(embeddingsModel: string, completionsModelRegular: string | null, completionsModelPremium: string | null) { 
+    super(embeddingsModel, completionsModelRegular, completionsModelPremium );
+    this.embeddingsModelName = embeddingsModel || MODEL_NOT_SPECIFIED;
+    this.completionsModelRegularName = completionsModelRegular ?? MODEL_NOT_SPECIFIED;
+    this.completionsModelPremiumName = completionsModelPremium ?? MODEL_NOT_SPECIFIED;
     this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS } });
     console.log("AWS Bedrock client created");
   }
@@ -77,7 +78,7 @@ abstract class BaseAWSBedrock extends AbstractLLM {
    * always seems to be 200 if no exceptions thrown. Other codes like 400 or 429 only appear in the
    * `error`object thrown by the API, so only accessible from the catch block.
    */
-  protected async invokeLLMSummarizingResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
+  protected async invokeLLMSpecificLLMSummarizingItsResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
     const fullParameters = this.buildFullLLMParameters(taskType, model, prompt);
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);

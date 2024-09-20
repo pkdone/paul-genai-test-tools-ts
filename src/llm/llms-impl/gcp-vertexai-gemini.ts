@@ -5,7 +5,8 @@ import { getEnvVar } from "../../utils/envvar-utils";
 import envConst from "../../types/env-constants";
 import { llmConst } from "../../types/llm-constants";
 import { GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15,
-         GCP_COMPLETIONS_MODEL_GEMINI_PRO15 } from "../../types/llm-models";
+         GCP_COMPLETIONS_MODEL_GEMINI_PRO15, 
+         llmModels} from "../../types/llm-models";
 import { LLMConfiguredModelTypesNames, LLMPurpose, LLMImplResponseSummary } from "../../types/llm-types";
 import { getErrorText } from "../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
@@ -49,7 +50,7 @@ class GcpVertexAIGemini extends AbstractLLM {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeLLMSummarizingResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
+  protected async invokeLLMSpecificLLMSummarizingItsResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
     // Invoke LLM
     const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, model);
     const llm = this.client.getGenerativeModel(modelParams, requestOptions);
@@ -86,7 +87,7 @@ class GcpVertexAIGemini extends AbstractLLM {
         topP: llmConst.TOP_P_LOWEST,
         topK: llmConst.TOP_K_LOWEST,
         temperature: llmConst.ZERO_TEMP,   
-        // maxOutputTokens: llmModels[model].maxTotalTokens,   // Can't set this cos GCP API hardcoded to low max tokens - errror: ClientError: [VertexAI.ClientError]: got status: 400 Bad Request. {"error":{"code":400,"message":"Unable to submit request because it has a maxOutputTokens value of 1048576 but the supported range is from 1 (inclusive) to 8193 (exclusive). Update the value and try again.","status":"INVALID_ARGUMENT"}}
+        maxOutputTokens: llmModels[model].maxCompletionTokens,
       },
       safetySettings: [
         { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },

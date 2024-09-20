@@ -7,7 +7,7 @@ import BaseAWSBedrock from "./base-aws-bedrock";
 
 
 /** 
- * Class for the AWS Bedrock [Anthropic] Claude service.
+ * Class for the AWS Bedrock Llama LLMs.
  *
  */
 class AWSBedrockLlama extends BaseAWSBedrock {
@@ -19,9 +19,6 @@ class AWSBedrockLlama extends BaseAWSBedrock {
       AWS_EMBEDDINGS_MODEL_TITAN_V1,
       AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT,
       AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT,     
-      AWS_EMBEDDINGS_MODEL_TITAN_V1,
-      AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT,
-      AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT,
     ); 
   }
 

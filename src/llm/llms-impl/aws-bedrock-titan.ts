@@ -6,7 +6,7 @@ import BaseAWSBedrock from "./base-aws-bedrock";
 
 
 /**
- * Class for the AWS Bedrock Titan service.
+ * Class for the AWS Bedrock Titan LLMs.
  */
 class AWSBedrockTitan extends BaseAWSBedrock {
   /**
@@ -17,9 +17,6 @@ class AWSBedrockTitan extends BaseAWSBedrock {
       AWS_EMBEDDINGS_MODEL_TITAN_V1,
       AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1,
       null,
-      AWS_EMBEDDINGS_MODEL_TITAN_V1,
-      AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1,
-      MODEL_NOT_SPECIFIED
     );
   }
 
@@ -33,7 +30,7 @@ class AWSBedrockTitan extends BaseAWSBedrock {
       textGenerationConfig: {
         temperature: llmConst.ZERO_TEMP,
         topP: llmConst.TOP_P_VLOW,
-        maxTokenCount: llmModels[model].maxTotalTokens,
+        maxTokenCount: llmModels[model].maxCompletionTokens,
       },
     });
   }

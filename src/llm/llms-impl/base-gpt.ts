@@ -32,7 +32,7 @@ abstract class BaseGPT extends AbstractLLM {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeLLMSummarizingResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
+  protected async invokeLLMSpecificLLMSummarizingItsResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
     // Invoke LLM
     const llmResponses: any = (taskType === LLMPurpose.EMBEDDINGS)
       ? await this.runGPTGetEmbeddings(model, prompt)

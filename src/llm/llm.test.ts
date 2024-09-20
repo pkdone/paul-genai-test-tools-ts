@@ -26,6 +26,6 @@ test("LLMRouter reduce prompt size 3", () => {
   const promptTokens = Math.floor(prompt.length / llmConst.MODEL_CHARS_PER_TOKEN_ESTIMATE);
   console.log(promptTokens);
   const tokensUage = { promptTokens, completionTokens: 124, maxTotalTokens: llmModels[GPT_COMPLETIONS_MODEL_GPT4].maxTotalTokens };
-  expect(reducePromptSizeToTokenLimit(prompt, GPT_COMPLETIONS_MODEL_GPT4, tokensUage).length).toBe(26209);
+  expect(reducePromptSizeToTokenLimit(prompt, GPT_COMPLETIONS_MODEL_GPT4, tokensUage).length).toBe(22933);
  });
  

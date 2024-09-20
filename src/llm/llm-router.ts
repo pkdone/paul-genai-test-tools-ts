@@ -12,6 +12,7 @@ import GcpVertexAIGemini from "./llms-impl/gcp-vertexai-gemini";
 import AWSBedrockTitan from "./llms-impl/aws-bedrock-titan";
 import AWSBedrockClaude from "./llms-impl/aws-bedrock-claude";
 import AWSBedrockLlama from "./llms-impl/aws-bedrock-llama";
+import AWSBedrockMistral from "./llms-impl/aws-bedrock-mistral";
 
 
 /**
@@ -53,6 +54,7 @@ class LLMRouter {
       case llmConst.AWS_BEDROCK_TITAN_MODELS: return new AWSBedrockTitan();
       case llmConst.AWS_BEDROCK_CLAUDE_MODELS: return new AWSBedrockClaude();
       case llmConst.AWS_BEDROCK_LLAMA_MODELS: return new AWSBedrockLlama();
+      case llmConst.AWS_BEDROCK_MISTRAL_MODELS: return new AWSBedrockMistral();
       default: throw new Error("No valid LLM implementation specified via the 'LLM' environment variable");
     }
   }

@@ -123,7 +123,7 @@ test(`AbstractLLM extract tokens from metadtata 1`, () => {
    expect(extractTokensAmountFromMetadataDefaultingMissingValues(GPT_COMPLETIONS_MODEL_GPT4_32k, tokenUsage))
       .toStrictEqual({
          "completionTokens": 200,
-         "promptTokens": 32568,
+         "promptTokens": 32569,
          "maxTotalTokens": 32768
    });
  });

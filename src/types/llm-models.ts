@@ -19,6 +19,8 @@ export const AWS_COMPLETIONS_MODEL_CLAUDE_V35 = "anthropic.claude-3-5-sonnet-202
 export const AWS_COMPLETIONS_MODEL_LLAMA_V3_8B_INSTRUCT = "meta.llama3-8b-instruct-v1:0";
 export const AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT = "meta.llama3-70b-instruct-v1:0";
 export const AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT = "meta.llama3-1-405b-instruct-v1:0";
+export const AWS_COMPLETIONS_MODEL_MISTRAL_LARGE =  "mistral.mistral-large-2402-v1:0";
+export const AWS_COMPLETIONS_MODEL_MISTRAL_LARGE2 = "mistral.mistral-large-2407-v1:0";
 export const MODEL_NOT_SPECIFIED = "n/a";
 
 
@@ -121,4 +123,16 @@ export const llmModels: Readonly<{ [key: string]: LLMModelMetadata }> = {
     maxTotalTokens: 128_000,
     llmApi: LLM_API_FAMILY.BEDROCK,
   },
+  [AWS_COMPLETIONS_MODEL_MISTRAL_LARGE]: {
+    purpose: LLMPurpose.COMPLETION,
+    maxCompletionTokens: 8_192,
+    maxTotalTokens: 32_768,
+    llmApi: LLM_API_FAMILY.BEDROCK,
+  },
+  [AWS_COMPLETIONS_MODEL_MISTRAL_LARGE2]: {
+    purpose: LLMPurpose.COMPLETION,
+    maxCompletionTokens: 8_192,
+    maxTotalTokens: 131_072,
+    llmApi: LLM_API_FAMILY.BEDROCK,
+  }, 
 } as const;
