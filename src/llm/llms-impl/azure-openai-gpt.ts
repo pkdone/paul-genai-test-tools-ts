@@ -1,11 +1,11 @@
-import { OpenAIClient, AzureKeyCredential, Embeddings, ChatCompletions } from "@azure/openai";
+import { AzureOpenAI, OpenAI } 
+      from "openai";
 import envConst from "../../types/env-constants";
 import { getEnvVar } from "../../utils/envvar-utils";
 import { llmConst } from "../../types/llm-constants";
 import { GPT_EMBEDDINGS_MODEL_ADA002, GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k }
        from "../../types/llm-models";
-import { LLMConfiguredModelTypesNames } from "../../types/llm-types";
-import { GPTLLMError } from "../../types/gpt-types";
+import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../types/llm-types";
 import BaseGPT from "./base-gpt";
 
 
@@ -14,7 +14,7 @@ import BaseGPT from "./base-gpt";
  */
 class AzureOpenAIGPT extends BaseGPT {
   // Private fields
-  private readonly client: OpenAIClient;
+  private readonly client: OpenAI;
   private readonly modelToDeploymentMappings: { [key: string]: string };
 
 
@@ -30,7 +30,8 @@ class AzureOpenAIGPT extends BaseGPT {
     } as const;
     const apiKey: string = getEnvVar<string>(envConst.ENV_AZURE_LLM_API_KEY);
     const endpoint: string = getEnvVar<string>(envConst.ENV_AZURE_API_ENDPOINT);
-    this.client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey));
+    const apiVersion = llmConst.AZURE_API_VERION;
+    this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
 
 
@@ -47,47 +48,33 @@ class AzureOpenAIGPT extends BaseGPT {
 
 
   /**
-   * Invoke the actual LLM's embedding API directly.
+   * Abstract method to get the client object for the specific LLM provider.
    */
-  protected async runGPTGetEmbeddings(model: string, content: string): Promise<Embeddings> {
-    return await this.client.getEmbeddings(this.modelToDeploymentMappings[model], [content]);
+  protected getClient(): OpenAI {
+    return this.client;
   }
 
 
   /**
-   * Invoke the actual LLM's completion API directly.
+   * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected async runGPTGetCompletion(model: string, prompt: string): Promise<ChatCompletions> {
-    const messages = [{ role: "user", content: prompt }];
-    const params = {
-      temperature: llmConst.ZERO_TEMP,
-      // maxTokens: llmModels[model].maxTotalTokens, // Doesn't seem to work properly with Azure API - causes weird long completion
-    };
-    return await this.client.getChatCompletions(this.modelToDeploymentMappings[model], messages, params);
-  }
+  protected buildFullLLMParameters(taskType: string, model: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.Chat.ChatCompletionCreateParams {
+    const deployment = this.modelToDeploymentMappings[model];
 
-
-  /**
-   * See if an error object indicates a network issue or throttling event.
-   */
-  protected isLLMOverloaded(error: unknown): boolean {
-    const llmError  = error as GPTLLMError;
-    return llmError.code === 429 ||
-           llmError.code === "429" || 
-           llmError.status === 429 ||
-           llmError.status === "429" ||            
-           llmError.error?.code === "429" ||
-           llmError.response?.status === 429;
-  }
-
-  
-  /**
-   * Check to see if error code indicates potential token limit has been exceeded.
-   */
-  protected isTokenLimitExceeded(error: unknown): boolean {
-    const llmError = error as GPTLLMError;
-    return llmError.code === "context_length_exceeded" ||
-           llmError.type === "invalid_request_error";
+    if (taskType === LLMPurpose.EMBEDDINGS) {
+      const params: OpenAI.EmbeddingCreateParams = {
+        model: deployment,
+        input: prompt
+      }
+      return params;  
+    } else {
+      const params: OpenAI.Chat.ChatCompletionCreateParams = {
+        model: deployment,
+        temperature: llmConst.ZERO_TEMP,
+        messages: [{ role: "user", content: prompt } ],
+      };        
+      return params;
+    } 
   }
 }
 

@@ -70,7 +70,7 @@ class GcpVertexAIGemini extends AbstractLLM {
     // Capture token usage
     const promptTokens = usageMetadata?.promptTokenCount ?? -1;
     const completionTokens = usageMetadata?.candidatesTokenCount ?? -1;
-    const maxTotalTokens = -1; // Not using "usageMetadata?.totalTokenCount" as that is total of prompt + cpompletion tokens tokens and not the max limit
+    const maxTotalTokens = -1; // Not "totalTokenCount" as that is total of prompt + cpompletion tokens tokens and not the max limit
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
