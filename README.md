@@ -63,7 +63,7 @@ Execute the 'test' command from the project's root folder.
 
 ## Application to LLM Authentication Notes
 
-In all cases, first ensure you have enabled the required model for the requried cloud region via the cloud provider's LLM configuration capability.
+In all cases, first ensure you have enabled the required model for the requried cloud region using the cloud provider's LLM configuration tool.
 
 ### OpenAI / Azure GPT
 
