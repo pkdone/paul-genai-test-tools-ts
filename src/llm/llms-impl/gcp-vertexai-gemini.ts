@@ -13,7 +13,10 @@ import AbstractLLM from "../abstract-llm";
 
 
 // Constants
-const VERTEXAI_TERMINAL_FINISH_REASONS = [FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT, FinishReason.RECITATION, FinishReason.SAFETY, FinishReason.SPII];
+const VERTEXAI_TERMINAL_FINISH_REASONS = [
+  FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT, FinishReason.RECITATION,
+  FinishReason.SAFETY, FinishReason.SPII
+];
 
 
 /**
@@ -28,7 +31,8 @@ class GcpVertexAIGemini extends AbstractLLM {
    * Constructor
    */
   constructor() {
-    super(GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15, GCP_COMPLETIONS_MODEL_GEMINI_PRO15);
+    super(GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15, 
+          GCP_COMPLETIONS_MODEL_GEMINI_PRO15);
     const project = getEnvVar<string>(envConst.ENV_GCP_API_PROJECTID);
     const location = getEnvVar<string>(envConst.ENV_GCP_API_LOCATION);
     this.client = new VertexAI({project, location});

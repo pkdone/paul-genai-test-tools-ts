@@ -6,7 +6,7 @@ import BaseAWSBedrock from "./base-aws-bedrock";
 
 
 /**
- * Type definitions for the Claude specific completions LLM response tokens usage.
+ * Type definitions for the Claude specific completions LLM response usage.
  */
 export type ClaudeCompletionLLMSpecificResponse = {
   content?: { text: string }[];

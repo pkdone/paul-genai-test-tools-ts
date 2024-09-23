@@ -8,9 +8,9 @@ import BaseAWSBedrock from "./base-aws-bedrock";
 
 
 /**
- * Type definitions for the Mistral specific completions LLM response tokens usage.
+ * Type definitions for the Mistral specific completions LLM response usage.
  */
-export type MistralCompletionLLMSpecificResponse = {
+type MistralCompletionLLMSpecificResponse = {
   outputs?: {
     text?: string;
     stop_reason?: string;

@@ -7,13 +7,13 @@ import BaseAWSBedrock from "./base-aws-bedrock";
 
 
 /**
- * Type definitions for the Llama specific completions LLM response tokens usage.
+ * Type definitions for the Llama specific completions LLM response usage.
  */
-export type LlamaCompletionLLMSpecificResponse = {
-  generation?: string;               // The content of the response
-  stop_reason?: string;              // The reason the generation stopped (e.g., "length", "stop", etc.)
-  prompt_token_count?: number;       // The number of tokens used in the prompt
-  generation_token_count?: number;   // The number of tokens used in the generation
+ type LlamaCompletionLLMSpecificResponse = {
+  generation?: string; 
+  stop_reason?: string;
+  prompt_token_count?: number;
+  generation_token_count?: number;
 };
 
 

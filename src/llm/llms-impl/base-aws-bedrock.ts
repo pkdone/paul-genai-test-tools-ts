@@ -11,6 +11,18 @@ const UTF8_ENCODING = "utf8";
 
 
 /**
+ * Type definitions for the Titan specific embeddings LLM response usage.
+ */
+type TitanEmbeddingsLLMSpecificResponse = {
+  embedding?: number[]; 
+  inputTextTokenCount?: number;
+  results?: Array<{
+    tokenCount?: number;
+  }>;
+};
+
+
+/**
  * Class for the public AWS Bedrock service (multiple possible LLMs)
  */
 abstract class BaseAWSBedrock extends AbstractLLM {
@@ -44,7 +56,7 @@ abstract class BaseAWSBedrock extends AbstractLLM {
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected abstract extractCompletionModelSpecificResponse(llmResponse: any): LLMImplSpecificResponseSummary;
+  protected abstract extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary;
 
 
   /**
@@ -121,11 +133,12 @@ abstract class BaseAWSBedrock extends AbstractLLM {
   /**
    * Extract the relevant information from the LLM specific response.
    */
-  protected extractEmbeddingModelSpecificResponse(llmResponse: any): LLMImplSpecificResponseSummary {
-    const responseContent = llmResponse?.embedding;
+  protected extractEmbeddingModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary {
+    const responseObj = llmResponse as TitanEmbeddingsLLMSpecificResponse;
+    const responseContent = responseObj?.embedding ?? [];
     const isIncompleteResponse = (!responseContent);  // If no content assume prompt maxed out total tokens available
-    const promptTokens = llmResponse?.inputTextTokenCount ?? -1;
-    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? -1;
+    const promptTokens = responseObj?.inputTextTokenCount ?? -1;
+    const completionTokens = responseObj?.results?.[0]?.tokenCount ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

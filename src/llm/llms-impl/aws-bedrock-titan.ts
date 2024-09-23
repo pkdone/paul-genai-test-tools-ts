@@ -6,7 +6,7 @@ import BaseAWSBedrock from "./base-aws-bedrock";
 
 
 /**
- * Type definitions for the Titan specific completions LLM response tokens usage.
+ * Type definitions for the Titan specific completions LLM response usage.
  */
 type TitanCompletionLLMSpecificResponse = {
   results?: {
