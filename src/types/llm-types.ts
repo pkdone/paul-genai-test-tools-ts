@@ -117,9 +117,9 @@ export type LLMFunction = (content: string, doReturnJSON: boolean, context: LLMC
 /**
  * Type to define the summary of the processed LLm response
  */
-export type LLMImplResponseSummary = {
+export type LLMImplSpecificResponseSummary = {
   isIncompleteResponse: boolean;
-  responseContent: string;
+  responseContent: LLMGeneratedContent;
   tokenUsage: LLMResponseTokensUsage;
 };
 

@@ -2,7 +2,7 @@ import { extractTokensAmountFromMetadataDefaultingMissingValues,
          extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
        } from "./llm-response-tools";
 import { LLMModelQualities, LLMContext, LLMPurpose, LLMProviderImpl, LLMFunctionResponse, 
-         LLMResponseStatus, LLMImplResponseSummary } from "../types/llm-types";
+         LLMResponseStatus, LLMImplSpecificResponseSummary } from "../types/llm-types";
 import { getErrorText } from "../utils/error-utils";       
 
 
@@ -88,7 +88,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected abstract invokeLLMSpecificLLMSummarizingItsResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary>;
+  protected abstract invokeImplementationSpecificLLM(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplSpecificResponseSummary>;
 
 
   /**
@@ -113,9 +113,9 @@ abstract class AbstractLLM implements LLMProviderImpl {
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, model };
 
     try {
-      const { isIncompleteResponse, responseContent, tokenUsage } = await this.invokeLLMSpecificLLMSummarizingItsResponse(taskType, model, request);
+      const { isIncompleteResponse, responseContent, tokenUsage } = await this.invokeImplementationSpecificLLM(taskType, model, request);
 
-      if (isIncompleteResponse) {
+      if (isIncompleteResponse) { // Often occurs if combination of prompt + generated completion execeed the max token limit (e.g. actual internal LLM completion has been executed and the completion has been cut short)
         return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountFromMetadataDefaultingMissingValues(model, tokenUsage) };
       } else {
         return postProcessAsJSONIfNeededGeneratingNewResult(skeletonResponse, model, taskType, responseContent, doReturnJSON);
@@ -123,7 +123,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
     } catch (error: unknown) {
       if (this.isLLMOverloaded(error)) {
         return { ...skeletonResponse, status: LLMResponseStatus.OVERLOADED };
-      } else if (this.isTokenLimitExceeded(error)) {
+      } else if (this.isTokenLimitExceeded(error)) { // Often occurs if the prompt on its own execeeds the max token limit (e.g. actual internal LLM completion not eve initiated)
         return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountAndLimitFromErrorMsg(model, request, getErrorText(error)) };
       } else {
         throw error;

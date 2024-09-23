@@ -1,9 +1,20 @@
-import { LLMImplResponseSummary } from "../../types/llm-types";
+import { LLMImplSpecificResponseSummary } from "../../types/llm-types";
 import { llmConst } from "../../types/llm-constants";
 import { AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT,
          AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT,
          llmModels} from "../../types/llm-models";
 import BaseAWSBedrock from "./base-aws-bedrock";
+
+
+/**
+ * Type definitions for the Llama specific completions LLM response tokens usage.
+ */
+export type LlamaCompletionLLMSpecificResponse = {
+  generation?: string;               // The content of the response
+  stop_reason?: string;              // The reason the generation stopped (e.g., "length", "stop", etc.)
+  prompt_token_count?: number;       // The number of tokens used in the prompt
+  generation_token_count?: number;   // The number of tokens used in the generation
+};
 
 
 /** 
@@ -26,7 +37,7 @@ class AWSBedrockLlama extends BaseAWSBedrock {
   /**
    * Assemble the Bedrock parameters for Llama completions only.
    */
-  protected buildCompletionModelSpecificParameters(model: string, body: string, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(model: string, prompt: string): string {
     const bodyObj: { prompt: string, temperature: number, top_p: number, max_gen_len?: number } = {
       prompt: 
 `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
@@ -44,20 +55,19 @@ You are a helpful software engineering and programming assistant, and you need t
     return JSON.stringify(bodyObj);
   }
 
+
   /**
-   * Extract the relevant information from the LLM specific response.
+   * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractModelSpecificResponseMetadata(llmResponse: any): LLMImplResponseSummary {
-    const responseContent = llmResponse?.embedding // Titan embeddings
-      || llmResponse?.generation;                  // Llama completion
-    const finishReason = llmResponse?.stop_reason  // Llama completion
-      || "";                                       // Titan embeddings
+  protected extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary {
+    const responseObj = llmResponse as LlamaCompletionLLMSpecificResponse;
+    const responseContent = responseObj?.generation ?? "";
+    const finishReason = responseObj?.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = ((finishReasonLowercase === "length") // Llama completion
-      || !responseContent);                                            // No content - assume prompt maxed out total tokens available
-    const promptTokens = llmResponse?.inputTextTokenCount // Titan embeddings
-      ?? llmResponse?.prompt_token_count ?? -1;           // Llama completion
-    const completionTokens = llmResponse?.generation_token_count ?? -1;
+    const isIncompleteResponse = ((finishReasonLowercase === "length")
+      || !responseContent);  // No content - assume prompt maxed out total tokens available
+    const promptTokens = responseObj?.prompt_token_count ?? -1;
+    const completionTokens = responseObj?.generation_token_count ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

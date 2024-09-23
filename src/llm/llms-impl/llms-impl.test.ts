@@ -1,4 +1,5 @@
 import AzureOpenAIGPT from "./azure-openai-gpt";
+import { RateLimitError, InternalServerError, APIError } from "openai";
 import { GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k, 
          AWS_COMPLETIONS_MODEL_CLAUDE_V35, 
          AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT,
@@ -150,26 +151,29 @@ test(`AbstractLLM extract tokens from metadtata 1`, () => {
  });
 
 
- test("AbstractGPT try error overload code", () => {
+ test("AbstractGPT try overload error RateLimitError", () => {
    const llm = new AzureOpenAIGPT();
-   expect(llm.TEST_isLLMOverloaded({ code: 429 })).toBe(true);
+   const error = new RateLimitError(429, undefined, "Rate limit exceeded", undefined);
+   expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
  }); 
 
 
- test("AbstractGPT try error overload response status", () => {
+ test("AbstractGPT try overload error InternalServerError", () => {
    const llm = new AzureOpenAIGPT();
-   expect(llm.TEST_isLLMOverloaded({ response: { status: 429 } })).toBe(true);
+   const error = new InternalServerError(429, undefined, "System overloaded", undefined);
+   expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
  }); 
 
 
  test("AbstractGPT try error token limit exceeded 1", () => {
    const llm = new AzureOpenAIGPT();
-   expect(llm.TEST_isTokenLimitExceeded({ code: "context_length_exceeded" })).toBe(true);   
+   const error = new APIError(400, { code: "context_length_exceeded" }, "context_length_exceeded", undefined);
+   expect(llm.TEST_isTokenLimitExceeded(error)).toBe(true);   
  }); 
 
 
  test("AbstractGPT try error token limit exceeded 2", () => {
    const llm = new AzureOpenAIGPT();
-   expect(llm.TEST_isTokenLimitExceeded({ type: "invalid_request_error" })).toBe(true);   
+   const error = new APIError(400, { type: "invalid_request_error" }, "context_length_exceeded", undefined);
+   expect(llm.TEST_isTokenLimitExceeded(error)).toBe(true);   
  }); 
- 

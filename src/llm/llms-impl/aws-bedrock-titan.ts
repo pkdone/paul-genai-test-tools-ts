@@ -1,8 +1,21 @@
-import { LLMImplResponseSummary } from "../../types/llm-types";
+import { LLMImplSpecificResponseSummary } from "../../types/llm-types";
 import { llmConst } from "../../types/llm-constants";
 import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1 }
        from "../../types/llm-models";
 import BaseAWSBedrock from "./base-aws-bedrock";
+
+
+/**
+ * Type definitions for the Titan specific completions LLM response tokens usage.
+ */
+type TitanCompletionLLMSpecificResponse = {
+  results?: {
+    outputText?: string;
+    completionReason?: string;
+    tokenCount?: number;
+  }[];
+  inputTextTokenCount?: number;
+};
 
 
 /**
@@ -24,7 +37,7 @@ class AWSBedrockTitan extends BaseAWSBedrock {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(model: string, body: string, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(model: string, prompt: string): string {
     return JSON.stringify({
       inputText: prompt,
       textGenerationConfig: {
@@ -37,18 +50,17 @@ class AWSBedrockTitan extends BaseAWSBedrock {
 
   
   /**
-   * Extract the relevant information from the LLM specific response.
+   * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractModelSpecificResponseMetadata(llmResponse: any): LLMImplResponseSummary {
-    const responseContent = llmResponse?.embedding // Titan embeddings
-      || llmResponse?.results?.[0]?.outputText;    // Titan completion
-    const finishReason = llmResponse?.results?.[0]?.completionReason // Titan completion            
-      || "";                                                         // Titan embeddings
+  protected extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary {
+    const responseObj = llmResponse as TitanCompletionLLMSpecificResponse;
+    const responseContent = responseObj?.results?.[0]?.outputText ?? ""; 
+    const finishReason = responseObj?.results?.[0]?.completionReason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = ((finishReasonLowercase === "max_tokens") // Titan completion
-      || !responseContent);                                                // No content - assume prompt maxed out total tokens available
-    const promptTokens = llmResponse?.inputTextTokenCount ?? -1;
-    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? -1;
+    const isIncompleteResponse = ((finishReasonLowercase === "max_tokens")
+      || !responseContent);  // No content - assume prompt maxed out total tokens available
+    const promptTokens = responseObj?.inputTextTokenCount ?? -1;
+    const completionTokens = responseObj?.results?.[0]?.tokenCount ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

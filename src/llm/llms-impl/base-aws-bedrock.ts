@@ -2,7 +2,7 @@ import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, Mode
          ModelStreamErrorException, ResourceNotFoundException, ServiceQuotaExceededException, 
          ServiceUnavailableException, ThrottlingException, ModelNotReadyException, 
          ModelTimeoutException, ValidationException } from "@aws-sdk/client-bedrock-runtime";
-import { LLMPurpose, LLMConfiguredModelTypesNames, LLMImplResponseSummary } from "../../types/llm-types";
+import { LLMPurpose, LLMConfiguredModelTypesNames, LLMImplSpecificResponseSummary } from "../../types/llm-types";
 import AbstractLLM from "../abstract-llm";
 import { getErrorText, getErrorStack } from "../../utils/error-utils";
 import { llmConst } from "../../types/llm-constants";
@@ -38,13 +38,13 @@ abstract class BaseAWSBedrock extends AbstractLLM {
    * Abstract method to be overriden. Assemble the AWS Bedrock API parameters structure for the 
    * specific completions model hosted on Bedroc.
    */
-  protected abstract buildCompletionModelSpecificParameters(model: string, body: string, prompt: string): string;
+  protected abstract buildCompletionModelSpecificParameters(model: string, prompt: string): string;
 
   
   /**
-   * Extract the relevant information from the LLM specific response.
+   * Extract the relevant information from the completion LLM specific response.
    */
-  protected abstract extractModelSpecificResponseMetadata(llmResponse: any): LLMImplResponseSummary;
+  protected abstract extractCompletionModelSpecificResponse(llmResponse: any): LLMImplSpecificResponseSummary;
 
 
   /**
@@ -78,14 +78,19 @@ abstract class BaseAWSBedrock extends AbstractLLM {
    * always seems to be 200 if no exceptions thrown. Other codes like 400 or 429 only appear in the
    * `error`object thrown by the API, so only accessible from the catch block.
    */
-  protected async invokeLLMSpecificLLMSummarizingItsResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {
     const fullParameters = this.buildFullLLMParameters(taskType, model, prompt);
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
     if (!rawResponse?.body) throw new Error("LLM raw response was completely empty");
     const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(UTF8_ENCODING));
     if (!llmResponse) throw new Error("LLM response when converted to JSON was empty");
-    return this.extractModelSpecificResponseMetadata(llmResponse);
+
+    if (taskType === LLMPurpose.EMBEDDINGS) {
+      return this.extractEmbeddingModelSpecificResponse(llmResponse);
+    } else {
+      return this.extractCompletionModelSpecificResponse(llmResponse);
+    }
   }
 
 
@@ -101,7 +106,7 @@ abstract class BaseAWSBedrock extends AbstractLLM {
         inputText: prompt,
       });
     } else {
-      body = this.buildCompletionModelSpecificParameters(model, body, prompt);
+      body = this.buildCompletionModelSpecificParameters(model, prompt);
     }
 
     return {
@@ -113,6 +118,20 @@ abstract class BaseAWSBedrock extends AbstractLLM {
   }
 
   
+  /**
+   * Extract the relevant information from the LLM specific response.
+   */
+  protected extractEmbeddingModelSpecificResponse(llmResponse: any): LLMImplSpecificResponseSummary {
+    const responseContent = llmResponse?.embedding;
+    const isIncompleteResponse = (!responseContent);  // If no content assume prompt maxed out total tokens available
+    const promptTokens = llmResponse?.inputTextTokenCount ?? -1;
+    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? -1;
+    const maxTotalTokens = -1;
+    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
+    return { isIncompleteResponse, responseContent, tokenUsage };
+  }
+
+
   /**
    * See if the contents of the responses indicate inability to fully process request due to 
    * overloading.

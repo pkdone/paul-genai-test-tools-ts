@@ -58,7 +58,7 @@ class AzureOpenAIGPT extends BaseGPT {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: string, model: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.Chat.ChatCompletionCreateParams {
+  protected buildFullLLMParameters(taskType: string, model: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams {
     const deployment = this.modelToDeploymentMappings[model];
 
     if (taskType === LLMPurpose.EMBEDDINGS) {

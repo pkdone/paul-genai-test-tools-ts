@@ -7,7 +7,7 @@ import { llmConst } from "../../types/llm-constants";
 import { GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15,
          GCP_COMPLETIONS_MODEL_GEMINI_PRO15, 
          llmModels} from "../../types/llm-models";
-import { LLMConfiguredModelTypesNames, LLMPurpose, LLMImplResponseSummary } from "../../types/llm-types";
+import { LLMConfiguredModelTypesNames, LLMPurpose, LLMImplSpecificResponseSummary } from "../../types/llm-types";
 import { getErrorText } from "../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
 
@@ -50,7 +50,7 @@ class GcpVertexAIGemini extends AbstractLLM {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeLLMSpecificLLMSummarizingItsResponse(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplResponseSummary> {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {
     // Invoke LLM
     const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, model);
     const llm = this.client.getGenerativeModel(modelParams, requestOptions);
