@@ -116,6 +116,7 @@ abstract class BaseAWSBedrock extends AbstractLLM {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       body = JSON.stringify({
         inputText: prompt,
+        // dimensions: 1024,  // When moving to Titan Text Embeddings V2 can set dimensions to 56, 512, 1024 according to: https://docs.aws.amazon.com/code-library/latest/ug/bedrock-runtime_example_bedrock-runtime_InvokeModelWithResponseStream_TitanTextEmbeddings_section.html
       });
     } else {
       body = this.buildCompletionModelSpecificParameters(model, prompt);
