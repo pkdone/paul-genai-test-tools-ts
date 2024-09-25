@@ -1,18 +1,23 @@
 import { llmConst } from "../types/llm-constants";
-import { withRetry } from "../utils/control-utils";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQualities, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } 
   from "../types/llm-types";
-import { getErrorText, getErrorStack } from "../utils/error-utils";
+import envConst from "../types/env-constants";
+import { RetryFunc } from "../types/control-types";
+import { ModelFamily } from "../types/llm-models";
+import { getEnvVar } from "../utils/envvar-utils";
+import { withRetry } from "../utils/control-utils";
+import { initializeLLMImplementation  } from "./llm-initializer";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
+import { log, logErrWithContext, logWithContext } from "./llm-router-logging";
 import LLMStats from "./llm-stats";
-import OpenAIGPT from "./llms-impl/openai-gpt";
-import AzureOpenAIGPT from "./llms-impl/azure-openai-gpt";
-import GcpVertexAIGemini from "./llms-impl/gcp-vertexai-gemini";
-import AWSBedrockTitan from "./llms-impl/aws-bedrock-titan";
-import AWSBedrockClaude from "./llms-impl/aws-bedrock-claude";
-import AWSBedrockLlama from "./llms-impl/aws-bedrock-llama";
-import AWSBedrockMistral from "./llms-impl/aws-bedrock-mistral";
+import OpenAILLM from "./llms-impl/openai/openai-llm";
+import AzureOpenAILLM from "./llms-impl/openai/azure-openai-llm";
+import VertexAIGeminiLLM from "./llms-impl/vertexai/vertexai-gemini-llm";
+import BedrockTitanLLM from "./llms-impl/bedrock/bedrock-titan-llm";
+import BedrockClaudeLLM from "./llms-impl/bedrock/bedrock-claude-llm";
+import BedrockLlamaLLM from "./llms-impl/bedrock/bedrock-llama-llm";
+import BedrockMistralLLM from "./llms-impl/bedrock/bedrock-mistral-llm";
 
 
 /**
@@ -36,27 +41,10 @@ class LLMRouter {
    */
   constructor(llmProviderName: string, doLogLLMInvocationEvents: boolean) {
     this.llmProviderName = llmProviderName;
-    this.llmImpl = this.initializeLLMImplementation(llmProviderName);
+    this.llmImpl = initializeLLMImplementation(llmProviderName);
     this.llmStats = new LLMStats(doLogLLMInvocationEvents);
     this.doLogEachResource = false;
-    this.log(`Initiated LLMs from: ${this.llmProviderName}`);
-  }
-
-  
-  /**
-   * Load the appropriate class for the required LLM provider.
-   */
-  private initializeLLMImplementation(providerName: string): LLMProviderImpl {
-    switch (providerName) {
-      case llmConst.OPENAI_GPT_MODELS: return new OpenAIGPT();
-      case llmConst.AZURE_OPENAI_GPT_MODELS: return new AzureOpenAIGPT();
-      case llmConst.GCP_VERTEXAI_GEMINI_MODELS: return new GcpVertexAIGemini();
-      case llmConst.AWS_BEDROCK_TITAN_MODELS: return new AWSBedrockTitan();
-      case llmConst.AWS_BEDROCK_CLAUDE_MODELS: return new AWSBedrockClaude();
-      case llmConst.AWS_BEDROCK_LLAMA_MODELS: return new AWSBedrockLlama();
-      case llmConst.AWS_BEDROCK_MISTRAL_MODELS: return new AWSBedrockMistral();
-      default: throw new Error("No valid LLM implementation specified via the 'LLM' environment variable");
-    }
+    log(`Initiated LLMs from: ${this.llmProviderName}`);
   }
 
 
@@ -120,7 +108,7 @@ class LLMRouter {
 
     while (llmFuncIndex < llmFuncs.length) {
       try {
-        if (this.doLogEachResource) this.log(`PROCESS: ${resourceName}`);
+        if (this.doLogEachResource) log(`PROCESS: ${resourceName}`);
         let llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, doReturnJSON, context);
 
         if (llmResponse?.status === LLMResponseStatus.COMPLETED) {
@@ -128,14 +116,14 @@ class LLMRouter {
           this.llmStats.recordSuccess();
           break;
         } else if ((!llmResponse) || (llmResponse.status === LLMResponseStatus.OVERLOADED)) {
-          this.logWithContext(`LLM problem processing prompt for completion with current LLM model because it is overloaded or timing out, even after retries`, context);
+          logWithContext(`LLM problem processing prompt for completion with current LLM model because it is overloaded or timing out, even after retries`, context);
           break;
         } else if (llmResponse.status === LLMResponseStatus.EXCEEDED) {
-          this.logWithContext(`LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens} plus completion tokens used ${llmResponse.tokensUage?.completionTokens} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens}, or: 2) the model's completion tokens limit`, context);
+          logWithContext(`LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens} plus completion tokens used ${llmResponse.tokensUage?.completionTokens} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens}, or: 2) the model's completion tokens limit`, context);
 
           if ((llmFuncIndex + 1) >= llmFuncs.length) { 
             if (!llmResponse.tokensUage) throw new Error("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present");
-            currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.model, llmResponse.tokensUage );
+            currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.model, llmResponse.tokensUage);
             this.llmStats.recordCrop();
             continue;  // Don't attempt to move up to next [non-existent] LLM quality - want to try current LLM with ths cut down prompt size
           }  
@@ -150,13 +138,13 @@ class LLMRouter {
           this.llmStats.recordStepUp();
         }
       } catch (error: unknown) {
-        this.logErrWithContext(error, context);
+        logErrWithContext(error, context);
         break;
       }
     }
 
     if (!result) {
-      this.log(`Given-up on trying to process the following resource with an LLM: '${resourceName}'`);
+      log(`Given-up on trying to process the following resource with an LLM: '${resourceName}'`);
       this.llmStats.recordFailure();
     }
 
@@ -170,7 +158,7 @@ class LLMRouter {
   private async executeLLMFuncWithRetries(llmFunc: LLMFunction, prompt: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse | null> {
     const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
     return await withRetry(
-      llmFunc,
+      llmFunc as RetryFunc<LLMFunctionResponse>,
       [prompt, doReturnJSON, context],
       result => (result?.status === LLMResponseStatus.OVERLOADED),
       recordRetryFunc,
@@ -234,7 +222,7 @@ class LLMRouter {
     if (categoryOfModelQualityOptions.includes(startingModelQuality)) {
       if (!invocableModelQualitiesAvailable.includes(targetModelQuality)) {
         if (!this.loggedMissingModelWarning[targetModelQualityName]) {
-          this.log(`WARNING: Requested LLM completion model type of '${targetModelQualityName}' does not exist, so will only attempt to use '${fallbackModelQualityName}' model`);
+          log(`WARNING: Requested LLM completion model type of '${targetModelQualityName}' does not exist, so will only attempt to use '${fallbackModelQualityName}' model`);
           this.loggedMissingModelWarning[targetModelQualityName] = true;
         }
 
@@ -259,49 +247,6 @@ class LLMRouter {
    */
   public displayLLMStatusDetails(): void {
     console.table(this.llmStats.getStatusTypesStatistics(true));
-  }
-
-
-  /**
-   * Log info/error text to the console or a redirected-to file
-   */
-  private log(text: string): void {
-    console.log(text);
-  }
-
-
-  /**
-   * Log both the error content and also any context associated with work being done when the 
-   * error occurred, add the context to the error object and then throw the augmented error.
-   */
-  private logErrWithContext(error: unknown, context: LLMContext): void {
-    console.error(getErrorText(error), getErrorStack(error));
-    this.logContext(context);
-  }
-
-
-  /**
-   * Log the message and the associated context keys and values.
-   */
-  private logWithContext(msg: string, context: LLMContext): void {
-    this.log(msg);
-    this.logContext(context);
-  }
-
-
-  /**
-   * Log the context keys and values.
-   */
-  private logContext(context: LLMContext): void {
-    if (context) {
-      if (typeof context === "object" && !Array.isArray(context)) {
-        for (const [key, value] of Object.entries(context)) {
-          this.log(`  * ${key}: ${value}`);
-        }
-      } else {
-        this.log(`  * ${JSON.stringify(context)}`);
-      }
-    }
   }
 }
 

@@ -1,15 +1,16 @@
 import { OpenAI, RateLimitError, InternalServerError, BadRequestError, AuthenticationError, 
          PermissionDeniedError, NotFoundError, UnprocessableEntityError } from "openai";
-import { LLMPurpose, LLMImplSpecificResponseSummary } from "../../types/llm-types";
-import AbstractLLM from "../abstract-llm";
 import { APIError } from "openai/error";
+import { LLMPurpose } from "../../../types/llm-types";
+import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import AbstractLLM from "../abstract-llm";
 
 
 /**
  * Abstract class for GPT managed LLM provider services (subclasses might be OpenAI or Azure
  * implementations).
  */
-abstract class BaseGPT extends AbstractLLM {
+abstract class BaseOpenAILLM extends AbstractLLM {
   /**
    * Abstract method to get the client object for the specific LLM provider.
    */
@@ -109,7 +110,7 @@ abstract class BaseGPT extends AbstractLLM {
   /** 
    * Debug currently non-checked error types.
    */
-  private debugCurrentlyNonCheckedErrorTypes(error: unknown) {
+  private debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
     if (error instanceof BadRequestError) console.log("BadRequestError");
     if (error instanceof AuthenticationError) console.log("AuthenticationError");
     if (error instanceof RateLimitError) console.log("RateLimitError");
@@ -126,4 +127,4 @@ abstract class BaseGPT extends AbstractLLM {
 }
 
 
-export default BaseGPT;
+export default BaseOpenAILLM;

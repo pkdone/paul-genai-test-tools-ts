@@ -1,28 +1,16 @@
-import { LLMImplSpecificResponseSummary } from "../../types/llm-types";
-import { llmConst } from "../../types/llm-constants";
+import { llmConst } from "../../../types/llm-constants";
 import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_CLAUDE_V35 } 
-       from "../../types/llm-models";
-import BaseAWSBedrock from "./base-aws-bedrock";
-
-
-/**
- * Type definitions for the Claude specific completions LLM response usage.
- */
-export type ClaudeCompletionLLMSpecificResponse = {
-  content?: { text: string }[];
-  stop_reason?: string;
-  usage?: {
-    input_tokens?: number;
-    output_tokens?: number;
-  };
-};
+       from "../../../types/llm-models";
+import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import BaseBedrockLLM from "./base-bedrock-llm";
+const AWS_ANTHROPIC_API_VERSION = "bedrock-2023-05-31"
 
 
 /** 
  * Class for the AWS Bedrock [Anthropic] Claude LLMs.
  *
  */
-class AWSBedrockClaude extends BaseAWSBedrock {
+class BedrockClaudeLLM extends BaseBedrockLLM {
   /**
    * Constructor.
    */
@@ -40,7 +28,7 @@ class AWSBedrockClaude extends BaseAWSBedrock {
    */
   protected buildCompletionModelSpecificParameters(model: string, prompt: string): string {
     return JSON.stringify({
-      anthropic_version: llmConst.AWS_ANTHROPIC_API_VERSION,
+      anthropic_version: AWS_ANTHROPIC_API_VERSION,
       messages: [
         {
           role: "user",
@@ -79,4 +67,17 @@ class AWSBedrockClaude extends BaseAWSBedrock {
 }
 
 
-export default AWSBedrockClaude;
+/**
+ * Type definitions for the Claude specific completions LLM response usage.
+ */
+type ClaudeCompletionLLMSpecificResponse = {
+  content?: { text: string }[];
+  stop_reason?: string;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+  };
+};
+
+
+export default BedrockClaudeLLM;

@@ -1,6 +1,6 @@
 import { MongoClient, Collection, Document } from "mongodb";
-import { getEnvVar } from "./utils/envvar-utils";
 import appConst from "./types/app-constants";
+import { getEnvVar } from "./utils/envvar-utils";
 import withMongoDBClient from "./utils/mdb-utils";
 
 
@@ -15,7 +15,7 @@ async function main(): Promise<void> {
       const db = mongoDBClient.db(appConst.CODEBASE_DB_NAME);
       const coll = db.collection(appConst.SRC_COLLCTN_NAME);  
       const result = await collectJavaFilePaths(coll, prjName);
-      console.log("Result:", result)    
+      console.log("Result:", result);
     });  
 }
 

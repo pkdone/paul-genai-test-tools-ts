@@ -1,28 +1,16 @@
-import { LLMImplSpecificResponseSummary } from "../../types/llm-types";
-import { llmConst } from "../../types/llm-constants";
+import { llmConst } from "../../../types/llm-constants";
 import { AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_MISTRAL_LARGE,
          AWS_COMPLETIONS_MODEL_MISTRAL_LARGE2, 
-         llmModels} from "../../types/llm-models";
-import BaseAWSBedrock from "./base-aws-bedrock";
-
-
-
-/**
- * Type definitions for the Mistral specific completions LLM response usage.
- */
-type MistralCompletionLLMSpecificResponse = {
-  outputs?: {
-    text?: string;
-    stop_reason?: string;
-  }[];
-};
+         llmModels} from "../../../types/llm-models";
+import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import BaseBedrockLLM from "./base-bedrock-llm";
 
 
 /** 
  * Class for the AWS Bedrock Mistral LLMs.
  *
  */
-class AWSBedrockMistral extends BaseAWSBedrock {
+class BedrockMistralLLM extends BaseBedrockLLM {
   /**
    * Constructor.
    */
@@ -65,4 +53,15 @@ class AWSBedrockMistral extends BaseAWSBedrock {
 }
 
 
-export default AWSBedrockMistral;
+/**
+ * Type definitions for the Mistral specific completions LLM response usage.
+ */
+type MistralCompletionLLMSpecificResponse = {
+  outputs?: {
+    text?: string;
+    stop_reason?: string;
+  }[];
+};
+
+
+export default BedrockMistralLLM;

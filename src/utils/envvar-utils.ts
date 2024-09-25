@@ -63,16 +63,16 @@ export function convertToType(value: string): unknown {
  */
 export function extractSpecialTypeFromObj(obj: unknown): unknown {
   if (typeof obj === "object" && obj !== null && !Array.isArray(obj)) {
-    const typedObj = obj as { type?: string, value?: any };
+    const typedObj = obj as { type?: string, value?: unknown };
 
     if (typedObj.type && typedObj.value) {
       switch (typedObj.type) {
         case "bigint":
-          return BigInt(typedObj.value);
+          return BigInt(typedObj.value as bigint);
         case "symbol":
-          return Symbol(typedObj.value);
+          return Symbol(typedObj.value as (string | number));
         case "date":
-          return new Date(typedObj.value);
+          return new Date(typedObj.value as (string | number | Date));
       }
     }
   }

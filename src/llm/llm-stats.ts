@@ -7,7 +7,7 @@ import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary } from "../types/llm-
 class LLMStats {
   // Private fields
   private readonly doPrintEventTicks: boolean;
-  private readonly statusTypes: LLMStatsCategoriesSummary = {
+  private readonly statusTypes: Readonly<Record<string, LLMStatsCategoryStatus>> = {
     SUCCESS: { description: "LLM invocation suceeded", symbol: ">", count: 0 },
     FAILURE: { description: "LLM invocation failed so no data produced", symbol: "!", count: 0 },
     STEPUP: { description: "Stepped up to a premimum LLM to hopeully provide larger tokens limit", symbol: "+", count: 0 },

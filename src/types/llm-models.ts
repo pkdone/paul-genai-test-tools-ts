@@ -1,4 +1,18 @@
-import { LLMPurpose, LLMModelMetadata, LLM_API_FAMILY } from "./llm-types";
+import { LLMPurpose, LLMModelMetadata, LLMApiFamily } from "./llm-types";
+
+
+/**
+ * Enum to define the LLM model family.
+ */
+export enum ModelFamily {
+  OPENAI_MODELS = "OpenAI",
+  AZURE_OPENAI_MODELS = "AzureOpenAI", 
+  VERTEXAI_GEMINI_MODELS = "VertexAIGemini",
+  BEDROCK_TITAN_MODELS = "BedrockTitan",
+  EDROCK_CLAUDE_MODELS = "BedrockClaude",
+  BEDROCK_LLAMA_MODELS = "BedrockLlama",
+  BEDROCK_MISTRAL_MODELS = "BedrockMistral",
+};
 
 
 /**
@@ -30,109 +44,109 @@ export const MODEL_NOT_SPECIFIED = "n/a";
  * For Completion LLMs, the total allowed tokens is the sum of the prompt tokens and the completion
  * tokens.
  * For Embeddings LLMs, the total allowed tokens is the amount of prompt tokens only (the response
- * is the embeddings array of numbers).
+ * is a fixed size embeddings array of numbers).
  */
-export const llmModels: Readonly<{ [key: string]: LLMModelMetadata }> = {
+export const llmModels: Readonly<{ [key: string]: Readonly<LLMModelMetadata> }> = {
   [GPT_EMBEDDINGS_MODEL_ADA002]: {
     purpose: LLMPurpose.EMBEDDINGS,
     maxDimensions: 1_536,
     maxTotalTokens: 8_191,
-    llmApi: LLM_API_FAMILY.GPT,
+    llmApi: LLMApiFamily.GPT,
   },
   [GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3]: {
     purpose: LLMPurpose.EMBEDDINGS,
     maxDimensions: 1_536,
     maxTotalTokens: 8_191,
-    llmApi: LLM_API_FAMILY.GPT,
+    llmApi: LLMApiFamily.GPT,
   },
   [GPT_COMPLETIONS_MODEL_GPT4]: {
     purpose: LLMPurpose.COMPLETION,
     maxCompletionTokens: 8_192,
     maxTotalTokens: 8_192,
-    llmApi: LLM_API_FAMILY.GPT,
+    llmApi: LLMApiFamily.GPT,
   },
   [GPT_COMPLETIONS_MODEL_GPT4_32k]: {
     purpose: LLMPurpose.COMPLETION,
     maxCompletionTokens: 4_096,
     maxTotalTokens: 32_768,
-    llmApi: LLM_API_FAMILY.GPT,
+    llmApi: LLMApiFamily.GPT,
   },
   [GPT_COMPLETIONS_MODEL_GPT4_TURBO]: {
     purpose: LLMPurpose.COMPLETION,
     maxCompletionTokens: 4_096,
     maxTotalTokens: 128_000,
-    llmApi: LLM_API_FAMILY.GPT,
+    llmApi: LLMApiFamily.GPT,
   },  
   [GPT_COMPLETIONS_MODEL_GPT4_O]: {
     purpose: LLMPurpose.COMPLETION,
     maxCompletionTokens: 16_384,
     maxTotalTokens: 128_000,
-    llmApi: LLM_API_FAMILY.GPT,
+    llmApi: LLMApiFamily.GPT,
   },  
   [GCP_EMBEDDINGS_MODEL_ADA_GECKO]: {
     purpose: LLMPurpose.EMBEDDINGS,
     maxTotalTokens: 3_072,
     maxDimensions: 768,
-    llmApi: LLM_API_FAMILY.VERTEXAI,
+    llmApi: LLMApiFamily.VERTEXAI,
   },
   [GCP_COMPLETIONS_MODEL_GEMINI_FLASH15]: {
     purpose: LLMPurpose.COMPLETION,
     maxCompletionTokens: 8_192,
     maxTotalTokens: 1_048_576,
-    llmApi: LLM_API_FAMILY.VERTEXAI,
+    llmApi: LLMApiFamily.VERTEXAI,
   },
   [GCP_COMPLETIONS_MODEL_GEMINI_PRO15]: {
     purpose: LLMPurpose.COMPLETION,
-    maxCompletionTokens: 8_192,   // For some reason the completion tokens limit here isn't always hit when it is for Flash15 above
+    maxCompletionTokens: 8_192,  // For some reason the completion tokens limit here isn't always hit when it is for Flash15 above so is it actually higher for Pro?
     maxTotalTokens: 2_097_152,
-    llmApi: LLM_API_FAMILY.VERTEXAI,
+    llmApi: LLMApiFamily.VERTEXAI,
   },
   [AWS_EMBEDDINGS_MODEL_TITAN_V1]: {
     purpose: LLMPurpose.EMBEDDINGS,
     maxTotalTokens: 8_192,
     maxDimensions: 1024,
-    llmApi: LLM_API_FAMILY.BEDROCK,
+    llmApi: LLMApiFamily.BEDROCK,
   },
   [AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1]: {
     purpose: LLMPurpose.COMPLETION,
     maxCompletionTokens: 8_191,
     maxTotalTokens: 8_191,
-    llmApi: LLM_API_FAMILY.BEDROCK,
+    llmApi: LLMApiFamily.BEDROCK,
   },
   [AWS_COMPLETIONS_MODEL_CLAUDE_V35]: {
     purpose: LLMPurpose.COMPLETION,
-    maxCompletionTokens: 4_086,   // According to Anthropic site, this limit should be 8192 but Bedrock seems to cut this short to usuall 4095 or 4096 bu6 have seen 4090 reported for some LLM responses, so using few tokens buffer to come up with a limit of 4,088
+    maxCompletionTokens: 4_086,  // According to Anthropic site, this limit should be 8192 but Bedrock seems to cut this short to usuall 4095 or 4096 bu6 have seen 4090 reported for some LLM responses, so using few tokens buffer to come up with a limit of 4,088
     maxTotalTokens: 200_000,
-    llmApi: LLM_API_FAMILY.BEDROCK,
+    llmApi: LLMApiFamily.BEDROCK,
   },
   [AWS_COMPLETIONS_MODEL_LLAMA_V3_8B_INSTRUCT]: {
     purpose: LLMPurpose.COMPLETION,
-    maxCompletionTokens: 8_192,     // Not clear if limit is actually less than this
+    maxCompletionTokens: 8_192,  // Not clear if the limit is actually less than this
     maxTotalTokens: 8_192,          
-    llmApi: LLM_API_FAMILY.BEDROCK,
+    llmApi: LLMApiFamily.BEDROCK,
   },
   [AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT]: {
     purpose: LLMPurpose.COMPLETION,
-    maxCompletionTokens: 8_192,     // Not clear if limit is actually less than this
+    maxCompletionTokens: 8_192,  // Not clear if the limit is actually less than this
     maxTotalTokens: 8_192,          
-    llmApi: LLM_API_FAMILY.BEDROCK,
+    llmApi: LLMApiFamily.BEDROCK,
   },
   [AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT]: {
     purpose: LLMPurpose.COMPLETION,
     maxCompletionTokens: 8_192,
     maxTotalTokens: 128_000,
-    llmApi: LLM_API_FAMILY.BEDROCK,
+    llmApi: LLMApiFamily.BEDROCK,
   },
   [AWS_COMPLETIONS_MODEL_MISTRAL_LARGE]: {
     purpose: LLMPurpose.COMPLETION,
     maxCompletionTokens: 8_192,
     maxTotalTokens: 32_768,
-    llmApi: LLM_API_FAMILY.BEDROCK,
+    llmApi: LLMApiFamily.BEDROCK,
   },
   [AWS_COMPLETIONS_MODEL_MISTRAL_LARGE2]: {
     purpose: LLMPurpose.COMPLETION,
     maxCompletionTokens: 8_192,
     maxTotalTokens: 131_072,
-    llmApi: LLM_API_FAMILY.BEDROCK,
+    llmApi: LLMApiFamily.BEDROCK,
   }, 
 } as const;

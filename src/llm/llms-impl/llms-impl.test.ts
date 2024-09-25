@@ -1,14 +1,14 @@
-import AzureOpenAIGPT from "./azure-openai-gpt";
 import { RateLimitError, InternalServerError, APIError } from "openai";
+import AzureOpenAI from "./openai/azure-openai-llm";
 import { GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k, 
          AWS_COMPLETIONS_MODEL_CLAUDE_V35, 
          AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT,
          AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT} from "../../types/llm-models";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
-   extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
+         extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
 
 
-test(`AzureOpenAIGPT extract tokens from error msg 1`, () => {
+test(`AzureOpenAI extract tokens from error msg 1`, () => {
   const errorMsg = "This model's maximum context length is 8191 tokens, however you requested 10346 tokens (10346 in your prompt; 5 for the completion). Please reduce your prompt; or completion length.";
   expect(extractTokensAmountAndLimitFromErrorMsg(GPT_COMPLETIONS_MODEL_GPT4, "dummy prompt", errorMsg))
    .toStrictEqual({
@@ -19,7 +19,7 @@ test(`AzureOpenAIGPT extract tokens from error msg 1`, () => {
 });
 
 
-test(`AzureOpenAIGPT extract tokens from error msg 2`, () => {
+test(`AzureOpenAI extract tokens from error msg 2`, () => {
   const errorMsg = "This model's maximum context length is 8192 tokens. However, your messages resulted in 8545 tokens. Please reduce the length of the messages.";
   expect(extractTokensAmountAndLimitFromErrorMsg(GPT_COMPLETIONS_MODEL_GPT4, "dummy prompt", errorMsg))
    .toStrictEqual({
@@ -30,7 +30,7 @@ test(`AzureOpenAIGPT extract tokens from error msg 2`, () => {
 });
 
 
-test(`AWSBedrockClaude extract tokens from error msg 1`, () => {
+test(`BedrockClaude extract tokens from error msg 1`, () => {
   const errorMsg = "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 1048576, request input token count: 1049999 ";
   expect(extractTokensAmountAndLimitFromErrorMsg(AWS_COMPLETIONS_MODEL_CLAUDE_V35, "dummy prompt", errorMsg))
    .toStrictEqual({
@@ -41,7 +41,7 @@ test(`AWSBedrockClaude extract tokens from error msg 1`, () => {
 });
 
 
-test(`AWSBedrockClaude extract tokens from error msg 2`, () => {
+test(`BedrockClaude extract tokens from error msg 2`, () => {
   const errorMsg = "ValidationException: Malformed input request: expected maxLength: 2097152, actual: 2300000, please reformat your input and try again.";
   expect(extractTokensAmountAndLimitFromErrorMsg(AWS_COMPLETIONS_MODEL_CLAUDE_V35, "dummy prompt", errorMsg))
    .toStrictEqual({
@@ -52,7 +52,7 @@ test(`AWSBedrockClaude extract tokens from error msg 2`, () => {
 });
 
 
-test(`AWSBedrockClaude extract tokens from error msg 3`, () => {
+test(`BedrockClaude extract tokens from error msg 3`, () => {
   const errorMsg = "Input is too long for requested model.";
   expect(extractTokensAmountAndLimitFromErrorMsg(AWS_COMPLETIONS_MODEL_CLAUDE_V35, "dummy prompt", errorMsg))
    .toStrictEqual({
@@ -63,7 +63,7 @@ test(`AWSBedrockClaude extract tokens from error msg 3`, () => {
 });
 
 
-test(`AWSBedrockLlama extract tokens from error msg 1`, () => {
+test(`BedrockLlama extract tokens from error msg 1`, () => {
   const errorMsg = "ValidationException: This model's maximum context length is 8192 tokens. Please reduce the length of the prompt.";
   expect(extractTokensAmountAndLimitFromErrorMsg(AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT, "dummy prompt", errorMsg))
    .toStrictEqual({
@@ -74,7 +74,7 @@ test(`AWSBedrockLlama extract tokens from error msg 1`, () => {
  }); 
 
 
- test(`AWSBedrockLlama extract tokens from error msg 2`, () => {
+ test(`BedrockLlama extract tokens from error msg 2`, () => {
    const errorMsg = "ValidationException: This model's maximum context length is 128000 tokens. Please reduce the length of the prompt.";
    expect(extractTokensAmountAndLimitFromErrorMsg(AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT, "dummy prompt", errorMsg))
     .toStrictEqual({
@@ -145,35 +145,35 @@ test(`AbstractLLM extract tokens from metadtata 1`, () => {
  });
 
 
- test("OpenAIGPT count models", () => {
-   const llm = new AzureOpenAIGPT();
+ test("OpenAI count models", () => {
+   const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
    expect(Object.keys(llm.getModelsNames()).length).toBe(3);
  });
 
 
- test("AbstractGPT try overload error RateLimitError", () => {
-   const llm = new AzureOpenAIGPT();
+ test("BaseOpenAI try overload error RateLimitError", () => {
+   const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
    const error = new RateLimitError(429, undefined, "Rate limit exceeded", undefined);
    expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
  }); 
 
 
- test("AbstractGPT try overload error InternalServerError", () => {
-   const llm = new AzureOpenAIGPT();
+ test("BaseOpenAI try overload error InternalServerError", () => {
+   const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
    const error = new InternalServerError(429, undefined, "System overloaded", undefined);
    expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
  }); 
 
 
- test("AbstractGPT try error token limit exceeded 1", () => {
-   const llm = new AzureOpenAIGPT();
+ test("BaseOpenAI try error token limit exceeded 1", () => {
+   const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
    const error = new APIError(400, { code: "context_length_exceeded" }, "context_length_exceeded", undefined);
    expect(llm.TEST_isTokenLimitExceeded(error)).toBe(true);   
  }); 
 
 
- test("AbstractGPT try error token limit exceeded 2", () => {
-   const llm = new AzureOpenAIGPT();
+ test("BaseOpenAI try error token limit exceeded 2", () => {
+   const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
    const error = new APIError(400, { type: "invalid_request_error" }, "context_length_exceeded", undefined);
    expect(llm.TEST_isTokenLimitExceeded(error)).toBe(true);   
  }); 

@@ -7,7 +7,7 @@ export type PromiseFunction<T> = () => Promise<T>;
 /**
  * Type to define the retry function
  */
-export type RetryFunc<T> = (...args: any[]) => Promise<T>;
+export type RetryFunc<T> = (...args: unknown[]) => Promise<T>;
 
 
 /**

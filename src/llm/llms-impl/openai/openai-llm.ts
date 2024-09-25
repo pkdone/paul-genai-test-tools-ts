@@ -1,18 +1,16 @@
 import { OpenAI } from "openai";
-import envConst from "../../types/env-constants";
-import { getEnvVar } from "../../utils/envvar-utils";
-import { llmConst } from "../../types/llm-constants";
+import { llmConst } from "../../../types/llm-constants";
 import { GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3, GPT_COMPLETIONS_MODEL_GPT4_TURBO,
          GPT_COMPLETIONS_MODEL_GPT4_O, 
-         llmModels} from "../../types/llm-models";
-import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../types/llm-types";
-import BaseGPT from "./base-gpt";
+         llmModels} from "../../../types/llm-models";
+import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../../types/llm-types";
+import BaseOpenAILLM from "./base-openai-llm";
 
 
 /**
  * Class for the public OpenAI service.
  */
-class OpenAIGPT extends BaseGPT {
+class OpenAILLM extends BaseOpenAILLM {
   // Private fields
   private readonly client: OpenAI;
 
@@ -20,8 +18,7 @@ class OpenAIGPT extends BaseGPT {
   /**
    * Constructor.
    */
-  constructor() { 
-    const apiKey = getEnvVar<string>(envConst.ENV_OPENAI_LLM_API_KEY);
+  constructor(apiKey: string) { 
     super(GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3, GPT_COMPLETIONS_MODEL_GPT4_O, GPT_COMPLETIONS_MODEL_GPT4_O);
     this.client = new OpenAI({ apiKey })       
   }
@@ -70,4 +67,4 @@ class OpenAIGPT extends BaseGPT {
 }
 
 
-export default OpenAIGPT;
+export default OpenAILLM;

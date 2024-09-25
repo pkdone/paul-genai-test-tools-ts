@@ -1,36 +1,32 @@
-import { AzureOpenAI, OpenAI } 
-      from "openai";
-import envConst from "../../types/env-constants";
-import { getEnvVar } from "../../utils/envvar-utils";
-import { llmConst } from "../../types/llm-constants";
+import { AzureOpenAI, OpenAI } from "openai";
+import { llmConst } from "../../../types/llm-constants";
 import { GPT_EMBEDDINGS_MODEL_ADA002, GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k }
-       from "../../types/llm-models";
-import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../types/llm-types";
-import BaseGPT from "./base-gpt";
+       from "../../../types/llm-models";
+import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../../types/llm-types";
+import BaseOpenAILLM from "./base-openai-llm";
+const AZURE_API_VERION = "2024-04-01-preview";
 
 
 /**
  * Class for Azure's own managed version of the OpenAI service.
  */
-class AzureOpenAIGPT extends BaseGPT {
+class AzureOpenAILLM extends BaseOpenAILLM {
   // Private fields
   private readonly client: OpenAI;
-  private readonly modelToDeploymentMappings: { [key: string]: string };
+  private readonly modelToDeploymentMappings: Readonly<{ [key: string]: string }>;
 
 
   /**
    * Constructor.
    */
-  constructor() {
+  constructor(apiKey: string, endpoint: string, embeddingsDeployment: string, regularCompletionsDeployment: string, premiumCompletionsDeployment: string) {
     super(GPT_EMBEDDINGS_MODEL_ADA002, GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k);
     this.modelToDeploymentMappings = {
-      [GPT_EMBEDDINGS_MODEL_ADA002]: getEnvVar<string>(envConst.ENV_AZURE_API_EMBEDDINGS_MODEL),
-      [GPT_COMPLETIONS_MODEL_GPT4]: getEnvVar<string>(envConst.ENV_AZURE_API_COMPLETIONS_MODEL_REGULAR),
-      [GPT_COMPLETIONS_MODEL_GPT4_32k]: getEnvVar<string>(envConst.ENV_AZURE_API_COMPLETIONS_MODEL_PREMIUM),
+      [GPT_EMBEDDINGS_MODEL_ADA002]: embeddingsDeployment,
+      [GPT_COMPLETIONS_MODEL_GPT4]: regularCompletionsDeployment,
+      [GPT_COMPLETIONS_MODEL_GPT4_32k]: premiumCompletionsDeployment,
     } as const;
-    const apiKey: string = getEnvVar<string>(envConst.ENV_AZURE_LLM_API_KEY);
-    const endpoint: string = getEnvVar<string>(envConst.ENV_AZURE_API_ENDPOINT);
-    const apiVersion = llmConst.AZURE_API_VERION;
+    const apiVersion = AZURE_API_VERION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
 
@@ -79,4 +75,4 @@ class AzureOpenAIGPT extends BaseGPT {
 }
 
 
-export default AzureOpenAIGPT;
+export default AzureOpenAILLM;

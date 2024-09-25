@@ -1,28 +1,23 @@
 import { VertexAI, ModelParams, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshold, 
          GoogleApiError, ClientError, GoogleAuthError, GoogleGenerativeAIError, 
          IllegalArgumentError } from "@google-cloud/vertexai";
-import { getEnvVar } from "../../utils/envvar-utils";
-import envConst from "../../types/env-constants";
-import { llmConst } from "../../types/llm-constants";
+import { llmConst } from "../../../types/llm-constants";
 import { GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15,
          GCP_COMPLETIONS_MODEL_GEMINI_PRO15, 
-         llmModels} from "../../types/llm-models";
-import { LLMConfiguredModelTypesNames, LLMPurpose, LLMImplSpecificResponseSummary } from "../../types/llm-types";
-import { getErrorText } from "../../utils/error-utils";
+         llmModels} from "../../../types/llm-models";
+import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../../types/llm-types";
+import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
-
-
-// Constants
-const VERTEXAI_TERMINAL_FINISH_REASONS = [
-  FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT, FinishReason.RECITATION,
-  FinishReason.SAFETY, FinishReason.SPII
-];
+const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT,
+                                           FinishReason.RECITATION, FinishReason.SAFETY,
+                                           FinishReason.SPII];
 
 
 /**
  * Class for the GCP Vertex AI Gemini service.
  */
-class GcpVertexAIGemini extends AbstractLLM {
+class VertexAIGeminiLLM extends AbstractLLM {
   // Private fields
   private readonly client: VertexAI;
 
@@ -30,11 +25,9 @@ class GcpVertexAIGemini extends AbstractLLM {
   /**
    * Constructor
    */
-  constructor() {
+  constructor(project: string, location: string) {
     super(GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15, 
           GCP_COMPLETIONS_MODEL_GEMINI_PRO15);
-    const project = getEnvVar<string>(envConst.ENV_GCP_API_PROJECTID);
-    const location = getEnvVar<string>(envConst.ENV_GCP_API_LOCATION);
     this.client = new VertexAI({project, location});
   }
 
@@ -160,4 +153,4 @@ class GcpVertexAIGemini extends AbstractLLM {
 }
 
 
-export default GcpVertexAIGemini;
+export default VertexAIGeminiLLM;

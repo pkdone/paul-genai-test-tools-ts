@@ -1,27 +1,14 @@
-import { LLMImplSpecificResponseSummary } from "../../types/llm-types";
-import { llmConst } from "../../types/llm-constants";
+import { llmConst } from "../../../types/llm-constants";
 import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1 }
-       from "../../types/llm-models";
-import BaseAWSBedrock from "./base-aws-bedrock";
-
-
-/**
- * Type definitions for the Titan specific completions LLM response usage.
- */
-type TitanCompletionLLMSpecificResponse = {
-  results?: {
-    outputText?: string;
-    completionReason?: string;
-    tokenCount?: number;
-  }[];
-  inputTextTokenCount?: number;
-};
+       from "../../../types/llm-models";
+import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import BaseBedrockLLM from "./base-bedrock-llm";
 
 
 /**
  * Class for the AWS Bedrock Titan LLMs.
  */
-class AWSBedrockTitan extends BaseAWSBedrock {
+class BedrockTitanLLM extends BaseBedrockLLM {
   /**
    * Constructor.
    */
@@ -68,4 +55,17 @@ class AWSBedrockTitan extends BaseAWSBedrock {
 }
 
 
-export default AWSBedrockTitan;
+/**
+ * Type definitions for the Titan specific completions LLM response usage.
+ */
+type TitanCompletionLLMSpecificResponse = {
+  results?: {
+    outputText?: string;
+    completionReason?: string;
+    tokenCount?: number;
+  }[];
+  inputTextTokenCount?: number;
+};
+
+
+export default BedrockTitanLLM;

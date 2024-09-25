@@ -2,30 +2,21 @@ import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, Mode
          ModelStreamErrorException, ResourceNotFoundException, ServiceQuotaExceededException, 
          ServiceUnavailableException, ThrottlingException, ModelNotReadyException, 
          ModelTimeoutException, ValidationException } from "@aws-sdk/client-bedrock-runtime";
-import { LLMPurpose, LLMConfiguredModelTypesNames, LLMImplSpecificResponseSummary } from "../../types/llm-types";
+import { LLMPurpose, LLMConfiguredModelTypesNames } from "../../../types/llm-types";
+import { MODEL_NOT_SPECIFIED } from "../../../types/llm-models";
+import { llmConst } from "../../../types/llm-constants";
+import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import { getErrorText, getErrorStack } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
-import { getErrorText, getErrorStack } from "../../utils/error-utils";
-import { llmConst } from "../../types/llm-constants";
-import { MODEL_NOT_SPECIFIED } from "../../types/llm-models";
 const UTF8_ENCODING = "utf8";
-
-
-/**
- * Type definitions for the Titan specific embeddings LLM response usage.
- */
-type TitanEmbeddingsLLMSpecificResponse = {
-  embedding?: number[]; 
-  inputTextTokenCount?: number;
-  results?: Array<{
-    tokenCount?: number;
-  }>;
-};
+const RESPONSE_JSON_CONTENT_TYPE ="application/json";
+const RESPONSE_ANY_CONTENT_TYPE = "*/*";
 
 
 /**
  * Class for the public AWS Bedrock service (multiple possible LLMs)
  */
-abstract class BaseAWSBedrock extends AbstractLLM {
+abstract class BaseBedrockLLM extends AbstractLLM {
   // Private fields
   private readonly embeddingsModelName: string;
   private readonly completionsModelRegularName: string;
@@ -124,8 +115,8 @@ abstract class BaseAWSBedrock extends AbstractLLM {
 
     return {
       modelId: model,
-      contentType: llmConst.RESPONSE_JSON_CONTENT_TYPE,
-      accept: llmConst.RESPONSE_ANY_CONTENT_TYPE,
+      contentType: RESPONSE_JSON_CONTENT_TYPE,
+      accept: RESPONSE_ANY_CONTENT_TYPE,
       body,
     };
   }
@@ -180,7 +171,7 @@ abstract class BaseAWSBedrock extends AbstractLLM {
   /** 
    * Debug currently non-checked error types.
    */
-  private debugCurrentlyNonCheckedErrorTypes(error: unknown) {
+  private debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
     if (error instanceof ModelErrorException) console.log(`ModelErrorException: ${getErrorText(error)}`);
     if (error instanceof ModelStreamErrorException) console.log(`ModelStreamErrorException: ${getErrorText(error)}`);
     if (error instanceof ResourceNotFoundException) console.log(`ResourceNotFoundException: ${getErrorText(error)}`);
@@ -191,4 +182,16 @@ abstract class BaseAWSBedrock extends AbstractLLM {
 }
 
 
-export default BaseAWSBedrock;
+/**
+ * Type definitions for the Titan specific embeddings LLM response usage.
+ */
+type TitanEmbeddingsLLMSpecificResponse = {
+  embedding?: number[]; 
+  inputTextTokenCount?: number;
+  results?: Array<{
+    tokenCount?: number;
+  }>;
+};
+
+
+export default BaseBedrockLLM;

@@ -9,7 +9,7 @@ import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedCo
  * values.
  */
 export function extractTokensAmountFromMetadataDefaultingMissingValues(model: string, tokenUsage: LLMResponseTokensUsage): LLMResponseTokensUsage {
-  let {promptTokens, completionTokens, maxTotalTokens } = tokenUsage;
+  let { promptTokens, completionTokens, maxTotalTokens } = tokenUsage;
   if (completionTokens < 0) completionTokens = 0;
   if (maxTotalTokens < 0) maxTotalTokens = llmModels[model].maxTotalTokens;
   if (promptTokens < 0) promptTokens = Math.max(1, maxTotalTokens - completionTokens + 1);
@@ -70,8 +70,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLM
   if (taskType === LLMPurpose.COMPLETION) {
     try {
       if (typeof responseContent !== "string") throw new Error("Generated content is not a string");
-      let generatedContent: string | object = responseContent;
-      if (doReturnJSON) generatedContent = convertTextToJSON(generatedContent);
+      const generatedContent = doReturnJSON ? convertTextToJSON(responseContent) : responseContent;
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: generatedContent };
     } catch (error: unknown) {
       console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${model})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);

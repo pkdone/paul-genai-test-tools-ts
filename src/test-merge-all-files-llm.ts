@@ -1,12 +1,12 @@
 import path from "path";
 import appConst from "./types/app-constants";
 import envConst from "./types/env-constants";
-import { getEnvVar } from "./utils/envvar-utils";
+import { LLMModelQualities } from "./types/llm-types";
 import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } from "./utils/fs-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
-import LLMRouter from "./llm/llm-router";
-import { LLMModelQualities } from "./types/llm-types";
+import { getEnvVar } from "./utils/envvar-utils";
 import { getErrorText, getErrorStack } from "./utils/error-utils";
+import LLMRouter from "./llm/llm-router";
 
 
 /**
@@ -25,12 +25,13 @@ async function main(): Promise<void> {
   console.log(`START: ${new Date()}`);
   const srcDirPath = getEnvVar<string>(envConst.ENV_CODEBASE_DIR_PATH).replace(/\/$/, "");
   const filepaths = await buildDirDescendingListOfFiles(srcDirPath);
-  const llmRouter = new LLMRouter(getEnvVar(envConst.ENV_LLM), getEnvVar(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+  const llmProvider = getEnvVar<string>(envConst.ENV_LLM);
+  const llmRouter = new LLMRouter(llmProvider, getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
   llmRouter.displayLLMStatusSummary();
   const result = await mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter, filepaths, srcDirPath);
   await clearDirectory(appConst.OUTPUT_DIR);  
   const outputFilePath = path.join(__dirname, "..", appConst.OUTPUT_DIR, appConst.OUTPUT_SUMMARY_FILE);
-  await writeFile(outputFilePath, result); 
+  await writeFile(outputFilePath, `-- ${llmProvider} --\n${result}`); 
   console.log(`View generared results at: file://${outputFilePath}`);
   llmRouter.displayLLMStatusDetails();
   await llmRouter.close();
@@ -63,7 +64,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
         } else if (entry.isFile()) {
           if (!entry.name.toLowerCase().startsWith(appConst.FILENAME_PREFIX_IGNORE)) {
             files.push(fullPath);
-          }
+          } 
         }
       }
     } catch (error: unknown) {
@@ -170,6 +171,19 @@ of newer versions of JavaScript up to the 14th Edition of ECMAScript (ECMAScript
     question:
 `Identify what parts of the codebase use an inconsistent coding style, such as different
 indentation levels and variable naming conventions.`,
+  },    
+  {
+    key: "ANY-USE",
+    question:
+`Identify what parts of the may use of TypeScript \`any\` where there is an option to use more 
+strongly typed code.`,
+  },    
+  {
+    key: "FUNCTIONAL-PROG",
+    question:
+`Identify places in the code which use for or while loops where instead an Array functions map(), 
+reduce(), filter(), or find() could be used instead to provide a cleaner more functional 
+programming style solution.`,
   },    
 ];
 

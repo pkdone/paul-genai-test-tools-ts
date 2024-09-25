@@ -1,27 +1,16 @@
-import { LLMImplSpecificResponseSummary } from "../../types/llm-types";
-import { llmConst } from "../../types/llm-constants";
+import { llmConst } from "../../../types/llm-constants";
 import { AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT,
          AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT,
-         llmModels} from "../../types/llm-models";
-import BaseAWSBedrock from "./base-aws-bedrock";
-
-
-/**
- * Type definitions for the Llama specific completions LLM response usage.
- */
- type LlamaCompletionLLMSpecificResponse = {
-  generation?: string; 
-  stop_reason?: string;
-  prompt_token_count?: number;
-  generation_token_count?: number;
-};
+         llmModels} from "../../../types/llm-models";
+import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import BaseBedrockLLM from "./base-bedrock-llm";
 
 
 /** 
  * Class for the AWS Bedrock Llama LLMs.
  *
  */
-class AWSBedrockLlama extends BaseAWSBedrock {
+class BedrockLlamaLLM extends BaseBedrockLLM {
   /**
    * Constructor.
    */
@@ -75,4 +64,15 @@ You are a helpful software engineering and programming assistant, and you need t
 }
 
 
-export default AWSBedrockLlama;
+/**
+ * Type definitions for the Llama specific completions LLM response usage.
+ */
+type LlamaCompletionLLMSpecificResponse = {
+  generation?: string; 
+  stop_reason?: string;
+  prompt_token_count?: number;
+  generation_token_count?: number;
+};
+
+
+export default BedrockLlamaLLM;

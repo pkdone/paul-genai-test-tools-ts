@@ -1,8 +1,8 @@
-import LLMRouter from "./llm-router";
 import { llmConst } from "../types/llm-constants";
+import { llmModels, GPT_COMPLETIONS_MODEL_GPT4, ModelFamily } from "../types/llm-models";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
-import { llmModels, GPT_COMPLETIONS_MODEL_GPT4 } from "../types/llm-models";
-const llmRouter = new LLMRouter(llmConst.OPENAI_GPT_MODELS, false);
+import LLMRouter from "./llm-router";
+const llmRouter = new LLMRouter(ModelFamily.OPENAI_MODELS, false);
 
 
 test("LLMRouter reduce prompt size 1", () => {

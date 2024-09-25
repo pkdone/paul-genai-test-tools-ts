@@ -15,7 +15,7 @@ export interface LLMProviderImpl {
 /**
  * Enum to define the LLM API family
  */
-export enum LLM_API_FAMILY {
+export enum LLMApiFamily {
   GPT = "gpt",
   VERTEXAI = "vertexai",
   BEDROCK = "bedrock",
@@ -59,7 +59,7 @@ export type LLMModelMetadata = {
   readonly maxDimensions?: number;
   readonly maxCompletionTokens?: number;
   readonly maxTotalTokens: number;
-  readonly llmApi: LLM_API_FAMILY;
+  readonly llmApi: LLMApiFamily;
 }
 
 
@@ -112,16 +112,6 @@ export type LLMFunctionResponse = {
  * Type to define the embedding or completion function
  */
 export type LLMFunction = (content: string, doReturnJSON: boolean, context: LLMContext) => Promise<LLMFunctionResponse>;
-
-
-/**
- * Type to define the summary of the processed LLm response
- */
-export type LLMImplSpecificResponseSummary = {
-  isIncompleteResponse: boolean;
-  responseContent: LLMGeneratedContent;
-  tokenUsage: LLMResponseTokensUsage;
-};
 
 
 /**
