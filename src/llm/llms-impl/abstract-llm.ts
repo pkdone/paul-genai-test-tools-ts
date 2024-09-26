@@ -1,10 +1,10 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMFunctionResponse, 
-         LLMResponseStatus } from "../../types/llm-types";
+         LLMResponseStatus, LLMConfiguredModelTypesNames} from "../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "./llm-impl-types";
 import { getErrorText } from "../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
-  extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
-} from "../llm-response-tools";
+         extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
+       } from "../llm-response-tools";
 
 
 /**
@@ -83,7 +83,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Abstract method to be overridden to get the names of the models this plug-in provides.
    */
-  public abstract getModelsNames(): { embeddings: string, regular: string, premium: string };
+  public abstract getModelsNames(): LLMConfiguredModelTypesNames;
 
 
   /**

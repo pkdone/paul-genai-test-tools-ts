@@ -18,7 +18,7 @@ async function main(): Promise<void> {
   const outputFilePath = path.join(__dirname, "..", appConst.OUTPUT_DIR, appConst.OUTPUT_SUMMARY_FILE);
   const srcDirPath = getEnvVar<string>(envConst.ENV_CODEBASE_DIR_PATH);
   const srcFilepaths = await buildDirDescendingListOfFiles(srcDirPath);
-  const llmRouter = new LLMRouter(getEnvVar(envConst.ENV_LLM), getEnvVar(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+  const llmRouter = new LLMRouter(getEnvVar<string>(envConst.ENV_LLM), getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
   llmRouter.displayLLMStatusSummary();
   await feedFilesThruLLMConcurrently(llmRouter, srcFilepaths, outputFilePath);
   console.log(`View generared results at: file://${outputFilePath}`);

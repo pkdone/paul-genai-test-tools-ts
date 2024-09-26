@@ -185,6 +185,17 @@ strongly typed code.`,
 reduce(), filter(), or find() could be used instead to provide a cleaner more functional 
 programming style solution.`,
   },    
+  {
+    key: "MISSING_TYPES",
+    question:
+`Identifiy any parts of the codebase that are missing TypeScript types for function parameters, 
+return values, or variables.`,
+  },    
+  {
+    key: "MISSING_SEMICOLONS",
+    question:
+`Identifiy any statements in the code which are missing a final semi-colon.`,
+  },    
 ];
 
 

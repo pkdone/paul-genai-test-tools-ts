@@ -11,7 +11,7 @@ import LLMRouter from "./llm/llm-router";
  */
 async function main(): Promise<void> {
   console.log(`START: ${new Date()}`);
-  const llmRouter = new LLMRouter(getEnvVar(envConst.ENV_LLM), getEnvVar(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+  const llmRouter = new LLMRouter(getEnvVar<string>(envConst.ENV_LLM), getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
   const prompt = await readFile(appConst.SAMPLE_PROMPT_FILEPATH);
   console.log("\n---PROMPT---");
   console.log(prompt);
