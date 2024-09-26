@@ -9,7 +9,7 @@ export enum ModelFamily {
   AZURE_OPENAI_MODELS = "AzureOpenAI", 
   VERTEXAI_GEMINI_MODELS = "VertexAIGemini",
   BEDROCK_TITAN_MODELS = "BedrockTitan",
-  EDROCK_CLAUDE_MODELS = "BedrockClaude",
+  BEDROCK_CLAUDE_MODELS = "BedrockClaude",
   BEDROCK_LLAMA_MODELS = "BedrockLlama",
   BEDROCK_MISTRAL_MODELS = "BedrockMistral",
 };
@@ -91,13 +91,13 @@ export const llmModels: Readonly<{ [key: string]: Readonly<LLMModelMetadata> }> 
   },
   [GCP_COMPLETIONS_MODEL_GEMINI_FLASH15]: {
     purpose: LLMPurpose.COMPLETION,
-    maxCompletionTokens: 8_192,
+    maxCompletionTokens: 8_192,  // For some reason this listed completion tokens limit isn't always hit for Flash15, so is it actually higher than for Pro which would be a bit weird?
     maxTotalTokens: 1_048_576,
     llmApi: LLMApiFamily.VERTEXAI,
   },
   [GCP_COMPLETIONS_MODEL_GEMINI_PRO15]: {
     purpose: LLMPurpose.COMPLETION,
-    maxCompletionTokens: 8_192,  // For some reason the completion tokens limit here isn't always hit when it is for Flash15 above so is it actually higher for Pro?
+    maxCompletionTokens: 8_192,  
     maxTotalTokens: 2_097_152,
     llmApi: LLMApiFamily.VERTEXAI,
   },

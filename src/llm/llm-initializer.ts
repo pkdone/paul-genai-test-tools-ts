@@ -35,7 +35,7 @@ export function initializeLLMImplementation(providerName: string): LLMProviderIm
     case ModelFamily.BEDROCK_TITAN_MODELS: {
       return new BedrockTitanLLM();
     }
-    case ModelFamily.EDROCK_CLAUDE_MODELS: {
+    case ModelFamily.BEDROCK_CLAUDE_MODELS: {
       return new BedrockClaudeLLM();
     }
     case ModelFamily.BEDROCK_LLAMA_MODELS: {

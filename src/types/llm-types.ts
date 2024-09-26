@@ -4,7 +4,7 @@
  */
 export interface LLMProviderImpl {
   getModelsNames(): LLMConfiguredModelTypesNames,
-  getAvailableCompletionModelQualities(): LLMModelQualities[],
+  getAvailableCompletionModelQualities(): LLMModelQuality[],
   generateEmbeddings: LLMFunction,
   executeCompletionRegular: LLMFunction,
   executeCompletionPremium: LLMFunction,
@@ -25,7 +25,7 @@ export enum LLMApiFamily {
 /**
  * Enum to define the model quality required (regular, regular+, premium)
  */
-export enum LLMModelQualities {
+export enum LLMModelQuality {
   REGULAR = "regular",
   REGULAR_PLUS = "regular+",
   PREMIUM = "premium",

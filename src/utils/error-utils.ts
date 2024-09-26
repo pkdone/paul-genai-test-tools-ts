@@ -1,5 +1,5 @@
 /**
- * Function to get the error text from a thrown variable which may or may not be an Error object.
+ * Get the error text from a thrown variable which may or may not be an Error object.
  */
 export function getErrorText(error: unknown): string {
   if (!error) {
@@ -15,8 +15,8 @@ export function getErrorText(error: unknown): string {
 
 
 /**
- * Function to get the stack trace from a thrown variable if it is an Error object otherwise get
- * the current stack.
+ * Get the stack trace from a thrown variable if it is an Error object otherwise get the current
+ * stack.
  */
 export function getErrorStack(obj: unknown): string {
   if (obj instanceof Error && obj.stack) {

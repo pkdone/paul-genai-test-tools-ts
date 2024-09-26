@@ -82,6 +82,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * `error`object thrown by the API, so only accessible from the catch block.
    */
   protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+    // Invoke LLM
     const fullParameters = this.buildFullLLMParameters(taskType, model, prompt);
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
@@ -89,6 +90,8 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(UTF8_ENCODING));
     if (!llmResponse) throw new Error("LLM response when converted to JSON was empty");
 
+
+    // Capture response content, finish reason and token usage 
     if (taskType === LLMPurpose.EMBEDDINGS) {
       return this.extractEmbeddingModelSpecificResponse(llmResponse);
     } else {

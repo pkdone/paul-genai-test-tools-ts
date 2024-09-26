@@ -1,4 +1,4 @@
-import { LLMModelQualities, LLMContext, LLMPurpose, LLMProviderImpl, LLMFunctionResponse, 
+import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMFunctionResponse, 
          LLMResponseStatus } from "../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "./llm-impl-types";
 import { getErrorText } from "../../utils/error-utils";       
@@ -30,15 +30,15 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Get the types of different token context windows models supported.
    */ 
-  public getAvailableCompletionModelQualities(): LLMModelQualities[] {
-    const llmQualities: LLMModelQualities[] = [];
+  public getAvailableCompletionModelQualities(): LLMModelQuality[] {
+    const llmQualities: LLMModelQuality[] = [];
 
     if (this.completionsModelRegular) {
-      llmQualities.push(LLMModelQualities.REGULAR);
+      llmQualities.push(LLMModelQuality.REGULAR);
     }
 
     if (this.completionsModelPremium) {
-      llmQualities.push(LLMModelQualities.PREMIUM);
+      llmQualities.push(LLMModelQuality.PREMIUM);
     }
 
     return llmQualities;

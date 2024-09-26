@@ -5,7 +5,7 @@ import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedCo
 
 
 /**
- * Function to extract token usage information from LLM response metadata, defaulting missing
+ * Etract token usage information from LLM response metadata, defaulting missing
  * values.
  */
 export function extractTokensAmountFromMetadataDefaultingMissingValues(model: string, tokenUsage: LLMResponseTokensUsage): LLMResponseTokensUsage {
@@ -18,37 +18,11 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(model: st
 
 
 /**
- * Function to extract token usage information and limit from LLM error message. Derives values
+ * Extract token usage information and limit from LLM error message. Derives values
  * for all prompt/completions/maxTokens if not found in the error message.
  */
 export function extractTokensAmountAndLimitFromErrorMsg(model: string, prompt: string, errorMsg: string): LLMResponseTokensUsage {
-  let promptTokens = -1;
-  let completionTokens = 0;
-  let maxTotalTokens = -1;    
-  const patternDefinitions = llmAPIErrorPatterns[llmModels[model].llmApi];
-
-  if (patternDefinitions) {
-    for (const patternDefinition of patternDefinitions) {
-      const matches = errorMsg.match(patternDefinition.pattern);
-
-      if (matches && matches.length > 1) {
-        if (patternDefinition.units === "tokens") {
-          maxTotalTokens = parseInt(matches[1], 10);
-          promptTokens =  matches.length > 2 ? parseInt(matches[2], 10): -1;
-          completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
-        } else if (matches.length > 2) {
-          const charsLimit = parseInt(matches[1], 10);
-          const charsPrompt = parseInt(matches[2], 10);
-          maxTotalTokens = llmModels[model].maxTotalTokens;  
-          const promptTokensDerived = Math.ceil((charsPrompt/ charsLimit) * maxTotalTokens);
-          promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
-        }
-        
-        break;
-      }
-    }
-  }
-
+  let { maxTotalTokens, promptTokens, completionTokens } = parseTokenUsageFromError(model, errorMsg);
   const publishedMaxTotalTokens  = llmModels[model].maxTotalTokens;
 
   if (promptTokens < 0) { 
@@ -62,8 +36,43 @@ export function extractTokensAmountAndLimitFromErrorMsg(model: string, prompt: s
 }    
 
 
+/**
+ * Extract token usage information from LLM error message.
+ */
+function parseTokenUsageFromError(model: string, errorMsg: string): LLMResponseTokensUsage {
+  let promptTokens = -1;
+  let completionTokens = 0;
+  let maxTotalTokens = -1;      
+  const patternDefinitions = llmAPIErrorPatterns[llmModels[model].llmApi];
+
+  if (patternDefinitions) {
+    for (const patternDefinition of patternDefinitions) {
+      const matches = errorMsg.match(patternDefinition.pattern);
+
+      if (matches && matches.length > 1) {
+        if (patternDefinition.units === "tokens") {
+          maxTotalTokens = parseInt(matches[1], 10);
+          promptTokens = matches.length > 2 ? parseInt(matches[2], 10) : -1;
+          completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
+        } else if (matches.length > 2) {
+          const charsLimit = parseInt(matches[1], 10);
+          const charsPrompt = parseInt(matches[2], 10);
+          maxTotalTokens = llmModels[model].maxTotalTokens;
+          const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
+          promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
+        }
+
+        break;
+      }
+    }
+  }
+
+  return { maxTotalTokens, promptTokens, completionTokens };
+}
+
+
 /** 
- * Function to post-process the LLM response, converting it to JSON if necessary, and build the
+ * Post-process the LLM response, converting it to JSON if necessary, and build the
  * response metadaat object.
  */
 export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLMFunctionResponse, model: string, taskType: LLMPurpose, responseContent: LLMGeneratedContent, doReturnJSON: boolean): LLMFunctionResponse {

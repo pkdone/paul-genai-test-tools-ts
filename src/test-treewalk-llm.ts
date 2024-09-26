@@ -1,7 +1,7 @@
 import path from "path";
 import appConst from "./types/app-constants";
 import envConst from "./types/env-constants";
-import { LLMModelQualities } from "./types/llm-types";
+import { LLMModelQuality } from "./types/llm-types";
 import { readFile, appendFile, readDirContents, getFileSuffix, clearDirectory } from "./utils/fs-utils";
 import { getEnvVar } from "./utils/envvar-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
@@ -21,6 +21,7 @@ async function main(): Promise<void> {
   const llmRouter = new LLMRouter(getEnvVar(envConst.ENV_LLM), getEnvVar(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
   llmRouter.displayLLMStatusSummary();
   await feedFilesThruLLMConcurrently(llmRouter, srcFilepaths, outputFilePath);
+  console.log(`View generared results at: file://${outputFilePath}`);
   llmRouter.displayLLMStatusDetails();
   await llmRouter.close();
   console.log(`END: ${new Date()}`);
@@ -29,7 +30,7 @@ async function main(): Promise<void> {
 
 
 /**
- * Function to build the list of files descending from a directory 
+ * Build the list of files descending from a directory 
  */
 async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string[]> {
   const files = [];
@@ -63,7 +64,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
 
 
 /**
- * Function to process files concurrently using the LLM.
+ * Process files concurrently using the LLM.
  */
 async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: string[], outputFilePath: string) {
   const jobs = [];
@@ -83,7 +84,7 @@ async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: 
 
 
 /**
- * Function to capture metadata for a file using the LLM.
+ * Capture metadata for a file using the LLM.
  */
 async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: string, outputFilePath: string): Promise<void> {
   const type = getFileSuffix(srcFilepath).toLowerCase();
@@ -93,14 +94,14 @@ async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: s
   if (!content) return;  // Skip empty files
   const context = { filepath: srcFilepath };
   const _embeddingsResult = await llmRouter.generateEmbeddings(srcFilepath, getPrompt(content), context);
-  const completionResult = await llmRouter.executeCompletion(srcFilepath, getPrompt(content), LLMModelQualities.REGULAR_PLUS, true, context);
+  const completionResult = await llmRouter.executeCompletion(srcFilepath, getPrompt(content), LLMModelQuality.REGULAR_PLUS, true, context);
   const outputContent = `${JSON.stringify(completionResult, null, 2)}\n\n-----------------------------\n\n`;
   appendFile(outputFilePath, outputContent);
 }
 
 
 /**
- * Function to generate the prompt for the LLM based on the file content.
+ * Generate the prompt for the LLM based on the file content.
  */
 function getPrompt(content: string): string {
   const prompt = `

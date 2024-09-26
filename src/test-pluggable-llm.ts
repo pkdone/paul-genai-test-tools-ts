@@ -1,6 +1,6 @@
 import appConst from "./types/app-constants";
 import envConst from "./types/env-constants";
-import { LLMModelQualities } from "./types/llm-types";
+import { LLMModelQuality } from "./types/llm-types";
 import { getEnvVar } from "./utils/envvar-utils";
 import { readFile } from "./utils/fs-utils";
 import LLMRouter from "./llm/llm-router";
@@ -19,10 +19,10 @@ async function main(): Promise<void> {
   const embeddingsResult = await llmRouter.generateEmbeddings("hard-coded-test-input", prompt);
   console.log(embeddingsResult);
   console.log("\n\n---COMPLETION (Regular LLM)---");
-  const completionRegularResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, LLMModelQualities.REGULAR, false);
+  const completionRegularResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, LLMModelQuality.REGULAR, false);
   console.log(completionRegularResult);
   console.log("\n\n---COMPLETION (Premium LLM)---");
-  const completionPremiumResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, LLMModelQualities.PREMIUM, false);
+  const completionPremiumResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, LLMModelQuality.PREMIUM, false);
   console.log(completionPremiumResult);
   console.log(" ");
   await llmRouter.close();

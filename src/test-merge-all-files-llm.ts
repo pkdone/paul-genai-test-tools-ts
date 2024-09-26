@@ -1,7 +1,7 @@
 import path from "path";
 import appConst from "./types/app-constants";
 import envConst from "./types/env-constants";
-import { LLMModelQualities } from "./types/llm-types";
+import { LLMModelQuality } from "./types/llm-types";
 import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } from "./utils/fs-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
 import { getEnvVar } from "./utils/envvar-utils";
@@ -41,7 +41,7 @@ async function main(): Promise<void> {
 
 
 /**
- * Function to build the list of files descending from a directory 
+ * Build the list of files descending from a directory 
  */
 async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string[]> {
   const files = [];
@@ -77,7 +77,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
 
 
 /**
- * Function to merge the content of all source files and ask questions against it to an LLM
+ * Merge the content of all source files and ask questions against it to an LLM
  */
 async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, filepaths: string[], srcDirPath: string) {
   let codeBlocksContent = await mergeSourceFilesContent(filepaths, srcDirPath);
@@ -93,7 +93,7 @@ async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, 
 
 
 /**
- * Function to merge the content of all source files.
+ * Merge the content of all source files.
  */
 async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string) {
   let mergedContent = "";
@@ -111,7 +111,7 @@ async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string) 
 
 
 /**
- * Function to execute a prompt against a codebase and return the LLM's response.
+ * Execute a prompt against a codebase and return the LLM's response.
  */
 async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksContents: string, llmRouter: LLMRouter): Promise<string> {
   const resource = prompt.key;
@@ -121,7 +121,7 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksCo
   let response = "";
 
   try {
-    response = await llmRouter.executeCompletion(resource, fullPrompt, LLMModelQualities.REGULAR_PLUS, false, context) as string;
+    response = await llmRouter.executeCompletion(resource, fullPrompt, LLMModelQuality.REGULAR_PLUS, false, context) as string;
   } catch (error: unknown) {
     console.error("Problem introspecting and processing source files", getErrorText(error), getErrorStack(error));    
     response = getErrorText(error);

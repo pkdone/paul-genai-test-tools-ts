@@ -1,23 +1,15 @@
 import { llmConst } from "../types/llm-constants";
-import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQualities, LLMPurpose,
+import envConst from "../types/env-constants";
+import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } 
   from "../types/llm-types";
-import envConst from "../types/env-constants";
 import { RetryFunc } from "../types/control-types";
-import { ModelFamily } from "../types/llm-models";
 import { getEnvVar } from "../utils/envvar-utils";
 import { withRetry } from "../utils/control-utils";
 import { initializeLLMImplementation  } from "./llm-initializer";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { log, logErrWithContext, logWithContext } from "./llm-router-logging";
 import LLMStats from "./llm-stats";
-import OpenAILLM from "./llms-impl/openai/openai-llm";
-import AzureOpenAILLM from "./llms-impl/openai/azure-openai-llm";
-import VertexAIGeminiLLM from "./llms-impl/vertexai/vertexai-gemini-llm";
-import BedrockTitanLLM from "./llms-impl/bedrock/bedrock-titan-llm";
-import BedrockClaudeLLM from "./llms-impl/bedrock/bedrock-claude-llm";
-import BedrockLlamaLLM from "./llms-impl/bedrock/bedrock-llama-llm";
-import BedrockMistralLLM from "./llms-impl/bedrock/bedrock-mistral-llm";
 
 
 /**
@@ -32,7 +24,7 @@ class LLMRouter {
   private readonly llmProviderName: string;
   private readonly llmImpl: LLMProviderImpl;
   private readonly llmStats: LLMStats;
-  private readonly doLogEachResource: boolean;
+  private readonly usePremiumLModelOnly: boolean;
   private readonly loggedMissingModelWarning: { [key: string]: boolean } = { regular: false, premium: false };
 
 
@@ -43,7 +35,7 @@ class LLMRouter {
     this.llmProviderName = llmProviderName;
     this.llmImpl = initializeLLMImplementation(llmProviderName);
     this.llmStats = new LLMStats(doLogLLMInvocationEvents);
-    this.doLogEachResource = false;
+    this.usePremiumLModelOnly = getEnvVar<boolean>(envConst.ENV_LLM_USE_PREMIUM_ONLY, false);
     log(`Initiated LLMs from: ${this.llmProviderName}`);
   }
 
@@ -84,11 +76,11 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  public async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQualities, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
+  public async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQuality, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
     context.purpose = LLMPurpose.COMPLETION;
     const modelQualitiesSupported = this.llmImpl.getAvailableCompletionModelQualities();
     startingModelQuality = this.adjustStartingModelQualityBasedOnAvailability(modelQualitiesSupported, startingModelQuality);
-    context.modelQuality = (startingModelQuality === LLMModelQualities.REGULAR_PLUS) ? LLMModelQualities.REGULAR : startingModelQuality;
+    context.modelQuality = (startingModelQuality === LLMModelQuality.REGULAR_PLUS) ? LLMModelQuality.REGULAR : startingModelQuality;
     return this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, this.getModelQualityCompletionFunctions(startingModelQuality), doReturnJSON);
   }  
 
@@ -102,13 +94,13 @@ class LLMRouter {
    */
   private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[],
                                                   doReturnJSON: boolean = false): Promise<LLMGeneratedContent> {
+    let result: LLMGeneratedContent | null = null;
     let currentPrompt = prompt;
-    let result: LLMGeneratedContent = null;
     let llmFuncIndex = 0;
 
-    while (llmFuncIndex < llmFuncs.length) {
-      try {
-        if (this.doLogEachResource) log(`PROCESS: ${resourceName}`);
+    try {
+      // Don't want to increment 'llmFuncIndex' before looping again if going to crop prompt to try cropped prompt with same size LLM as last iteration
+      while (llmFuncIndex < llmFuncs.length) {
         let llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, doReturnJSON, context);
 
         if (llmResponse?.status === LLMResponseStatus.COMPLETED) {
@@ -121,30 +113,27 @@ class LLMRouter {
         } else if (llmResponse.status === LLMResponseStatus.EXCEEDED) {
           logWithContext(`LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens} plus completion tokens used ${llmResponse.tokensUage?.completionTokens} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens}, or: 2) the model's completion tokens limit`, context);
 
-          if ((llmFuncIndex + 1) >= llmFuncs.length) { 
+          if (llmFuncIndex + 1 >= llmFuncs.length) { 
             if (!llmResponse.tokensUage) throw new Error("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present");
             currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.model, llmResponse.tokensUage);
             this.llmStats.recordCrop();
-            continue;  // Don't attempt to move up to next [non-existent] LLM quality - want to try current LLM with ths cut down prompt size
+          } else {
+            context.modelQuality = LLMModelQuality.PREMIUM;
+            this.llmStats.recordStepUp();
+            llmFuncIndex++;
           }  
         } else {
           throw new Error(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse?.status}'`);
         }
-
-        context.modelQuality = LLMModelQualities.PREMIUM;
-        llmFuncIndex++;
-
-        if (llmFuncIndex < llmFuncs.length) {
-          this.llmStats.recordStepUp();
-        }
-      } catch (error: unknown) {
-        logErrWithContext(error, context);
-        break;
       }
-    }
 
-    if (!result) {
-      log(`Given-up on trying to process the following resource with an LLM: '${resourceName}'`);
+      if (!result) {
+        log(`Given-up on trying to process the following resource with an LLM: '${resourceName}'`);
+        this.llmStats.recordFailure();
+      }
+    } catch (error: unknown) {
+      log(`Unable to process the following resource with an LLM due to a non-recoverable error: '${resourceName}'`);
+      logErrWithContext(error, context);
       this.llmStats.recordFailure();
     }
 
@@ -172,14 +161,14 @@ class LLMRouter {
    * Retrieve the specific LLM's embedding/completion functions to be used based on the desired
    * model quality.
    */
-  private getModelQualityCompletionFunctions(modelQuality: LLMModelQualities): LLMFunction[] {
+  private getModelQualityCompletionFunctions(modelQuality: LLMModelQuality): LLMFunction[] {
     const modelFuncs = [];
     
-    if ([LLMModelQualities.REGULAR, LLMModelQualities.REGULAR_PLUS].includes(modelQuality)) { 
+    if ([LLMModelQuality.REGULAR, LLMModelQuality.REGULAR_PLUS].includes(modelQuality)) { 
       modelFuncs.push(this.llmImpl.executeCompletionRegular.bind(this.llmImpl));
     }
 
-    if ([LLMModelQualities.PREMIUM, LLMModelQualities.REGULAR_PLUS].includes(modelQuality)) { 
+    if ([LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS].includes(modelQuality)) { 
       modelFuncs.push(this.llmImpl.executeCompletionPremium.bind(this.llmImpl));
     }
 
@@ -190,47 +179,61 @@ class LLMRouter {
   /**
    * Adjust the starting model quality used based on availability and log warnings if necessary.
    */
-  private adjustStartingModelQualityBasedOnAvailability(invocableModelQualitiesAvailable: LLMModelQualities[], startingModelQuality: LLMModelQualities): LLMModelQualities {
+  private adjustStartingModelQualityBasedOnAvailability(invocableModelQualitiesAvailable: LLMModelQuality[], startingModelQuality: LLMModelQuality): LLMModelQuality {
+    let currentStartingModelQuality: LLMModelQuality | null = startingModelQuality;
+
     if (!invocableModelQualitiesAvailable || invocableModelQualitiesAvailable.length <= 0) {
-      throw new Error("The LLM implementation doesn't implement any completions model quality");
+      throw new Error("The LLM implementation doesn't implement any completions models");
     }
 
-    startingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
-      [LLMModelQualities.REGULAR, LLMModelQualities.REGULAR_PLUS], 
-      startingModelQuality, 
+    if (this.usePremiumLModelOnly) currentStartingModelQuality = LLMModelQuality.PREMIUM;
+
+    currentStartingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
+      [LLMModelQuality.REGULAR, LLMModelQuality.REGULAR_PLUS], 
+      currentStartingModelQuality, 
       invocableModelQualitiesAvailable, 
-      LLMModelQualities.REGULAR,
+      LLMModelQuality.REGULAR,
       llmConst.REGULAR_MODEL_QUALITY_NAME, 
-      LLMModelQualities.PREMIUM,
+      LLMModelQuality.PREMIUM,
       llmConst.PREMIUM_MODEL_QUALITY_NAME);
-    startingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
-      [LLMModelQualities.PREMIUM, LLMModelQualities.REGULAR_PLUS], 
-      startingModelQuality, 
+
+      currentStartingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
+      [LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS], 
+      currentStartingModelQuality, 
       invocableModelQualitiesAvailable, 
-      LLMModelQualities.PREMIUM,
+      LLMModelQuality.PREMIUM,
       llmConst.PREMIUM_MODEL_QUALITY_NAME, 
-      LLMModelQualities.REGULAR,
-      llmConst.REGULAR_MODEL_QUALITY_NAME);
-    return startingModelQuality;
+      this.usePremiumLModelOnly ? null : LLMModelQuality.REGULAR,
+      this.usePremiumLModelOnly ? "<none>" : llmConst.REGULAR_MODEL_QUALITY_NAME);
+
+    if (currentStartingModelQuality) {
+      return currentStartingModelQuality;
+    } else if (this.usePremiumLModelOnly) {
+      throw new Error("ERROR: Configured preference `PREMIUM_LLM_ONLY` was set to true, but a premium model is not available, so can't continue");
+    } else {
+      throw new Error("ERROR: Neither a regular or premium model is available to use, so can't continue");
+    }
   }
 
 
   /**
-   * Function to adjust the model quality used based on availability and log warning if necessary.
+   * Adjust the model quality used based on availability and log warning if necessary.
    */
-  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQualities[], startingModelQuality: LLMModelQualities, invocableModelQualitiesAvailable: LLMModelQualities[], targetModelQuality: LLMModelQualities, targetModelQualityName: string, fallbackModelQuality: LLMModelQualities, fallbackModelQualityName: string) {
-    if (categoryOfModelQualityOptions.includes(startingModelQuality)) {
+  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQuality[], startingModelQuality: LLMModelQuality | null, invocableModelQualitiesAvailable: LLMModelQuality[], targetModelQuality: LLMModelQuality, targetModelQualityName: string, fallbackModelQuality: LLMModelQuality | null, fallbackModelQualityName: string) {
+    let resolvedStartingModelQuality: LLMModelQuality | null = startingModelQuality;
+
+    if (resolvedStartingModelQuality && categoryOfModelQualityOptions.includes(resolvedStartingModelQuality)) {
       if (!invocableModelQualitiesAvailable.includes(targetModelQuality)) {
         if (!this.loggedMissingModelWarning[targetModelQualityName]) {
           log(`WARNING: Requested LLM completion model type of '${targetModelQualityName}' does not exist, so will only attempt to use '${fallbackModelQualityName}' model`);
           this.loggedMissingModelWarning[targetModelQualityName] = true;
         }
 
-        startingModelQuality = fallbackModelQuality;
+        resolvedStartingModelQuality = fallbackModelQuality;
       }
     }
 
-    return startingModelQuality;
+    return resolvedStartingModelQuality;
   }
 
 
