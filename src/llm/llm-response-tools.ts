@@ -2,6 +2,7 @@ import { llmAPIErrorPatterns, llmConst } from "../types/llm-constants";
 import { llmModels } from "../types/llm-models";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
          LLMResponseStatus } from "../types/llm-types";
+import { BadResponseContentLLMError } from "../types/llm-exceptions";
 
 
 /**
@@ -43,7 +44,7 @@ function parseTokenUsageFromError(model: string, errorMsg: string): LLMResponseT
   let promptTokens = -1;
   let completionTokens = 0;
   let maxTotalTokens = -1;      
-  const patternDefinitions = llmAPIErrorPatterns[llmModels[model].llmApi];
+  const patternDefinitions = llmAPIErrorPatterns[llmModels[model].apiFamily];
 
   if (patternDefinitions) {
     for (const patternDefinition of patternDefinitions) {
@@ -78,7 +79,7 @@ function parseTokenUsageFromError(model: string, errorMsg: string): LLMResponseT
 export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLMFunctionResponse, model: string, taskType: LLMPurpose, responseContent: LLMGeneratedContent, doReturnJSON: boolean): LLMFunctionResponse {
   if (taskType === LLMPurpose.COMPLETION) {
     try {
-      if (typeof responseContent !== "string") throw new Error("Generated content is not a string");
+      if (typeof responseContent !== "string") throw new BadResponseContentLLMError("Generated content is not a string", responseContent);
       const generatedContent = doReturnJSON ? convertTextToJSON(responseContent) : responseContent;
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: generatedContent };
     } catch (error: unknown) {
@@ -120,11 +121,7 @@ export function reducePromptSizeToTokenLimit(prompt: string, model: string, toke
 function convertTextToJSON(content: string): object {
   const startJSONIndex = content.indexOf("{");
   const endJSONIndex = content.lastIndexOf("}");
-
-  if (startJSONIndex === -1 || endJSONIndex === -1) {
-    throw new Error("Invalid input: No JSON content found.");
-  }
-
+  if (startJSONIndex === -1 || endJSONIndex === -1) throw new BadResponseContentLLMError("Invalid input: No JSON content found", content);
   const trimmedContent = content.substring(startJSONIndex, endJSONIndex + 1);
   const sanitizedContent = trimmedContent.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x0A\x0D\x09]/g, " ");  // Remove control characters
   return JSON.parse(sanitizedContent);

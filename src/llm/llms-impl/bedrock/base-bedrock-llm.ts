@@ -5,6 +5,7 @@ import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, Mode
 import { LLMPurpose, LLMConfiguredModelTypesNames } from "../../../types/llm-types";
 import { MODEL_NOT_SPECIFIED } from "../../../types/llm-models";
 import { llmConst } from "../../../types/llm-constants";
+import { BadResponseContentLLMError } from "../../../types/llm-exceptions";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText, getErrorStack } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
@@ -86,9 +87,9 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     const fullParameters = this.buildFullLLMParameters(taskType, model, prompt);
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
-    if (!rawResponse?.body) throw new Error("LLM raw response was completely empty");
+    if (!rawResponse?.body) throw new BadResponseContentLLMError("LLM raw response was completely empty", rawResponse);
     const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(UTF8_ENCODING));
-    if (!llmResponse) throw new Error("LLM response when converted to JSON was empty");
+    if (!llmResponse) throw new BadResponseContentLLMError("LLM response when converted to JSON was empty", rawResponse);
 
 
     // Capture response content, finish reason and token usage 

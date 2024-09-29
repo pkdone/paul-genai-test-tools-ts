@@ -9,6 +9,7 @@ import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../../types/llm-typ
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
+import { BadResponseContentLLMError, RejectionResponseLLMError } from "../../../types/llm-exceptions";
 const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT,
                                            FinishReason.RECITATION, FinishReason.SAFETY,
                                            FinishReason.SPII];
@@ -54,14 +55,14 @@ class VertexAIGeminiLLM extends AbstractLLM {
     const llmResponses = await llm.generateContent(prompt);
     const usageMetadata = llmResponses?.response?.usageMetadata;
     const llmResponse = llmResponses?.response?.candidates?.[0];
-    if (!llmResponse) throw new Error("LLM response was completely empty");
+    if (!llmResponse) throw new BadResponseContentLLMError("LLM response was completely empty");
 
     // Capture response content
     const responseContent = llmResponse?.content?.parts?.[0]?.text ?? "";
 
     // Capture finish reason
     const finishReason = llmResponse?.finishReason ?? FinishReason.OTHER;
-    if (VERTEXAI_TERMINAL_FINISH_REASONS.includes(finishReason)) throw new Error(`LLM response was not safely completed - reason given: ${finishReason}`);
+    if (VERTEXAI_TERMINAL_FINISH_REASONS.includes(finishReason)) throw new RejectionResponseLLMError(`LLM response was not safely completed - reason given: ${finishReason}`, finishReason);
     const isIncompleteResponse = ((finishReason !== FinishReason.STOP)) || (!responseContent);
 
     // Capture token usage

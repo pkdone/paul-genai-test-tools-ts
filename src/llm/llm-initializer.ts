@@ -1,6 +1,7 @@
 import envConst from "../types/env-constants";
 import { ModelFamily } from "../types/llm-models";
 import { LLMProviderImpl } from "../types/llm-types";
+import { BadConfigurationLLMError } from "../types/llm-exceptions";
 import { getEnvVar } from "../utils/envvar-utils";
 import OpenAILLM from "./llms-impl/openai/openai-llm";
 import AzureOpenAILLM from "./llms-impl/openai/azure-openai-llm";
@@ -45,7 +46,7 @@ export function initializeLLMImplementation(providerName: string): LLMProviderIm
       return new BedrockMistralLLM();
     }
     default: {
-      throw new Error("No valid LLM implementation specified via the 'LLM' environment variable");
+      throw new BadConfigurationLLMError(`No valid LLM implementation specified via the 'LLM' environment variable with value '${providerName}'`, providerName);
     }
   }
 }

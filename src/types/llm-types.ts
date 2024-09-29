@@ -16,7 +16,7 @@ export interface LLMProviderImpl {
  * Enum to define the LLM API family
  */
 export enum LLMApiFamily {
-  GPT = "gpt",
+  OPENAI = "openai",
   VERTEXAI = "vertexai",
   BEDROCK = "bedrock",
 };
@@ -59,7 +59,7 @@ export type LLMModelMetadata = {
   readonly maxDimensions?: number;
   readonly maxCompletionTokens?: number;
   readonly maxTotalTokens: number;
-  readonly llmApi: LLMApiFamily;
+  readonly apiFamily: LLMApiFamily;
 }
 
 

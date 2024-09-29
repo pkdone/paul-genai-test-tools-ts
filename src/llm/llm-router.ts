@@ -4,6 +4,7 @@ import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } 
   from "../types/llm-types";
 import { RetryFunc } from "../types/control-types";
+import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-exceptions";
 import { getEnvVar } from "../utils/envvar-utils";
 import { withRetry } from "../utils/control-utils";
 import { initializeLLMImplementation  } from "./llm-initializer";
@@ -114,7 +115,7 @@ class LLMRouter {
           logWithContext(`LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens} plus completion tokens used ${llmResponse.tokensUage?.completionTokens} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens}, or: 2) the model's completion tokens limit`, context);
 
           if (llmFuncIndex + 1 >= llmFuncs.length) { 
-            if (!llmResponse.tokensUage) throw new Error("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present");
+            if (!llmResponse.tokensUage) throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present", llmResponse);
             currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.model, llmResponse.tokensUage);
             this.llmStats.recordCrop();
           } else {
@@ -123,7 +124,7 @@ class LLMRouter {
             llmFuncIndex++;
           }  
         } else {
-          throw new Error(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse?.status}'`);
+          throw new RejectionResponseLLMError(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse?.status}'`, llmResponse);
         }
       }
 
@@ -183,7 +184,7 @@ class LLMRouter {
     let currentStartingModelQuality: LLMModelQuality | null = startingModelQuality;
 
     if (!invocableModelQualitiesAvailable || invocableModelQualitiesAvailable.length <= 0) {
-      throw new Error("The LLM implementation doesn't implement any completions models");
+      throw new BadConfigurationLLMError("The LLM implementation doesn't implement any completions models");
     }
 
     if (this.usePremiumLModelOnly) currentStartingModelQuality = LLMModelQuality.PREMIUM;
@@ -209,9 +210,9 @@ class LLMRouter {
     if (currentStartingModelQuality) {
       return currentStartingModelQuality;
     } else if (this.usePremiumLModelOnly) {
-      throw new Error("ERROR: Configured preference `PREMIUM_LLM_ONLY` was set to true, but a premium model is not available, so can't continue");
+      throw new BadConfigurationLLMError("Configured preference `PREMIUM_LLM_ONLY` was set to true, but a premium model is not available, so can't continue");
     } else {
-      throw new Error("ERROR: Neither a regular or premium model is available to use, so can't continue");
+      throw new BadConfigurationLLMError("Neither a regular or premium model is available to use, so can't continue");
     }
   }
 

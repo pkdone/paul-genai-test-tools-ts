@@ -5,6 +5,7 @@ import { getErrorText } from "../../utils/error-utils";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
        } from "../llm-response-tools";
+import { BadConfigurationLLMError } from "../../types/llm-exceptions";
 
 
 /**
@@ -49,7 +50,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Send the content to the LLM for it to generate and return the content's embeddings.
    */
   public async generateEmbeddings(content: string, _doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    if (!this.embeddingsModel) throw new Error(`Embeddings model represented by ${this.constructor.name} does not exist - do not use this method`);
+    if (!this.embeddingsModel) throw new BadConfigurationLLMError(`Embeddings model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.embeddingsModel, LLMPurpose.EMBEDDINGS, content, false, context);
   }
 
@@ -58,7 +59,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Send the prompt to the 'regular' LLM and retrieve the LLM's answer.
    */
   public async executeCompletionRegular(prompt: string, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    if (!this.completionsModelRegular) throw new Error(`'Regular' text model represented by ${this.constructor.name} does not exist - do not use this method`);
+    if (!this.completionsModelRegular) throw new BadConfigurationLLMError(`'Regular' text model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.completionsModelRegular, LLMPurpose.COMPLETION, prompt, doReturnJSON, context);
   }
 
@@ -67,7 +68,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Send the prompt to the 'premium' LLM and retrieve the LLM's answer.
    */
   public async executeCompletionPremium(prompt: string, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    if (!this.completionsModelPremium) throw new Error(`'Premium' text model represented by ${this.constructor.name} does not exist - do not use this method`);
+    if (!this.completionsModelPremium) throw new BadConfigurationLLMError(`'Premium' text model represented by ${this.constructor.name} does not exist - do not use this method`);
     return await this.executeLLMImplFunction(this.completionsModelPremium, LLMPurpose.COMPLETION, prompt, doReturnJSON, context);
   }
 

@@ -25,7 +25,7 @@ export const llmConst = {
  * Set of LLM error message patterns
  */
 export const llmAPIErrorPatterns: Readonly<{ [key: string]: readonly LLMErrorMsgRegExPattern[] }> = {
-  [LLMApiFamily.GPT]: [
+  [LLMApiFamily.OPENAI]: [
     // 1. "This model's maximum context length is 8191 tokens, however you requested 10346 tokens (10346 in your prompt; 5 for the completion). Please reduce your prompt; or completion length.",
     { pattern: /max.*?(\d+) tokens.*?\(.*?(\d+).*?prompt.*?(\d+).*?completion/, units: "tokens" },
     // 2. "This model's maximum context length is 8192 tokens. However, your messages resulted in 8545 tokens. Please reduce the length of the messages."

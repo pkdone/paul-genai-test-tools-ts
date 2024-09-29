@@ -13,8 +13,8 @@ export default withMongoDBClient;
  * @throws Throws an error if no MongoDB URL argument is provided.
  */
 async function withMongoDBClient<T>(mongodbURL: string,  asyncFunc: (client: MongoClient) => Promise<T>): Promise<T> {
-  if (!mongodbURL) throw new Error("No MongoDB URL argument provided");
-  console.log(`Connecting to MongoDB client at: ${redactMongoDbUrl(mongodbURL)}`);
+  if (!mongodbURL) throw new URIError("No MongoDB URL argument provided");
+  console.log(`Connecting MongoDB client to: ${redactMongoDbUrl(mongodbURL)}`);
   let mongoDBClient;
   
   try {
