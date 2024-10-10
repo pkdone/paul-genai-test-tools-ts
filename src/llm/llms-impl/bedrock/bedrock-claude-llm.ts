@@ -1,6 +1,6 @@
 import { llmConst } from "../../../types/llm-constants";
-import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_CLAUDE_V35 } 
-       from "../../../types/llm-models";
+import { llmModels } from "../../../types/llm-models";
+import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 const AWS_ANTHROPIC_API_VERSION = "bedrock-2023-05-31"
@@ -16,9 +16,9 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
    */
   constructor() { 
     super(
-      AWS_EMBEDDINGS_MODEL_TITAN_V1,
+      ModelKey.AWS_EMBEDDINGS_TITAN_V1,
       null,
-      AWS_COMPLETIONS_MODEL_CLAUDE_V35,
+      ModelKey.AWS_COMPLETIONS_CLAUDE_V35,
     ); 
   }
 
@@ -26,7 +26,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(model: string, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string): string {
     return JSON.stringify({
       anthropic_version: AWS_ANTHROPIC_API_VERSION,
       messages: [
@@ -43,7 +43,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
       temperature: llmConst.ZERO_TEMP,
       top_p: llmConst.TOP_P_LOWEST,
       top_k: llmConst.TOP_K_LOWEST,
-      max_tokens: llmModels[model].maxTotalTokens,
+      max_tokens: llmModels[modelKey].maxTotalTokens,
     });
   }
 

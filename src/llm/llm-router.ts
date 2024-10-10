@@ -78,7 +78,7 @@ class LLMRouter {
    * request and subsequent response for convenient debugging and error logging context.
    */
   public async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQuality, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
-    context.purpose = LLMPurpose.COMPLETION;
+    context.purpose = LLMPurpose.COMPLETIONS;
     const modelQualitiesSupported = this.llmImpl.getAvailableCompletionModelQualities();
     startingModelQuality = this.adjustStartingModelQualityBasedOnAvailability(modelQualitiesSupported, startingModelQuality);
     context.modelQuality = (startingModelQuality === LLMModelQuality.REGULAR_PLUS) ? LLMModelQuality.REGULAR : startingModelQuality;
@@ -116,7 +116,7 @@ class LLMRouter {
 
           if (llmFuncIndex + 1 >= llmFuncs.length) { 
             if (!llmResponse.tokensUage) throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present", llmResponse);
-            currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.model, llmResponse.tokensUage);
+            currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.modelKey, llmResponse.tokensUage);
             this.llmStats.recordCrop();
           } else {
             context.modelQuality = LLMModelQuality.PREMIUM;

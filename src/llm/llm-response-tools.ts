@@ -9,10 +9,10 @@ import { BadResponseContentLLMError } from "../types/llm-exceptions";
  * Etract token usage information from LLM response metadata, defaulting missing
  * values.
  */
-export function extractTokensAmountFromMetadataDefaultingMissingValues(model: string, tokenUsage: LLMResponseTokensUsage): LLMResponseTokensUsage {
+export function extractTokensAmountFromMetadataDefaultingMissingValues(modelKey: string, tokenUsage: LLMResponseTokensUsage): LLMResponseTokensUsage {
   let { promptTokens, completionTokens, maxTotalTokens } = tokenUsage;
   if (completionTokens < 0) completionTokens = 0;
-  if (maxTotalTokens < 0) maxTotalTokens = llmModels[model].maxTotalTokens;
+  if (maxTotalTokens < 0) maxTotalTokens = llmModels[modelKey].maxTotalTokens;
   if (promptTokens < 0) promptTokens = Math.max(1, maxTotalTokens - completionTokens + 1);
   return { promptTokens, completionTokens, maxTotalTokens };
 }
@@ -22,9 +22,9 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(model: st
  * Extract token usage information and limit from LLM error message. Derives values
  * for all prompt/completions/maxTokens if not found in the error message.
  */
-export function extractTokensAmountAndLimitFromErrorMsg(model: string, prompt: string, errorMsg: string): LLMResponseTokensUsage {
-  let { maxTotalTokens, promptTokens, completionTokens } = parseTokenUsageFromError(model, errorMsg);
-  const publishedMaxTotalTokens  = llmModels[model].maxTotalTokens;
+export function extractTokensAmountAndLimitFromErrorMsg(modelKey: string, prompt: string, errorMsg: string): LLMResponseTokensUsage {
+  let { maxTotalTokens, promptTokens, completionTokens } = parseTokenUsageFromError(modelKey, errorMsg);
+  const publishedMaxTotalTokens  = llmModels[modelKey].maxTotalTokens;
 
   if (promptTokens < 0) { 
     const assumedMaxTotalTokens = (maxTotalTokens > 0) ? maxTotalTokens : publishedMaxTotalTokens;
@@ -40,11 +40,11 @@ export function extractTokensAmountAndLimitFromErrorMsg(model: string, prompt: s
 /**
  * Extract token usage information from LLM error message.
  */
-function parseTokenUsageFromError(model: string, errorMsg: string): LLMResponseTokensUsage {
+function parseTokenUsageFromError(modelKey: string, errorMsg: string): LLMResponseTokensUsage {
   let promptTokens = -1;
   let completionTokens = 0;
   let maxTotalTokens = -1;      
-  const patternDefinitions = llmAPIErrorPatterns[llmModels[model].apiFamily];
+  const patternDefinitions = llmAPIErrorPatterns[llmModels[modelKey].apiFamily];
 
   if (patternDefinitions) {
     for (const patternDefinition of patternDefinitions) {
@@ -58,7 +58,7 @@ function parseTokenUsageFromError(model: string, errorMsg: string): LLMResponseT
         } else if (matches.length > 2) {
           const charsLimit = parseInt(matches[1], 10);
           const charsPrompt = parseInt(matches[2], 10);
-          maxTotalTokens = llmModels[model].maxTotalTokens;
+          maxTotalTokens = llmModels[modelKey].maxTotalTokens;
           const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
           promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
         }
@@ -76,14 +76,14 @@ function parseTokenUsageFromError(model: string, errorMsg: string): LLMResponseT
  * Post-process the LLM response, converting it to JSON if necessary, and build the
  * response metadaat object.
  */
-export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLMFunctionResponse, model: string, taskType: LLMPurpose, responseContent: LLMGeneratedContent, doReturnJSON: boolean): LLMFunctionResponse {
-  if (taskType === LLMPurpose.COMPLETION) {
+export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLMFunctionResponse, modelKey: string, taskType: LLMPurpose, responseContent: LLMGeneratedContent, doReturnJSON: boolean): LLMFunctionResponse {
+  if (taskType === LLMPurpose.COMPLETIONS) {
     try {
       if (typeof responseContent !== "string") throw new BadResponseContentLLMError("Generated content is not a string", responseContent);
       const generatedContent = doReturnJSON ? convertTextToJSON(responseContent) : responseContent;
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: generatedContent };
     } catch (error: unknown) {
-      console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${model})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);
+      console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${llmModels[modelKey].modelId})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);
       return { ...skeletonResult, status: LLMResponseStatus.OVERLOADED };
     }
   } else {
@@ -95,9 +95,9 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLM
 /**
  * Reduce the size of the prompt to be inside the LLM's indicated token limit.
  */
-export function reducePromptSizeToTokenLimit(prompt: string, model: string, tokensUage: LLMResponseTokensUsage): string {
+export function reducePromptSizeToTokenLimit(prompt: string, modelKey: string, tokensUage: LLMResponseTokensUsage): string {
   const { promptTokens, completionTokens, maxTotalTokens } = tokensUage;
-  const maxCompletionTokensLimit = llmModels[model].maxCompletionTokens; // will be undefined if for embeddings
+  const maxCompletionTokensLimit = llmModels[modelKey].maxCompletionTokens; // will be undefined if for embeddings
   let reductionRatio = 1;
   
   // If all the LLM#s available completion tokens have been consumed then will need to reduce prompt size to try influence any subsequenet generated completion to be smaller

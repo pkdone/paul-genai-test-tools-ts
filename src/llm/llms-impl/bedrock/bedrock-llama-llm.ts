@@ -1,7 +1,6 @@
 import { llmConst } from "../../../types/llm-constants";
-import { AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT,
-         AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT,
-         llmModels} from "../../../types/llm-models";
+import { llmModels} from "../../../types/llm-models";
+import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
@@ -16,9 +15,9 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
    */
   constructor() { 
     super(
-      AWS_EMBEDDINGS_MODEL_TITAN_V1,
-      AWS_COMPLETIONS_MODEL_LLAMA_V3_70B_INSTRUCT,
-      AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT,     
+      ModelKey.AWS_EMBEDDINGS_TITAN_V1,
+      ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT,
+      ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,     
     ); 
   }
 
@@ -26,7 +25,7 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Llama completions only.
    */
-  protected buildCompletionModelSpecificParameters(model: string, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string): string {
     const bodyObj: { prompt: string, temperature: number, top_p: number, max_gen_len?: number } = {
       prompt: 
 `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
@@ -37,8 +36,8 @@ You are a helpful software engineering and programming assistant, and you need t
     };
 
     // Currently for v3 and lower Llama LLMs, getting this error even though left to their own devices they seem to happily default to max completions of 8192: Malformed input request: #/max_gen_len: 8192 is not less or equal to 2048, please reformat your input and try again. ValidationException: Malformed input request: #/max_gen_len: 8192 is not less or equal to 2048, please reformat your input and try again.
-    if (model === AWS_COMPLETIONS_MODEL_LLAMA_V31_405B_INSTRUCT) {
-      bodyObj.max_gen_len = llmModels[model].maxCompletionTokens;
+    if (modelKey === ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT) {
+      bodyObj.max_gen_len = llmModels[modelKey].maxCompletionTokens;
     }
 
     return JSON.stringify(bodyObj);

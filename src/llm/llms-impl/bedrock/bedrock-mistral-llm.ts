@@ -1,7 +1,6 @@
 import { llmConst } from "../../../types/llm-constants";
-import { AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_MISTRAL_LARGE,
-         AWS_COMPLETIONS_MODEL_MISTRAL_LARGE2, 
-         llmModels} from "../../../types/llm-models";
+import { llmModels} from "../../../types/llm-models";
+import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
@@ -16,9 +15,9 @@ class BedrockMistralLLM extends BaseBedrockLLM {
    */
   constructor() { 
     super(
-      AWS_EMBEDDINGS_MODEL_TITAN_V1,
-      AWS_COMPLETIONS_MODEL_MISTRAL_LARGE,
-      AWS_COMPLETIONS_MODEL_MISTRAL_LARGE2,
+      ModelKey.AWS_EMBEDDINGS_TITAN_V1,
+      ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE,
+      ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE2,
     ); 
   }
 
@@ -26,13 +25,13 @@ class BedrockMistralLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(model: string, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string): string {
     return JSON.stringify({
       prompt: `<s>[INST] ${prompt} [/INST]`,
       temperature: llmConst.ZERO_TEMP,
       top_p: llmConst.TOP_P_LOWEST,
       top_k: llmConst.TOP_K_LOWEST,
-      max_tokens: llmModels[model].maxCompletionTokens,
+      max_tokens: llmModels[modelKey].maxCompletionTokens,
     });
   }
 

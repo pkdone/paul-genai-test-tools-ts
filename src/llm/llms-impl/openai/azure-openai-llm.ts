@@ -1,8 +1,7 @@
 import { AzureOpenAI, OpenAI } from "openai";
 import { llmConst } from "../../../types/llm-constants";
-import { GPT_EMBEDDINGS_MODEL_ADA002, GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k }
-       from "../../../types/llm-models";
-import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../../types/llm-types";
+import { llmModels } from "../../../types/llm-models";
+import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 const AZURE_API_VERION = "2024-04-01-preview";
 
@@ -20,11 +19,11 @@ class AzureOpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(apiKey: string, endpoint: string, embeddingsDeployment: string, regularCompletionsDeployment: string, premiumCompletionsDeployment: string) {
-    super(GPT_EMBEDDINGS_MODEL_ADA002, GPT_COMPLETIONS_MODEL_GPT4, GPT_COMPLETIONS_MODEL_GPT4_32k);
+    super(ModelKey.GPT_EMBEDDINGS_ADA002, ModelKey.GPT_COMPLETIONS_GPT4, ModelKey.GPT_COMPLETIONS_GPT4_32k);
     this.modelToDeploymentMappings = {
-      [GPT_EMBEDDINGS_MODEL_ADA002]: embeddingsDeployment,
-      [GPT_COMPLETIONS_MODEL_GPT4]: regularCompletionsDeployment,
-      [GPT_COMPLETIONS_MODEL_GPT4_32k]: premiumCompletionsDeployment,
+      [ModelKey.GPT_EMBEDDINGS_ADA002]: embeddingsDeployment,
+      [ModelKey.GPT_COMPLETIONS_GPT4]: regularCompletionsDeployment,
+      [ModelKey.GPT_COMPLETIONS_GPT4_32k]: premiumCompletionsDeployment,
     } as const;
     const apiVersion = AZURE_API_VERION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
@@ -36,9 +35,9 @@ class AzureOpenAILLM extends BaseOpenAILLM {
    */
   public getModelsNames(): LLMConfiguredModelTypesNames {
     return {
-      embeddings: GPT_EMBEDDINGS_MODEL_ADA002,
-      regular: GPT_COMPLETIONS_MODEL_GPT4,
-      premium: GPT_COMPLETIONS_MODEL_GPT4_32k,
+      embeddings: llmModels[ModelKey.GPT_EMBEDDINGS_ADA002].modelId,
+      regular: llmModels[ModelKey.GPT_COMPLETIONS_GPT4].modelId,
+      premium: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_32k].modelId,      
     };
   }
 
@@ -54,8 +53,8 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: string, model: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams {
-    const deployment = this.modelToDeploymentMappings[model];
+  protected buildFullLLMParameters(taskType: string, modelKey: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams {
+    const deployment = this.modelToDeploymentMappings[modelKey];
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {

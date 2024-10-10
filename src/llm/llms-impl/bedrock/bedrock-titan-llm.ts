@@ -1,6 +1,6 @@
 import { llmConst } from "../../../types/llm-constants";
-import { llmModels, AWS_EMBEDDINGS_MODEL_TITAN_V1, AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1 }
-       from "../../../types/llm-models";
+import { llmModels } from "../../../types/llm-models";
+import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
@@ -14,8 +14,8 @@ class BedrockTitanLLM extends BaseBedrockLLM {
    */
   constructor() { 
     super(
-      AWS_EMBEDDINGS_MODEL_TITAN_V1,
-      AWS_COMPLETIONS_MODEL_TITAN_EXPRESS_V1,
+      ModelKey.AWS_EMBEDDINGS_TITAN_V1,
+      ModelKey.AWS_COMPLETIONS_TITAN_EXPRESS_V1,
       null,
     );
   }
@@ -24,13 +24,13 @@ class BedrockTitanLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(model: string, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string): string {
     return JSON.stringify({
       inputText: prompt,
       textGenerationConfig: {
         temperature: llmConst.ZERO_TEMP,
         topP: llmConst.TOP_P_VLOW,
-        maxTokenCount: llmModels[model].maxCompletionTokens,
+        maxTokenCount: llmModels[modelKey].maxCompletionTokens,
       },
     });
   }

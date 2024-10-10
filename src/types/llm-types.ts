@@ -13,16 +13,6 @@ export interface LLMProviderImpl {
 
 
 /**
- * Enum to define the LLM API family
- */
-export enum LLMApiFamily {
-  OPENAI = "openai",
-  VERTEXAI = "vertexai",
-  BEDROCK = "bedrock",
-};
-
-
-/**
  * Enum to define the model quality required (regular, regular+, premium)
  */
 export enum LLMModelQuality {
@@ -46,8 +36,20 @@ export type LLMConfiguredModelTypesNames = {
  * Enum to define the LLM task type
  */
 export enum LLMPurpose { 
+  N_A = "N_A",
   EMBEDDINGS = "embeddings",
-  COMPLETION = "completion",
+  COMPLETIONS = "completions",
+};
+
+
+/**
+ * Enum to define the LLM API family
+ */
+export enum LLMApiFamily {
+  N_A = "N_A",
+  OPENAI = "OpenAI",
+  VERTEXAI = "VertexAI",
+  BEDROCK = "Bedrock",
 };
 
 
@@ -55,6 +57,7 @@ export enum LLMPurpose {
  * Type to define the main characteristics of the LLM model.
  */
 export type LLMModelMetadata = {
+  readonly modelId: string;
   readonly purpose: LLMPurpose;
   readonly maxDimensions?: number;
   readonly maxCompletionTokens?: number;
@@ -102,7 +105,7 @@ export type LLMGeneratedContent = string | object | number[] | null;
 export type LLMFunctionResponse = {
   readonly status: LLMResponseStatus,
   readonly request: string,
-  readonly model: string,
+  readonly modelKey: string,
   readonly context: LLMContext,
   readonly generated?: LLMGeneratedContent,
   readonly tokensUage?: LLMResponseTokensUsage,
@@ -143,4 +146,43 @@ export type LLMStatsCategoriesSummary = {
 export type LLMErrorMsgRegExPattern = {
   readonly pattern: RegExp,
   readonly units: string,
+};
+
+
+/**
+ * Enum to define the LLM model family.
+ */
+export enum ModelFamily {
+  OPENAI_MODELS = "OpenAI",
+  AZURE_OPENAI_MODELS = "AzureOpenAI",
+  VERTEXAI_GEMINI_MODELS = "VertexAIGemini",
+  BEDROCK_TITAN_MODELS = "BedrockTitan",
+  BEDROCK_CLAUDE_MODELS = "BedrockClaude",
+  BEDROCK_LLAMA_MODELS = "BedrockLlama",
+  BEDROCK_MISTRAL_MODELS = "BedrockMistral"
+};
+
+
+/**
+ * Enum to define the keys of the service provider-speciifc exposed LLM models.
+ */
+export enum ModelKey {
+  UNSPECIFIED = "UNSPECIFIED",
+  GPT_EMBEDDINGS_ADA002 = "GPT_EMBEDDINGS_ADA002",
+  GPT_EMBEDDINGS_TEXT_EMBDG3 = "GPT_EMBEDDINGS_TEXT_EMBDG3",
+  GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4",
+  GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k",
+  GPT_COMPLETIONS_GPT4_TURBO = "GPT_COMPLETIONS_GPT4_TURBO",
+  GPT_COMPLETIONS_GPT4_O = "GPT_COMPLETIONS_GPT4_O",
+  GCP_EMBEDDINGS_ADA_GECKO = "GCP_EMBEDDINGS_ADA_GECKO",
+  GCP_COMPLETIONS_GEMINI_FLASH15 = "GCP_COMPLETIONS_GEMINI_FLASH15",
+  GCP_COMPLETIONS_GEMINI_PRO15 = "GCP_COMPLETIONS_GEMINI_PRO15",
+  AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1",
+  AWS_COMPLETIONS_TITAN_EXPRESS_V1 = "AWS_COMPLETIONS_TITAN_EXPRESS_V1",
+  AWS_COMPLETIONS_CLAUDE_V35 = "AWS_COMPLETIONS_CLAUDE_V35",
+  AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT",
+  AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT",
+  AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT",
+  AWS_COMPLETIONS_MISTRAL_LARGE = "AWS_COMPLETIONS_MISTRAL_LARGE",
+  AWS_COMPLETIONS_MISTRAL_LARGE2 = "AWS_COMPLETIONS_MISTRAL_LARGE2"
 };

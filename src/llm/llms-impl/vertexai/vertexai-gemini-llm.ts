@@ -2,10 +2,8 @@ import { VertexAI, ModelParams, RequestOptions, FinishReason, HarmCategory, Harm
          GoogleApiError, ClientError, GoogleAuthError, GoogleGenerativeAIError, 
          IllegalArgumentError } from "@google-cloud/vertexai";
 import { llmConst } from "../../../types/llm-constants";
-import { GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15,
-         GCP_COMPLETIONS_MODEL_GEMINI_PRO15, 
-         llmModels} from "../../../types/llm-models";
-import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../../types/llm-types";
+import { llmModels} from "../../../types/llm-models";
+import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
@@ -27,8 +25,8 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Constructor
    */
   constructor(project: string, location: string) {
-    super(GCP_EMBEDDINGS_MODEL_ADA_GECKO, GCP_COMPLETIONS_MODEL_GEMINI_FLASH15, 
-          GCP_COMPLETIONS_MODEL_GEMINI_PRO15);
+    super(ModelKey.GCP_EMBEDDINGS_ADA_GECKO, ModelKey.GCP_COMPLETIONS_GEMINI_FLASH15, 
+          ModelKey.GCP_COMPLETIONS_GEMINI_PRO15);
     this.client = new VertexAI({project, location});
   }
 
@@ -38,9 +36,9 @@ class VertexAIGeminiLLM extends AbstractLLM {
    */
   public getModelsNames(): LLMConfiguredModelTypesNames {
     return {
-      embeddings: GCP_EMBEDDINGS_MODEL_ADA_GECKO,
-      regular: GCP_COMPLETIONS_MODEL_GEMINI_FLASH15,
-      premium: GCP_COMPLETIONS_MODEL_GEMINI_PRO15,
+      embeddings: llmModels[ModelKey.GCP_EMBEDDINGS_ADA_GECKO].modelId,
+      regular: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_FLASH15].modelId,
+      premium: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_PRO15].modelId,      
     };
   }  
 
@@ -48,9 +46,9 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, model: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {
     // Invoke LLM
-    const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, model);
+    const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, modelKey);
     const llm = this.client.getGenerativeModel(modelParams, requestOptions);
     const llmResponses = await llm.generateContent(prompt);
     const usageMetadata = llmResponses?.response?.usageMetadata;
@@ -77,15 +75,15 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullLLMParameters(taskType: string, model: string): { modelParams: ModelParams, requestOptions: RequestOptions } {
+  private buildFullLLMParameters(taskType: string, modelKey: string): { modelParams: ModelParams, requestOptions: RequestOptions } {
     const modelParams = { 
-      model,
+      model: llmModels[modelKey].modelId,
       generationConfig: { 
         candidateCount: 1,
         topP: llmConst.TOP_P_LOWEST,
         topK: llmConst.TOP_K_LOWEST,
         temperature: llmConst.ZERO_TEMP,   
-        maxOutputTokens: llmModels[model].maxCompletionTokens,
+        maxOutputTokens: llmModels[modelKey].maxCompletionTokens,
       },
       safetySettings: [
         { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },

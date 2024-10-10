@@ -1,9 +1,7 @@
 import { OpenAI } from "openai";
 import { llmConst } from "../../../types/llm-constants";
-import { GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3, GPT_COMPLETIONS_MODEL_GPT4_TURBO,
-         GPT_COMPLETIONS_MODEL_GPT4_O, 
-         llmModels} from "../../../types/llm-models";
-import { LLMConfiguredModelTypesNames, LLMPurpose } from "../../../types/llm-types";
+import { llmModels} from "../../../types/llm-models";
+import { LLMConfiguredModelTypesNames, LLMPurpose,ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 
 
@@ -19,7 +17,7 @@ class OpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(apiKey: string) { 
-    super(GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3, GPT_COMPLETIONS_MODEL_GPT4_O, GPT_COMPLETIONS_MODEL_GPT4_O);
+    super(ModelKey.GPT_EMBEDDINGS_TEXT_EMBDG3, ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_O);
     this.client = new OpenAI({ apiKey })       
   }
 
@@ -29,9 +27,9 @@ class OpenAILLM extends BaseOpenAILLM {
    */ 
   public getModelsNames(): LLMConfiguredModelTypesNames {
     return {
-      embeddings: GPT_EMBEDDINGS_MODEL_TEXT_EMBDG3,
-      regular: GPT_COMPLETIONS_MODEL_GPT4_TURBO,
-      premium: GPT_COMPLETIONS_MODEL_GPT4_O,
+      embeddings: llmModels[ModelKey.GPT_EMBEDDINGS_TEXT_EMBDG3].modelId,
+      regular: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_TURBO].modelId,
+      premium: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_O].modelId,      
     };
   }
 
@@ -47,19 +45,19 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: string, model: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams {
+  protected buildFullLLMParameters(taskType: string, modelKey: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
-        model,
+        model: llmModels[modelKey].modelId,
         input: prompt
       }
       return params;  
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
-        model,
+        model: llmModels[modelKey].modelId,
         temperature: llmConst.ZERO_TEMP,
         messages: [{ role: "user", content: prompt } ],
-        max_completion_tokens: llmModels[model].maxCompletionTokens,
+        max_completion_tokens: llmModels[modelKey].maxCompletionTokens,
       };        
       return params;
     } 
