@@ -4,7 +4,7 @@ import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } 
   from "../types/llm-types";
 import { RetryFunc } from "../types/control-types";
-import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-exceptions";
+import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors";
 import { getEnvVar } from "../utils/envvar-utils";
 import { withRetry } from "../utils/control-utils";
 import { initializeLLMImplementation  } from "./llm-initializer";

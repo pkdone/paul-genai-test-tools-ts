@@ -32,9 +32,9 @@ async function main(): Promise<void> {
   await clearDirectory(appConst.OUTPUT_DIR);  
   const outputFilePath = path.join(__dirname, "..", appConst.OUTPUT_DIR, appConst.OUTPUT_SUMMARY_FILE);
   await writeFile(outputFilePath, `-- ${llmProvider} --\n${result}`); 
-  console.log(`View generared results at: file://${outputFilePath}`);
   llmRouter.displayLLMStatusDetails();
   await llmRouter.close();
+  console.log(`View generared results at: file://${outputFilePath}`);
   console.log(`END: ${new Date()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
 }

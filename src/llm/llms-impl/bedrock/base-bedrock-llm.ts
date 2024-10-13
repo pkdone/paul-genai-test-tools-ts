@@ -3,9 +3,8 @@ import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, Mode
          ServiceUnavailableException, ThrottlingException, ModelNotReadyException, 
          ModelTimeoutException, ValidationException } from "@aws-sdk/client-bedrock-runtime";
 import { LLMPurpose, LLMConfiguredModelTypesNames, ModelKey } from "../../../types/llm-types";
-import { llmModels } from "../../../types/llm-models";
-import { llmConst } from "../../../types/llm-constants";
-import { BadResponseContentLLMError } from "../../../types/llm-exceptions";
+import { llmModels, llmConst } from "../../../types/llm-constants";
+import { BadResponseContentLLMError } from "../../../types/llm-errors";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText, getErrorStack } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";

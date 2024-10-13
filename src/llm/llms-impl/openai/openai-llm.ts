@@ -1,6 +1,5 @@
 import { OpenAI } from "openai";
-import { llmConst } from "../../../types/llm-constants";
-import { llmModels} from "../../../types/llm-models";
+import { llmModels, llmConst } from "../../../types/llm-constants";
 import { LLMConfiguredModelTypesNames, LLMPurpose,ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 
@@ -17,7 +16,7 @@ class OpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(apiKey: string) { 
-    super(ModelKey.GPT_EMBEDDINGS_TEXT_EMBDG3, ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_O);
+    super(ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL, ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_O);
     this.client = new OpenAI({ apiKey })       
   }
 
@@ -27,7 +26,7 @@ class OpenAILLM extends BaseOpenAILLM {
    */ 
   public getModelsNames(): LLMConfiguredModelTypesNames {
     return {
-      embeddings: llmModels[ModelKey.GPT_EMBEDDINGS_TEXT_EMBDG3].modelId,
+      embeddings: llmModels[ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL].modelId,
       regular: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_TURBO].modelId,
       premium: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_O].modelId,      
     };

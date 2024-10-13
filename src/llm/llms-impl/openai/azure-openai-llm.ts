@@ -1,6 +1,5 @@
 import { AzureOpenAI, OpenAI } from "openai";
-import { llmConst } from "../../../types/llm-constants";
-import { llmModels } from "../../../types/llm-models";
+import { llmModels, llmConst } from "../../../types/llm-constants";
 import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 const AZURE_API_VERION = "2024-04-01-preview";

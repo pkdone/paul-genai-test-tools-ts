@@ -1,5 +1,4 @@
-import { llmConst } from "../../../types/llm-constants";
-import { llmModels } from "../../../types/llm-models";
+import { llmModels, llmConst } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";

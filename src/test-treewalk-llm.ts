@@ -21,9 +21,9 @@ async function main(): Promise<void> {
   const llmRouter = new LLMRouter(getEnvVar<string>(envConst.ENV_LLM), getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
   llmRouter.displayLLMStatusSummary();
   await feedFilesThruLLMConcurrently(llmRouter, srcFilepaths, outputFilePath);
-  console.log(`View generared results at: file://${outputFilePath}`);
   llmRouter.displayLLMStatusDetails();
   await llmRouter.close();
+  console.log(`View generared results at: file://${outputFilePath}`);
   console.log(`END: ${new Date()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
 }

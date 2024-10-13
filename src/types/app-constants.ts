@@ -7,7 +7,7 @@ const appConst = {
   CODEBASE_DB_NAME: "codebase-analyzed",
   SRC_COLLCTN_NAME: "sources",
   SAMPLE_PROMPT_FILEPATH: "./sample.prompt",
-  FOLDER_IGNORE_LIST: [".git", "bin", "build", "node_modules", ".vscode", "dist", "output", ] as string[],
+  FOLDER_IGNORE_LIST: [".git", "bin", "build", "node_modules", ".vscode", "dist", "output"] as string[],
   FILENAME_PREFIX_IGNORE: "test-",
   MAX_CONCURRENCY: 50,
   BINARY_FILE_SUFFIX_IGNORE_LIST: ["aac", "abw", "arc", "avif", "avi", "azw", "bin", "bmp", "bz",

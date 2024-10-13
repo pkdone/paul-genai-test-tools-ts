@@ -1,6 +1,6 @@
 import envConst from "../types/env-constants";
 import { LLMProviderImpl, ModelFamily } from "../types/llm-types";
-import { BadConfigurationLLMError } from "../types/llm-exceptions";
+import { BadConfigurationLLMError } from "../types/llm-errors";
 import { getEnvVar } from "../utils/envvar-utils";
 import OpenAILLM from "./llms-impl/openai/openai-llm";
 import AzureOpenAILLM from "./llms-impl/openai/azure-openai-llm";

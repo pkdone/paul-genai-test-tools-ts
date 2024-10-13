@@ -1,13 +1,12 @@
 import { VertexAI, ModelParams, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshold, 
          GoogleApiError, ClientError, GoogleAuthError, GoogleGenerativeAIError, 
          IllegalArgumentError } from "@google-cloud/vertexai";
-import { llmConst } from "../../../types/llm-constants";
-import { llmModels} from "../../../types/llm-models";
+import { llmModels, llmConst } from "../../../types/llm-constants";
 import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
-import { BadResponseContentLLMError, RejectionResponseLLMError } from "../../../types/llm-exceptions";
+import { BadResponseContentLLMError, RejectionResponseLLMError } from "../../../types/llm-errors";
 const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT,
                                            FinishReason.RECITATION, FinishReason.SAFETY,
                                            FinishReason.SPII];

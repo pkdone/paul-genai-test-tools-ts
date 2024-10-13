@@ -36,7 +36,7 @@ export type LLMConfiguredModelTypesNames = {
  * Enum to define the LLM task type
  */
 export enum LLMPurpose { 
-  N_A = "N_A",
+  N_A = "n/a",
   EMBEDDINGS = "embeddings",
   COMPLETIONS = "completions",
 };
@@ -46,7 +46,7 @@ export enum LLMPurpose {
  * Enum to define the LLM API family
  */
 export enum LLMApiFamily {
-  N_A = "N_A",
+  N_A = "n/a",
   OPENAI = "OpenAI",
   VERTEXAI = "VertexAI",
   BEDROCK = "Bedrock",
@@ -64,6 +64,19 @@ export type LLMModelMetadata = {
   readonly maxTotalTokens: number;
   readonly apiFamily: LLMApiFamily;
 }
+
+
+/**
+ * Intermediate type to use when moving JSON data to final strongly typed LLMModelMetadata type
+ */
+export type JSONLLMModelMetadata = {
+  readonly modelId?: string;
+  readonly purpose?: string;
+  readonly maxDimensions?: number;
+  readonly maxCompletionTokens?: number;
+  readonly maxTotalTokens?: number;
+  readonly apiFamily?: string;
+};
 
 
 /**
@@ -169,7 +182,7 @@ export enum ModelFamily {
 export enum ModelKey {
   UNSPECIFIED = "UNSPECIFIED",
   GPT_EMBEDDINGS_ADA002 = "GPT_EMBEDDINGS_ADA002",
-  GPT_EMBEDDINGS_TEXT_EMBDG3 = "GPT_EMBEDDINGS_TEXT_EMBDG3",
+  GPT_EMBEDDINGS_TEXT_3SMALL = "GPT_EMBEDDINGS_TEXT_3SMALL",
   GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4",
   GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k",
   GPT_COMPLETIONS_GPT4_TURBO = "GPT_COMPLETIONS_GPT4_TURBO",
