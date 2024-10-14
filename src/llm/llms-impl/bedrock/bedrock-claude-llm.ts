@@ -25,7 +25,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string {
     return JSON.stringify({
       anthropic_version: AWS_ANTHROPIC_API_VERSION,
       messages: [
@@ -50,15 +50,14 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary {
-    const responseObj = llmResponse as ClaudeCompletionLLMSpecificResponse;
-    const responseContent = responseObj?.content?.[0]?.text ?? "";
-    const finishReason = responseObj?.stop_reason ?? "";
+  protected extractCompletionModelSpecificResponse(llmResponse: ClaudeCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
+    const responseContent = llmResponse?.content?.[0]?.text ?? "";
+    const finishReason = llmResponse?.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
     const isIncompleteResponse = ((finishReasonLowercase === "length") 
       || !responseContent); // No content - assume prompt maxed out total tokens available
-    const promptTokens = responseObj?.usage?.input_tokens ?? -1;
-    const completionTokens = responseObj?.usage?.output_tokens ?? -1;
+    const promptTokens = llmResponse?.usage?.input_tokens ?? -1;
+    const completionTokens = llmResponse?.usage?.output_tokens ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

@@ -41,10 +41,10 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
     if (!directory) continue;
 
     try {
-      let entries = await readDirContents(directory);
+      const entries = await readDirContents(directory);
 
       for (const entry of entries) {
-        let fullPath = path.join(directory, entry.name);
+        const fullPath = path.join(directory, entry.name);
 
         if (entry.isDirectory()) {
           if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name)) {
@@ -89,8 +89,8 @@ async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: 
 async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: string, outputFilePath: string): Promise<void> {
   const type = getFileSuffix(srcFilepath).toLowerCase();
   if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type)) return;  // Skip file if it has binary content
-  let content = await readFile(srcFilepath);
-  content = content.trim();
+  const rawContent = await readFile(srcFilepath);
+  const content = rawContent.trim();
   if (!content) return;  // Skip empty files
   const context = { filepath: srcFilepath };
   const _embeddingsResult = await llmRouter.generateEmbeddings(srcFilepath, getPrompt(content), context);

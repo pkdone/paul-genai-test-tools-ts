@@ -24,7 +24,7 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Llama completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string {
     const bodyObj: { prompt: string, temperature: number, top_p: number, max_gen_len?: number } = {
       prompt: 
 `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
@@ -46,15 +46,14 @@ You are a helpful software engineering and programming assistant, and you need t
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary {
-    const responseObj = llmResponse as LlamaCompletionLLMSpecificResponse;
-    const responseContent = responseObj?.generation ?? "";
-    const finishReason = responseObj?.stop_reason ?? "";
+  protected extractCompletionModelSpecificResponse(llmResponse: LlamaCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
+    const responseContent = llmResponse?.generation ?? "";
+    const finishReason = llmResponse?.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
     const isIncompleteResponse = ((finishReasonLowercase === "length")
       || !responseContent);  // No content - assume prompt maxed out total tokens available
-    const promptTokens = responseObj?.prompt_token_count ?? -1;
-    const completionTokens = responseObj?.generation_token_count ?? -1;
+    const promptTokens = llmResponse?.prompt_token_count ?? -1;
+    const completionTokens = llmResponse?.generation_token_count ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

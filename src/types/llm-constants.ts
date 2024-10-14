@@ -1,6 +1,6 @@
 import { assembleLLMModelMetadataFromJSON } from "../llm/llm-metadata-initializer";
 import { LLMApiFamily, LLMErrorMsgRegExPattern } from "./llm-types";
-import llmModelsData from "../llm-models.json";
+import jsonLlmModelsData from "../llm-models.json";
 
 
 /**
@@ -25,7 +25,7 @@ export const llmConst = {
 
 
 /**
- * Get the llm-model.json contents into a const.
+ * Validate the llm-model.json contents and bring them into a strongly const object.
  * 
  * GENERAL NOTES:
  *  - For Completions LLMs, the total allowed tokens is the sum of the prompt tokens and the 
@@ -36,8 +36,8 @@ export const llmConst = {
  * 
  * SPECIFIC LLM NOTES:
  *  - GCP_COMPLETIONS_GEMINI_FLASH15: For some reason the listed 'maxCompletionTokens' value of 8192
- *    isn't always hit for Flash15, so not clear if it is actually higher than for Pro which would
- *    be a bit weird
+ *    isn't always hit for Flash15, so not clear if it is actually higher than for Pro which, if it,
+ *    is, would be a bit weird
  * 
  *  - AWS_COMPLETIONS_CLAUDE_V35: According to Anthropic site, the 'maxCompletionTokens' should be 
  *    8192 but Bedrock seems to cut this short to usually 4095 or 4096 but have seen 4090 reported 
@@ -46,7 +46,7 @@ export const llmConst = {
  *  - AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT & AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT: Not clear if
  *    'maxCompletionTokens' is actually less than listed value of 8192
  */
-export const llmModels = assembleLLMModelMetadataFromJSON(llmModelsData);
+export const llmModels = assembleLLMModelMetadataFromJSON(jsonLlmModelsData);
 
 
 /**

@@ -1,7 +1,7 @@
 import { OpenAI, RateLimitError, InternalServerError, BadRequestError, AuthenticationError, 
          PermissionDeniedError, NotFoundError, UnprocessableEntityError } from "openai";
 import { APIError } from "openai/error";
-import { LLMPurpose } from "../../../types/llm-types";
+import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import AbstractLLM from "../abstract-llm";
 
@@ -20,13 +20,13 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   /**
    * Abstract method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected abstract buildFullLLMParameters(taskType: string, modelKey: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
+  protected abstract buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
 
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {
     const params = this.buildFullLLMParameters(taskType, modelKey, prompt);    
 
     if (taskType === LLMPurpose.EMBEDDINGS) {

@@ -27,11 +27,11 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Constructor.
    */
-  constructor(embeddingsModel: string, completionsModelRegular: string | null, completionsModelPremium: string | null) { 
-    super(embeddingsModel, completionsModelRegular, completionsModelPremium );
-    this.embeddingsModelName = embeddingsModel || ModelKey.UNSPECIFIED;
-    this.completionsModelRegularName = completionsModelRegular ?? ModelKey.UNSPECIFIED;
-    this.completionsModelPremiumName = completionsModelPremium ?? ModelKey.UNSPECIFIED;
+  constructor(embeddingsModelKey: ModelKey, completionsModelRegularKey: ModelKey | null, completionsModelPremiumKey: ModelKey | null) { 
+    super(embeddingsModelKey, completionsModelRegularKey, completionsModelPremiumKey );
+    this.embeddingsModelName = embeddingsModelKey || ModelKey.UNSPECIFIED;
+    this.completionsModelRegularName = completionsModelRegularKey ?? ModelKey.UNSPECIFIED;
+    this.completionsModelPremiumName = completionsModelPremiumKey ?? ModelKey.UNSPECIFIED;
     this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS } });
     console.log("AWS Bedrock client created");
   }
@@ -41,7 +41,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * Abstract method to be overriden. Assemble the AWS Bedrock API parameters structure for the 
    * specific completions model hosted on Bedroc.
    */
-  protected abstract buildCompletionModelSpecificParameters(modelKey: string, prompt: string): string;
+  protected abstract buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string;
 
   
   /**
@@ -81,7 +81,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * always seems to be 200 if no exceptions thrown. Other codes like 400 or 429 only appear in the
    * `error`object thrown by the API, so only accessible from the catch block.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {
     // Invoke LLM
     const fullParameters = this.buildFullLLMParameters(taskType, modelKey, prompt);
     const command = new InvokeModelCommand(fullParameters);
@@ -104,7 +104,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * Assemble the AWS Bedrock API parameters structure for embeddings and completions models with 
    * the prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string): InvokeModelCommandInput  {
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): InvokeModelCommandInput  {
     let body = "";
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
@@ -128,12 +128,11 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Extract the relevant information from the LLM specific response.
    */
-  protected extractEmbeddingModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary {
-    const responseObj = llmResponse as TitanEmbeddingsLLMSpecificResponse;
-    const responseContent = responseObj?.embedding ?? [];
+  protected extractEmbeddingModelSpecificResponse(llmResponse: TitanEmbeddingsLLMSpecificResponse): LLMImplSpecificResponseSummary {
+    const responseContent = llmResponse?.embedding ?? [];
     const isIncompleteResponse = (!responseContent);  // If no content assume prompt maxed out total tokens available
-    const promptTokens = responseObj?.inputTextTokenCount ?? -1;
-    const completionTokens = responseObj?.results?.[0]?.tokenCount ?? -1;
+    const promptTokens = llmResponse?.inputTextTokenCount ?? -1;
+    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

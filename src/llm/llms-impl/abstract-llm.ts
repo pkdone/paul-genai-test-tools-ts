@@ -1,5 +1,6 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMFunctionResponse, 
-         LLMResponseStatus, LLMConfiguredModelTypesNames} from "../../types/llm-types";
+         LLMResponseStatus, LLMConfiguredModelTypesNames,
+         ModelKey} from "../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "./llm-impl-types";
 import { getErrorText } from "../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
@@ -13,15 +14,15 @@ import { BadConfigurationLLMError } from "../../types/llm-errors";
  * implemented by an extended class that implements a specific LLM integration.
  */
 abstract class AbstractLLM implements LLMProviderImpl {
-  private readonly embeddingsModelKey: string;
-  private readonly completionsModelRegularKey: string | null;
-  private readonly completionsModelPremiumKey: string | null;
+  private readonly embeddingsModelKey: ModelKey;
+  private readonly completionsModelRegularKey: ModelKey | null;
+  private readonly completionsModelPremiumKey: ModelKey | null;
 
 
   /**
    * Constructor.
    */
-  constructor(embeddingsModelKey: string, completionsModelRegularKey: string | null, completionsModelPremiumKey: string | null) { 
+  constructor(embeddingsModelKey: ModelKey, completionsModelRegularKey: ModelKey | null, completionsModelPremiumKey: ModelKey | null) { 
     this.embeddingsModelKey = embeddingsModelKey;
     this.completionsModelRegularKey = completionsModelRegularKey;
     this.completionsModelPremiumKey = completionsModelPremiumKey;
@@ -90,7 +91,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected abstract invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string): Promise<LLMImplSpecificResponseSummary>;
+  protected abstract invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary>;
 
 
   /**
@@ -111,7 +112,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Method to invoke the pluggable implementation of an LLM and then take the proprietary response
    * and normalise them back for geneeric consumption.
    */
-  private async executeLLMImplFunction(modelKey: string, taskType: LLMPurpose, request: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse> { 
+  private async executeLLMImplFunction(modelKey: ModelKey, taskType: LLMPurpose, request: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse> { 
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, modelKey };
 
     try {

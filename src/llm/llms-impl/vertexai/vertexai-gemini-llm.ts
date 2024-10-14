@@ -45,7 +45,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {
     // Invoke LLM
     const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, modelKey);
     const llm = this.client.getGenerativeModel(modelParams, requestOptions);
@@ -74,7 +74,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullLLMParameters(taskType: string, modelKey: string): { modelParams: ModelParams, requestOptions: RequestOptions } {
+  private buildFullLLMParameters(taskType: string, modelKey: ModelKey): { modelParams: ModelParams, requestOptions: RequestOptions } {
     const modelParams = { 
       model: llmModels[modelKey].modelId,
       generationConfig: { 

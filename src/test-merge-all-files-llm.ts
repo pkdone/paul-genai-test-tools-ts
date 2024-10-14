@@ -52,10 +52,10 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
     if (!directory) continue;
 
     try {
-      let entries = await readDirContents(directory);
+      const entries = await readDirContents(directory);
 
       for (const entry of entries) {
-        let fullPath = path.join(directory, entry.name);
+        const fullPath = path.join(directory, entry.name);
 
         if (entry.isDirectory()) {
           if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name)) {
@@ -80,7 +80,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
  * Merge the content of all source files and ask questions against it to an LLM
  */
 async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, filepaths: string[], srcDirPath: string) {
-  let codeBlocksContent = await mergeSourceFilesContent(filepaths, srcDirPath);
+  const codeBlocksContent = await mergeSourceFilesContent(filepaths, srcDirPath);
   const jobs = [];
   
   for (const prompt of PROMPTS) {

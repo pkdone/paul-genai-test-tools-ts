@@ -118,7 +118,7 @@ export type LLMGeneratedContent = string | object | number[] | null;
 export type LLMFunctionResponse = {
   readonly status: LLMResponseStatus,
   readonly request: string,
-  readonly modelKey: string,
+  readonly modelKey: ModelKey,
   readonly context: LLMContext,
   readonly generated?: LLMGeneratedContent,
   readonly tokensUage?: LLMResponseTokensUsage,

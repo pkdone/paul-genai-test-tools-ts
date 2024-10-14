@@ -42,13 +42,14 @@ export function convertToType(value: string): unknown {
     const obj = JSON.parse(value);
     return extractSpecialTypeFromObj(obj);
   } catch (e) {
-    if (value.toLowerCase() === "true") return true;
-    if (value.toLowerCase() === "false") return false;
-    if (value === "undefined") return undefined;
-    if (value === "null") return null;
+    switch (value.toLowerCase()) {
+      case "true": return true;
+      case "false": return false;
+      case "undefined": return undefined;
+      case "null": return null;
+      default: return value;    
+    }
   }
-
-  return value;
 }
 
 
