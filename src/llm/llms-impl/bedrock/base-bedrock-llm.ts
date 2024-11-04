@@ -6,11 +6,8 @@ import { LLMPurpose, LLMConfiguredModelTypesNames, ModelKey } from "../../../typ
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { BadResponseContentLLMError } from "../../../types/llm-errors";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
-import { getErrorText, getErrorStack } from "../../../utils/error-utils";
+import { logErrorDetail, getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
-const UTF8_ENCODING = "utf8";
-const RESPONSE_JSON_CONTENT_TYPE ="application/json";
-const RESPONSE_ANY_CONTENT_TYPE = "*/*";
 
 
 /**
@@ -57,7 +54,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     try {
       this.client.destroy();
     } catch (error: unknown) {
-      console.error("Error when calling destroy on AWSBedroc LLM", getErrorText(error), getErrorStack(error));
+      logErrorDetail("Error when calling destroy on AWSBedroc LLM", error);
     }
   }
 
@@ -87,7 +84,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
     if (!rawResponse?.body) throw new BadResponseContentLLMError("LLM raw response was completely empty", rawResponse);
-    const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(UTF8_ENCODING));
+    const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(llmConst.LLM_UTF8_ENCODING));
     if (!llmResponse) throw new BadResponseContentLLMError("LLM response when converted to JSON was empty", rawResponse);
 
 
@@ -118,8 +115,8 @@ abstract class BaseBedrockLLM extends AbstractLLM {
 
     return {
       modelId: llmModels[modelKey].modelId,
-      contentType: RESPONSE_JSON_CONTENT_TYPE,
-      accept: RESPONSE_ANY_CONTENT_TYPE,
+      contentType: llmConst.LLM_RESPONSE_JSON_CONTENT_TYPE,
+      accept: llmConst.LLM_RESPONSE_ANY_CONTENT_TYPE,
       body,
     };
   }

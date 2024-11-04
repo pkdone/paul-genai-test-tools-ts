@@ -70,9 +70,7 @@ class LLMStats {
    */
   private record(statusType: LLMStatsCategoryStatus): void {
     statusType.count++;
-    if (this.doPrintEventTicks) {
-      console.log(statusType.symbol);
-    }
+    if (this.doPrintEventTicks) console.log(statusType.symbol);
   }
 
 

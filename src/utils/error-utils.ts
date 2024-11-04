@@ -1,4 +1,16 @@
 /**
+ * Log an error message and the error stack to the console.
+ */
+export function logErrorDetail(msg: string, error: unknown): void {
+  if (msg) {
+    console.error(msg, getErrorText(error), getErrorStack(error));
+  } else {
+    console.error(getErrorText(error), getErrorStack(error));    
+  }
+}
+
+
+/**
  * Get the error text from a thrown variable which may or may not be an Error object.
  */
 export function getErrorText(error: unknown): string {

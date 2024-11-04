@@ -5,17 +5,8 @@ import { LLMModelQuality } from "./types/llm-types";
 import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } from "./utils/fs-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
 import { getEnvVar } from "./utils/envvar-utils";
-import { getErrorText, getErrorStack } from "./utils/error-utils";
+import { logErrorDetail, getErrorText } from "./utils/error-utils";
 import LLMRouter from "./llm/llm-router";
-
-
-/**
- * Type to define the key and question of template prompt to ask an LLM
- */ 
-type TemplatePrompt = {
-  key: string;
-  question: string;
-};
 
 
 /**
@@ -68,7 +59,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
         }
       }
     } catch (error: unknown) {
-      console.error(`Failed to read directory: ${directory}`, getErrorText(error), getErrorStack(error));    
+      logErrorDetail(`Failed to read directory: ${directory}`, error);
     }
   }
 
@@ -123,12 +114,21 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksCo
   try {
     response = await llmRouter.executeCompletion(resource, fullPrompt, LLMModelQuality.REGULAR_PLUS, false, context) as string;
   } catch (error: unknown) {
-    console.error("Problem introspecting and processing source files", getErrorText(error), getErrorStack(error));    
+    logErrorDetail("Problem introspecting and processing source files", error);    
     response = getErrorText(error);
   } 
 
   return `\n< ${prompt.key}\n${promptFirstPart}>\n\n${response}\n==========================================================\n\n`;
 }
+
+
+/**
+ * Type to define the key and question of template prompt to ask an LLM
+ */ 
+type TemplatePrompt = {
+  key: string;
+  question: string;
+};
 
 
 // Prompts

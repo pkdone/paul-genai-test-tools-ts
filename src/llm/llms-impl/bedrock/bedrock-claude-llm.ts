@@ -2,7 +2,6 @@ import { llmModels, llmConst } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
-const AWS_ANTHROPIC_API_VERSION = "bedrock-2023-05-31"
 
 
 /** 
@@ -27,7 +26,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
    */
   protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string {
     return JSON.stringify({
-      anthropic_version: AWS_ANTHROPIC_API_VERSION,
+      anthropic_version: llmConst.AWS_ANTHROPIC_API_VERSION,
       messages: [
         {
           role: "user",

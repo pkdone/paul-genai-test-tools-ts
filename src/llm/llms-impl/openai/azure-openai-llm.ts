@@ -2,7 +2,6 @@ import { AzureOpenAI, OpenAI } from "openai";
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
-const AZURE_API_VERION = "2024-04-01-preview";
 
 
 /**
@@ -24,7 +23,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
       [ModelKey.GPT_COMPLETIONS_GPT4]: regularCompletionsDeployment,
       [ModelKey.GPT_COMPLETIONS_GPT4_32k]: premiumCompletionsDeployment,
     } as const;
-    const apiVersion = AZURE_API_VERION;
+    const apiVersion = llmConst.AZURE_API_VERION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
 
