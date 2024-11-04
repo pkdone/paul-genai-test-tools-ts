@@ -1,10 +1,8 @@
 import { llmConst, llmModels } from "../types/llm-constants";
-import { ModelKey, ModelFamily, JSONLLMModelMetadata } from "../types/llm-types";
+import { ModelKey, JSONLLMModelMetadata } from "../types/llm-types";
 import { LLMMetadataError } from "../types/llm-errors";
 import { assembleLLMModelMetadataFromJSON } from "./llm-metadata-initializer";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
-import LLMRouter from "./llm-router";
-const llmRouter = new LLMRouter(ModelFamily.OPENAI_MODELS, false);
 
 
 test("LLMRouter reduce prompt size 1", () => {

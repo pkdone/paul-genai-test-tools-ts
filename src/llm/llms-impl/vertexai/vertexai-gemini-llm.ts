@@ -74,7 +74,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullLLMParameters(taskType: string, modelKey: ModelKey): { modelParams: ModelParams, requestOptions: RequestOptions } {
+  private buildFullLLMParameters(_taskType: string, modelKey: ModelKey): { modelParams: ModelParams, requestOptions: RequestOptions } {
     const modelParams = { 
       model: llmModels[modelKey].modelId,
       generationConfig: { 
@@ -133,7 +133,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Check to see if error code indicates potential token limit has been execeeded - this should
    * not occur with error object thrown so always returns false
    */
-  protected isTokenLimitExceeded(error: unknown): boolean {    
+  protected isTokenLimitExceeded(_error: unknown): boolean {    
     return false;
   }  
   
@@ -141,7 +141,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /** 
    * Debug currently non-checked error types.
    */
-  private debugCurrentlyNonCheckedErrorTypes(error: unknown) {
+  private debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
     if (error instanceof GoogleApiError) console.log(`GoogleApiError ${getErrorText(error)}`);
     if (error instanceof ClientError) console.log(`ClientError ${getErrorText(error)}`);
     if (error instanceof GoogleAuthError) console.log(`GoogleAuthError ${getErrorText(error)}`);

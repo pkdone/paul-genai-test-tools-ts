@@ -50,7 +50,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Call close on underlying LLM client library to release resources.
    */ 
-  public async close(): Promise<void> {
+  public override async close(): Promise<void> {
     try {
       this.client.destroy();
     } catch (error: unknown) {

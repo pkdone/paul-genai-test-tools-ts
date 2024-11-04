@@ -93,7 +93,7 @@ async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: s
   const content = rawContent.trim();
   if (!content) return;  // Skip empty files
   const context = { filepath: srcFilepath };
-  const _embeddingsResult = await llmRouter.generateEmbeddings(srcFilepath, getPrompt(content), context);
+  await llmRouter.generateEmbeddings(srcFilepath, getPrompt(content), context);
   const completionResult = await llmRouter.executeCompletion(srcFilepath, getPrompt(content), LLMModelQuality.REGULAR_PLUS, true, context);
   const outputContent = `${JSON.stringify(completionResult, null, 2)}\n\n-----------------------------\n\n`;
   appendFile(outputFilePath, outputContent);

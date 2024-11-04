@@ -200,6 +200,7 @@ return values, or variables.`,
 
 
 // Alternate Prompts
+/*
 const PROMPT_PREFIX_ALT = `Act as a programmer analyzing the code in a legacy application where the 
 content of each file in the application's codebase is shown below in a code block.`;
 const PROMPT_SUFFIX_ALT = ``;
@@ -258,7 +259,7 @@ things that change for different reasons into different microservices.”
 `
   },
 ];
-
+*/
 
 // Bootstrap
 (async () => {

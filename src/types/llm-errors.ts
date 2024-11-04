@@ -3,11 +3,6 @@
  */
 export abstract class LLMError extends Error {
   /** 
-   * The type of error.
-   */
-  public readonly name: string;
-
-  /** 
    * Constructor.
    */
   constructor(name: string, message: string) {

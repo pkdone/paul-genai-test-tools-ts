@@ -17,7 +17,16 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "strict": true,
-    "noImplicitReturns": true, 
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmitOnError": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "suppressImplicitAnyIndexErrors": false,
+    "noUnusedParameters": true,
+    //"noUnusedLocals": true,  // Can't use because errors due to some unused debug functions existing
   },
   "include": [
     "src/**/*.ts"
