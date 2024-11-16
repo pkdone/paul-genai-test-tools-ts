@@ -17,7 +17,7 @@ class OpenAILLM extends BaseOpenAILLM {
    */
   constructor(apiKey: string) { 
     super(ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL, ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_O);
-    this.client = new OpenAI({ apiKey })       
+    this.client = new OpenAI({ apiKey });
   }
 
 
@@ -49,7 +49,7 @@ class OpenAILLM extends BaseOpenAILLM {
       const params: OpenAI.EmbeddingCreateParams = {
         model: llmModels[modelKey].modelId,
         input: prompt
-      }
+      };
       return params;  
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {

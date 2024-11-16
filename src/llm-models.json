@@ -77,7 +77,7 @@
     "apiFamily": "Bedrock"
   },
   "AWS_COMPLETIONS_CLAUDE_V35": {
-    "modelId": "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "modelId": "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "purpose": "completions",
     "maxCompletionTokens": 4086,
     "maxTotalTokens": 200000,
