@@ -141,7 +141,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /** 
    * Debug currently non-checked error types.
    */
-  private debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
+  protected debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
     if (error instanceof GoogleApiError) console.log(`GoogleApiError ${getErrorText(error)}`);
     if (error instanceof ClientError) console.log(`ClientError ${getErrorText(error)}`);
     if (error instanceof GoogleAuthError) console.log(`GoogleAuthError ${getErrorText(error)}`);

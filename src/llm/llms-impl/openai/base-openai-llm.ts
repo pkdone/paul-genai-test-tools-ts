@@ -110,7 +110,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   /** 
    * Debug currently non-checked error types.
    */
-  private debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
+  protected debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
     if (error instanceof BadRequestError) console.log("BadRequestError");
     if (error instanceof AuthenticationError) console.log("AuthenticationError");
     if (error instanceof RateLimitError) console.log("RateLimitError");

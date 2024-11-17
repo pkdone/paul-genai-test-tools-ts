@@ -170,7 +170,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /** 
    * Debug currently non-checked error types.
    */
-  private debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
+  protected debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
     if (error instanceof ModelErrorException) console.log(`ModelErrorException: ${getErrorText(error)}`);
     if (error instanceof ModelStreamErrorException) console.log(`ModelStreamErrorException: ${getErrorText(error)}`);
     if (error instanceof ResourceNotFoundException) console.log(`ResourceNotFoundException: ${getErrorText(error)}`);
