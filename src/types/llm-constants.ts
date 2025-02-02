@@ -24,8 +24,9 @@ export const llmConst = {
   LLM_UTF8_ENCODING: "utf8",
   LLM_RESPONSE_JSON_CONTENT_TYPE: "application/json",
   LLM_RESPONSE_ANY_CONTENT_TYPE: "*/*",
-  AZURE_API_VERION: "2024-04-01-preview",
+  AZURE_API_VERION: "2025-01-01-preview",
   AWS_ANTHROPIC_API_VERSION: "bedrock-2023-05-31",
+  GCP_API_EMBEDDINGS_TASK_TYPE: "QUESTION_ANSWERING",
 } as const;
 
 

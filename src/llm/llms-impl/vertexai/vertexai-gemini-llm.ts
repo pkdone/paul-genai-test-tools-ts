@@ -1,6 +1,8 @@
 import { VertexAI, ModelParams, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshold, 
          GoogleApiError, ClientError, GoogleAuthError, GoogleGenerativeAIError, 
          IllegalArgumentError } from "@google-cloud/vertexai";
+import * as aiplatform from "@google-cloud/aiplatform";
+const { helpers } = aiplatform;
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
@@ -17,16 +19,20 @@ const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.
  */
 class VertexAIGeminiLLM extends AbstractLLM {
   // Private fields
-  private readonly client: VertexAI;
+  private readonly vertexAiApiClient: VertexAI;
+  private readonly embeddingsApiClient: aiplatform.PredictionServiceClient;
+  private readonly apiEndpointPrefix: string;
 
 
   /**
    * Constructor
    */
   constructor(project: string, location: string) {
-    super(ModelKey.GCP_EMBEDDINGS_ADA_GECKO, ModelKey.GCP_COMPLETIONS_GEMINI_FLASH15, 
+    super(ModelKey.GCP_EMBEDDINGS_TEXT_005, ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20, 
           ModelKey.GCP_COMPLETIONS_GEMINI_PRO15);
-    this.client = new VertexAI({project, location});
+    this.vertexAiApiClient = new VertexAI({project, location});
+    this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });
+    this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;
   }
 
 
@@ -35,7 +41,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    */
   public getModelsNames(): LLMConfiguredModelTypesNames {
     return {
-      embeddings: llmModels[ModelKey.GCP_EMBEDDINGS_ADA_GECKO].modelId,
+      embeddings: llmModels[ModelKey.GCP_EMBEDDINGS_TEXT_005].modelId,
       regular: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_FLASH15].modelId,
       premium: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_PRO15].modelId,      
     };
@@ -46,9 +52,44 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
   protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+    if (taskType === LLMPurpose.EMBEDDINGS) {
+      return await this.invokeImplementationSpecificEmbeddingsLLM(modelKey, prompt);
+    } else {
+      return this.invokeImplementationSpecificCompletionLLM(modelKey, prompt);
+    }
+  }
+
+
+  /**
+   * Invoke the actuall LLM's embedding API directly.
+   */ 
+  protected async invokeImplementationSpecificEmbeddingsLLM(modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {  
     // Invoke LLM
-    const { modelParams, requestOptions } = this.buildFullLLMParameters(taskType, modelKey);
-    const llm = this.client.getGenerativeModel(modelParams, requestOptions);
+    const fullParameters = this.buildFullEmebddingsLLMParameters(modelKey, prompt);
+    const llmResponses = await this.embeddingsApiClient.predict(fullParameters);
+    const [predictionResponses] = llmResponses;
+    const predictions = predictionResponses.predictions;
+
+    // Capture response content
+    const embeddingsArray = this.extractEmbeddingsFromPredictions(predictions);
+    const responseContent = embeddingsArray[0];
+
+    // Capture finish reason
+    const isIncompleteResponse = (!responseContent);
+
+    // Capture token usage 
+    const tokenUsage = { promptTokens: -1, completionTokens: -1, maxTotalTokens: -1 };  // API doesn't provide token counts
+    return { isIncompleteResponse, responseContent, tokenUsage };
+  }
+
+
+  /**
+   * Invoke the actuall LLM's completion API directly.
+   */ 
+  protected async invokeImplementationSpecificCompletionLLM(modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+    // Invoke LLM
+    const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(modelKey);
+    const llm = this.vertexAiApiClient.getGenerativeModel(modelParams, requestOptions);
     const llmResponses = await llm.generateContent(prompt);
     const usageMetadata = llmResponses?.response?.usageMetadata;
     const llmResponse = llmResponses?.response?.candidates?.[0];
@@ -74,7 +115,20 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullLLMParameters(_taskType: string, modelKey: ModelKey): { modelParams: ModelParams, requestOptions: RequestOptions } {
+  private buildFullEmebddingsLLMParameters(modelKey: ModelKey, prompt: string): aiplatform.protos.google.cloud.aiplatform.v1.IPredictRequest {
+    const model = llmModels[modelKey].modelId;
+    const endpoint = `${this.apiEndpointPrefix}${model}`;
+    const instance = helpers.toValue({ content: prompt, task_type: llmConst.GCP_API_EMBEDDINGS_TASK_TYPE });
+    if (!instance) throw new Error("Failed to convert prompt to IValue");
+    const parameters = helpers.toValue({});
+    return { endpoint, instances: [instance], parameters };
+  }
+
+
+  /**
+   * Assemble the GCP API parameters structure for the given model and prompt.
+   */
+  private buildFullCompletionLLMParameters(modelKey: ModelKey): { modelParams: ModelParams, requestOptions: RequestOptions } {
     const modelParams = { 
       model: llmModels[modelKey].modelId,
       generationConfig: { 
@@ -137,6 +191,23 @@ class VertexAIGeminiLLM extends AbstractLLM {
     return false;
   }  
   
+
+  /**
+   * Extract the embeddings from the predictions.
+   */
+  private extractEmbeddingsFromPredictions(predictions: aiplatform.protos.google.protobuf.IValue[] | null | undefined) {
+    if (!predictions) throw new Error("Predictions are null or undefined");
+    const embeddings = predictions.map(p => {
+      if (!p.structValue?.fields) throw new Error("structValue or fields is null or undefined");
+      const embeddingsProto = p.structValue.fields.embeddings;
+      if (!embeddingsProto.structValue?.fields) throw new Error("embeddingsProto.structValue or embeddingsProto.structValue.fields is null or undefined");
+      const valuesProto = embeddingsProto.structValue.fields.values;
+      if (!valuesProto.listValue?.values) throw new Error("valuesProto.listValue or valuesProto.listValue.values is null or undefined");
+      return valuesProto.listValue.values.map(v => v.numberValue);
+    });
+    return embeddings;
+  }
+
 
   /** 
    * Debug currently non-checked error types.

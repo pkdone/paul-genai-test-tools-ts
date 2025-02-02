@@ -48,18 +48,32 @@
     "maxDimensions": 768,
     "apiFamily": "VertexAI"
   },
+  "GCP_EMBEDDINGS_TEXT_005": {
+    "modelId": "text-embedding-005",
+    "purpose": "embeddings",
+    "maxTotalTokens": 2048,
+    "maxDimensions": 768,
+    "apiFamily": "VertexAI"
+  },
   "GCP_COMPLETIONS_GEMINI_FLASH15": {
-    "modelId": "gemini-1.5-flash-001",
+    "modelId": "gemini-1.5-flash-002",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 1048576,
     "apiFamily": "VertexAI"
   },
   "GCP_COMPLETIONS_GEMINI_PRO15": {
-    "modelId": "gemini-1.5-pro-001",
+    "modelId": "gemini-1.5-pro-002",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 2097152,
+    "apiFamily": "VertexAI"
+  },
+  "GCP_COMPLETIONS_GEMINI_FLASH20": {
+    "modelId": "gemini-2.0-flash-exp",
+    "purpose": "completions",
+    "maxCompletionTokens": 8192,
+    "maxTotalTokens": 1048576,
     "apiFamily": "VertexAI"
   },
   "AWS_EMBEDDINGS_TITAN_V1": {

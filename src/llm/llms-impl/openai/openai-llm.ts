@@ -16,7 +16,7 @@ class OpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(apiKey: string) { 
-    super(ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL, ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_O);
+    super(ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL, ModelKey.GPT_COMPLETIONS_GPT4_TURBO, ModelKey.GPT_COMPLETIONS_GPT4_O);
     this.client = new OpenAI({ apiKey });
   }
 

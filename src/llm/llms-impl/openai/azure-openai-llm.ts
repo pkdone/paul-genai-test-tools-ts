@@ -17,11 +17,11 @@ class AzureOpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(apiKey: string, endpoint: string, embeddingsDeployment: string, regularCompletionsDeployment: string, premiumCompletionsDeployment: string) {
-    super(ModelKey.GPT_EMBEDDINGS_ADA002, ModelKey.GPT_COMPLETIONS_GPT4, ModelKey.GPT_COMPLETIONS_GPT4_32k);
+    super(ModelKey.GPT_EMBEDDINGS_ADA002, ModelKey.GPT_COMPLETIONS_GPT4_32k, ModelKey.GPT_COMPLETIONS_GPT4_O);
     this.modelToDeploymentMappings = {
       [ModelKey.GPT_EMBEDDINGS_ADA002]: embeddingsDeployment,
-      [ModelKey.GPT_COMPLETIONS_GPT4]: regularCompletionsDeployment,
-      [ModelKey.GPT_COMPLETIONS_GPT4_32k]: premiumCompletionsDeployment,
+      [ModelKey.GPT_COMPLETIONS_GPT4_32k]: regularCompletionsDeployment,
+      [ModelKey.GPT_COMPLETIONS_GPT4_O]: premiumCompletionsDeployment,
     } as const;
     const apiVersion = llmConst.AZURE_API_VERION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });

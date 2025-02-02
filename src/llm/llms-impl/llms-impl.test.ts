@@ -150,14 +150,14 @@ test("OpenAI count models", () => {
 
 test("BaseOpenAI try overload error RateLimitError", () => {
   const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
-  const error = new RateLimitError(429, undefined, "Rate limit exceeded", undefined);
+  const error = new RateLimitError(429, undefined, "Rate limit exceeded", {});
   expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
 }); 
 
 
 test("BaseOpenAI try overload error InternalServerError", () => {
   const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
-  const error = new InternalServerError(429, undefined, "System overloaded", undefined);
+  const error = new InternalServerError(429, undefined, "System overloaded", {});
   expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
 }); 
 
