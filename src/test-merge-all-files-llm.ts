@@ -5,7 +5,7 @@ import { LLMModelQuality } from "./types/llm-types";
 import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } from "./utils/fs-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
 import { getEnvVar } from "./utils/envvar-utils";
-import { logErrorDetail, getErrorText } from "./utils/error-utils";
+import { logErrorMsgAndDetail, getErrorText } from "./utils/error-utils";
 import LLMRouter from "./llm/llm-router";
 
 
@@ -59,7 +59,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
         }
       }
     } catch (error: unknown) {
-      logErrorDetail(`Failed to read directory: ${directory}`, error);
+      logErrorMsgAndDetail(`Failed to read directory: ${directory}`, error);
     }
   }
 
@@ -114,7 +114,7 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksCo
   try {
     response = await llmRouter.executeCompletion(resource, fullPrompt, LLMModelQuality.REGULAR_PLUS, false, context) as string;
   } catch (error: unknown) {
-    logErrorDetail("Problem introspecting and processing source files", error);    
+    logErrorMsgAndDetail("Problem introspecting and processing source files", error);    
     response = getErrorText(error);
   } 
 

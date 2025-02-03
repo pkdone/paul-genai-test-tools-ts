@@ -47,7 +47,7 @@ export const llmConst = {
  * 
  *  - AWS_COMPLETIONS_CLAUDE_V35: According to Anthropic site, the 'maxCompletionTokens' should be 
  *    8192 but Bedrock seems to cut this short to usually 4095 or 4096 but have seen 4090 reported 
- *    for some LLM responses, so using few tokens buffer to come up with a limit of 4088
+ *    for some LLM responses, so using a few tokens buffer to come up with a limit of 4088
  * 
  *  - AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT & AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT: Not clear if
  *    'maxCompletionTokens' is actually less than listed value of 8192

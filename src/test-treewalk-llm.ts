@@ -5,7 +5,7 @@ import { LLMModelQuality } from "./types/llm-types";
 import { readFile, appendFile, readDirContents, getFileSuffix, clearDirectory } from "./utils/fs-utils";
 import { getEnvVar } from "./utils/envvar-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
-import { logErrorDetail } from "./utils/error-utils";
+import { logErrorMsgAndDetail } from "./utils/error-utils";
 import LLMRouter from "./llm/llm-router";
 
 
@@ -55,7 +55,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
         }
       }
     } catch (error: unknown) {
-      logErrorDetail(`Failed to read directory: ${directory}`, error);    
+      logErrorMsgAndDetail(`Failed to read directory: ${directory}`, error);    
     }
   }
 
@@ -74,7 +74,7 @@ async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: 
       try {
         await captureMetadataForFileViaLLM(llmRouter, srcFilepath, outputFilePath);   
       } catch (error: unknown) {
-        logErrorDetail("Problem introspecting and processing source files", error);    
+        logErrorMsgAndDetail("Problem introspecting and processing source files", error);    
       }
     });
   }

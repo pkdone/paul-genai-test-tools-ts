@@ -1,6 +1,6 @@
 import { Dirent, promises as fs } from "fs";
 import path from "path";
-import { logErrorDetail } from "./error-utils";
+import { logErrorMsgAndDetail } from "./error-utils";
 const UTF8_ENCODING = "utf8";
 
 
@@ -66,7 +66,7 @@ export async function clearDirectory(dirPath: string): Promise<void> {
           try {
             await fs.rm(filePath, { recursive: true, force: true });
           } catch (error: unknown) {
-            logErrorDetail(`When clearing a directory, unable to remove the file: ${filePath}`, error);
+            logErrorMsgAndDetail(`When clearing a directory, unable to remove the file: ${filePath}`, error);
           }
         })());
       }
@@ -74,7 +74,7 @@ export async function clearDirectory(dirPath: string): Promise<void> {
 
     await Promise.all(jobs);
   } catch (error: unknown) {
-    logErrorDetail(`Unable to recursively clear contents of directory: ${dirPath}`, error);
+    logErrorMsgAndDetail(`Unable to recursively clear contents of directory: ${dirPath}`, error);
   }
 
   await fs.mkdir(dirPath, { recursive: true });  

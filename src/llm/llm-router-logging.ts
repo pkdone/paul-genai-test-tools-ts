@@ -15,7 +15,7 @@ export function log(text: string): void {
  * error occurred, add the context to the error object and then throw the augmented error.
  */
 export function logErrWithContext(error: unknown, context: LLMContext): void {
-  logErrorDetail("", error);  
+  logErrorDetail(error);  
   logContext(context);
 }
 

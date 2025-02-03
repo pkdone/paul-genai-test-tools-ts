@@ -8,7 +8,8 @@ import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../typ
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
-import { BadResponseContentLLMError, RejectionResponseLLMError } from "../../../types/llm-errors";
+import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
+       from "../../../types/llm-errors";
 const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT,
                                            FinishReason.RECITATION, FinishReason.SAFETY,
                                            FinishReason.SPII];
@@ -119,7 +120,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
     const model = llmModels[modelKey].modelId;
     const endpoint = `${this.apiEndpointPrefix}${model}`;
     const instance = helpers.toValue({ content: prompt, task_type: llmConst.GCP_API_EMBEDDINGS_TASK_TYPE });
-    if (!instance) throw new Error("Failed to convert prompt to IValue");
+    if (!instance) throw new BadConfigurationLLMError("Failed to convert prompt to IValue");
     const parameters = helpers.toValue({});
     return { endpoint, instances: [instance], parameters };
   }
@@ -196,13 +197,13 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Extract the embeddings from the predictions.
    */
   private extractEmbeddingsFromPredictions(predictions: aiplatform.protos.google.protobuf.IValue[] | null | undefined) {
-    if (!predictions) throw new Error("Predictions are null or undefined");
+    if (!predictions) throw new BadConfigurationLLMError("Predictions are null or undefined");
     const embeddings = predictions.map(p => {
-      if (!p.structValue?.fields) throw new Error("structValue or fields is null or undefined");
+      if (!p.structValue?.fields) throw new BadConfigurationLLMError("structValue or fields is null or undefined");
       const embeddingsProto = p.structValue.fields.embeddings;
-      if (!embeddingsProto.structValue?.fields) throw new Error("embeddingsProto.structValue or embeddingsProto.structValue.fields is null or undefined");
+      if (!embeddingsProto.structValue?.fields) throw new BadConfigurationLLMError("embeddingsProto.structValue or embeddingsProto.structValue.fields is null or undefined");
       const valuesProto = embeddingsProto.structValue.fields.values;
-      if (!valuesProto.listValue?.values) throw new Error("valuesProto.listValue or valuesProto.listValue.values is null or undefined");
+      if (!valuesProto.listValue?.values) throw new BadConfigurationLLMError("valuesProto.listValue or valuesProto.listValue.values is null or undefined");
       return valuesProto.listValue.values.map(v => v.numberValue);
     });
     return embeddings;

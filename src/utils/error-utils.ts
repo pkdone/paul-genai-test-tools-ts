@@ -1,12 +1,19 @@
 /**
  * Log an error message and the error stack to the console.
  */
-export function logErrorDetail(msg: string, error: unknown): void {
+export function logErrorMsgAndDetail(msg: string | null, error: unknown): void {
   if (msg) {
-    console.error(msg, getErrorText(error), getErrorStack(error));
+    console.error(msg, getErrorText(error), "-", getErrorStack(error));
   } else {
-    console.error(getErrorText(error), getErrorStack(error));    
+    console.error(getErrorText(error), "-", getErrorStack(error));    
   }
+}
+
+/**
+ * Log an error and its stack to the console.
+ */
+export function logErrorDetail(error: unknown): void {
+  logErrorMsgAndDetail(null, error);
 }
 
 

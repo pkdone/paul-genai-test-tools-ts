@@ -6,7 +6,7 @@ import { LLMPurpose, LLMConfiguredModelTypesNames, ModelKey } from "../../../typ
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { BadResponseContentLLMError } from "../../../types/llm-errors";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
-import { logErrorDetail, getErrorText } from "../../../utils/error-utils";
+import { logErrorMsgAndDetail, getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
 
 
@@ -54,7 +54,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     try {
       this.client.destroy();
     } catch (error: unknown) {
-      logErrorDetail("Error when calling destroy on AWSBedroc LLM", error);
+      logErrorMsgAndDetail("Error when calling destroy on AWSBedroc LLM", error);
     }
   }
 
