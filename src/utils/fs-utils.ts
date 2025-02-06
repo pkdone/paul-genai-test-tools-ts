@@ -57,21 +57,18 @@ export function getFileSuffix(filepath: string): string {
 export async function clearDirectory(dirPath: string): Promise<void> {
   try {
     const files = await fs.readdir(dirPath);
-    const jobs = [];
-
-    for (const file of files) {
-      if (file !== ".gitignore") {
+    const jobs = files
+      .filter(file => file !== ".gitignore")
+      .map(file => {
         const filePath = path.join(dirPath, file);
-        jobs.push((async () => {
+        return (async () => {
           try {
             await fs.rm(filePath, { recursive: true, force: true });
           } catch (error: unknown) {
             logErrorMsgAndDetail(`When clearing a directory, unable to remove the file: ${filePath}`, error);
           }
-        })());
-      }
-    }
-
+        })();
+    });    
     await Promise.all(jobs);
   } catch (error: unknown) {
     logErrorMsgAndDetail(`Unable to recursively clear contents of directory: ${dirPath}`, error);

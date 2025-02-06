@@ -72,7 +72,7 @@ function errorIfPropertyEnumInvalid<T>(model: JSONLLMModelMetadata, key: string,
  */
 function errorIfPropertyNonPositiveNumber(model: JSONLLMModelMetadata, optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, key: string, property: string): void {
   if (!doPropertyCheck(optionalPropsToCheck, property, model.purpose)) return;
-  const propVal = model[property as keyof JSONLLMModelMetadata] as number;
+  const propVal = model[property] as number;
   
   if (!propVal || propVal <= 0) {
     throw new LLMMetadataError(`Value of '${property}' for model '${key}' should be a positive number`, propVal);

@@ -2,6 +2,9 @@ import { config } from "dotenv";
 config();
 
 
+type EnvVarValue = string | number | boolean | null | undefined | object | Date | bigint | symbol;
+
+
 /**
  * Retrieves the value of a specified environment variable, converting it to its inferred type,
  * or returns a provided default value if the environment variable is not set.
@@ -35,7 +38,7 @@ export function getEnvVar<T = unknown>(envVarName: string, defaultValue: T | und
  * @param value - The string value to be converted.
  * @returns The converted value in its appropriate JavaScript type.
  */
-export function convertToType(value: string): unknown {
+export function convertToType(value: string): EnvVarValue {
   if (!isNaN(Number(value))) return Number(value);
 
   try {
@@ -62,7 +65,7 @@ export function convertToType(value: string): unknown {
  * @returns The extracted special type if the 'type' and 'value' properties are present, otherwise 
  *          the original object.
  */
-export function extractSpecialTypeFromObj(obj: unknown): unknown {
+export function extractSpecialTypeFromObj(obj: EnvVarValue): EnvVarValue {
   if (typeof obj === "object" && obj !== null && !Array.isArray(obj)) {
     const typedObj = obj as { type?: string, value?: unknown };
 

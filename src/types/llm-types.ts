@@ -69,7 +69,7 @@ export type LLMModelMetadata = {
 /**
  * Intermediate type to use when moving JSON data to final strongly typed LLMModelMetadata type
  */
-export type JSONLLMModelMetadata = {
+export type JSONLLMModelMetadata = Record<string, unknown> & {
   readonly modelId?: string;
   readonly purpose?: string;
   readonly maxDimensions?: number;

@@ -152,7 +152,8 @@ Javascript best practices, and ensuring the code is maintainable and scalable.`,
     key: "MODERN-JAVASCRIPT",
     question:
 `Identify any bits of code which aren't fully leveraging the capabilities of the more modern aspects
-of newer versions of JavaScript up to the 14th Edition of ECMAScript (ECMAScript 2023).`,
+of newer versions of JavaScript up to the 14th Edition of ECMAScript (ECMAScript 2023) and the newer
+ versions of TypeScroipt (if there is ambiguity, favor TypeScript over JavaScript).`,
   },  
   {
     key: "BAD-PRACTICE",
