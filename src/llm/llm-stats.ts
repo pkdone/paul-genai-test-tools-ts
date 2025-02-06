@@ -1,6 +1,5 @@
 import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary } from "../types/llm-types";
 
-
 /**
  * Class for accumulating and tracking statistics of LLM invocation result types.
  */
@@ -15,14 +14,12 @@ class LLMStats {
     CROP: { description: "Cropping prompt due to excessive size, before resending", symbol: "-", count: 0 },
   } as const;
 
-
   /**
    * Constructor.
    */
   constructor(doPrintEventTicks: boolean) {
     this.doPrintEventTicks = doPrintEventTicks;
   }
-
 
   /**
    * Log success event occurrence and print its symbol
@@ -31,14 +28,12 @@ class LLMStats {
     this.record(this.statusTypes.SUCCESS);
   }
 
-
   /**
    * Log failure event occurrence and print its symbol
    */
   public recordFailure(): void {
     this.record(this.statusTypes.FAILURE);
   }
-
 
   /**
    * Log step-up event occurrence and print its symbol
@@ -47,14 +42,12 @@ class LLMStats {
     this.record(this.statusTypes.STEPUP);
   }
 
-
   /**
    * Log retry event occurrence and print its symbol
    */
   public recordRetry(): void {
     this.record(this.statusTypes.RETRY);
   }
-
 
   /**
    * Log reactive truncate event occurrence, capturing that a smaller size prompt is required by 
@@ -64,7 +57,6 @@ class LLMStats {
     this.record(this.statusTypes.CROP);
   }
 
-
   /**
    * Log success event occurrence and print its symbol
    */
@@ -72,7 +64,6 @@ class LLMStats {
     statusType.count++;
     if (this.doPrintEventTicks) console.log(statusType.symbol);
   }
-
 
   /**
    * Get the currently accumulated statistics of LLM invocation result types.
@@ -88,6 +79,5 @@ class LLMStats {
     return tableSnapshot;
   }  
 }
-
 
 export default LLMStats;

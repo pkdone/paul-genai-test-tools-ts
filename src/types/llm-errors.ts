@@ -11,7 +11,6 @@ export abstract class LLMError extends Error {
   }
 }
 
-
 /**
  * Error class to represent a problem with the content received from an LLM implementation.
  */
@@ -21,7 +20,6 @@ export class BadResponseContentLLMError extends LLMError {
    */
   public readonly content: string;
 
-
   /** 
    * Constructor.
    */
@@ -30,7 +28,6 @@ export class BadResponseContentLLMError extends LLMError {
     this.content = stringify(content);    
   }
 }
-
 
 /**
  * Error class to represent a problem with the metadata received from an LLM implementation's
@@ -42,7 +39,6 @@ export class BadResponseMetadataLLMError extends LLMError {
    */
   public readonly metadata: string;
 
-
   /** 
    * Constructor.
    */
@@ -51,7 +47,6 @@ export class BadResponseMetadataLLMError extends LLMError {
     this.metadata = stringify(metadata);    
   }
 }
-
 
 /**
  * Error class to represent a problem with the configuration used to initialize LLM implementation.
@@ -62,7 +57,6 @@ export class BadConfigurationLLMError extends LLMError {
    */
   public readonly config: string;
 
-
   /** 
    * Constructor.
    */
@@ -71,7 +65,6 @@ export class BadConfigurationLLMError extends LLMError {
     this.config = stringify(config);    
   }
 }
-
 
 /**
  * Error class to indicate that the LLM implementation rejected the request.
@@ -82,7 +75,6 @@ export class RejectionResponseLLMError extends LLMError {
    */
   public readonly reason: string;
 
-
   /** 
    * Constructor.
    */
@@ -91,7 +83,6 @@ export class RejectionResponseLLMError extends LLMError {
     this.reason = stringify(reason);    
   }
 }
-
 
 /**
  * Error class to indicate that a problem with the LLM metdata definition.
@@ -102,7 +93,6 @@ export class LLMMetadataError extends LLMError {
    */
   public readonly value: string;
 
-
   /** 
    * Constructor.
    */
@@ -111,7 +101,6 @@ export class LLMMetadataError extends LLMError {
     this.value = stringify(value);    
   }
 }
-
 
 /**
  * Convert a variable to a string.

@@ -9,7 +9,6 @@ import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { logErrorMsgAndDetail, getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
 
-
 /**
  * Class for the public AWS Bedrock service (multiple possible LLMs)
  */
@@ -19,7 +18,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   private readonly completionsModelRegularName: string;
   private readonly completionsModelPremiumName: string;
   private readonly client: BedrockRuntimeClient;
-
 
   /**
    * Constructor.
@@ -32,7 +30,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS } });
     console.log("AWS Bedrock client created");
   }
-
   
   /**
    * Abstract method to be overriden. Assemble the AWS Bedrock API parameters structure for the 
@@ -40,12 +37,10 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    */
   protected abstract buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string;
 
-  
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
   protected abstract extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary;
-
 
   /**
    * Call close on underlying LLM client library to release resources.
@@ -58,7 +53,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     }
   }
 
-
   /**
    * Get the names of the models this plug-in provides.
    */ 
@@ -69,7 +63,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
       premium: llmModels[this.completionsModelPremiumName].modelId,
     };
   }  
-
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
@@ -96,7 +89,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     }
   }
 
-
   /**
    * Assemble the AWS Bedrock API parameters structure for embeddings and completions models with 
    * the prompt.
@@ -121,7 +113,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     };
   }
 
-  
   /**
    * Extract the relevant information from the LLM specific response.
    */
@@ -135,7 +126,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
 
-
   /**
    * See if the contents of the responses indicate inability to fully process request due to 
    * overloading.
@@ -146,7 +136,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
             (error instanceof ModelTimeoutException)  ||
             (error instanceof ServiceUnavailableException));
   }
-
 
   /**
    * Check to see if error code indicates potential token limit has been execeeded
@@ -166,7 +155,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     return false;
   }
 
-
   /** 
    * Debug currently non-checked error types.
    */
@@ -180,7 +168,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   }
 }
 
-
 /**
  * Type definitions for the Titan specific embeddings LLM response usage.
  */
@@ -191,6 +178,5 @@ type TitanEmbeddingsLLMSpecificResponse = {
     tokenCount?: number;
   }>;
 };
-
 
 export default BaseBedrockLLM;

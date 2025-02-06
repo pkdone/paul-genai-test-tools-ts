@@ -3,7 +3,6 @@ import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
-
 /** 
  * Class for the AWS Bedrock [Anthropic] Claude LLMs.
  *
@@ -19,7 +18,6 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
       ModelKey.AWS_COMPLETIONS_CLAUDE_V35,
     ); 
   }
-
 
   /**
    * Assemble the Bedrock parameters for Claude completions only.
@@ -45,7 +43,6 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
     });
   }
 
-
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
@@ -63,7 +60,6 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
   }
 }
 
-
 /**
  * Type definitions for the Claude specific completions LLM response usage.
  */
@@ -75,6 +71,5 @@ type ClaudeCompletionLLMSpecificResponse = {
     output_tokens?: number;
   };
 };
-
 
 export default BedrockClaudeLLM;

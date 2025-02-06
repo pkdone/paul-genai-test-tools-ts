@@ -3,7 +3,6 @@ import { llmModels, llmConst } from "../../../types/llm-constants";
 import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 
-
 /**
  * Class for Azure's own managed version of the OpenAI service.
  */
@@ -11,7 +10,6 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   // Private fields
   private readonly client: OpenAI;
   private readonly modelToDeploymentMappings: Readonly<{ [key: string]: string }>;
-
 
   /**
    * Constructor.
@@ -27,7 +25,6 @@ class AzureOpenAILLM extends BaseOpenAILLM {
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
 
-
   /**
    * Get the names of the models this plug-in provides.
    */
@@ -39,14 +36,12 @@ class AzureOpenAILLM extends BaseOpenAILLM {
     };
   }
 
-
   /**
    * Abstract method to get the client object for the specific LLM provider.
    */
   protected getClient(): OpenAI {
     return this.client;
   }
-
 
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
@@ -70,6 +65,5 @@ class AzureOpenAILLM extends BaseOpenAILLM {
     } 
   }
 }
-
 
 export default AzureOpenAILLM;

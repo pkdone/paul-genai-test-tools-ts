@@ -1,7 +1,6 @@
 import { PromiseFunction, RetryFunc, CheckResultFunc, LogRetryEventFunc }
   from "../types/control-types";
 
-
 /**
  * Executes a given array of task promise functions in batches, limiting the number of concurrent 
  * tasks based on the specified maximum concurrency. It ensures that no more than the defined
@@ -27,7 +26,6 @@ export async function promiseAllThrottled<T>(
 
   return results;
 }
-
 
 /**
  * Generic retry mechanism for asynchronous functions. For each attempt, the function waits
@@ -80,7 +78,6 @@ export async function withRetry<T>(
 
   return result;
 }
-
 
 /**
  * Executes an asynchronous function with a specified timeout.

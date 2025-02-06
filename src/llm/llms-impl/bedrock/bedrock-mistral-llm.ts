@@ -3,7 +3,6 @@ import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
-
 /** 
  * Class for the AWS Bedrock Mistral LLMs.
  *
@@ -20,7 +19,6 @@ class BedrockMistralLLM extends BaseBedrockLLM {
     ); 
   }
 
-
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
@@ -33,7 +31,6 @@ class BedrockMistralLLM extends BaseBedrockLLM {
       max_tokens: llmModels[modelKey].maxCompletionTokens,
     });
   }
-
 
   /**
    * Extract the relevant information from the completion LLM specific response.
@@ -49,7 +46,6 @@ class BedrockMistralLLM extends BaseBedrockLLM {
   }
 }
 
-
 /**
  * Type definitions for the Mistral specific completions LLM response usage.
  */
@@ -59,6 +55,5 @@ type MistralCompletionLLMSpecificResponse = {
     stop_reason?: string;
   }[];
 };
-
 
 export default BedrockMistralLLM;

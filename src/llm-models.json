@@ -70,7 +70,7 @@
     "apiFamily": "VertexAI"
   },
   "GCP_COMPLETIONS_GEMINI_FLASH20": {
-    "modelId": "gemini-2.0-flash-exp",
+    "modelId": "gemini-2.0-flash-001",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 1048576,

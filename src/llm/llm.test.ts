@@ -4,14 +4,12 @@ import { LLMMetadataError } from "../types/llm-errors";
 import { assembleLLMModelMetadataFromJSON } from "./llm-metadata-initializer";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 
-
 test("LLMRouter reduce prompt size 1", () => {
   const prompt = "1234 1234 1234 1234"; 
   const promptTokens = Math.floor(prompt.length / llmConst.MODEL_CHARS_PER_TOKEN_ESTIMATE);
   const tokensUage = { promptTokens, completionTokens: 0, maxTotalTokens: 8 };
   expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage)).toBe("1234 1234 1234 1");
 });
-
 
 test("LLMRouter reduce prompt size 2", () => {
   const prompt = "x".repeat(200); 
@@ -20,7 +18,6 @@ test("LLMRouter reduce prompt size 2", () => {
   expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage).length).toBe(150);
 });
 
-
 test("LLMRouter reduce prompt size 3", () => {
   const prompt = "x".repeat(2000000); 
   const promptTokens = Math.floor(prompt.length / llmConst.MODEL_CHARS_PER_TOKEN_ESTIMATE);
@@ -28,7 +25,6 @@ test("LLMRouter reduce prompt size 3", () => {
   const tokensUage = { promptTokens, completionTokens: 124, maxTotalTokens: llmModels[ModelKey.GPT_COMPLETIONS_GPT4].maxTotalTokens };
   expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage).length).toBe(22933);
 });
-
 
 test("LLM metadata positive check", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
@@ -43,7 +39,6 @@ test("LLM metadata positive check", () => {
   expect(assembleLLMModelMetadataFromJSON(dummyModels)).toStrictEqual(dummyModels);
 });
 
-
 test("LLM metadata negative check - maxDimensions field missing", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
     A_DUMMY_MODEL: {
@@ -56,7 +51,6 @@ test("LLM metadata negative check - maxDimensions field missing", () => {
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
-
 test("LLM metadata negative check - maxCompletionTokens field missing", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
     A_DUMMY_MODEL: {
@@ -68,7 +62,6 @@ test("LLM metadata negative check - maxCompletionTokens field missing", () => {
   };
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
-
 
 test("LLM metadata negative check - purpose field bad enum", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
@@ -83,7 +76,6 @@ test("LLM metadata negative check - purpose field bad enum", () => {
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
-
 test("LLM metadata negative check - maxDimensions is not positive num - minus", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
     A_DUMMY_MODEL: {
@@ -96,7 +88,6 @@ test("LLM metadata negative check - maxDimensions is not positive num - minus", 
   };
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
-
 
 test("LLM metadata negative check - maxDimensions is not positive num - zero", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
@@ -111,7 +102,6 @@ test("LLM metadata negative check - maxDimensions is not positive num - zero", (
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
-
 test("LLM metadata negative check - maxCompletionTokens is not positive num", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
     A_DUMMY_MODEL: {
@@ -125,7 +115,6 @@ test("LLM metadata negative check - maxCompletionTokens is not positive num", ()
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
-
 test("LLM metadata negative check - maxTotalTokens is not positive num", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
     A_DUMMY_MODEL: {
@@ -138,7 +127,6 @@ test("LLM metadata negative check - maxTotalTokens is not positive num", () => {
   };
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
-
 
 test("LLM metadata negative check - apiFamily field bad enum", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {

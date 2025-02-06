@@ -2,7 +2,6 @@ import { assembleLLMModelMetadataFromJSON } from "../llm/llm-metadata-initialize
 import { LLMApiFamily, LLMErrorMsgRegExPattern } from "./llm-types";
 import jsonLlmModelsData from "../llm-models.json";
 
-
 /**
  * Set of LLM related constants
  */
@@ -29,7 +28,6 @@ export const llmConst = {
   GCP_API_EMBEDDINGS_TASK_TYPE: "QUESTION_ANSWERING",
 } as const;
 
-
 /**
  * Validate the llm-model.json contents and bring them into a strongly const object.
  * 
@@ -53,7 +51,6 @@ export const llmConst = {
  *    'maxCompletionTokens' is actually less than listed value of 8192
  */
 export const llmModels = assembleLLMModelMetadataFromJSON(jsonLlmModelsData);
-
 
 /**
  * Set of LLM error message patterns

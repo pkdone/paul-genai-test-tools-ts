@@ -12,7 +12,6 @@ import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { log, logErrWithContext, logWithContext } from "./llm-router-logging";
 import LLMStats from "./llm-stats";
 
-
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
  * the following non-functinal aspects before/after invoking a specific LLM vectorization / 
@@ -28,7 +27,6 @@ class LLMRouter {
   private readonly usePremiumLModelOnly: boolean;
   private readonly loggedMissingModelWarning: { [key: string]: boolean } = { regular: false, premium: false };
 
-
   /**
    * Constructor.
    */
@@ -40,14 +38,12 @@ class LLMRouter {
     log(`Initiated LLMs from: ${this.llmProviderName}`);
   }
 
-
   /**
    * Call close on LLM implementation to release resources.
    */
   public async close(): Promise<void> {
     await this.llmImpl.close();
   }
-
 
   /**
    * Get the description of models the chosen plug-in provides.
@@ -56,7 +52,6 @@ class LLMRouter {
     const { embeddings, regular, premium } = this.llmImpl.getModelsNames();
     return `${this.llmProviderName} (embeddings: ${embeddings}, completions-regular: ${regular}, completions-premium: ${premium})`;
   }  
-
 
   /**
    * Send the content to the LLM for it to generate and return the content's embedding.
@@ -69,7 +64,6 @@ class LLMRouter {
     const llmFunc = this.llmImpl.generateEmbeddings.bind(this.llmImpl);
     return await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
   }
-
 
   /**
    * Send the prompt to the LLM for a particular model quality and retrieve the LLM's answer.
@@ -84,7 +78,6 @@ class LLMRouter {
     context.modelQuality = (startingModelQuality === LLMModelQuality.REGULAR_PLUS) ? LLMModelQuality.REGULAR : startingModelQuality;
     return this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, this.getModelQualityCompletionFunctions(startingModelQuality), doReturnJSON);
   }  
-
 
   /**
    * Executes an LLM function applying a series of before and after non-functional aspects (e.g.
@@ -141,7 +134,6 @@ class LLMRouter {
     return result;
   } 
 
-
   /**
    * Send a prompt to an LLM for completion, retrying a number of times if the LLM is overloaded. 
    */
@@ -156,7 +148,6 @@ class LLMRouter {
       llmConst.MAX_RETRY_ADDITIONAL_MILLIS, llmConst.REQUEST_WAIT_TIMEOUT_MILLIS, true
     );
   }
-
 
   /**
    * Retrieve the specific LLM's embedding/completion functions to be used based on the desired
@@ -175,7 +166,6 @@ class LLMRouter {
 
     return modelFuncs;
   }
-
 
   /**
    * Adjust the starting model quality used based on availability and log warnings if necessary.
@@ -216,7 +206,6 @@ class LLMRouter {
     }
   }
 
-
   /**
    * Adjust the model quality used based on availability and log warning if necessary.
    */
@@ -237,14 +226,12 @@ class LLMRouter {
     return resolvedStartingModelQuality;
   }
 
-
   /**
    * Print the accumulated statistics of LLM invocation result types.
    */
   public displayLLMStatusSummary(): void {
     console.table(this.llmStats.getStatusTypesStatistics(), ["description", "symbol"]);
   }
-
 
   /**
    * Print the accumulated statistics of LLM invocation result types.
@@ -253,6 +240,5 @@ class LLMRouter {
     console.table(this.llmStats.getStatusTypesStatistics(true));
   }
 }
-
 
 export default LLMRouter;

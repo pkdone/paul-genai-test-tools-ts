@@ -5,7 +5,6 @@ import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import AbstractLLM from "../abstract-llm";
 
-
 /**
  * Abstract class for GPT managed LLM provider services (subclasses might be OpenAI or Azure
  * implementations).
@@ -15,13 +14,11 @@ abstract class BaseOpenAILLM extends AbstractLLM {
    * Abstract method to get the client object for the specific LLM provider.
    */
   protected abstract getClient(): OpenAI;
-
   
   /**
    * Abstract method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
   protected abstract buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
-
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
@@ -35,7 +32,6 @@ abstract class BaseOpenAILLM extends AbstractLLM {
       return this.invokeImplementationSpecificCompletionLLM(params as OpenAI.ChatCompletionCreateParams);
     }
   }
-
 
   /**
    * Invoke the actuall LLM's embedding API directly.
@@ -58,7 +54,6 @@ abstract class BaseOpenAILLM extends AbstractLLM {
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
-
 
   /**
    * Invoke the actuall LLM's completion API directly.
@@ -83,7 +78,6 @@ abstract class BaseOpenAILLM extends AbstractLLM {
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
 
-
   /**
    * See if an error object indicates a network issue or throttling event.
    */
@@ -91,7 +85,6 @@ abstract class BaseOpenAILLM extends AbstractLLM {
     // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
     return ((error instanceof RateLimitError) || (error instanceof InternalServerError));
   }
-
 
   /**
    * Check to see if error code indicates potential token limit has been exceeded.
@@ -106,7 +99,6 @@ abstract class BaseOpenAILLM extends AbstractLLM {
     return false;
   }
 
-
   /** 
    * Debug currently non-checked error types.
    */
@@ -120,11 +112,9 @@ abstract class BaseOpenAILLM extends AbstractLLM {
     if (error instanceof UnprocessableEntityError) console.log("UnprocessableEntityError");
   }
 
-
   // Expose private methods for unit testing
   public TEST_isLLMOverloaded = this.isLLMOverloaded.bind(this);
   public TEST_isTokenLimitExceeded = this.isTokenLimitExceeded.bind(this);  
 }
-
 
 export default BaseOpenAILLM;

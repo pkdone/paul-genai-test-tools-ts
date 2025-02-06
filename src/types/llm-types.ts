@@ -1,4 +1,3 @@
-
 /**
  * Interface for LLM implementation provider
  */
@@ -11,7 +10,6 @@ export interface LLMProviderImpl {
   close(): Promise<void>,
 };
 
-
 /**
  * Enum to define the model quality required (regular, regular+, premium)
  */
@@ -20,7 +18,6 @@ export enum LLMModelQuality {
   REGULAR_PLUS = "regular+",
   PREMIUM = "premium",
 };
-
 
 /**
  * Types to define the status types statistics
@@ -31,7 +28,6 @@ export type LLMConfiguredModelTypesNames = {
   premium: string,
 };
 
-
 /**
  * Enum to define the LLM task type
  */
@@ -40,7 +36,6 @@ export enum LLMPurpose {
   EMBEDDINGS = "embeddings",
   COMPLETIONS = "completions",
 };
-
 
 /**
  * Enum to define the LLM API family
@@ -51,7 +46,6 @@ export enum LLMApiFamily {
   VERTEXAI = "VertexAI",
   BEDROCK = "Bedrock",
 };
-
 
 /**
  * Type to define the main characteristics of the LLM model.
@@ -65,7 +59,6 @@ export type LLMModelMetadata = {
   readonly apiFamily: LLMApiFamily;
 }
 
-
 /**
  * Intermediate type to use when moving JSON data to final strongly typed LLMModelMetadata type
  */
@@ -78,12 +71,10 @@ export type JSONLLMModelMetadata = Record<string, unknown> & {
   readonly apiFamily?: string;
 };
 
-
 /**
  * Type to define the context object that is passed to and from the LLM provider
  */
 export type LLMContext = Record<string, unknown>;
-
 
 /**
  * Enum to define the LLM task type
@@ -95,7 +86,6 @@ export enum LLMResponseStatus {
   OVERLOADED = "overloaded",
 };
 
-
 /**
  * Type to define the token counts
  */ 
@@ -105,12 +95,10 @@ export type LLMResponseTokensUsage = {
   readonly maxTotalTokens: number,
 };
 
-
 /**
  * Type to define the LLM error
  */
 export type LLMGeneratedContent = string | object | number[] | null;
-
 
 /**
  * Type to define the LLM response
@@ -129,7 +117,6 @@ export type LLMFunctionResponse = {
  */
 export type LLMFunction = (content: string, doReturnJSON: boolean, context: LLMContext) => Promise<LLMFunctionResponse>;
 
-
 /**
  * Type definitions for a partucular status
  */
@@ -138,7 +125,6 @@ export type LLMStatsCategoryStatus = {
   readonly symbol: string,
   count: number,
 };
-
 
 /**
  * Type to define the status types
@@ -152,7 +138,6 @@ export type LLMStatsCategoriesSummary = {
   readonly TOTAL?: LLMStatsCategoryStatus,
 };
 
-
 /**
  * Type to define the pattern definition for the error messages
  */ 
@@ -160,7 +145,6 @@ export type LLMErrorMsgRegExPattern = {
   readonly pattern: RegExp,
   readonly units: string,
 };
-
 
 /**
  * Enum to define the LLM model family.
@@ -174,7 +158,6 @@ export enum ModelFamily {
   BEDROCK_LLAMA_MODELS = "BedrockLlama",
   BEDROCK_MISTRAL_MODELS = "BedrockMistral"
 };
-
 
 /**
  * Enum to define the keys of the service provider-speciifc exposed LLM models.

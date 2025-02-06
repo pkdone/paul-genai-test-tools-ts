@@ -14,7 +14,6 @@ const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.
                                            FinishReason.RECITATION, FinishReason.SAFETY,
                                            FinishReason.SPII];
 
-
 /**
  * Class for the GCP Vertex AI Gemini service.
  */
@@ -23,7 +22,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
   private readonly vertexAiApiClient: VertexAI;
   private readonly embeddingsApiClient: aiplatform.PredictionServiceClient;
   private readonly apiEndpointPrefix: string;
-
 
   /**
    * Constructor
@@ -36,7 +34,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
     this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;
   }
 
-
   /**
    * Get the names of the models this plug-in provides.
    */
@@ -48,7 +45,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
     };
   }  
 
-
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
@@ -59,7 +55,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
       return this.invokeImplementationSpecificCompletionLLM(modelKey, prompt);
     }
   }
-
 
   /**
    * Invoke the actuall LLM's embedding API directly.
@@ -82,7 +77,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
     const tokenUsage = { promptTokens: -1, completionTokens: -1, maxTotalTokens: -1 };  // API doesn't provide token counts
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
-
 
   /**
    * Invoke the actuall LLM's completion API directly.
@@ -112,7 +106,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
 
-
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
@@ -124,7 +117,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
     const parameters = helpers.toValue({});
     return { endpoint, instances: [instance], parameters };
   }
-
 
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
@@ -154,7 +146,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
     return {modelParams, requestOptions};
   }
 
-
   /**
    * See if the respnse error indicated that the LLM was overloaded.
    */
@@ -183,7 +174,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
     return false;
   }  
 
-
   /**
    * Check to see if error code indicates potential token limit has been execeeded - this should
    * not occur with error object thrown so always returns false
@@ -191,7 +181,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
   protected isTokenLimitExceeded(_error: unknown): boolean {    
     return false;
   }  
-  
 
   /**
    * Extract the embeddings from the predictions.
@@ -209,7 +198,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
     return embeddings;
   }
 
-
   /** 
    * Debug currently non-checked error types.
    */
@@ -221,6 +209,5 @@ class VertexAIGeminiLLM extends AbstractLLM {
     if (error instanceof IllegalArgumentError) console.log(`IllegalArgumentError ${getErrorText(error)}`);
   }
 }
-
 
 export default VertexAIGeminiLLM;

@@ -3,14 +3,12 @@ import { llmModels, llmConst } from "../../../types/llm-constants";
 import { LLMConfiguredModelTypesNames, LLMPurpose,ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 
-
 /**
  * Class for the public OpenAI service.
  */
 class OpenAILLM extends BaseOpenAILLM {
   // Private fields
   private readonly client: OpenAI;
-
 
   /**
    * Constructor.
@@ -19,7 +17,6 @@ class OpenAILLM extends BaseOpenAILLM {
     super(ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL, ModelKey.GPT_COMPLETIONS_GPT4_TURBO, ModelKey.GPT_COMPLETIONS_GPT4_O);
     this.client = new OpenAI({ apiKey });
   }
-
 
   /**
    * Get the names of the models this plug-in provides.
@@ -32,14 +29,12 @@ class OpenAILLM extends BaseOpenAILLM {
     };
   }
 
-  
   /**
    * Abstract method to get the client object for the specific LLM provider.
    */
   protected getClient(): OpenAI {
     return this.client;
   }
-
 
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
@@ -62,6 +57,5 @@ class OpenAILLM extends BaseOpenAILLM {
     } 
   }
 }
-
 
 export default OpenAILLM;

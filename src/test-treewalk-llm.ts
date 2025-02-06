@@ -8,7 +8,6 @@ import { promiseAllThrottled } from "./utils/control-utils";
 import { logErrorMsgAndDetail } from "./utils/error-utils";
 import LLMRouter from "./llm/llm-router";
 
-
 /**
  * Main function to run the program.
  */
@@ -27,7 +26,6 @@ async function main(): Promise<void> {
   console.log(`END: ${new Date()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
 }
-
 
 /**
  * Build the list of files descending from a directory 
@@ -62,7 +60,6 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
   return files;
 }
 
-
 /**
  * Process files concurrently using the LLM.
  */
@@ -82,7 +79,6 @@ async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: 
   await promiseAllThrottled(jobs, appConst.MAX_CONCURRENCY);
 }
 
-
 /**
  * Capture metadata for a file using the LLM.
  */
@@ -98,7 +94,6 @@ async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: s
   const outputContent = `${JSON.stringify(completionResult, null, 2)}\n\n-----------------------------\n\n`;
   appendFile(outputFilePath, outputContent);
 }
-
 
 /**
  * Generate the prompt for the LLM based on the file content.
@@ -202,7 +197,6 @@ ${content}
 
   return prompt;
 }
-
 
 // Bootstrap
 (async () => {

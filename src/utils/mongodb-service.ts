@@ -1,6 +1,5 @@
 import { MongoClient, MongoError } from "mongodb";
 
-
 /**
  * A singleton class that manages the connection to a MongoDB database and provides a client 
  * instance.
@@ -9,12 +8,10 @@ class MongoDBService {
   private static instance: MongoDBService;
   private client: MongoClient | null = null;
   
-
   /**
    * Private constructor to prevent instantiation of this class.
    */
   private constructor() {}
-
 
   /**
    * Returns the singleton instance of the MongoDBService class
@@ -28,7 +25,6 @@ class MongoDBService {
 
     return MongoDBService.instance;
   }
-
 
   /**
    * Connects to a MongoDB database using the provided connection URL. If a connection already
@@ -48,7 +44,6 @@ class MongoDBService {
     }
   }
 
-  
   /**
    * Gets the connected MongoClient instance. If no connection exists, an error is thrown.
    * 
@@ -61,7 +56,6 @@ class MongoDBService {
 
     return this.client;
   }
-
 
   /**
    * Creates a redacted version of the MongoDB connection URL by obscuring any present username and
@@ -80,15 +74,14 @@ class MongoDBService {
   /**
    * Optionalal helper function to handle closing the MongoDB collection.
    */
-  async using<R>(fn: () => Promise<R>): Promise<R> {
+  async using<R>(fn: (client: MongoClient) => Promise<R>): Promise<R> {
     try {
-      return await fn();
+      return await fn(this.getClient());
     } finally {
       this.getClient().close();
     }
   }
 }
-
 
 const mongoDBService = MongoDBService.getInstance();
 export default mongoDBService;

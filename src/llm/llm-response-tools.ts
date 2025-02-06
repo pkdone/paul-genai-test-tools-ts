@@ -4,7 +4,6 @@ import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedCo
          ModelKey} from "../types/llm-types";
 import { BadResponseContentLLMError } from "../types/llm-errors";
 
-
 /**
  * Etract token usage information from LLM response metadata, defaulting missing
  * values.
@@ -16,7 +15,6 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(modelKey:
   if (promptTokens < 0) promptTokens = Math.max(1, maxTotalTokens - completionTokens + 1);
   return { promptTokens, completionTokens, maxTotalTokens };
 }
-
 
 /**
  * Extract token usage information and limit from LLM error message. Derives values
@@ -35,7 +33,6 @@ export function extractTokensAmountAndLimitFromErrorMsg(modelKey: ModelKey, prom
   if (maxTotalTokens <= 0) maxTotalTokens = publishedMaxTotalTokens;
   return { promptTokens, completionTokens, maxTotalTokens };
 }    
-
 
 /**
  * Extract token usage information from LLM error message.
@@ -71,7 +68,6 @@ function parseTokenUsageFromError(modelKey: ModelKey, errorMsg: string): LLMResp
   return { maxTotalTokens, promptTokens, completionTokens };
 }
 
-
 /** 
  * Post-process the LLM response, converting it to JSON if necessary, and build the
  * response metadaat object.
@@ -90,7 +86,6 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLM
     return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: responseContent };
   }      
 }  
-
 
 /**
  * Reduce the size of the prompt to be inside the LLM's indicated token limit.
@@ -113,7 +108,6 @@ export function reducePromptSizeToTokenLimit(prompt: string, modelKey: ModelKey,
   const newPromptSize = Math.floor(prompt.length * reductionRatio);
   return prompt.substring(0, newPromptSize);
 }
-
 
 /**
  * Convert the LLM response content to JSON, trimming the content to only include the JSON part.

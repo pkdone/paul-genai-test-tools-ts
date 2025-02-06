@@ -16,7 +16,6 @@ export function logErrorDetail(error: unknown): void {
   logErrorMsgAndDetail(null, error);
 }
 
-
 /**
  * Get the error text from a thrown variable which may or may not be an Error object.
  */
@@ -31,7 +30,6 @@ export function getErrorText(error: unknown): string {
     return String(error);
   }
 }
-
 
 /**
  * Get the stack trace from a thrown variable if it is an Error object otherwise get the current

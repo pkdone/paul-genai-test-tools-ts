@@ -1,9 +1,6 @@
 import { config } from "dotenv";
 config();
-
-
 type EnvVarValue = string | number | boolean | null | undefined | object | Date | bigint | symbol;
-
 
 /**
  * Retrieves the value of a specified environment variable, converting it to its inferred type,
@@ -29,7 +26,6 @@ export function getEnvVar<T = unknown>(envVarName: string, defaultValue: T | und
   }
 }
 
-
 /**
  * Converts a string value to its inferred JavaScript type.
  * Supports conversion to Number, Boolean, Null, Undefined, Array, Object, Date, BigInt, and Symbol.
@@ -54,7 +50,6 @@ export function convertToType(value: string): EnvVarValue {
     }
   }
 }
-
 
 /**
  * Extracts special types from an object based on the 'type' property.

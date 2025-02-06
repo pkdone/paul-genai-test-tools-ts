@@ -8,7 +8,6 @@ import { extractTokensAmountFromMetadataDefaultingMissingValues,
        } from "../llm-response-tools";
 import { BadConfigurationLLMError } from "../../types/llm-errors";
 
-
 /**
  * Abstract class for any LLM provider services - provides outline of abstract methods to be
  * implemented by an extended class that implements a specific LLM integration.
@@ -18,7 +17,6 @@ abstract class AbstractLLM implements LLMProviderImpl {
   private readonly completionsModelRegularKey: ModelKey | null;
   private readonly completionsModelPremiumKey: ModelKey | null;
 
-
   /**
    * Constructor.
    */
@@ -27,7 +25,6 @@ abstract class AbstractLLM implements LLMProviderImpl {
     this.completionsModelRegularKey = completionsModelRegularKey;
     this.completionsModelPremiumKey = completionsModelPremiumKey;
   }
-
 
   /**
    * Get the types of different token context windows models supported.
@@ -45,7 +42,6 @@ abstract class AbstractLLM implements LLMProviderImpl {
 
     return llmQualities;
   }
-  
 
   /**
    * Send the content to the LLM for it to generate and return the content's embeddings.
@@ -55,7 +51,6 @@ abstract class AbstractLLM implements LLMProviderImpl {
     return this.executeLLMImplFunction(this.embeddingsModelKey, LLMPurpose.EMBEDDINGS, content, false, context);
   }
 
-
   /**
    * Send the prompt to the 'regular' LLM and retrieve the LLM's answer.
    */
@@ -63,7 +58,6 @@ abstract class AbstractLLM implements LLMProviderImpl {
     if (!this.completionsModelRegularKey) throw new BadConfigurationLLMError(`'Regular' text model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.completionsModelRegularKey, LLMPurpose.COMPLETIONS, prompt, doReturnJSON, context);
   }
-
 
   /**
    * Send the prompt to the 'premium' LLM and retrieve the LLM's answer.
@@ -73,7 +67,6 @@ abstract class AbstractLLM implements LLMProviderImpl {
     return await this.executeLLMImplFunction(this.completionsModelPremiumKey, LLMPurpose.COMPLETIONS, prompt, doReturnJSON, context);
   }
 
-
   /**
    * Method to close underlying LLM client library to release resources.
    */
@@ -81,18 +74,15 @@ abstract class AbstractLLM implements LLMProviderImpl {
     // No-op - default assuming LLM client doesn't provide a close function to call
   }
   
-      
   /**
    * Abstract method to be overridden to get the names of the models this plug-in provides.
    */
   public abstract getModelsNames(): LLMConfiguredModelTypesNames;
 
-
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
   protected abstract invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary>;
-
 
   /**
    * Abstract method to be overridden. Check if an error object indicates a network issue or
@@ -100,13 +90,11 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   protected abstract isLLMOverloaded(error: unknown): boolean;
 
-
   /**
    * Abstract method to be overridden. Check if error code indicates potential token limit has been
    * exceeded.
    */
   protected abstract isTokenLimitExceeded(error: unknown): boolean;
-
 
   /**
    * Method to invoke the pluggable implementation of an LLM and then take the proprietary response
@@ -134,6 +122,5 @@ abstract class AbstractLLM implements LLMProviderImpl {
     }
   }
 }  
-
 
 export default AbstractLLM;

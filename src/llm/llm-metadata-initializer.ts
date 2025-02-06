@@ -1,7 +1,6 @@
 import { JSONLLMModelMetadata, LLMApiFamily, LLMModelMetadata, LLMPurpose, ModelKey } from "../types/llm-types";
 import { LLMMetadataError } from "../types/llm-errors";
 
-
 /**
  * Import LLM models JSON metadata after first checking its fields are valid.
  */
@@ -16,7 +15,6 @@ export function assembleLLMModelMetadataFromJSON(jsonLlmModelsData: Record<strin
   }
   return llmModelsMetadata;
 }
-
 
 /**
  * Validate the JSON metadata for LLM models.
@@ -41,7 +39,6 @@ function validateJSONModelMetadata(llmModelsData: Record<string, JSONLLMModelMet
   }
 }
 
-
 /**
  * Throw and error if the specific property is missing from the model definition and it is supposed
  * to be their for the LLM's specific purpose (i.e., embeddings vs completions).
@@ -49,11 +46,10 @@ function validateJSONModelMetadata(llmModelsData: Record<string, JSONLLMModelMet
 function errorIfPropertyMissing(model: JSONLLMModelMetadata, optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, key: string, property: string): void {
   if (!doPropertyCheck(optionalPropsToCheck, property, model.purpose)) return;
 
-  if (!Object.keys(model).includes(property)) {
+  if (!model.hasOwnProperty(property)) {
     throw new LLMMetadataError(`Model for '${key} is missing property'`, property);
   }
 }
-
 
 /**
  * Throw an error if the specific enum property does not match a legal enum value.
@@ -65,7 +61,6 @@ function errorIfPropertyEnumInvalid<T>(model: JSONLLMModelMetadata, key: string,
     throw new LLMMetadataError(`Invalid '${property}' value for model '${key}'`, modelWithStringKeys[property]);
   }
 }
-
 
 /**
  * Throw an error if the specific property's value is not a positive number.
@@ -79,7 +74,6 @@ function errorIfPropertyNonPositiveNumber(model: JSONLLMModelMetadata, optionalP
   }
 }
 
-
 /**
  * Determine if need to check a property where for "optional" properties, only want to do the check
  * depending on whether model is embeddings or completions - for mandatory properties always check.
@@ -87,7 +81,6 @@ function errorIfPropertyNonPositiveNumber(model: JSONLLMModelMetadata, optionalP
 function doPropertyCheck(optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, property: string, purpose: string | undefined): boolean {
   return ((!(property in optionalPropsToCheck)) || (optionalPropsToCheck[property] === purpose));
 }
-
 
 /**
  * Enum to define the keys of the LLM metadata properties
@@ -101,13 +94,11 @@ enum LlmMetadataProps {
   API_FAMILY = "apiFamily",
 };
 
-
 /**
  * Type to define the set of seemingly optional model metadata properties that are actually
  * mandatory depending on the purpose of the model.
  */
 type ModelMetadataOptionalPropsToCheck = Readonly<Record<string, LLMPurpose>>;
-
 
 /**
  * Set of seemingly optional model metadata properties that are actual mandatory depending on the 

@@ -8,7 +8,6 @@ import { getEnvVar } from "./utils/envvar-utils";
 import { logErrorMsgAndDetail, getErrorText } from "./utils/error-utils";
 import LLMRouter from "./llm/llm-router";
 
-
 /**
  * Main function to run the program.
  */
@@ -29,7 +28,6 @@ async function main(): Promise<void> {
   console.log(`END: ${new Date()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
 }
-
 
 /**
  * Build the list of files descending from a directory 
@@ -66,7 +64,6 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
   return files;
 }
 
-
 /**
  * Merge the content of all source files and ask questions against it to an LLM
  */
@@ -81,7 +78,6 @@ async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, 
   const jobResults = await promiseAllThrottled<string>(jobs, appConst.MAX_CONCURRENCY);
   return jobResults.reduce((mergedResults: string, result: string) => mergedResults + result, "");
 }
-
 
 /**
  * Merge the content of all source files.
@@ -99,7 +95,6 @@ async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string) 
 
   return mergedContent;
 }
-
 
 /**
  * Execute a prompt against a codebase and return the LLM's response.
@@ -121,7 +116,6 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksCo
   return `\n< ${prompt.key}\n${promptFirstPart}>\n\n${response}\n==========================================================\n\n`;
 }
 
-
 /**
  * Type to define the key and question of template prompt to ask an LLM
  */ 
@@ -129,7 +123,6 @@ type TemplatePrompt = {
   key: string;
   question: string;
 };
-
 
 // Prompts
 const PROMPT_PREFIX = `Act as a programmer analyzing the code in a TypeScript application where the 
@@ -198,7 +191,6 @@ return values, or variables.`,
 `Identifiy any statements in the code which are missing a final semi-colon.`,
   },    
 ];
-
 
 // Alternate Prompts
 /*

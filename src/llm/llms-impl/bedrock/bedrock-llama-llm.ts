@@ -3,7 +3,6 @@ import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
-
 /** 
  * Class for the AWS Bedrock Llama LLMs.
  *
@@ -19,7 +18,6 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
       ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,     
     ); 
   }
-
 
   /**
    * Assemble the Bedrock parameters for Llama completions only.
@@ -42,7 +40,6 @@ You are a helpful software engineering and programming assistant, and you need t
     return JSON.stringify(bodyObj);
   }
 
-
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
@@ -60,7 +57,6 @@ You are a helpful software engineering and programming assistant, and you need t
   }
 }
 
-
 /**
  * Type definitions for the Llama specific completions LLM response usage.
  */
@@ -70,6 +66,5 @@ type LlamaCompletionLLMSpecificResponse = {
   prompt_token_count?: number;
   generation_token_count?: number;
 };
-
 
 export default BedrockLlamaLLM;

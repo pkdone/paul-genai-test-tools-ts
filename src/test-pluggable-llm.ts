@@ -5,7 +5,6 @@ import { getEnvVar } from "./utils/envvar-utils";
 import { readFile } from "./utils/fs-utils";
 import LLMRouter from "./llm/llm-router";
 
-
 /**
  * Main function to run the program.
  */
@@ -29,7 +28,6 @@ async function main(): Promise<void> {
   console.log(`END: ${new Date()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite background tasks running
 }
-
 
 // Bootstrap
 (async () => {

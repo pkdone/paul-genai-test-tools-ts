@@ -18,5 +18,4 @@ const appConst = {
     "7z", "ear", "war", "tar", "gz", "tgz"] as string[],  
 } as const;
 
-
 export default appConst;

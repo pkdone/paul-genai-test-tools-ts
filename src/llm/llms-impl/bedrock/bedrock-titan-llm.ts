@@ -3,7 +3,6 @@ import { ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
-
 /**
  * Class for the AWS Bedrock Titan LLMs.
  */
@@ -19,7 +18,6 @@ class BedrockTitanLLM extends BaseBedrockLLM {
     );
   }
 
-
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
@@ -33,7 +31,6 @@ class BedrockTitanLLM extends BaseBedrockLLM {
       },
     });
   }
-
   
   /**
    * Extract the relevant information from the completion LLM specific response.
@@ -52,7 +49,6 @@ class BedrockTitanLLM extends BaseBedrockLLM {
   }
 }
 
-
 /**
  * Type definitions for the Titan specific completions LLM response usage.
  */
@@ -64,6 +60,5 @@ type TitanCompletionLLMSpecificResponse = {
   }[];
   inputTextTokenCount?: number;
 };
-
 
 export default BedrockTitanLLM;
