@@ -33,15 +33,13 @@ class MongoDBService {
    * @param url The MongoDB connection string URL.
    * @returns A Promise resolving to the connected MongoClient instance.
    */
-  async connect(url: string): Promise<void> {
-    if (this.client) {
-      throw new MongoError("MongoDB client is already connected. Close the existing connection first.");
-    } else {
-      const newClient = new MongoClient(url);
-      await newClient.connect();
-      console.log(`Connecting MongoDB client to: ${this.redactbUrl(url)}`);
-      this.client = newClient;
-    }
+  async connect(url: string): Promise<MongoClient> {
+    if (this.client)  throw new MongoError("MongoDB client is already connected. Close the existing connection first.");
+    const newClient = new MongoClient(url);
+    await newClient.connect();
+    console.log(`Connecting MongoDB client to: ${this.redactbUrl(url)}`);
+    this.client = newClient;
+    return this.client;
   }
 
   /**
@@ -58,6 +56,15 @@ class MongoDBService {
   }
 
   /**
+   * Closes the MongoDB client connection.
+   */
+  async close(): Promise<void> {
+    if (!this.client) return;
+    await this.client.close();
+    this.client = null;
+  }
+
+  /**
    * Creates a redacted version of the MongoDB connection URL by obscuring any present username and
    * password with 'REDACTED'.
    *
@@ -70,17 +77,6 @@ class MongoDBService {
     if (redactdeUrl.password) redactdeUrl.password = "REDACTED";
     return redactdeUrl.toString();
   }  
-
-  /**
-   * Optionalal helper function to handle closing the MongoDB collection.
-   */
-  async using<R>(fn: (client: MongoClient) => Promise<R>): Promise<R> {
-    try {
-      return await fn(this.getClient());
-    } finally {
-      this.getClient().close();
-    }
-  }
 }
 
 const mongoDBService = MongoDBService.getInstance();
