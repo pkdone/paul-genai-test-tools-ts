@@ -190,6 +190,12 @@ return values, or variables.`,
     question:
 `Identifiy any statements in the code which are missing a final semi-colon.`,
   },    
+
+  {
+    key: "MISSING_SEMICOLONS",
+    question:
+`Identifiy any statements in the code which are missing a final semi-colon.`,
+  },
 ];
 
 // Alternate Prompts
