@@ -76,6 +76,13 @@
     "maxTotalTokens": 1048576,
     "apiFamily": "VertexAI"
   },
+  "GCP_COMPLETIONS_GEMINI_PRO20": {
+    "modelId": "gemini-2.0-pro-exp-02-05",
+    "purpose": "completions",
+    "maxCompletionTokens": 8192,
+    "maxTotalTokens": 1048576,
+    "apiFamily": "VertexAI"
+  },
   "AWS_EMBEDDINGS_TITAN_V1": {
     "modelId": "amazon.titan-embed-text-v1",
     "purpose": "embeddings",
