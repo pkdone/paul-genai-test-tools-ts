@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "module": "CommonJS",  // Needs to be CommonJS for Jest
+    "module": "NodeNext",
     "lib": ["ES2023"],
     "outDir": "./dist",
     "rootDir": "./src",
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
