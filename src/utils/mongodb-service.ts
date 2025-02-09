@@ -1,4 +1,4 @@
-import { MongoClient, MongoError } from "mongodb";
+import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
 
 /**
  * A class that manages multiple MongoDB connections and provides client instances.
@@ -27,13 +27,14 @@ class MongoDBService {
   }
 
   /**
-   * Connects to a MongoDB database using the given id and URL.
+   * Connects to a MongoDB instance using the given id and URL. Wraps the MongoClient instance to
+   * intercept close() and remove the client from the the services's list of active clients..
    *
    * @param id The id identifying the connection.
    * @param url The MongoDB connection string.
    * @returns A Promise resolving to the connected MongoClient instance.
    */
-  async connect(id: string, url: string): Promise<MongoClient> {
+  async connect(id: string, url: string, options?: MongoClientOptions): Promise<MongoClient> {
     if (this.clients.has(id)) {
       console.warn(`MongoDB client with id '${id}' is already connected.`);
       return this.clients.get(id)!;
@@ -42,8 +43,16 @@ class MongoDBService {
     console.log(`Connecting MongoDB client to: ${this.redactUrl(url)}`);
 
     try {
-      const newClient = new MongoClient(url);
+      const newClient = new MongoClient(url, options);
       await newClient.connect();
+
+      // Wrap close() method to intercept client closure
+      const originalClose = newClient.close.bind(newClient);
+      newClient.close = async (...args: Parameters<MongoClient["close"]>) => {
+        this.clients.delete(id); // Remove reference to client from the list
+        return originalClose(...args); // Call original close()
+      };
+
       this.clients.set(id, newClient);
       return newClient;
     } catch (error) {
@@ -63,26 +72,6 @@ class MongoDBService {
     const client = this.clients.get(id);
     if (!client) throw new MongoError(`No active connection found for id '${id}'. Call \`connect(id, url)\` first.`);
     return client;
-  }
-
-  /**
-   * Closes a specific MongoDB connection.
-   *
-   * @param id The id identifying the connection.
-   */
-  async close(id: string): Promise<void> {
-    const client = this.clients.get(id);
-
-    if (client) {
-      try {
-        await client.close();
-        console.log(`Closed MongoDB connection for id '${id}'.`);
-      } catch (error) {
-        console.error(`Error closing MongoDB client '${id}': ${error}`);
-      } finally {
-        this.clients.delete(id);
-      }
-    }
   }
 
   /**
