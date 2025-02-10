@@ -1,6 +1,6 @@
 import { assembleLLMModelMetadataFromJSON } from "../llm/llm-metadata-initializer";
 import { LLMApiFamily, LLMErrorMsgRegExPattern } from "./llm-types";
-import jsonLlmModelsData from "../llm-models.json";
+import jsonLlmModelsData from "../llm/llm-models.json";
 
 /**
  * Set of LLM related constants

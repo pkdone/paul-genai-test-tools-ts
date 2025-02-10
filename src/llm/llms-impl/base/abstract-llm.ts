@@ -1,12 +1,12 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMFunctionResponse, 
          LLMResponseStatus, LLMConfiguredModelTypesNames,
-         ModelKey} from "../../types/llm-types";
-import { LLMImplSpecificResponseSummary } from "./llm-impl-types";
-import { getErrorText } from "../../utils/error-utils";       
+         ModelKey} from "../../../types/llm-types";
+import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import { getErrorText } from "../../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
-       } from "../llm-response-tools";
-import { BadConfigurationLLMError } from "../../types/llm-errors";
+       } from "../../llm-response-tools";
+import { BadConfigurationLLMError } from "../../../types/llm-errors";
 
 /**
  * Abstract class for any LLM provider services - provides outline of abstract methods to be

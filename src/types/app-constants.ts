@@ -6,7 +6,7 @@ const appConst = {
   OUTPUT_SUMMARY_FILE: "report.txt",
   CODEBASE_DB_NAME: "codebase-analyzed",
   SRC_COLLCTN_NAME: "sources",
-  SAMPLE_PROMPT_FILEPATH: "./sample.prompt",
+  SAMPLE_PROMPT_FILEPATH: "./test/sample.prompt",
   FOLDER_IGNORE_LIST: [".git", "bin", "build", "node_modules", ".vscode", "dist", "output"] as string[],
   FILENAME_PREFIX_IGNORE: "test-",
   MAX_CONCURRENCY: 50,

@@ -3,6 +3,7 @@ import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedCo
          LLMResponseStatus, 
          ModelKey} from "../types/llm-types";
 import { BadResponseContentLLMError } from "../types/llm-errors";
+import { convertTextToJSON } from "../utils/json-tools";
 
 /**
  * Etract token usage information from LLM response metadata, defaulting missing
@@ -21,7 +22,7 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(modelKey:
  * for all prompt/completions/maxTokens if not found in the error message.
  */
 export function extractTokensAmountAndLimitFromErrorMsg(modelKey: ModelKey, prompt: string, errorMsg: string): LLMResponseTokensUsage {
-  let { maxTotalTokens, promptTokens, completionTokens } = parseTokenUsageFromError(modelKey, errorMsg);
+  let { maxTotalTokens, promptTokens, completionTokens } = parseTokenUsageFromLLMError(modelKey, errorMsg);
   const publishedMaxTotalTokens  = llmModels[modelKey].maxTotalTokens;
 
   if (promptTokens < 0) { 
@@ -37,7 +38,7 @@ export function extractTokensAmountAndLimitFromErrorMsg(modelKey: ModelKey, prom
 /**
  * Extract token usage information from LLM error message.
  */
-function parseTokenUsageFromError(modelKey: ModelKey, errorMsg: string): LLMResponseTokensUsage {
+function parseTokenUsageFromLLMError(modelKey: ModelKey, errorMsg: string): LLMResponseTokensUsage {
   let promptTokens = -1;
   let completionTokens = 0;
   let maxTotalTokens = -1;      
@@ -107,16 +108,4 @@ export function reducePromptSizeToTokenLimit(prompt: string, modelKey: ModelKey,
 
   const newPromptSize = Math.floor(prompt.length * reductionRatio);
   return prompt.substring(0, newPromptSize);
-}
-
-/**
- * Convert the LLM response content to JSON, trimming the content to only include the JSON part.
- */
-function convertTextToJSON(content: string): object {
-  const startJSONIndex = content.indexOf("{");
-  const endJSONIndex = content.lastIndexOf("}");
-  if (startJSONIndex === -1 || endJSONIndex === -1) throw new BadResponseContentLLMError("Invalid input: No JSON content found", content);
-  const trimmedContent = content.substring(startJSONIndex, endJSONIndex + 1);
-  const sanitizedContent = trimmedContent.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x0A\x0D\x09]/g, " ");  // Remove control characters
-  return JSON.parse(sanitizedContent);
 }

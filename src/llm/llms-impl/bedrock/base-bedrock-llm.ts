@@ -7,7 +7,7 @@ import { llmModels, llmConst } from "../../../types/llm-constants";
 import { BadResponseContentLLMError } from "../../../types/llm-errors";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { logErrorMsgAndDetail, getErrorText } from "../../../utils/error-utils";
-import AbstractLLM from "../abstract-llm";
+import AbstractLLM from "../base/abstract-llm";
 
 /**
  * Class for the public AWS Bedrock service (multiple possible LLMs)

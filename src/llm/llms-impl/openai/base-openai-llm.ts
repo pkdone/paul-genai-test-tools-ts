@@ -3,7 +3,7 @@ import { OpenAI, RateLimitError, InternalServerError, BadRequestError, Authentic
 import { APIError } from "openai/error";
 import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
-import AbstractLLM from "../abstract-llm";
+import AbstractLLM from "../base/abstract-llm";
 
 /**
  * Abstract class for GPT managed LLM provider services (subclasses might be OpenAI or Azure
