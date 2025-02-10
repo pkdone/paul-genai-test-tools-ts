@@ -22,6 +22,7 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(modelKey:
  * for all prompt/completions/maxTokens if not found in the error message.
  */
 export function extractTokensAmountAndLimitFromErrorMsg(modelKey: ModelKey, prompt: string, errorMsg: string): LLMResponseTokensUsage {
+  // eslint-disable-next-line prefer-const
   let { maxTotalTokens, promptTokens, completionTokens } = parseTokenUsageFromLLMError(modelKey, errorMsg);
   const publishedMaxTotalTokens  = llmModels[modelKey].maxTotalTokens;
 
@@ -79,7 +80,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLM
       if (typeof responseContent !== "string") throw new BadResponseContentLLMError("Generated content is not a string", responseContent);
       const generatedContent = doReturnJSON ? convertTextToJSON(responseContent) : responseContent;
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: generatedContent };
-    } catch (error: unknown) {
+    } catch {
       console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${llmModels[modelKey].modelId})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);
       return { ...skeletonResult, status: LLMResponseStatus.OVERLOADED };
     }

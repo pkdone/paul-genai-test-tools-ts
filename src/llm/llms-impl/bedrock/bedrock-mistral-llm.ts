@@ -49,11 +49,11 @@ class BedrockMistralLLM extends BaseBedrockLLM {
 /**
  * Type definitions for the Mistral specific completions LLM response usage.
  */
-type MistralCompletionLLMSpecificResponse = {
+interface MistralCompletionLLMSpecificResponse {
   outputs?: {
     text?: string;
     stop_reason?: string;
   }[];
-};
+}
 
 export default BedrockMistralLLM;

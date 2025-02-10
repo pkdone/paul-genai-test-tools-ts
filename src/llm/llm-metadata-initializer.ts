@@ -46,7 +46,7 @@ function validateJSONModelMetadata(llmModelsData: Record<string, JSONLLMModelMet
 function errorIfPropertyMissing(model: JSONLLMModelMetadata, optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, key: string, property: string): void {
   if (!doPropertyCheck(optionalPropsToCheck, property, model.purpose)) return;
 
-  if (!model.hasOwnProperty(property)) {
+  if (!Object.hasOwn(model, property)) {
     throw new LLMMetadataError(`Model for '${key} is missing property'`, property);
   }
 }

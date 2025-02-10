@@ -3,8 +3,8 @@ import { LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm-typ
 /**
  * Type to define the summary of the processed LLM implementation's response.
  */
-export type LLMImplSpecificResponseSummary = {
+export interface LLMImplSpecificResponseSummary {
   isIncompleteResponse: boolean;
   responseContent: LLMGeneratedContent;
   tokenUsage: LLMResponseTokensUsage;
-};
+}

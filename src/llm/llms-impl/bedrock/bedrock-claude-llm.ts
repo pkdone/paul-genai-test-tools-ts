@@ -63,13 +63,13 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
 /**
  * Type definitions for the Claude specific completions LLM response usage.
  */
-type ClaudeCompletionLLMSpecificResponse = {
+interface ClaudeCompletionLLMSpecificResponse {
   content?: { text: string }[];
   stop_reason?: string;
   usage?: {
     input_tokens?: number;
     output_tokens?: number;
   };
-};
+}
 
 export default BedrockClaudeLLM;

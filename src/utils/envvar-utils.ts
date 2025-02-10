@@ -40,7 +40,7 @@ export function convertToType(value: string): EnvVarValue {
   try {
     const obj = JSON.parse(value);
     return extractSpecialTypeFromObj(obj);
-  } catch (e) {
+  } catch {
     switch (value.toLowerCase()) {
       case "true": return true;
       case "false": return false;

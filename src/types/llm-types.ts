@@ -22,11 +22,11 @@ export enum LLMModelQuality {
 /**
  * Types to define the status types statistics
  */
-export type LLMConfiguredModelTypesNames = {
+export interface LLMConfiguredModelTypesNames {
   embeddings: string,
   regular: string,
   premium: string,
-};
+}
 
 /**
  * Enum to define the LLM task type
@@ -50,7 +50,7 @@ export enum LLMApiFamily {
 /**
  * Type to define the main characteristics of the LLM model.
  */
-export type LLMModelMetadata = {
+export interface LLMModelMetadata {
   readonly modelId: string;
   readonly purpose: LLMPurpose;
   readonly maxDimensions?: number;
@@ -89,11 +89,11 @@ export enum LLMResponseStatus {
 /**
  * Type to define the token counts
  */ 
-export type LLMResponseTokensUsage = {
+export interface LLMResponseTokensUsage {
   readonly promptTokens: number,
   readonly completionTokens: number,
   readonly maxTotalTokens: number,
-};
+}
 
 /**
  * Type to define the LLM error
@@ -103,14 +103,14 @@ export type LLMGeneratedContent = string | object | number[] | null;
 /**
  * Type to define the LLM response
  */ 
-export type LLMFunctionResponse = {
+export interface LLMFunctionResponse {
   readonly status: LLMResponseStatus,
   readonly request: string,
   readonly modelKey: ModelKey,
   readonly context: LLMContext,
   readonly generated?: LLMGeneratedContent,
   readonly tokensUage?: LLMResponseTokensUsage,
-};
+}
 
 /**
  * Type to define the embedding or completion function
@@ -120,31 +120,31 @@ export type LLMFunction = (content: string, doReturnJSON: boolean, context: LLMC
 /**
  * Type definitions for a partucular status
  */
-export type LLMStatsCategoryStatus = {
+export interface LLMStatsCategoryStatus {
   readonly description: string,
   readonly symbol: string,
   count: number,
-};
+}
 
 /**
  * Type to define the status types
  */ 
-export type LLMStatsCategoriesSummary = {
+export interface LLMStatsCategoriesSummary {
   readonly SUCCESS: LLMStatsCategoryStatus,
   readonly FAILURE: LLMStatsCategoryStatus,
   readonly STEPUP: LLMStatsCategoryStatus,
   readonly RETRY: LLMStatsCategoryStatus,
   readonly CROP: LLMStatsCategoryStatus,
   readonly TOTAL?: LLMStatsCategoryStatus,
-};
+}
 
 /**
  * Type to define the pattern definition for the error messages
  */ 
-export type LLMErrorMsgRegExPattern = {
+export interface LLMErrorMsgRegExPattern {
   readonly pattern: RegExp,
   readonly units: string,
-};
+}
 
 /**
  * Enum to define the LLM model family.

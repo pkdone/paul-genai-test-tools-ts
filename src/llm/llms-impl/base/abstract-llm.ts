@@ -45,8 +45,12 @@ abstract class AbstractLLM implements LLMProviderImpl {
 
   /**
    * Send the content to the LLM for it to generate and return the content's embeddings.
+   * 
+   * Need _doReturnJSON arg because this function and executeCompletion* functions will all be
+   * called generically with the same args.
    */
-  public async generateEmbeddings(content: string, _doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async generateEmbeddings(content: string, _doReturnJSON = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     if (!this.embeddingsModelKey) throw new BadConfigurationLLMError(`Embeddings model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.embeddingsModelKey, LLMPurpose.EMBEDDINGS, content, false, context);
   }
@@ -54,7 +58,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Send the prompt to the 'regular' LLM and retrieve the LLM's answer.
    */
-  public async executeCompletionRegular(prompt: string, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
+  public async executeCompletionRegular(prompt: string, doReturnJSON = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     if (!this.completionsModelRegularKey) throw new BadConfigurationLLMError(`'Regular' text model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.completionsModelRegularKey, LLMPurpose.COMPLETIONS, prompt, doReturnJSON, context);
   }
@@ -62,7 +66,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Send the prompt to the 'premium' LLM and retrieve the LLM's answer.
    */
-  public async executeCompletionPremium(prompt: string, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
+  public async executeCompletionPremium(prompt: string, doReturnJSON = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     if (!this.completionsModelPremiumKey) throw new BadConfigurationLLMError(`'Premium' text model represented by ${this.constructor.name} does not exist - do not use this method`);
     return await this.executeLLMImplFunction(this.completionsModelPremiumKey, LLMPurpose.COMPLETIONS, prompt, doReturnJSON, context);
   }

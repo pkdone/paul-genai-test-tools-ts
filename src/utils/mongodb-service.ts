@@ -5,12 +5,7 @@ import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
  */
 class MongoDBService {
   private static instance: MongoDBService;
-  private readonly clients: Map<string, MongoClient> = new Map();
-
-  /**
-   * Private constructor to prevent external instantiation.
-   */
-  private constructor() {}
+  private readonly clients = new Map<string, MongoClient>();
 
   /**
    * Returns the singleton instance of the MongoDBService class.
@@ -37,7 +32,11 @@ class MongoDBService {
   async connect(id: string, url: string, options?: MongoClientOptions): Promise<MongoClient> {
     if (this.clients.has(id)) {
       console.warn(`MongoDB client with id '${id}' is already connected.`);
-      return this.clients.get(id)!;
+      const client = this.clients.get(id);
+      if (!client) {
+        throw new MongoError(`No active connection found for id '${id}'.`);
+      }
+      return client;
     }
 
     console.log(`Connecting MongoDB client to: ${this.redactUrl(url)}`);
@@ -104,7 +103,7 @@ class MongoDBService {
         parsedUrl.password = "REDACTED";
       }
       return parsedUrl.toString();
-    } catch (error) {
+    } catch {
       console.warn("Could not parse URL for redaction.");
       return "REDACTED_URL";
     }

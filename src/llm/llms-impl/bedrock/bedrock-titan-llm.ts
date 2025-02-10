@@ -52,13 +52,13 @@ class BedrockTitanLLM extends BaseBedrockLLM {
 /**
  * Type definitions for the Titan specific completions LLM response usage.
  */
-type TitanCompletionLLMSpecificResponse = {
+interface TitanCompletionLLMSpecificResponse {
   results?: {
     outputText?: string;
     completionReason?: string;
     tokenCount?: number;
   }[];
   inputTextTokenCount?: number;
-};
+}
 
 export default BedrockTitanLLM;

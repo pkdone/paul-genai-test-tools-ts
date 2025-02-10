@@ -55,7 +55,7 @@ export const llmModels = assembleLLMModelMetadataFromJSON(jsonLlmModelsData);
 /**
  * Set of LLM error message patterns
  */
-export const llmAPIErrorPatterns: Readonly<{ [key: string]: readonly LLMErrorMsgRegExPattern[] }> = {
+export const llmAPIErrorPatterns: Readonly<Record<string, readonly LLMErrorMsgRegExPattern[]>> = {
   [LLMApiFamily.OPENAI]: [
     // 1. "This model's maximum context length is 8191 tokens, however you requested 10346 tokens (10346 in your prompt; 5 for the completion). Please reduce your prompt; or completion length.",
     { pattern: /max.*?(\d+) tokens.*?\(.*?(\d+).*?prompt.*?(\d+).*?completion/, units: "tokens" },

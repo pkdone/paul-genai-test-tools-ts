@@ -119,10 +119,10 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksCo
 /**
  * Type to define the key and question of template prompt to ask an LLM
  */ 
-type TemplatePrompt = {
+interface TemplatePrompt {
   key: string;
   question: string;
-};
+}
 
 // Prompts
 const PROMPT_PREFIX = `Act as a programmer analyzing the code in a TypeScript application where the 

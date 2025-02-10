@@ -25,7 +25,7 @@ class LLMRouter {
   private readonly llmImpl: LLMProviderImpl;
   private readonly llmStats: LLMStats;
   private readonly usePremiumLModelOnly: boolean;
-  private readonly loggedMissingModelWarning: { [key: string]: boolean } = { regular: false, premium: false };
+  private readonly loggedMissingModelWarning: Record<string, boolean> = { regular: false, premium: false };
 
   /**
    * Constructor.
@@ -71,7 +71,7 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  public async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQuality, doReturnJSON: boolean = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
+  public async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQuality, doReturnJSON = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
     context.purpose = LLMPurpose.COMPLETIONS;
     const modelQualitiesSupported = this.llmImpl.getAvailableCompletionModelQualities();
     startingModelQuality = this.adjustStartingModelQualityBasedOnAvailability(modelQualitiesSupported, startingModelQuality);
@@ -87,7 +87,7 @@ class LLMRouter {
    * request and subsequent response for convenient debugging and error logging context.
    */
   private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[],
-                                                  doReturnJSON: boolean = false): Promise<LLMGeneratedContent> {
+                                                  doReturnJSON = false): Promise<LLMGeneratedContent> {
     let result: LLMGeneratedContent | null = null;
     let currentPrompt = prompt;
     let llmFuncIndex = 0;

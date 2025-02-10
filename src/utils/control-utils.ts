@@ -13,7 +13,7 @@ import { PromiseFunction, RetryFunc, CheckResultFunc, LogRetryEventFunc }
  */
 export async function promiseAllThrottled<T>(
   tasks: PromiseFunction<T>[],
-  maxConcurrency: number = 100
+  maxConcurrency = 100
 ): Promise<T[]> {
   const results: T[] = [];
   const totalTasks = tasks.length;
@@ -50,11 +50,11 @@ export async function withRetry<T>(
   args: unknown[],
   checkResultForNeedToRetryFunc: CheckResultFunc<T>,
   logRetryEventFunc: LogRetryEventFunc | null = null,
-  maxAttempts: number = 3,
-  minRetryDelay: number = 10000,
-  maxRetryAdditionalDelay: number = 10000,
-  waitTimeout: number = 300000,
-  logTimeouts: boolean = true
+  maxAttempts = 3,
+  minRetryDelay = 10000,
+  maxRetryAdditionalDelay = 10000,
+  waitTimeout = 300000,
+  logTimeouts = true
 ): Promise<T | null> {
 
   let attempts = 0;

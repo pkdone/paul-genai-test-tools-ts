@@ -68,7 +68,7 @@ class LLMStats {
   /**
    * Get the currently accumulated statistics of LLM invocation result types.
    */
-  public getStatusTypesStatistics(includeTotal: boolean = false): LLMStatsCategoriesSummary {
+  public getStatusTypesStatistics(includeTotal = false): LLMStatsCategoriesSummary {
     const tableSnapshot = JSON.parse(JSON.stringify(this.statusTypes)); // DEEP-COPY HACK!
 
     if (includeTotal) {

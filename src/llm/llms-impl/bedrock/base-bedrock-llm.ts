@@ -171,12 +171,12 @@ abstract class BaseBedrockLLM extends AbstractLLM {
 /**
  * Type definitions for the Titan specific embeddings LLM response usage.
  */
-type TitanEmbeddingsLLMSpecificResponse = {
+interface TitanEmbeddingsLLMSpecificResponse {
   embedding?: number[]; 
   inputTextTokenCount?: number;
-  results?: Array<{
+  results?: {
     tokenCount?: number;
-  }>;
-};
+  }[];
+}
 
 export default BaseBedrockLLM;

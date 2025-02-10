@@ -178,6 +178,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Check to see if error code indicates potential token limit has been execeeded - this should
    * not occur with error object thrown so always returns false
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected isTokenLimitExceeded(_error: unknown): boolean {    
     return false;
   }  

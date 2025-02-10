@@ -9,7 +9,7 @@ import BaseOpenAILLM from "./base-openai-llm";
 class AzureOpenAILLM extends BaseOpenAILLM {
   // Private fields
   private readonly client: OpenAI;
-  private readonly modelToDeploymentMappings: Readonly<{ [key: string]: string }>;
+  private readonly modelToDeploymentMappings: Readonly<Record<string, string>>;
 
   /**
    * Constructor.
