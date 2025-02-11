@@ -4,7 +4,6 @@ import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, Mode
          ModelTimeoutException, ValidationException } from "@aws-sdk/client-bedrock-runtime";
 import { LLMPurpose, LLMConfiguredModelTypesNames, ModelKey } from "../../../types/llm-types";
 import { llmModels, llmConst } from "../../../types/llm-constants";
-import { BadResponseContentLLMError } from "../../../types/llm-errors";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { logErrorMsgAndDetail, getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
@@ -14,9 +13,9 @@ import AbstractLLM from "../base/abstract-llm";
  */
 abstract class BaseBedrockLLM extends AbstractLLM {
   // Private fields
-  private readonly embeddingsModelName: string;
-  private readonly completionsModelRegularName: string;
-  private readonly completionsModelPremiumName: string;
+  private readonly embeddingsModelName: ModelKey;
+  private readonly completionsModelRegularName: ModelKey;
+  private readonly completionsModelPremiumName: ModelKey;
   private readonly client: BedrockRuntimeClient;
 
   /**
@@ -24,7 +23,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    */
   constructor(embeddingsModelKey: ModelKey, completionsModelRegularKey: ModelKey | null, completionsModelPremiumKey: ModelKey | null) { 
     super(embeddingsModelKey, completionsModelRegularKey, completionsModelPremiumKey );
-    this.embeddingsModelName = embeddingsModelKey || ModelKey.UNSPECIFIED;
+    this.embeddingsModelName = embeddingsModelKey;
     this.completionsModelRegularName = completionsModelRegularKey ?? ModelKey.UNSPECIFIED;
     this.completionsModelPremiumName = completionsModelPremiumKey ?? ModelKey.UNSPECIFIED;
     this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS } });
@@ -77,10 +76,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     const fullParameters = this.buildFullLLMParameters(taskType, modelKey, prompt);
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
-    if (!rawResponse?.body) throw new BadResponseContentLLMError("LLM raw response was completely empty", rawResponse);
     const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(llmConst.LLM_UTF8_ENCODING)) as Record<string, unknown>;
-    if (!llmResponse) throw new BadResponseContentLLMError("LLM response when converted to JSON was empty", rawResponse);
-
 
     // Capture response content, finish reason and token usage 
     if (taskType === LLMPurpose.EMBEDDINGS) {
@@ -118,10 +114,10 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * Extract the relevant information from the LLM specific response.
    */
   protected extractEmbeddingModelSpecificResponse(llmResponse: TitanEmbeddingsLLMSpecificResponse): LLMImplSpecificResponseSummary {
-    const responseContent = llmResponse?.embedding ?? [];
+    const responseContent = llmResponse.embedding ?? [];
     const isIncompleteResponse = (!responseContent);  // If no content assume prompt maxed out total tokens available
-    const promptTokens = llmResponse?.inputTextTokenCount ?? -1;
-    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? -1;
+    const promptTokens = llmResponse.inputTextTokenCount ?? -1;
+    const completionTokens = llmResponse.results?.[0]?.tokenCount ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

@@ -13,6 +13,7 @@ class MongoDBService {
    * @returns The singleton instance.
    */
   static getInstance(): MongoDBService {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!MongoDBService.instance) {
       MongoDBService.instance = new MongoDBService();
       Object.freeze(MongoDBService.instance);
@@ -116,7 +117,7 @@ process.on("SIGINT", () => {
   mongoDBService.closeAll().then(() => {
     console.log("MongoDB connections closed. Exiting process.");
     process.exit(0);
-  }).catch((error) => {
+  }).catch((error: unknown) => {
     console.error("Error closing MongoDB connections:", error);
     process.exit(1);
   });

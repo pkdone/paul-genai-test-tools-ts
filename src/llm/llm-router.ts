@@ -99,14 +99,14 @@ class LLMRouter {
         const llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, doReturnJSON, context);
 
         if (llmResponse?.status === LLMResponseStatus.COMPLETED) {
-          result = llmResponse.generated || null;
+          result = llmResponse.generated ?? null;
           this.llmStats.recordSuccess();
           break;
         } else if ((!llmResponse) || (llmResponse.status === LLMResponseStatus.OVERLOADED)) {
           logWithContext(`LLM problem processing prompt for completion with current LLM model because it is overloaded or timing out, even after retries`, context);
           break;
         } else if (llmResponse.status === LLMResponseStatus.EXCEEDED) {
-          logWithContext(`LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens} plus completion tokens used ${llmResponse.tokensUage?.completionTokens} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens}, or: 2) the model's completion tokens limit`, context);
+          logWithContext(`LLM prompt tokens used ${String(llmResponse.tokensUage?.promptTokens ?? 0)} plus completion tokens used ${String(llmResponse.tokensUage?.completionTokens ?? 0)} exceeded EITHER: 1) the model's total token limit of ${String(llmResponse.tokensUage?.maxTotalTokens ?? 0)}, or: 2) the model's completion tokens limit`, context);
 
           if (llmFuncIndex + 1 >= llmFuncs.length) { 
             if (!llmResponse.tokensUage) throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present", llmResponse);
@@ -118,7 +118,7 @@ class LLMRouter {
             llmFuncIndex++;
           }  
         } else {
-          throw new RejectionResponseLLMError(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse?.status}'`, llmResponse);
+          throw new RejectionResponseLLMError(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse.status}'`, llmResponse);
         }
       }
 
@@ -143,7 +143,7 @@ class LLMRouter {
     return await withRetry(
       llmFunc as RetryFunc<LLMFunctionResponse>,
       [prompt, doReturnJSON, context],
-      result => (result?.status === LLMResponseStatus.OVERLOADED),
+      result => (result.status === LLMResponseStatus.OVERLOADED),
       recordRetryFunc,
       llmConst.INVOKE_LLM_NUM_ATTEMPTS, llmConst.MIN_RETRY_DELAY_MILLIS,
       llmConst.MAX_RETRY_ADDITIONAL_MILLIS, llmConst.REQUEST_WAIT_TIMEOUT_MILLIS, true
@@ -174,7 +174,7 @@ class LLMRouter {
   private adjustStartingModelQualityBasedOnAvailability(invocableModelQualitiesAvailable: LLMModelQuality[], startingModelQuality: LLMModelQuality): LLMModelQuality {
     let currentStartingModelQuality: LLMModelQuality | null = startingModelQuality;
 
-    if (!invocableModelQualitiesAvailable || invocableModelQualitiesAvailable.length <= 0) {
+    if (invocableModelQualitiesAvailable.length <= 0) {
       throw new BadConfigurationLLMError("The LLM implementation doesn't implement any completions models");
     }
 

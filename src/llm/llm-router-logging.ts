@@ -29,13 +29,11 @@ export function logWithContext(msg: string, context: LLMContext): void {
  * Log the context keys and values.
  */
 export function logContext(context: LLMContext): void {
-  if (context) {
-    if ((context instanceof Object) && !Array.isArray(context)) {
-      for (const [key, value] of Object.entries(context)) {
-        log(`  * ${key}: ${String(value)}`);
-      }
-    } else {
-      log(`  * ${JSON.stringify(context)}`);
+  if ((context instanceof Object) && !Array.isArray(context)) {
+    for (const [key, value] of Object.entries(context)) {
+      log(`  * ${key}: ${String(value)}`);
     }
+  } else {
+    log(`  * ${JSON.stringify(context)}`);
   }
 }

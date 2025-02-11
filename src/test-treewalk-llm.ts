@@ -35,7 +35,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
   const files = [];
   const queue: string[] = [srcDirPath];
 
-  while (queue?.length) {
+  while (queue.length) {
     const directory = queue.shift();
     if (!directory) continue;
 
@@ -202,7 +202,7 @@ ${content}
 // Bootstrap
 (async () => {
   await main();
-})().catch((error) => {
+})().catch((error: unknown) => {
   console.error("Error in main function:", error);
   process.exit(1);
 });

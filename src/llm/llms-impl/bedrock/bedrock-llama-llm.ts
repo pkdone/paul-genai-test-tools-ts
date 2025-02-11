@@ -44,13 +44,13 @@ You are a helpful software engineering and programming assistant, and you need t
    * Extract the relevant information from the completion LLM specific response.
    */
   protected extractCompletionModelSpecificResponse(llmResponse: LlamaCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
-    const responseContent = llmResponse?.generation ?? "";
-    const finishReason = llmResponse?.stop_reason ?? "";
+    const responseContent = llmResponse.generation ?? "";
+    const finishReason = llmResponse.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
     const isIncompleteResponse = ((finishReasonLowercase === "length")
       || !responseContent);  // No content - assume prompt maxed out total tokens available
-    const promptTokens = llmResponse?.prompt_token_count ?? -1;
-    const completionTokens = llmResponse?.generation_token_count ?? -1;
+    const promptTokens = llmResponse.prompt_token_count ?? -1;
+    const completionTokens = llmResponse.generation_token_count ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

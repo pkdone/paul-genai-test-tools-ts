@@ -47,13 +47,13 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
    * Extract the relevant information from the completion LLM specific response.
    */
   protected extractCompletionModelSpecificResponse(llmResponse: ClaudeCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
-    const responseContent = llmResponse?.content?.[0]?.text ?? "";
-    const finishReason = llmResponse?.stop_reason ?? "";
+    const responseContent = llmResponse.content?.[0]?.text ?? "";
+    const finishReason = llmResponse.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
     const isIncompleteResponse = ((finishReasonLowercase === "length") 
       || !responseContent); // No content - assume prompt maxed out total tokens available
-    const promptTokens = llmResponse?.usage?.input_tokens ?? -1;
-    const completionTokens = llmResponse?.usage?.output_tokens ?? -1;
+    const promptTokens = llmResponse.usage?.input_tokens ?? -1;
+    const completionTokens = llmResponse.usage?.output_tokens ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

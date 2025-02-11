@@ -39,7 +39,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   protected async invokeImplementationSpecificEmbeddingsLLM(params: OpenAI.EmbeddingCreateParams): Promise<LLMImplSpecificResponseSummary> {
     // Invoke LLM
     const llmResponses = await this.getClient().embeddings.create(params);
-    const llmResponse = llmResponses?.data?.[0];
+    const llmResponse = llmResponses.data[0];
 
     // Capture response content
     const responseContent = llmResponse.embedding;
@@ -48,7 +48,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
     const isIncompleteResponse = (!responseContent);
 
     // Capture token usage 
-    const promptTokens = llmResponses.usage?.prompt_tokens ?? -1;
+    const promptTokens = llmResponses.usage.prompt_tokens;
     const completionTokens = -1;
     const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
@@ -61,13 +61,13 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   protected async invokeImplementationSpecificCompletionLLM(params: OpenAI.ChatCompletionCreateParams): Promise<LLMImplSpecificResponseSummary> {
     // Invoke LLM
     const llmResponses = (await this.getClient().chat.completions.create(params)) as OpenAI.ChatCompletion;
-    const llmResponse = llmResponses?.choices?.[0];
+    const llmResponse = llmResponses.choices[0];
 
     // Capture response content
-    const responseContent = llmResponse.message?.content;
+    const responseContent = llmResponse.message.content;
 
     // Capture finish reason
-    const finishReason = llmResponse?.finish_reason ?? "";
+    const finishReason = llmResponse.finish_reason;
     const isIncompleteResponse = (finishReason === "length") || (!responseContent);
 
     // Capture token usage 

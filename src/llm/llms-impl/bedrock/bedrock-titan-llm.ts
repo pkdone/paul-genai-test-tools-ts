@@ -36,13 +36,13 @@ class BedrockTitanLLM extends BaseBedrockLLM {
    * Extract the relevant information from the completion LLM specific response.
    */
   protected extractCompletionModelSpecificResponse(llmResponse: TitanCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
-    const responseContent = llmResponse?.results?.[0]?.outputText ?? ""; 
-    const finishReason = llmResponse?.results?.[0]?.completionReason ?? "";
+    const responseContent = llmResponse.results?.[0]?.outputText ?? ""; 
+    const finishReason = llmResponse.results?.[0]?.completionReason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
     const isIncompleteResponse = ((finishReasonLowercase === "max_tokens")
       || !responseContent);  // No content - assume prompt maxed out total tokens available
-    const promptTokens = llmResponse?.inputTextTokenCount ?? -1;
-    const completionTokens = llmResponse?.results?.[0]?.tokenCount ?? -1;
+    const promptTokens = llmResponse.inputTextTokenCount ?? -1;
+    const completionTokens = llmResponse.results?.[0]?.tokenCount ?? -1;
     const maxTotalTokens = -1;
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };

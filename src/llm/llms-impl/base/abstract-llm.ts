@@ -51,6 +51,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async generateEmbeddings(content: string, _doReturnJSON = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!this.embeddingsModelKey) throw new BadConfigurationLLMError(`Embeddings model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.embeddingsModelKey, LLMPurpose.EMBEDDINGS, content, false, context);
   }

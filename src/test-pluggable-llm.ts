@@ -32,7 +32,7 @@ async function main(): Promise<void> {
 // Bootstrap
 (async () => {
   await main();
-})().catch((error) => {
+})().catch((error: unknown) => {
   console.error("Error in main function:", error);
   process.exit(1);
 });

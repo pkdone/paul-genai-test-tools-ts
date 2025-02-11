@@ -37,6 +37,6 @@ async function collectJavaFilePaths(db: Db, collName: string, prjName: string): 
 // Bootstrap
 (async () => {
   await main();
-})().catch(error => {
+})().catch((error: unknown) => {
   console.error("Error:", error);
 });

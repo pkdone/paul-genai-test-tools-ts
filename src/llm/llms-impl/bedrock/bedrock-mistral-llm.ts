@@ -36,8 +36,8 @@ class BedrockMistralLLM extends BaseBedrockLLM {
    * Extract the relevant information from the completion LLM specific response.
    */
   protected extractCompletionModelSpecificResponse(llmResponse: MistralCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
-    const responseContent = llmResponse?.outputs?.[0]?.text ?? "";
-    const finishReason = llmResponse?.outputs?.[0]?.stop_reason ?? "";
+    const responseContent = llmResponse.outputs?.[0]?.text ?? "";
+    const finishReason = llmResponse.outputs?.[0]?.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
     const isIncompleteResponse = ((finishReasonLowercase === "length")
       || !responseContent); // No content - assume prompt maxed out total tokens available

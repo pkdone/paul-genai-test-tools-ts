@@ -44,26 +44,24 @@ function parseTokenUsageFromLLMError(modelKey: ModelKey, errorMsg: string): LLMR
   let completionTokens = 0;
   let maxTotalTokens = -1;      
   const patternDefinitions = llmAPIErrorPatterns[llmModels[modelKey].apiFamily];
+  
+  for (const patternDefinition of patternDefinitions) {
+    const matches = errorMsg.match(patternDefinition.pattern);
 
-  if (patternDefinitions) {
-    for (const patternDefinition of patternDefinitions) {
-      const matches = errorMsg.match(patternDefinition.pattern);
-
-      if (matches && matches.length > 1) {
-        if (patternDefinition.units === "tokens") {
-          maxTotalTokens = parseInt(matches[1], 10);
-          promptTokens = matches.length > 2 ? parseInt(matches[2], 10) : -1;
-          completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
-        } else if (matches.length > 2) {
-          const charsLimit = parseInt(matches[1], 10);
-          const charsPrompt = parseInt(matches[2], 10);
-          maxTotalTokens = llmModels[modelKey].maxTotalTokens;
-          const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
-          promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
-        }
-
-        break;
+    if (matches && matches.length > 1) {
+      if (patternDefinition.units === "tokens") {
+        maxTotalTokens = parseInt(matches[1], 10);
+        promptTokens = matches.length > 2 ? parseInt(matches[2], 10) : -1;
+        completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
+      } else if (matches.length > 2) {
+        const charsLimit = parseInt(matches[1], 10);
+        const charsPrompt = parseInt(matches[2], 10);
+        maxTotalTokens = llmModels[modelKey].maxTotalTokens;
+        const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
+        promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
       }
+
+      break;
     }
   }
 

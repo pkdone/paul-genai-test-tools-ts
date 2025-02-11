@@ -19,7 +19,7 @@ export async function promiseAllThrottled<T>(
   const totalTasks = tasks.length;
 
   while (tasks.length) {
-    console.log(`Processing next batch of ${Math.min(tasks.length, maxConcurrency)} tasks (already processed: ${totalTasks - tasks.length} of ${totalTasks} tasks)`);
+    console.log(`Processing next batch of ${String(Math.min(tasks.length, maxConcurrency))} tasks (already processed: ${String(totalTasks - tasks.length)} of ${String(totalTasks)} tasks)`);
     const batch = tasks.splice(0, maxConcurrency).map(f => f());
     results.push(...await Promise.all(batch));
   }
@@ -105,7 +105,7 @@ async function executeFunctionWithTimeout<T>(
 
   try {
     const timeoutPromise = new Promise<never>((_resolve, reject) => {
-      timeoutHandle = setTimeout(() => reject(new RetryableTimeoutError()), waitTimeout);
+      timeoutHandle = setTimeout(() => { reject(new RetryableTimeoutError()); }, waitTimeout);
     });
 
     result = await Promise.race([asyncTryFunc(...args), timeoutPromise]);
@@ -118,6 +118,7 @@ async function executeFunctionWithTimeout<T>(
       throw error;
     }
   } finally {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (timeoutHandle) {
       clearTimeout(timeoutHandle);
     }

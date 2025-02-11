@@ -86,15 +86,15 @@ class VertexAIGeminiLLM extends AbstractLLM {
     const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(modelKey);
     const llm = this.vertexAiApiClient.getGenerativeModel(modelParams, requestOptions);
     const llmResponses = await llm.generateContent(prompt);
-    const usageMetadata = llmResponses?.response?.usageMetadata;
-    const llmResponse = llmResponses?.response?.candidates?.[0];
+    const usageMetadata = llmResponses.response.usageMetadata;
+    const llmResponse = llmResponses.response.candidates?.[0];
     if (!llmResponse) throw new BadResponseContentLLMError("LLM response was completely empty");
 
     // Capture response content
-    const responseContent = llmResponse?.content?.parts?.[0]?.text ?? "";
+    const responseContent = llmResponse.content.parts[0]?.text ?? "";
 
     // Capture finish reason
-    const finishReason = llmResponse?.finishReason ?? FinishReason.OTHER;
+    const finishReason = llmResponse.finishReason ?? FinishReason.OTHER;
     if (VERTEXAI_TERMINAL_FINISH_REASONS.includes(finishReason)) throw new RejectionResponseLLMError(`LLM response was not safely completed - reason given: ${finishReason}`, finishReason);
     const isIncompleteResponse = ((finishReason !== FinishReason.STOP)) || (!responseContent);
 
