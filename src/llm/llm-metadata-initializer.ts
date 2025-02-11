@@ -4,7 +4,7 @@ import { LLMMetadataError } from "../types/llm-errors";
 /**
  * Import LLM models JSON metadata after first checking its fields are valid.
  */
-export function assembleLLMModelMetadataFromJSON(jsonLlmModelsData: Record<string, JSONLLMModelMetadata>): Record<string, LLMModelMetadata> {
+export function assembleLLMModelMetadataFromJSON(jsonLlmModelsData: Record<string, JSONLLMModelMetadata>) {
   validateJSONModelMetadata(jsonLlmModelsData);
   const llmModelsMetadata = jsonLlmModelsData as Record<string, LLMModelMetadata>;
   llmModelsMetadata[ModelKey.UNSPECIFIED] = {   // Add entity to represent an unspecified model
@@ -23,7 +23,7 @@ export function assembleLLMModelMetadataFromJSON(jsonLlmModelsData: Record<strin
  * required because the subsequent conversions form the JSON type to the final LLMModelMetadata type
  * will enforce these constraints.
  */
-function validateJSONModelMetadata(llmModelsData: Record<string, JSONLLMModelMetadata>): void {
+function validateJSONModelMetadata(llmModelsData: Record<string, JSONLLMModelMetadata>) {
   for (const [key, model] of Object.entries(llmModelsData)) {
     // Presence checks for "optional" properties
     for (const property of Object.keys(modelMetadataOptionalPropsToCheck)) {
@@ -43,7 +43,7 @@ function validateJSONModelMetadata(llmModelsData: Record<string, JSONLLMModelMet
  * Throw and error if the specific property is missing from the model definition and it is supposed
  * to be their for the LLM's specific purpose (i.e., embeddings vs completions).
  */
-function errorIfPropertyMissing(model: JSONLLMModelMetadata, optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, key: string, property: string): void {
+function errorIfPropertyMissing(model: JSONLLMModelMetadata, optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, key: string, property: string) {
   if (!doPropertyCheck(optionalPropsToCheck, property, model.purpose)) return;
 
   if (!Object.hasOwn(model, property)) {
@@ -54,7 +54,7 @@ function errorIfPropertyMissing(model: JSONLLMModelMetadata, optionalPropsToChec
 /**
  * Throw an error if the specific enum property does not match a legal enum value.
  */
-function errorIfPropertyEnumInvalid<T>(model: JSONLLMModelMetadata, key: string, property: string, propertyEnumKeyValues: Record<string, T>): void {
+function errorIfPropertyEnumInvalid<T>(model: JSONLLMModelMetadata, key: string, property: string, propertyEnumKeyValues: Record<string, T>) {
   const modelWithStringKeys = model as Record<string, T>;
 
   if (!Object.values(propertyEnumKeyValues).includes(modelWithStringKeys[property])) {
@@ -65,7 +65,7 @@ function errorIfPropertyEnumInvalid<T>(model: JSONLLMModelMetadata, key: string,
 /**
  * Throw an error if the specific property's value is not a positive number.
  */
-function errorIfPropertyNonPositiveNumber(model: JSONLLMModelMetadata, optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, key: string, property: string): void {
+function errorIfPropertyNonPositiveNumber(model: JSONLLMModelMetadata, optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, key: string, property: string) {
   if (!doPropertyCheck(optionalPropsToCheck, property, model.purpose)) return;
   const propVal = model[property] as number;
   
@@ -78,7 +78,7 @@ function errorIfPropertyNonPositiveNumber(model: JSONLLMModelMetadata, optionalP
  * Determine if need to check a property where for "optional" properties, only want to do the check
  * depending on whether model is embeddings or completions - for mandatory properties always check.
  */
-function doPropertyCheck(optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, property: string, purpose: string | undefined): boolean {
+function doPropertyCheck(optionalPropsToCheck: ModelMetadataOptionalPropsToCheck, property: string, purpose: string | undefined) {
   return ((!(property in optionalPropsToCheck)) || (optionalPropsToCheck[property] === purpose));
 }
 

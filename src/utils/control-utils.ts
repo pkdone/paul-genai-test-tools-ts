@@ -11,16 +11,13 @@ import { PromiseFunction, RetryFunc, CheckResultFunc, LogRetryEventFunc }
  * @param maxConcurrency The maximum number of tasks to be executed concurrently.
  * @returns A promise that resolves to an array of the results from the input tasks.
  */
-export async function promiseAllThrottled<T>(
-  tasks: PromiseFunction<T>[],
-  maxConcurrency = 100
-): Promise<T[]> {
+export async function promiseAllThrottled<T>(tasks: PromiseFunction<T>[], maxConcurrency = 100) {
   const results: T[] = [];
   const totalTasks = tasks.length;
 
   while (tasks.length) {
     console.log(`Processing next batch of ${String(Math.min(tasks.length, maxConcurrency))} tasks (already processed: ${String(totalTasks - tasks.length)} of ${String(totalTasks)} tasks)`);
-    const batch = tasks.splice(0, maxConcurrency).map(f => f());
+    const batch = tasks.splice(0, maxConcurrency).map(async f => f());
     results.push(...await Promise.all(batch));
   }
 
@@ -55,7 +52,7 @@ export async function withRetry<T>(
   maxRetryAdditionalDelay = 10000,
   waitTimeout = 300000,
   logTimeouts = true
-): Promise<T | null> {
+) {
 
   let attempts = 0;
   let result: T | null = null;
@@ -98,7 +95,7 @@ async function executeFunctionWithTimeout<T>(
   asyncTryFunc: RetryFunc<T>,
   args: unknown[],
   logTimeouts: boolean
-): Promise<T | null> {
+) {
   class RetryableTimeoutError extends Error { };
   let timeoutHandle: NodeJS.Timeout | null = null;
   let result: T | null = null;

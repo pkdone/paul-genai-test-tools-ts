@@ -1,4 +1,4 @@
-import { Dirent, promises as fs } from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 import { logErrorMsgAndDetail } from "./error-utils";
 const UTF8_ENCODING = "utf8";
@@ -6,35 +6,35 @@ const UTF8_ENCODING = "utf8";
 /**
  * Read content from a file
  */
-export async function readFile(filepath: string): Promise<string> {
+export async function readFile(filepath: string) {
   return fs.readFile(filepath, UTF8_ENCODING);
 }
 
 //
 // Write content to a file.
 //
-export async function writeFile(filepath: string, content: string): Promise<void> {
+export async function writeFile(filepath: string, content: string) {
   await fs.writeFile(filepath, content, UTF8_ENCODING);
 }
 
 //
 // Append content to a file.
 //
-export async function appendFile(filepath: string, content: string): Promise<void> {
+export async function appendFile(filepath: string, content: string) {
   await fs.appendFile(filepath, content, UTF8_ENCODING);
 }
 
 /**
  * Get the handle of the files in a directory
  */
-export async function readDirContents(dirpath: string): Promise<Dirent[]> {
+export async function readDirContents(dirpath: string) {
   return fs.readdir(dirpath, { withFileTypes: true });
 }
 
 /**
  * Returns the suffix of a filename from a full file path.
  */
-export function getFileSuffix(filepath: string): string {
+export function getFileSuffix(filepath: string) {
   const baseName = path.basename(filepath);
   let suffix = "";
 
@@ -48,12 +48,12 @@ export function getFileSuffix(filepath: string): string {
 //
 // Deletes all files and folders in a directory, except for a file named `.gitignore`.
 //
-export async function clearDirectory(dirPath: string): Promise<void> {
+export async function clearDirectory(dirPath: string) {
   try {
     const files = await fs.readdir(dirPath);
     const jobs = files
       .filter(file => file !== ".gitignore")
-      .map(file => {
+      .map(async file => {
         const filePath = path.join(dirPath, file);
         return (async () => {
           try {

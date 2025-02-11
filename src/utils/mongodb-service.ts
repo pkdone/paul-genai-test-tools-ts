@@ -12,7 +12,7 @@ class MongoDBService {
    *
    * @returns The singleton instance.
    */
-  static getInstance(): MongoDBService {
+  static getInstance() {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!MongoDBService.instance) {
       MongoDBService.instance = new MongoDBService();
@@ -30,7 +30,7 @@ class MongoDBService {
    * @param url The MongoDB connection string.
    * @returns A Promise resolving to the connected MongoClient instance.
    */
-  async connect(id: string, url: string, options?: MongoClientOptions): Promise<MongoClient> {
+  async connect(id: string, url: string, options?: MongoClientOptions) {
     if (this.clients.has(id)) {
       console.warn(`MongoDB client with id '${id}' is already connected.`);
       const client = this.clients.get(id);
@@ -68,7 +68,7 @@ class MongoDBService {
    * @returns The MongoClient instance.
    * @throws MongoError if the client is not connected.
    */
-  getClient(id: string): MongoClient {
+  getClient(id: string) {
     const client = this.clients.get(id);
     if (!client) throw new MongoError(`No active connection found for id '${id}'. Call \`connect(id, url)\` first.`);
     return client;
@@ -77,7 +77,7 @@ class MongoDBService {
   /**
    * Closes all MongoDB connections.
    */
-  async closeAll(): Promise<void> {
+  async closeAll() {
     for (const [id, client] of this.clients.entries()) {
       try {
         await client.close();
@@ -96,7 +96,7 @@ class MongoDBService {
    * @param url The MongoDB connection string.
    * @returns A redacted connection string.
    */
-  redactUrl(url: string): string {
+  private redactUrl(url: string) {
     try {
       const parsedUrl = new URL(url);
       if (parsedUrl.username || parsedUrl.password) {

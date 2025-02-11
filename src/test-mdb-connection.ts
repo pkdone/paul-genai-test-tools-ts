@@ -6,7 +6,7 @@ import mongoDBService from "./utils/mongodb-service";
 /**
  * Main function to run the program.
  */
-async function main(): Promise<void> {
+async function main() {
   try {
     const mdbURL = getEnvVar<string>("MONGODB_URL"); 
     const prjName = getEnvVar<string>("PROJECT_NAME"); 
@@ -23,7 +23,7 @@ async function main(): Promise<void> {
 /**
  * Collects the file paths of Java files from a MongoDB collection based on the given project name.
  */
-async function collectJavaFilePaths(db: Db, collName: string, prjName: string): Promise<string[]> {
+async function collectJavaFilePaths(db: Db, collName: string, prjName: string) {
   interface ProjectDoc {
     projectName: string,
     filepath: string,

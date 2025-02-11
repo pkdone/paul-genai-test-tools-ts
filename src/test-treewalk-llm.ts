@@ -11,7 +11,7 @@ import LLMRouter from "./llm/llm-router";
 /**
  * Main function to run the program.
  */
-async function main(): Promise<void> {
+async function main() {
   console.log(`START: ${new Date().toISOString()}`);
   await clearDirectory(appConst.OUTPUT_DIR);  
   const outputFilePath = path.join(__dirname, "..", appConst.OUTPUT_DIR, appConst.OUTPUT_SUMMARY_FILE);
@@ -31,7 +31,7 @@ async function main(): Promise<void> {
 /**
  * Build the list of files descending from a directory 
  */
-async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string[]> {
+async function buildDirDescendingListOfFiles(srcDirPath: string) {
   const files = [];
   const queue: string[] = [srcDirPath];
 
@@ -64,7 +64,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
 /**
  * Process files concurrently using the LLM.
  */
-async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: string[], outputFilePath: string): Promise<void> {
+async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: string[], outputFilePath: string) {
   const jobs = [];
 
   for (const srcFilepath of srcFilepaths) {
@@ -83,7 +83,7 @@ async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: 
 /**
  * Capture metadata for a file using the LLM.
  */
-async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: string, outputFilePath: string): Promise<void> {
+async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: string, outputFilePath: string) {
   const type = getFileSuffix(srcFilepath).toLowerCase();
   if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type)) return;  // Skip file if it has binary content
   const rawContent = await readFile(srcFilepath);
@@ -99,7 +99,7 @@ async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: s
 /**
  * Generate the prompt for the LLM based on the file content.
  */
-function getPrompt(content: string): string {
+function getPrompt(content: string) {
   const prompt = `
 Act as a programmer. Take the content of an application source file shown below in the section marked 'CONTENT' and for this content, return a JSON response containing data which includes a detailed definition of its purpose (you must write at least 4 sentences for this purpose), a detailed definition of its implementation (you must write at least 3 sentences for this implementation) and the type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.
 

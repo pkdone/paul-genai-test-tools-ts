@@ -2,7 +2,7 @@
 /**
  * Convert text content to JSON, trimming the content to only include the JSON part.
  */
-export function convertTextToJSON(content: string): Record<string, unknown> {
+export function convertTextToJSON(content: string) {
   const startJSONIndex = content.indexOf("{");
   const endJSONIndex = content.lastIndexOf("}");
   if (startJSONIndex === -1 || endJSONIndex === -1) throw new Error(`Invalid input: No JSON content found for text: ${content}`);

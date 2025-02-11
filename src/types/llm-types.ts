@@ -2,11 +2,11 @@
  * Interface for LLM implementation provider
  */
 export interface LLMProviderImpl {
-  getModelsNames(): LLMConfiguredModelTypesNames,
-  getAvailableCompletionModelQualities(): LLMModelQuality[],
   generateEmbeddings: LLMFunction,
   executeCompletionRegular: LLMFunction,
   executeCompletionPremium: LLMFunction,
+  getModelsNames(): LLMConfiguredModelTypesNames,
+  getAvailableCompletionModelQualities(): LLMModelQuality[],
   close(): Promise<void>,
 };
 

@@ -2,7 +2,6 @@ import { OpenAI, RateLimitError, InternalServerError, BadRequestError, Authentic
          PermissionDeniedError, NotFoundError, UnprocessableEntityError } from "openai";
 import { APIError } from "openai/error";
 import { LLMPurpose, ModelKey } from "../../../types/llm-types";
-import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import AbstractLLM from "../base/abstract-llm";
 
 /**
@@ -11,19 +10,9 @@ import AbstractLLM from "../base/abstract-llm";
  */
 abstract class BaseOpenAILLM extends AbstractLLM {
   /**
-   * Abstract method to get the client object for the specific LLM provider.
-   */
-  protected abstract getClient(): OpenAI;
-  
-  /**
-   * Abstract method to assemble the OpenAI API parameters structure for the given model and prompt.
-   */
-  protected abstract buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
-
-  /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
     const params = this.buildFullLLMParameters(taskType, modelKey, prompt);    
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
@@ -36,7 +25,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   /**
    * Invoke the actuall LLM's embedding API directly.
    */ 
-  protected async invokeImplementationSpecificEmbeddingsLLM(params: OpenAI.EmbeddingCreateParams): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificEmbeddingsLLM(params: OpenAI.EmbeddingCreateParams) {
     // Invoke LLM
     const llmResponses = await this.getClient().embeddings.create(params);
     const llmResponse = llmResponses.data[0];
@@ -58,7 +47,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   /**
    * Invoke the actuall LLM's completion API directly.
    */ 
-  protected async invokeImplementationSpecificCompletionLLM(params: OpenAI.ChatCompletionCreateParams): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificCompletionLLM(params: OpenAI.ChatCompletionCreateParams) {
     // Invoke LLM
     const llmResponses = (await this.getClient().chat.completions.create(params)) as OpenAI.ChatCompletion;
     const llmResponse = llmResponses.choices[0];
@@ -81,7 +70,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   /**
    * See if an error object indicates a network issue or throttling event.
    */
-  protected isLLMOverloaded(error: unknown): boolean {
+  protected isLLMOverloaded(error: unknown) {
     // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
     return ((error instanceof RateLimitError) || (error instanceof InternalServerError));
   }
@@ -89,7 +78,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   /**
    * Check to see if error code indicates potential token limit has been exceeded.
    */
-  protected isTokenLimitExceeded(error: unknown): boolean {
+  protected isTokenLimitExceeded(error: unknown) {
     // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
     if (error instanceof APIError) {
       return error.code === "context_length_exceeded" ||
@@ -102,7 +91,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   /** 
    * Debug currently non-checked error types.
    */
-  protected debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
+  protected debugCurrentlyNonCheckedErrorTypes(error: unknown) {
     if (error instanceof BadRequestError) console.log("BadRequestError");
     if (error instanceof AuthenticationError) console.log("AuthenticationError");
     if (error instanceof RateLimitError) console.log("RateLimitError");
@@ -112,9 +101,21 @@ abstract class BaseOpenAILLM extends AbstractLLM {
     if (error instanceof UnprocessableEntityError) console.log("UnprocessableEntityError");
   }
 
+  /**
+   * Abstract method to get the client object for the specific LLM provider.
+   */
+  protected abstract getClient(): OpenAI;
+  
+  /**
+   * Abstract method to assemble the OpenAI API parameters structure for the given model and prompt.
+   */
+  protected abstract buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
+
   // Expose private methods for unit testing
-  public TEST_isLLMOverloaded = this.isLLMOverloaded.bind(this);
-  public TEST_isTokenLimitExceeded = this.isTokenLimitExceeded.bind(this);  
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  TEST_isLLMOverloaded = this.isLLMOverloaded.bind(this);
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  TEST_isTokenLimitExceeded = this.isTokenLimitExceeded.bind(this);  
 }
 
 export default BaseOpenAILLM;

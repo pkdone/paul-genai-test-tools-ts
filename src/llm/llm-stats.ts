@@ -24,28 +24,28 @@ class LLMStats {
   /**
    * Log success event occurrence and print its symbol
    */
-  public recordSuccess(): void {
+  recordSuccess() {
     this.record(this.statusTypes.SUCCESS);
   }
 
   /**
    * Log failure event occurrence and print its symbol
    */
-  public recordFailure(): void {
+  recordFailure() {
     this.record(this.statusTypes.FAILURE);
   }
 
   /**
    * Log step-up event occurrence and print its symbol
    */
-  public recordStepUp(): void {
+  recordStepUp() {
     this.record(this.statusTypes.STEPUP);
   }
 
   /**
    * Log retry event occurrence and print its symbol
    */
-  public recordRetry(): void {
+  recordRetry() {
     this.record(this.statusTypes.RETRY);
   }
 
@@ -53,22 +53,14 @@ class LLMStats {
    * Log reactive truncate event occurrence, capturing that a smaller size prompt is required by 
    * cropping, and print its symbol
    */
-  public recordCrop(): void {
+  recordCrop() {
     this.record(this.statusTypes.CROP);
-  }
-
-  /**
-   * Log success event occurrence and print its symbol
-   */
-  private record(statusType: LLMStatsCategoryStatus): void {
-    statusType.count++;
-    if (this.doPrintEventTicks) console.log(statusType.symbol);
   }
 
   /**
    * Get the currently accumulated statistics of LLM invocation result types.
    */
-  public getStatusTypesStatistics(includeTotal = false): LLMStatsCategoriesSummary {
+  getStatusTypesStatistics(includeTotal = false) {
     const tableSnapshot: Record<string, LLMStatsCategoryStatus> = structuredClone(this.statusTypes);
 
     if (includeTotal) {
@@ -78,6 +70,14 @@ class LLMStats {
 
     return tableSnapshot as unknown as LLMStatsCategoriesSummary;
   }  
+
+  /**
+   * Log success event occurrence and print its symbol
+   */
+  private record(statusType: LLMStatsCategoryStatus) {
+    statusType.count++;
+    if (this.doPrintEventTicks) console.log(statusType.symbol);
+  }
 }
 
 export default LLMStats;

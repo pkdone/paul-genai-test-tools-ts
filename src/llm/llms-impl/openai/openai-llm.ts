@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
 import { llmModels, llmConst } from "../../../types/llm-constants";
-import { LLMConfiguredModelTypesNames, LLMPurpose,ModelKey } from "../../../types/llm-types";
+import { LLMPurpose,ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 
 /**
@@ -21,7 +21,7 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Get the names of the models this plug-in provides.
    */ 
-  public getModelsNames(): LLMConfiguredModelTypesNames {
+  getModelsNames() {
     return {
       embeddings: llmModels[ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL].modelId,
       regular: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_TURBO].modelId,
@@ -32,14 +32,14 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Abstract method to get the client object for the specific LLM provider.
    */
-  protected getClient(): OpenAI {
+  protected getClient() {
     return this.client;
   }
 
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams {
+  protected buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string) {
     if (taskType === LLMPurpose.EMBEDDINGS.toString()) {
       const params: OpenAI.EmbeddingCreateParams = {
         model: llmModels[modelKey].modelId,

@@ -12,7 +12,7 @@ type EnvVarValue = string | number | boolean | null | undefined | object | Date 
  * @returns The value of the environment variable in its inferred JavaScript type, or the default value if not set.
  * @throws Throws an error if the environment variable is not set and no default value is provided.
  */
-export function getEnvVar<T = unknown>(envVarName: string, defaultValue: T | undefined = undefined): T {
+export function getEnvVar<T = unknown>(envVarName: string, defaultValue: T | undefined = undefined) {
   const value = process.env[envVarName];
 
   if (!value) {
@@ -34,7 +34,7 @@ export function getEnvVar<T = unknown>(envVarName: string, defaultValue: T | und
  * @param value - The string value to be converted.
  * @returns The converted value in its appropriate JavaScript type.
  */
-export function convertToType(value: string): EnvVarValue {
+export function convertToType(value: string) {
   if (!isNaN(Number(value))) return Number(value);
 
   try {
@@ -60,7 +60,7 @@ export function convertToType(value: string): EnvVarValue {
  * @returns The extracted special type if the 'type' and 'value' properties are present, otherwise 
  *          the original object.
  */
-export function extractSpecialTypeFromObj(obj: EnvVarValue): EnvVarValue {
+export function extractSpecialTypeFromObj(obj: EnvVarValue) {
   if (typeof obj === "object" && obj !== null && !Array.isArray(obj)) {
     const typedObj = obj as { type?: string, value?: unknown };
 

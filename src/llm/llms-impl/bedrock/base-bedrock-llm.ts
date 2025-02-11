@@ -1,8 +1,8 @@
-import { BedrockRuntimeClient, InvokeModelCommand, InvokeModelCommandInput, ModelErrorException,
-         ModelStreamErrorException, ResourceNotFoundException, ServiceQuotaExceededException, 
-         ServiceUnavailableException, ThrottlingException, ModelNotReadyException, 
-         ModelTimeoutException, ValidationException } from "@aws-sdk/client-bedrock-runtime";
-import { LLMPurpose, LLMConfiguredModelTypesNames, ModelKey } from "../../../types/llm-types";
+import { BedrockRuntimeClient, InvokeModelCommand, ModelErrorException, ModelStreamErrorException,
+         ResourceNotFoundException, ServiceQuotaExceededException, ServiceUnavailableException,
+         ThrottlingException, ModelNotReadyException, ModelTimeoutException, ValidationException }
+       from "@aws-sdk/client-bedrock-runtime";
+import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { logErrorMsgAndDetail, getErrorText } from "../../../utils/error-utils";
@@ -31,21 +31,10 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   }
   
   /**
-   * Abstract method to be overriden. Assemble the AWS Bedrock API parameters structure for the 
-   * specific completions model hosted on Bedroc.
-   */
-  protected abstract buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string;
-
-  /**
-   * Extract the relevant information from the completion LLM specific response.
-   */
-  protected abstract extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary;
-
-  /**
    * Call close on underlying LLM client library to release resources.
    */ 
   // eslint-disable-next-line @typescript-eslint/require-await
-  public override async close(): Promise<void> {
+  override async close() {
     try {
       this.client.destroy();
     } catch (error: unknown) {
@@ -56,7 +45,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Get the names of the models this plug-in provides.
    */ 
-  public getModelsNames(): LLMConfiguredModelTypesNames {
+  getModelsNames() {
     return {
       embeddings: llmModels[this.embeddingsModelName].modelId,
       regular: llmModels[this.completionsModelRegularName].modelId,
@@ -71,7 +60,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * always seems to be 200 if no exceptions thrown. Other codes like 400 or 429 only appear in the
    * `error`object thrown by the API, so only accessible from the catch block.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
     // Invoke LLM
     const fullParameters = this.buildFullLLMParameters(taskType, modelKey, prompt);
     const command = new InvokeModelCommand(fullParameters);
@@ -90,7 +79,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * Assemble the AWS Bedrock API parameters structure for embeddings and completions models with 
    * the prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): InvokeModelCommandInput  {
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
     let body = "";
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
@@ -113,7 +102,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Extract the relevant information from the LLM specific response.
    */
-  protected extractEmbeddingModelSpecificResponse(llmResponse: TitanEmbeddingsLLMSpecificResponse): LLMImplSpecificResponseSummary {
+  protected extractEmbeddingModelSpecificResponse(llmResponse: TitanEmbeddingsLLMSpecificResponse) {
     const responseContent = llmResponse.embedding ?? [];
     const isIncompleteResponse = (!responseContent);  // If no content assume prompt maxed out total tokens available
     const promptTokens = llmResponse.inputTextTokenCount ?? -1;
@@ -127,7 +116,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * See if the contents of the responses indicate inability to fully process request due to 
    * overloading.
    */
-  protected isLLMOverloaded(error: unknown): boolean { 
+  protected isLLMOverloaded(error: unknown) { 
     // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
     return ((error instanceof ThrottlingException) || 
             (error instanceof ModelTimeoutException)  ||
@@ -137,7 +126,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Check to see if error code indicates potential token limit has been execeeded
    */
-  protected isTokenLimitExceeded(error: unknown): boolean {
+  protected isTokenLimitExceeded(error: unknown) {
     if (error instanceof ValidationException) {
       const lowercaseContent = getErrorText(error).toLowerCase();    
 
@@ -155,7 +144,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /** 
    * Debug currently non-checked error types.
    */
-  protected debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
+  protected debugCurrentlyNonCheckedErrorTypes(error: unknown) {
     if (error instanceof ModelErrorException) console.log(`ModelErrorException: ${getErrorText(error)}`);
     if (error instanceof ModelStreamErrorException) console.log(`ModelStreamErrorException: ${getErrorText(error)}`);
     if (error instanceof ResourceNotFoundException) console.log(`ResourceNotFoundException: ${getErrorText(error)}`);
@@ -163,6 +152,17 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     if (error instanceof ValidationException) console.log(`ValidationException: ${getErrorText(error)}`);
     if (error instanceof ModelNotReadyException) console.log(`ModelNotReadyException: ${getErrorText(error)}`);
   }
+
+  /**
+   * Abstract method to be overriden. Assemble the AWS Bedrock API parameters structure for the 
+   * specific completions model hosted on Bedroc.
+   */
+  protected abstract buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string;
+
+  /**
+   * Extract the relevant information from the completion LLM specific response.
+   */
+  protected abstract extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary;
 }
 
 /**

@@ -42,14 +42,14 @@ class LLMRouter {
   /**
    * Call close on LLM implementation to release resources.
    */
-  public async close(): Promise<void> {
+  async close(): Promise<void> {
     await this.llmImpl.close();
   }
 
   /**
    * Get the description of models the chosen plug-in provides.
    */
-  public getModelsUsedDescription(): string {
+  getModelsUsedDescription() {
     const { embeddings, regular, premium } = this.llmImpl.getModelsNames();
     return `${this.llmProviderName} (embeddings: ${embeddings}, completions-regular: ${regular}, completions-premium: ${premium})`;
   }  
@@ -60,7 +60,7 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  public async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}): Promise<LLMGeneratedContent> {
+  async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}) {
     context.purpose = LLMPurpose.EMBEDDINGS;
     const llmFunc = this.llmImpl.generateEmbeddings.bind(this.llmImpl);
     return await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
@@ -72,7 +72,7 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  public async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQuality, doReturnJSON = false, context: LLMContext = {}): Promise<LLMGeneratedContent> {
+  async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQuality, doReturnJSON = false, context: LLMContext = {}) {
     context.purpose = LLMPurpose.COMPLETIONS;
     const modelQualitiesSupported = this.llmImpl.getAvailableCompletionModelQualities();
     startingModelQuality = this.adjustStartingModelQualityBasedOnAvailability(modelQualitiesSupported, startingModelQuality);
@@ -81,14 +81,27 @@ class LLMRouter {
   }  
 
   /**
+   * Print the accumulated statistics of LLM invocation result types.
+   */
+  displayLLMStatusSummary() {
+    console.table(this.llmStats.getStatusTypesStatistics(), ["description", "symbol"]);
+  }
+
+  /**
+   * Print the accumulated statistics of LLM invocation result types.
+   */
+  displayLLMStatusDetails() {
+    console.table(this.llmStats.getStatusTypesStatistics(true));
+  }
+
+  /**
    * Executes an LLM function applying a series of before and after non-functional aspects (e.g.
    * retries, stepping up LLM qualities, truncating large prompts)..
    *
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[],
-                                                  doReturnJSON = false): Promise<LLMGeneratedContent> {
+  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[], doReturnJSON = false) {
     let result: LLMGeneratedContent | null = null;
     let currentPrompt = prompt;
     let llmFuncIndex = 0;
@@ -138,7 +151,7 @@ class LLMRouter {
   /**
    * Send a prompt to an LLM for completion, retrying a number of times if the LLM is overloaded. 
    */
-  private async executeLLMFuncWithRetries(llmFunc: LLMFunction, prompt: string, doReturnJSON: boolean, context: LLMContext): Promise<LLMFunctionResponse | null> {
+  private async executeLLMFuncWithRetries(llmFunc: LLMFunction, prompt: string, doReturnJSON: boolean, context: LLMContext) {
     const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
     return await withRetry(
       llmFunc as RetryFunc<LLMFunctionResponse>,
@@ -154,7 +167,7 @@ class LLMRouter {
    * Retrieve the specific LLM's embedding/completion functions to be used based on the desired
    * model quality.
    */
-  private getModelQualityCompletionFunctions(modelQuality: LLMModelQuality): LLMFunction[] {
+  private getModelQualityCompletionFunctions(modelQuality: LLMModelQuality) {
     const modelFuncs = [];
     
     if ([LLMModelQuality.REGULAR, LLMModelQuality.REGULAR_PLUS].includes(modelQuality)) { 
@@ -171,7 +184,7 @@ class LLMRouter {
   /**
    * Adjust the starting model quality used based on availability and log warnings if necessary.
    */
-  private adjustStartingModelQualityBasedOnAvailability(invocableModelQualitiesAvailable: LLMModelQuality[], startingModelQuality: LLMModelQuality): LLMModelQuality {
+  private adjustStartingModelQualityBasedOnAvailability(invocableModelQualitiesAvailable: LLMModelQuality[], startingModelQuality: LLMModelQuality) {
     let currentStartingModelQuality: LLMModelQuality | null = startingModelQuality;
 
     if (invocableModelQualitiesAvailable.length <= 0) {
@@ -210,7 +223,7 @@ class LLMRouter {
   /**
    * Adjust the model quality used based on availability and log warning if necessary.
    */
-  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQuality[], startingModelQuality: LLMModelQuality | null, invocableModelQualitiesAvailable: LLMModelQuality[], targetModelQuality: LLMModelQuality, targetModelQualityName: string, fallbackModelQuality: LLMModelQuality | null, fallbackModelQualityName: string): LLMModelQuality | null {
+  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQuality[], startingModelQuality: LLMModelQuality | null, invocableModelQualitiesAvailable: LLMModelQuality[], targetModelQuality: LLMModelQuality, targetModelQualityName: string, fallbackModelQuality: LLMModelQuality | null, fallbackModelQualityName: string) {
     let resolvedStartingModelQuality: LLMModelQuality | null = startingModelQuality;
 
     if (resolvedStartingModelQuality && categoryOfModelQualityOptions.includes(resolvedStartingModelQuality)) {
@@ -225,20 +238,6 @@ class LLMRouter {
     }
 
     return resolvedStartingModelQuality;
-  }
-
-  /**
-   * Print the accumulated statistics of LLM invocation result types.
-   */
-  public displayLLMStatusSummary(): void {
-    console.table(this.llmStats.getStatusTypesStatistics(), ["description", "symbol"]);
-  }
-
-  /**
-   * Print the accumulated statistics of LLM invocation result types.
-   */
-  public displayLLMStatusDetails(): void {
-    console.table(this.llmStats.getStatusTypesStatistics(true));
   }
 }
 

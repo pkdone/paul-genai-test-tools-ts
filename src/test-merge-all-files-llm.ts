@@ -11,7 +11,7 @@ import LLMRouter from "./llm/llm-router";
 /**
  * Main function to run the program.
  */
-async function main(): Promise<void> {
+async function main() {
   console.log(`START: ${new Date().toISOString()}`);
   const srcDirPath = getEnvVar<string>(envConst.ENV_CODEBASE_DIR_PATH).replace(/\/$/, "");
   const filepaths = await buildDirDescendingListOfFiles(srcDirPath);
@@ -32,7 +32,7 @@ async function main(): Promise<void> {
 /**
  * Build the list of files descending from a directory 
  */
-async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string[]> {
+async function buildDirDescendingListOfFiles(srcDirPath: string) {
   const files = [];
   const queue: string[] = [srcDirPath];
 
@@ -67,7 +67,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
 /**
  * Merge the content of all source files and ask questions against it to an LLM
  */
-async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, filepaths: string[], srcDirPath: string): Promise<string> {
+async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, filepaths: string[], srcDirPath: string) {
   const codeBlocksContent = await mergeSourceFilesContent(filepaths, srcDirPath);
   const jobs = [];
   
@@ -82,7 +82,7 @@ async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, 
 /**
  * Merge the content of all source files.
  */
-async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string): Promise<string> {
+async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string) {
   let mergedContent = "";
 
   for (const filepath of filepaths) {
@@ -99,7 +99,7 @@ async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string):
 /**
  * Execute a prompt against a codebase and return the LLM's response.
  */
-async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksContents: string, llmRouter: LLMRouter): Promise<string> {
+async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksContents: string, llmRouter: LLMRouter) {
   const resource = prompt.key;
   const context = { resource };
   const promptFirstPart = `${PROMPT_PREFIX} ${prompt.question} ${PROMPT_SUFFIX}`;

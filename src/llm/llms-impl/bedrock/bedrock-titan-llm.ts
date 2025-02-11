@@ -1,6 +1,5 @@
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
-import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /**
@@ -21,7 +20,7 @@ class BedrockTitanLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
     return JSON.stringify({
       inputText: prompt,
       textGenerationConfig: {
@@ -35,7 +34,7 @@ class BedrockTitanLLM extends BaseBedrockLLM {
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: TitanCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
+  protected extractCompletionModelSpecificResponse(llmResponse: TitanCompletionLLMSpecificResponse) {
     const responseContent = llmResponse.results?.[0]?.outputText ?? ""; 
     const finishReason = llmResponse.results?.[0]?.completionReason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();

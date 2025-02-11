@@ -1,7 +1,7 @@
 /**
  * Log an error message and the error stack to the console.
  */
-export function logErrorMsgAndDetail(msg: string | null, error: unknown): void {
+export function logErrorMsgAndDetail(msg: string | null, error: unknown) {
   if (msg) {
     console.error(msg, getErrorText(error), "-", getErrorStack(error));
   } else {
@@ -12,14 +12,14 @@ export function logErrorMsgAndDetail(msg: string | null, error: unknown): void {
 /**
  * Log an error and its stack to the console.
  */
-export function logErrorDetail(error: unknown): void {
+export function logErrorDetail(error: unknown) {
   logErrorMsgAndDetail(null, error);
 }
 
 /**
  * Get the error text from a thrown variable which may or may not be an Error object.
  */
-export function getErrorText(error: unknown): string {
+export function getErrorText(error: unknown) {
   if (!error) {
     return "No error message available";
   } else if (error instanceof Error) {
@@ -35,7 +35,7 @@ export function getErrorText(error: unknown): string {
  * Get the stack trace from a thrown variable if it is an Error object otherwise get the current
  * stack.
  */
-export function getErrorStack(obj: unknown): string {
+export function getErrorStack(obj: unknown) {
   if (obj instanceof Error && obj.stack) {
     return obj.stack;
   } else {

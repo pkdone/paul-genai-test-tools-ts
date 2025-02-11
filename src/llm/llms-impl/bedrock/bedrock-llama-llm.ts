@@ -1,6 +1,5 @@
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
-import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /** 
@@ -22,7 +21,7 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Llama completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
     const bodyObj: { prompt: string, temperature: number, top_p: number, max_gen_len?: number } = {
       prompt: 
 `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
@@ -43,7 +42,7 @@ You are a helpful software engineering and programming assistant, and you need t
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: LlamaCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
+  protected extractCompletionModelSpecificResponse(llmResponse: LlamaCompletionLLMSpecificResponse) {
     const responseContent = llmResponse.generation ?? "";
     const finishReason = llmResponse.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();

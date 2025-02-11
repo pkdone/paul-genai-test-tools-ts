@@ -15,9 +15,14 @@ export default tseslint.config(
 
   {
     rules: {
-      '@typescript-eslint/explicit-function-return-type': ["error", { "allowExpressions": true }],
+      "@typescript-eslint/explicit-member-accessibility": ["error", { "accessibility": "no-public" }],
+      "@typescript-eslint/member-ordering": "error",     
+      "@typescript-eslint/prefer-readonly": "error",
+      "@typescript-eslint/promise-function-async": "error",
+      "@typescript-eslint/require-array-sort-compare": "error",
+      "@typescript-eslint/switch-exhaustiveness-check": "error",
     },
-
+    
     languageOptions: {
       parserOptions: {
         projectService: true,

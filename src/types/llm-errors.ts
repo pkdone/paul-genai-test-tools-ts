@@ -18,7 +18,7 @@ export class BadResponseContentLLMError extends LLMError {
   /** 
    * The content received in the LLM implementation's response.
    */
-  public readonly content: string;
+  readonly content: string;
 
   /** 
    * Constructor.
@@ -37,7 +37,7 @@ export class BadResponseMetadataLLMError extends LLMError {
   /** 
    * The metadata received from the LLM implementation.
    */
-  public readonly metadata: string;
+  readonly metadata: string;
 
   /** 
    * Constructor.
@@ -55,7 +55,7 @@ export class BadConfigurationLLMError extends LLMError {
   /** 
    * The configuration used to initiatize the LLM implementation.
    */
-  public readonly config: string;
+  readonly config: string;
 
   /** 
    * Constructor.
@@ -73,7 +73,7 @@ export class RejectionResponseLLMError extends LLMError {
   /** 
    * The rejection reason received from the LLM implementation.
    */
-  public readonly reason: string;
+  readonly reason: string;
 
   /** 
    * Constructor.
@@ -91,7 +91,7 @@ export class LLMMetadataError extends LLMError {
   /** 
    * The value defined for the problematic property.
    */
-  public readonly value: string;
+  readonly value: string;
 
   /** 
    * Constructor.
@@ -105,6 +105,6 @@ export class LLMMetadataError extends LLMError {
 /**
  * Convert a variable to a string.
  */
-function stringify(myvar: unknown): string {
+function stringify(myvar: unknown) {
   return JSON.stringify(myvar);
 }

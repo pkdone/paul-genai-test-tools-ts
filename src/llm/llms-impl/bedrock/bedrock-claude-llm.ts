@@ -1,6 +1,5 @@
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
-import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /** 
@@ -22,7 +21,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
     return JSON.stringify({
       anthropic_version: llmConst.AWS_ANTHROPIC_API_VERSION,
       messages: [
@@ -46,7 +45,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: ClaudeCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
+  protected extractCompletionModelSpecificResponse(llmResponse: ClaudeCompletionLLMSpecificResponse) {
     const responseContent = llmResponse.content?.[0]?.text ?? "";
     const finishReason = llmResponse.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();

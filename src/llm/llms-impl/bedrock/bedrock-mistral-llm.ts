@@ -1,6 +1,5 @@
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
-import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /** 
@@ -22,7 +21,7 @@ class BedrockMistralLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string): string {
+  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
     return JSON.stringify({
       prompt: `<s>[INST] ${prompt} [/INST]`,
       temperature: llmConst.ZERO_TEMP,
@@ -35,7 +34,7 @@ class BedrockMistralLLM extends BaseBedrockLLM {
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: MistralCompletionLLMSpecificResponse): LLMImplSpecificResponseSummary {
+  protected extractCompletionModelSpecificResponse(llmResponse: MistralCompletionLLMSpecificResponse) {
     const responseContent = llmResponse.outputs?.[0]?.text ?? "";
     const finishReason = llmResponse.outputs?.[0]?.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();

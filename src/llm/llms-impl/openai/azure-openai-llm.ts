@@ -1,6 +1,6 @@
 import { AzureOpenAI, OpenAI } from "openai";
 import { llmModels, llmConst } from "../../../types/llm-constants";
-import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../types/llm-types";
+import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 
 /**
@@ -28,7 +28,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Get the names of the models this plug-in provides.
    */
-  public getModelsNames(): LLMConfiguredModelTypesNames {
+  getModelsNames() {
     return {
       embeddings: llmModels[ModelKey.GPT_EMBEDDINGS_ADA002].modelId,
       regular: llmModels[ModelKey.GPT_COMPLETIONS_GPT4].modelId,
@@ -39,14 +39,14 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Abstract method to get the client object for the specific LLM provider.
    */
-  protected getClient(): OpenAI {
+  protected getClient() {
     return this.client;
   }
 
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams {
+  protected buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string) {
     const deployment = this.modelToDeploymentMappings[modelKey];
 
     if (taskType === LLMPurpose.EMBEDDINGS.toString()) {

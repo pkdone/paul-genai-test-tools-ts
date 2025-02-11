@@ -1,11 +1,10 @@
-import { VertexAI, ModelParams, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshold, 
-         GoogleApiError, ClientError, GoogleAuthError, GoogleGenerativeAIError, 
-         IllegalArgumentError } from "@google-cloud/vertexai";
+import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshold, GoogleApiError,
+         ClientError, GoogleAuthError, GoogleGenerativeAIError, IllegalArgumentError } 
+       from "@google-cloud/vertexai";
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import { llmModels, llmConst } from "../../../types/llm-constants";
-import { LLMConfiguredModelTypesNames, LLMPurpose, ModelKey } from "../../../types/llm-types";
-import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
@@ -37,7 +36,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Get the names of the models this plug-in provides.
    */
-  public getModelsNames(): LLMConfiguredModelTypesNames {
+  getModelsNames() {
     return {
       embeddings: llmModels[ModelKey.GCP_EMBEDDINGS_TEXT_005].modelId,
       regular: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_FLASH15].modelId,
@@ -48,7 +47,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       return await this.invokeImplementationSpecificEmbeddingsLLM(modelKey, prompt);
     } else {
@@ -59,7 +58,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Invoke the actuall LLM's embedding API directly.
    */ 
-  protected async invokeImplementationSpecificEmbeddingsLLM(modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {  
+  protected async invokeImplementationSpecificEmbeddingsLLM(modelKey: ModelKey, prompt: string) {  
     // Invoke LLM
     const fullParameters = this.buildFullEmebddingsLLMParameters(modelKey, prompt);
     const llmResponses = await this.embeddingsApiClient.predict(fullParameters);
@@ -81,7 +80,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Invoke the actuall LLM's completion API directly.
    */ 
-  protected async invokeImplementationSpecificCompletionLLM(modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary> {
+  protected async invokeImplementationSpecificCompletionLLM(modelKey: ModelKey, prompt: string) {
     // Invoke LLM
     const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(modelKey);
     const llm = this.vertexAiApiClient.getGenerativeModel(modelParams, requestOptions);
@@ -107,49 +106,9 @@ class VertexAIGeminiLLM extends AbstractLLM {
   }
 
   /**
-   * Assemble the GCP API parameters structure for the given model and prompt.
-   */
-  private buildFullEmebddingsLLMParameters(modelKey: ModelKey, prompt: string): aiplatform.protos.google.cloud.aiplatform.v1.IPredictRequest {
-    const model = llmModels[modelKey].modelId;
-    const endpoint = `${this.apiEndpointPrefix}${model}`;
-    const instance = helpers.toValue({ content: prompt, task_type: llmConst.GCP_API_EMBEDDINGS_TASK_TYPE });
-    if (!instance) throw new BadConfigurationLLMError("Failed to convert prompt to IValue");
-    const parameters = helpers.toValue({});
-    return { endpoint, instances: [instance], parameters };
-  }
-
-  /**
-   * Assemble the GCP API parameters structure for the given model and prompt.
-   */
-  private buildFullCompletionLLMParameters(modelKey: ModelKey): { modelParams: ModelParams, requestOptions: RequestOptions } {
-    const modelParams = { 
-      model: llmModels[modelKey].modelId,
-      generationConfig: { 
-        candidateCount: 1,
-        topP: llmConst.TOP_P_LOWEST,
-        topK: llmConst.TOP_K_LOWEST,
-        temperature: llmConst.ZERO_TEMP,   
-        maxOutputTokens: llmModels[modelKey].maxCompletionTokens,
-      },
-      safetySettings: [
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        { category: HarmCategory.HARM_CATEGORY_UNSPECIFIED, threshold: HarmBlockThreshold.BLOCK_NONE },
-      ],
-    };
-    const requestOptions = {
-      timeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS,
-    } as RequestOptions;
-
-    return {modelParams, requestOptions};
-  }
-
-  /**
    * See if the respnse error indicated that the LLM was overloaded.
    */
-  protected isLLMOverloaded(error: unknown): boolean {  
+  protected isLLMOverloaded(error: unknown) {  
     // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
 
     if (error instanceof Error) {
@@ -179,14 +138,65 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * not occur with error object thrown so always returns false
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected isTokenLimitExceeded(_error: unknown): boolean {    
+  protected isTokenLimitExceeded(_error: unknown) {    
     return false;
   }  
+
+  /** 
+   * Debug currently non-checked error types.
+   */
+  protected debugCurrentlyNonCheckedErrorTypes(error: unknown) {
+    if (error instanceof GoogleApiError) console.log(`GoogleApiError ${getErrorText(error)}`);
+    if (error instanceof ClientError) console.log(`ClientError ${getErrorText(error)}`);
+    if (error instanceof GoogleAuthError) console.log(`GoogleAuthError ${getErrorText(error)}`);
+    if (error instanceof GoogleGenerativeAIError) console.log(`GoogleGenerativeAIError ${getErrorText(error)}`);
+    if (error instanceof IllegalArgumentError) console.log(`IllegalArgumentError ${getErrorText(error)}`);
+  }
+
+  /**
+   * Assemble the GCP API parameters structure for the given model and prompt.
+   */
+  private buildFullEmebddingsLLMParameters(modelKey: ModelKey, prompt: string) {
+    const model = llmModels[modelKey].modelId;
+    const endpoint = `${this.apiEndpointPrefix}${model}`;
+    const instance = helpers.toValue({ content: prompt, task_type: llmConst.GCP_API_EMBEDDINGS_TASK_TYPE });
+    if (!instance) throw new BadConfigurationLLMError("Failed to convert prompt to IValue");
+    const parameters = helpers.toValue({});
+    return { endpoint, instances: [instance], parameters };
+  }
+
+  /**
+   * Assemble the GCP API parameters structure for the given model and prompt.
+   */
+  private buildFullCompletionLLMParameters(modelKey: ModelKey) {
+    const modelParams = { 
+      model: llmModels[modelKey].modelId,
+      generationConfig: { 
+        candidateCount: 1,
+        topP: llmConst.TOP_P_LOWEST,
+        topK: llmConst.TOP_K_LOWEST,
+        temperature: llmConst.ZERO_TEMP,   
+        maxOutputTokens: llmModels[modelKey].maxCompletionTokens,
+      },
+      safetySettings: [
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+        { category: HarmCategory.HARM_CATEGORY_UNSPECIFIED, threshold: HarmBlockThreshold.BLOCK_NONE },
+      ],
+    };
+    const requestOptions = {
+      timeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS,
+    } as RequestOptions;
+
+    return {modelParams, requestOptions};
+  }
 
   /**
    * Extract the embeddings from the predictions.
    */
-  private extractEmbeddingsFromPredictions(predictions: aiplatform.protos.google.protobuf.IValue[] | null | undefined): (number | null | undefined)[][] {
+  private extractEmbeddingsFromPredictions(predictions: aiplatform.protos.google.protobuf.IValue[] | null | undefined) {
     if (!predictions) throw new BadConfigurationLLMError("Predictions are null or undefined");
     const embeddings = predictions.map(p => {
       if (!p.structValue?.fields) throw new BadConfigurationLLMError("structValue or fields is null or undefined");
@@ -198,17 +208,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
     });
 
     return embeddings;
-  }
-
-  /** 
-   * Debug currently non-checked error types.
-   */
-  protected debugCurrentlyNonCheckedErrorTypes(error: unknown): void {
-    if (error instanceof GoogleApiError) console.log(`GoogleApiError ${getErrorText(error)}`);
-    if (error instanceof ClientError) console.log(`ClientError ${getErrorText(error)}`);
-    if (error instanceof GoogleAuthError) console.log(`GoogleAuthError ${getErrorText(error)}`);
-    if (error instanceof GoogleGenerativeAIError) console.log(`GoogleGenerativeAIError ${getErrorText(error)}`);
-    if (error instanceof IllegalArgumentError) console.log(`IllegalArgumentError ${getErrorText(error)}`);
   }
 }
 
