@@ -67,7 +67,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
 /**
  * Merge the content of all source files and ask questions against it to an LLM
  */
-async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, filepaths: string[], srcDirPath: string) {
+async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, filepaths: string[], srcDirPath: string): Promise<string> {
   const codeBlocksContent = await mergeSourceFilesContent(filepaths, srcDirPath);
   const jobs = [];
   
@@ -82,7 +82,7 @@ async function mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter: LLMRouter, 
 /**
  * Merge the content of all source files.
  */
-async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string) {
+async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string): Promise<string> {
   let mergedContent = "";
 
   for (const filepath of filepaths) {

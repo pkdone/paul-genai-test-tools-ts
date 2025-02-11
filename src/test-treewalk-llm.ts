@@ -64,7 +64,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string
 /**
  * Process files concurrently using the LLM.
  */
-async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: string[], outputFilePath: string) {
+async function feedFilesThruLLMConcurrently(llmRouter: LLMRouter, srcFilepaths: string[], outputFilePath: string): Promise<void> {
   const jobs = [];
 
   for (const srcFilepath of srcFilepaths) {

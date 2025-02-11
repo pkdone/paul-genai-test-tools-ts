@@ -210,7 +210,7 @@ class LLMRouter {
   /**
    * Adjust the model quality used based on availability and log warning if necessary.
    */
-  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQuality[], startingModelQuality: LLMModelQuality | null, invocableModelQualitiesAvailable: LLMModelQuality[], targetModelQuality: LLMModelQuality, targetModelQualityName: string, fallbackModelQuality: LLMModelQuality | null, fallbackModelQualityName: string) {
+  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQuality[], startingModelQuality: LLMModelQuality | null, invocableModelQualitiesAvailable: LLMModelQuality[], targetModelQuality: LLMModelQuality, targetModelQualityName: string, fallbackModelQuality: LLMModelQuality | null, fallbackModelQualityName: string): LLMModelQuality | null {
     let resolvedStartingModelQuality: LLMModelQuality | null = startingModelQuality;
 
     if (resolvedStartingModelQuality && categoryOfModelQualityOptions.includes(resolvedStartingModelQuality)) {

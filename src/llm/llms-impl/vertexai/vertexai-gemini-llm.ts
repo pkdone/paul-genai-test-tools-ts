@@ -186,7 +186,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Extract the embeddings from the predictions.
    */
-  private extractEmbeddingsFromPredictions(predictions: aiplatform.protos.google.protobuf.IValue[] | null | undefined) {
+  private extractEmbeddingsFromPredictions(predictions: aiplatform.protos.google.protobuf.IValue[] | null | undefined): (number | null | undefined)[][] {
     if (!predictions) throw new BadConfigurationLLMError("Predictions are null or undefined");
     const embeddings = predictions.map(p => {
       if (!p.structValue?.fields) throw new BadConfigurationLLMError("structValue or fields is null or undefined");
@@ -196,6 +196,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
       if (!valuesProto.listValue?.values) throw new BadConfigurationLLMError("valuesProto.listValue or valuesProto.listValue.values is null or undefined");
       return valuesProto.listValue.values.map(v => v.numberValue);
     });
+
     return embeddings;
   }
 

@@ -12,7 +12,12 @@ export default tseslint.config(
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   tseslint.configs.recommendedTypeChecked,
+
   {
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': ["error", { "allowExpressions": true }],
+    },
+
     languageOptions: {
       parserOptions: {
         projectService: true,
