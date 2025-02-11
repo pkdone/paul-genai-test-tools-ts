@@ -55,7 +55,7 @@ class MongoDBService {
       this.clients.set(id, newClient);
       return newClient;
     } catch (error) {
-      console.error(`Failed to connect to MongoDB: ${error}`);
+      console.error(`Failed to connect to MongoDB: ${JSON.stringify(error)}`);
       throw new MongoError(`Failed to connect to MongoDB with id '${id}'.`);
     }
   }
@@ -82,7 +82,7 @@ class MongoDBService {
         await client.close();
         console.log(`Closed MongoDB connection for id '${id}'.`);
       } catch (error) {
-        console.error(`Error closing MongoDB client '${id}': ${error}`);
+        console.error(`Error closing MongoDB client '${id}': ${JSON.stringify(error)}`);
       }
     }
 
@@ -112,10 +112,14 @@ class MongoDBService {
 
 // Ensure proper cleanup on application exit.
 const mongoDBService = MongoDBService.getInstance();
-process.on("SIGINT", async () => {
-  await mongoDBService.closeAll();
-  console.log("MongoDB connections closed. Exiting process.");
-  process.exit(0);
+process.on("SIGINT", () => {
+  mongoDBService.closeAll().then(() => {
+    console.log("MongoDB connections closed. Exiting process.");
+    process.exit(0);
+  }).catch((error) => {
+    console.error("Error closing MongoDB connections:", error);
+    process.exit(1);
+  });
 });
 
 export default mongoDBService;

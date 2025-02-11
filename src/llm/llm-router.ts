@@ -1,7 +1,8 @@
 import { llmConst } from "../types/llm-constants";
 import envConst from "../types/env-constants";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
-         LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } 
+         LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse, 
+         ModelFamily} 
   from "../types/llm-types";
 import { RetryFunc } from "../types/control-types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors";
@@ -21,7 +22,7 @@ import LLMStats from "./llm-stats";
  */
 class LLMRouter {
   // Private fields
-  private readonly llmProviderName: string;
+  private readonly llmProviderName: ModelFamily;
   private readonly llmImpl: LLMProviderImpl;
   private readonly llmStats: LLMStats;
   private readonly usePremiumLModelOnly: boolean;
@@ -30,7 +31,7 @@ class LLMRouter {
   /**
    * Constructor.
    */
-  constructor(llmProviderName: string, doLogLLMInvocationEvents: boolean) {
+  constructor(llmProviderName: ModelFamily, doLogLLMInvocationEvents: boolean) {
     this.llmProviderName = llmProviderName;
     this.llmImpl = initializeLLMImplementation(llmProviderName);
     this.llmStats = new LLMStats(doLogLLMInvocationEvents);

@@ -1,6 +1,6 @@
 import appConst from "./types/app-constants";
 import envConst from "./types/env-constants";
-import { LLMModelQuality } from "./types/llm-types";
+import { LLMModelQuality, ModelFamily } from "./types/llm-types";
 import { getEnvVar } from "./utils/envvar-utils";
 import { readFile } from "./utils/fs-utils";
 import LLMRouter from "./llm/llm-router";
@@ -9,8 +9,8 @@ import LLMRouter from "./llm/llm-router";
  * Main function to run the program.
  */
 async function main(): Promise<void> {
-  console.log(`START: ${new Date()}`);
-  const llmRouter = new LLMRouter(getEnvVar<string>(envConst.ENV_LLM), getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+  console.log(`START: ${new Date().toISOString()}`);
+  const llmRouter = new LLMRouter(getEnvVar<ModelFamily>(envConst.ENV_LLM), getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
   const prompt = await readFile(appConst.SAMPLE_PROMPT_FILEPATH);
   console.log("\n---PROMPT---");
   console.log(prompt);
@@ -25,11 +25,14 @@ async function main(): Promise<void> {
   console.log(completionPremiumResult);
   console.log(" ");
   await llmRouter.close();
-  console.log(`END: ${new Date()}`);
+  console.log(`END: ${new Date().toISOString()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite background tasks running
 }
 
 // Bootstrap
 (async () => {
   await main();
-})();
+})().catch((error) => {
+  console.error("Error in main function:", error);
+  process.exit(1);
+});

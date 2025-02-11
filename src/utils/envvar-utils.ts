@@ -38,8 +38,8 @@ export function convertToType(value: string): EnvVarValue {
   if (!isNaN(Number(value))) return Number(value);
 
   try {
-    const obj = JSON.parse(value);
-    return extractSpecialTypeFromObj(obj);
+    const obj: unknown = JSON.parse(value);
+    return extractSpecialTypeFromObj(obj as EnvVarValue);
   } catch {
     switch (value.toLowerCase()) {
       case "true": return true;

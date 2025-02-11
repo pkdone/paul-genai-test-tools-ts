@@ -1,4 +1,4 @@
-import { Collection, Document } from "mongodb";
+import { Db } from "mongodb";
 import appConst from "./types/app-constants";
 import { getEnvVar } from "./utils/envvar-utils";
 import mongoDBService from "./utils/mongodb-service";
@@ -12,8 +12,8 @@ async function main(): Promise<void> {
     const prjName = getEnvVar<string>("PROJECT_NAME"); 
     const mongoClient = await mongoDBService.connect("default", mdbURL);
     const db = mongoClient.db(appConst.CODEBASE_DB_NAME);
-    const coll = db.collection(appConst.SRC_COLLCTN_NAME);  
-    const result = await collectJavaFilePaths(coll, prjName);
+    const collName = appConst.SRC_COLLCTN_NAME;  
+    const result = await collectJavaFilePaths(db, collName, prjName);
     console.log("Result:", result);
   } finally {
     await mongoDBService.closeAll();
@@ -23,8 +23,13 @@ async function main(): Promise<void> {
 /**
  * Collects the file paths of Java files from a MongoDB collection based on the given project name.
  */
-async function collectJavaFilePaths(coll: Collection<Document>, prjName: string): Promise<string[]> {
-  return coll.find({ projectName: prjName }, { projection: { filepath: 1 } })
+async function collectJavaFilePaths(db: Db, collName: string, prjName: string): Promise<string[]> {
+  interface ProjectDoc {
+    projectName: string,
+    filepath: string,
+  }  
+  const coll = db.collection<ProjectDoc>(collName);  
+  return await coll.find({ projectName: prjName }, { projection: { filepath: 1 } })
              .map(doc => doc.filepath)
              .toArray();
 }
@@ -32,4 +37,6 @@ async function collectJavaFilePaths(coll: Collection<Document>, prjName: string)
 // Bootstrap
 (async () => {
   await main();
-})();
+})().catch(error => {
+  console.error("Error:", error);
+});

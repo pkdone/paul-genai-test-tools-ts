@@ -45,6 +45,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Call close on underlying LLM client library to release resources.
    */ 
+  // eslint-disable-next-line @typescript-eslint/require-await
   public override async close(): Promise<void> {
     try {
       this.client.destroy();
@@ -77,7 +78,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
     if (!rawResponse?.body) throw new BadResponseContentLLMError("LLM raw response was completely empty", rawResponse);
-    const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(llmConst.LLM_UTF8_ENCODING));
+    const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(llmConst.LLM_UTF8_ENCODING)) as Record<string, unknown>;
     if (!llmResponse) throw new BadResponseContentLLMError("LLM response when converted to JSON was empty", rawResponse);
 
 

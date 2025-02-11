@@ -49,7 +49,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   protected buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams {
     const deployment = this.modelToDeploymentMappings[modelKey];
 
-    if (taskType === LLMPurpose.EMBEDDINGS) {
+    if (taskType === LLMPurpose.EMBEDDINGS.toString()) {
       const params: OpenAI.EmbeddingCreateParams = {
         model: deployment,
         input: prompt

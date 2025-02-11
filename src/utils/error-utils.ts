@@ -27,7 +27,7 @@ export function getErrorText(error: unknown): string {
   } else if (typeof error === "object") {
     return "message" in error ? (error as { message: string }).message : JSON.stringify(error);
   } else {
-    return String(error);
+    return JSON.stringify(error);
   }
 }
 

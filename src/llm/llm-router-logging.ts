@@ -32,7 +32,7 @@ export function logContext(context: LLMContext): void {
   if (context) {
     if ((context instanceof Object) && !Array.isArray(context)) {
       for (const [key, value] of Object.entries(context)) {
-        log(`  * ${key}: ${value}`);
+        log(`  * ${key}: ${String(value)}`);
       }
     } else {
       log(`  * ${JSON.stringify(context)}`);

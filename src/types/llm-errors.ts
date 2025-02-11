@@ -106,9 +106,5 @@ export class LLMMetadataError extends LLMError {
  * Convert a variable to a string.
  */
 function stringify(myvar: unknown): string {
-  if (typeof myvar === "object") {
-    return JSON.stringify(myvar);
-  } else {
-    return String(myvar ?? "");
-  }
+  return JSON.stringify(myvar);
 }

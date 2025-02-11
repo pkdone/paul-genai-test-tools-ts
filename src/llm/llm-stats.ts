@@ -69,14 +69,14 @@ class LLMStats {
    * Get the currently accumulated statistics of LLM invocation result types.
    */
   public getStatusTypesStatistics(includeTotal = false): LLMStatsCategoriesSummary {
-    const tableSnapshot = JSON.parse(JSON.stringify(this.statusTypes)); // DEEP-COPY HACK!
+    const tableSnapshot: Record<string, LLMStatsCategoryStatus> = structuredClone(this.statusTypes);
 
     if (includeTotal) {
       const total = tableSnapshot.SUCCESS.count + tableSnapshot.FAILURE.count;
-      tableSnapshot.TOTAL = { description: "Total successes + failures", count: total };
+      tableSnapshot.TOTAL = { description: "Total successes + failures", symbol: "=", count: total };
     }
 
-    return tableSnapshot;
+    return tableSnapshot as unknown as LLMStatsCategoriesSummary;
   }  
 }
 

@@ -1,7 +1,7 @@
 import path from "path";
 import appConst from "./types/app-constants";
 import envConst from "./types/env-constants";
-import { LLMModelQuality } from "./types/llm-types";
+import { LLMModelQuality, ModelFamily } from "./types/llm-types";
 import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } from "./utils/fs-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
 import { getEnvVar } from "./utils/envvar-utils";
@@ -12,10 +12,10 @@ import LLMRouter from "./llm/llm-router";
  * Main function to run the program.
  */
 async function main(): Promise<void> {
-  console.log(`START: ${new Date()}`);
+  console.log(`START: ${new Date().toISOString()}`);
   const srcDirPath = getEnvVar<string>(envConst.ENV_CODEBASE_DIR_PATH).replace(/\/$/, "");
   const filepaths = await buildDirDescendingListOfFiles(srcDirPath);
-  const llmProvider = getEnvVar<string>(envConst.ENV_LLM);
+  const llmProvider = getEnvVar<ModelFamily>(envConst.ENV_LLM);
   const llmRouter = new LLMRouter(llmProvider, getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
   llmRouter.displayLLMStatusSummary();
   const result = await mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter, filepaths, srcDirPath);
@@ -25,7 +25,7 @@ async function main(): Promise<void> {
   llmRouter.displayLLMStatusDetails();
   await llmRouter.close();
   console.log(`View generared results at: file://${outputFilePath}`);
-  console.log(`END: ${new Date()}`);
+  console.log(`END: ${new Date().toISOString()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
 }
 
@@ -263,5 +263,8 @@ things that change for different reasons into different microservices.”
 // Bootstrap
 (async () => {
   await main();
-})();
+})().catch(error => {
+  console.error('Error in main function:', error);
+  process.exit(1);
+});
 

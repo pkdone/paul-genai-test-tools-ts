@@ -1,7 +1,7 @@
 import path from "path";
 import appConst from "./types/app-constants";
 import envConst from "./types/env-constants";
-import { LLMModelQuality } from "./types/llm-types";
+import { LLMModelQuality, ModelFamily } from "./types/llm-types";
 import { readFile, appendFile, readDirContents, getFileSuffix, clearDirectory } from "./utils/fs-utils";
 import { getEnvVar } from "./utils/envvar-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
@@ -12,18 +12,19 @@ import LLMRouter from "./llm/llm-router";
  * Main function to run the program.
  */
 async function main(): Promise<void> {
-  console.log(`START: ${new Date()}`);
+  console.log(`START: ${new Date().toISOString()}`);
   await clearDirectory(appConst.OUTPUT_DIR);  
   const outputFilePath = path.join(__dirname, "..", appConst.OUTPUT_DIR, appConst.OUTPUT_SUMMARY_FILE);
   const srcDirPath = getEnvVar<string>(envConst.ENV_CODEBASE_DIR_PATH);
   const srcFilepaths = await buildDirDescendingListOfFiles(srcDirPath);
-  const llmRouter = new LLMRouter(getEnvVar<string>(envConst.ENV_LLM), getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+  const llmProvider = getEnvVar<ModelFamily>(envConst.ENV_LLM);
+  const llmRouter = new LLMRouter(llmProvider, getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
   llmRouter.displayLLMStatusSummary();
   await feedFilesThruLLMConcurrently(llmRouter, srcFilepaths, outputFilePath);
   llmRouter.displayLLMStatusDetails();
   await llmRouter.close();
   console.log(`View generared results at: file://${outputFilePath}`);
-  console.log(`END: ${new Date()}`);
+  console.log(`END: ${new Date().toISOString()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
 }
 
@@ -92,7 +93,7 @@ async function captureMetadataForFileViaLLM(llmRouter: LLMRouter, srcFilepath: s
   await llmRouter.generateEmbeddings(srcFilepath, getPrompt(content), context);
   const completionResult = await llmRouter.executeCompletion(srcFilepath, getPrompt(content), LLMModelQuality.REGULAR_PLUS, true, context);
   const outputContent = `${JSON.stringify(completionResult, null, 2)}\n\n-----------------------------\n\n`;
-  appendFile(outputFilePath, outputContent);
+  await appendFile(outputFilePath, outputContent);
 }
 
 /**
@@ -201,4 +202,8 @@ ${content}
 // Bootstrap
 (async () => {
   await main();
-})();
+})().catch((error) => {
+  console.error("Error in main function:", error);
+  process.exit(1);
+});
+
