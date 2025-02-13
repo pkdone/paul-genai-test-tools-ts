@@ -30,9 +30,5 @@ async function main() {
 }
 
 // Bootstrap
-(async () => {
-  await main();
-})().catch((error: unknown) => {
-  console.error("Error in main function:", error);
-  process.exit(1);
-});
+main().catch(console.error);
+

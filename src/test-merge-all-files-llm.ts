@@ -261,10 +261,5 @@ things that change for different reasons into different microservices.”
 */
 
 // Bootstrap
-(async () => {
-  await main();
-})().catch((error: unknown) => {
-  console.error('Error in main function:', error);
-  process.exit(1);
-});
+main().catch(console.error);
 
