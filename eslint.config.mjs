@@ -11,7 +11,6 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
-  tseslint.configs.recommendedTypeChecked,
 
   {
     rules: {
@@ -25,7 +24,7 @@ export default tseslint.config(
     
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        project: './tsconfig.json',
         tsconfigRootDir: import.meta.dirname,
       },
     },

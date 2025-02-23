@@ -131,6 +131,13 @@ const PROMPT_SUFFIX = `Provide references to the specific part(s) of the code th
 improvement with suggestions on how to improve.`;
 const PROMPTS: TemplatePrompt[] = [
   {
+    key: "ARCHITECTURE-IMPROVEMENTS",
+    question:
+`Identify a couple of key sub-optimal apsects of the software's architecture that would benefit from
+ structual change to improve the clarity of the project and ease of maintenance and subsequent
+change. Provide a brief description of the current state and a suggestion for improvement.`,
+  },
+  {
     key: "KEY-IMPROVEMNTS",
     question:
 `Identify the top 10 key areas to improve the code in terms of clarity, conciseness, following

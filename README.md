@@ -79,15 +79,15 @@ gcloud auth application-default login
 
 ### AWS Bedrock
 
-Use MDB MANA to access to AWS accounts to get SSO start URL, then using the AWS CLI run:
+Use MDB MANA to access AWS accounts to obtain the SSO start URL, then using the AWS CLI run:
 
 ```console
 aws configure sso
 ```
 
-Then edit the file `~/.aws/config` and rename the line `[profile ...]` for the newly generated profile section `[default]` instead, then run:
+Then edit the file `~/.aws/config` and rename the line `[profile ...]` for the newly generated profile section to `[default]` instead, then run:
 
 ``` console
 aws sso login
-aws sts get-caller-identity        # tests cli works
+aws sts get-caller-identity        # to est the CLI works
 ```

@@ -107,7 +107,7 @@ class LLMRouter {
     let llmFuncIndex = 0;
 
     try {
-      // Don't want to increment 'llmFuncIndex' before looping again if going to crop prompt to try cropped prompt with same size LLM as last iteration
+      // Don't want to increment 'llmFuncIndex' before looping again if going to crop prompt so we can try cropped prompt with same size LLM as last iteration
       while (llmFuncIndex < llmFuncs.length) {
         const llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, doReturnJSON, context);
 
