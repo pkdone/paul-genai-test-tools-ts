@@ -1,5 +1,5 @@
 import envConst from "../types/env-constants";
-import { LLMProviderImpl, ModelFamily } from "../types/llm-types";
+import { ModelFamily } from "../types/llm-types";
 import { getEnvVar } from "../utils/envvar-utils";
 import OpenAILLM from "./llms-impl/openai/openai-llm";
 import AzureOpenAILLM from "./llms-impl/openai/azure-openai-llm";
@@ -12,7 +12,7 @@ import BedrockMistralLLM from "./llms-impl/bedrock/bedrock-mistral-llm";
 /**
  * Load the appropriate class for the required LLM provider.
  */
-export function initializeLLMImplementation(providerName: ModelFamily): LLMProviderImpl {
+export function initializeLLMImplementation(providerName: ModelFamily) {
   switch (providerName) {
     case ModelFamily.OPENAI_MODELS: {
       const openAIApiKey = getEnvVar<string>(envConst.ENV_OPENAI_LLM_API_KEY);

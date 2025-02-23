@@ -24,8 +24,8 @@ export function getErrorText(error: unknown) {
     return "No error message available";
   } else if (error instanceof Error) {
     return error.message;
-  } else if (typeof error === "object") {
-    return "message" in error ? (error as { message: string }).message : JSON.stringify(error);
+  } else if ((typeof error === "object") && ("message" in error)) {
+    return String(error.message);
   } else {
     return JSON.stringify(error);
   }

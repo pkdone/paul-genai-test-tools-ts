@@ -190,7 +190,7 @@ programming style solution.`,
     key: "MISSING_TYPES",
     question:
 `Identifiy any parts of the codebase that are missing TypeScript types for function parameters, 
-return values, or variables.`,
+ or variables.`,
   },    
   {
     key: "MISSING_SEMICOLONS",
