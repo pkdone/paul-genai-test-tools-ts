@@ -3,6 +3,15 @@ import path from "path";
 import { logErrorMsgAndDetail } from "./error-utils";
 const UTF8_ENCODING = "utf8";
 
+//
+// Get the name of a project from its path.
+//
+export function getProjectNameFromPath(filePath: string) { 
+  const normalisedPath = filePath.endsWith("/") ? filePath.slice(0, -1) : filePath;  
+  return path.basename(normalisedPath);   
+}
+
+
 /**
  * Read content from a file
  */
@@ -69,4 +78,11 @@ export async function clearDirectory(dirPath: string) {
   }
 
   await fs.mkdir(dirPath, { recursive: true });  
+}
+
+/*
+ * Count the lines in a piece of text.
+ */
+export function countLines(text: string) {
+  return text.split("\n").length;
 }

@@ -34,9 +34,7 @@ class MongoDBService {
     if (this.clients.has(id)) {
       console.warn(`MongoDB client with id '${id}' is already connected.`);
       const client = this.clients.get(id);
-      if (!client) {
-        throw new MongoError(`No active connection found for id '${id}'.`);
-      }
+      if (!client) throw new MongoError(`No active connection found for id '${id}'.`);
       return client;
     }
 

@@ -26,8 +26,8 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Constructor
    */
   constructor(project: string, location: string) {
-    super(ModelKey.GCP_EMBEDDINGS_TEXT_005, ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20, 
-          ModelKey.GCP_COMPLETIONS_GEMINI_PRO20);
+    super(ModelKey.GCP_EMBEDDINGS_TEXT_005, ModelKey.GCP_COMPLETIONS_GEMINI_PRO25, 
+          ModelKey.GCP_COMPLETIONS_GEMINI_PRO20);  // Trying model with larger context first!!
     this.vertexAiApiClient = new VertexAI({project, location});
     this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });
     this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;
@@ -39,7 +39,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   getModelsNames() {
     return {
       embeddings: llmModels[ModelKey.GCP_EMBEDDINGS_TEXT_005].modelId,
-      regular: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_FLASH15].modelId,
+      regular: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_PRO25].modelId,
       premium: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_PRO20].modelId,      
     };
   }  

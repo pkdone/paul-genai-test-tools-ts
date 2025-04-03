@@ -1,0 +1,16 @@
+Act as a programmer. Take the content of an application source file shown below in the section marked 'CONTENT' and for this content, return a JSON response containing data which includes a detailed definition of its purpose (you must write at least 4 sentences for this purpose), a detailed definition of its implementation (you must write at least 3 sentences for this implementation) and the type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.
+
+In the JSON response, do not include any explanations or markdown, only provide a RFC8259 compliant JSON response following this format without deviation:
+{
+  "purpose": "<purpose>",
+  "implementation": "<implementation>",
+  "databaseIntegration": {
+    "mechanism": "<mechanism>",
+    "description": "<description>"
+  }
+}
+
+NEVER use Markdown code blocks to wrap the JSON in your response.
+
+CONTENT:
+{CONTENT_BLOCK}

@@ -1,0 +1,18 @@
+Act as a programmer. Take the JSP (Java Server Pages) code shown below in the section marked 'CODE' and for its content, return a JSON response containing data which includes the detailed purpose of the JSP (you must write at least 5 sentences for this purpose), the detailed implementation of the JSP (you must write at least 3 sentences for this purpose), and a list of detailed descriptions of the data input fields it contains (if any).
+
+In the JSON response, do not include any explanations - only provide a RFC8259 compliant JSON response following this format without deviation:
+{
+  "purpose": "<purpose>",
+  "implementation": "<implementation>",
+  "dataInputFields": [
+      "<detailed-description1>",
+      "<detailed-description2>"
+  ]
+}
+
+NEVER use Markdown code blocks to wrap the JSON in your response.
+
+CODE:
+```jsp
+{CONTENT_BLOCK}
+```

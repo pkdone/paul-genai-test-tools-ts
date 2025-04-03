@@ -1,0 +1,81 @@
+Act as a programmer. Take the Java code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
+
+ * The name of the main public class/interface of the file
+ * Its type ('class' or 'interface')
+ * Its classpath
+ * A very detailed definition of its purpose (you must write at least 6 sentences for this)
+ * A very detailed definition of its implementation (you must write at least 6 sentences for this)
+ * A list of the internal references to classpaths of other classes and interfaces belonging to the same application referenced by the code of this class/interface (do not include standard Java SE, Java EE 'javax.*' classes or 3rd party library classes in the list of internal references)
+ * A list of the external references to third-party classes used by this source file, which do not belong to this same application that this class/interface file is part of
+ * A list of public constants (name, value and type) it defines (if any)
+ * A list of its public methods (if any) - for each public method, include the method's name, its purpose in detail (you MUST write at least 6 sentences for this purpose), a list of its parameters, its return type and a very detailed description of its implementation
+ * The type of database integration it employs (if any), stating the mechanism used and a description of the integration (you MUST write at least 4 sentences for this description + an example code snippet of the databaase interaction) - if any of the following elements are true in the code, you MUST assume that there is database interaction (if you know the table names the code interacts with, include these table names in the description):
+    - Code uses a JDBC driver or JDBC API (set mechanism: 'JDBC')
+    - Code contains SQL code (set mechanism: 'SQL')
+    - Code uses a database driver or library (set mechanism: 'DRIVER')
+    - Code uses a database Object-Relational-Mapper (ORM) like JPA, TopLink, Hibernate, etc, (set mechanism: 'ORM')
+    - Code uses a Spring Data API (set mechanism: 'SPRING-DATA')
+    - Code has a Java class integrating with a database by an Enterprise Java Bean (EJB), which also could be CMP or BMP based (set mechanism: 'EJB')
+    - Code uses a 3rd party framework/library for database access (set mechanism: 'OTHER')
+    - Otherwise, if the code does not use a database, then set mechanism: 'NONE'
+    (note, JMS and JNDI are not related to interacting with a dataase)
+
+In the JSON response, do not include any explanations - only provide an RFC8259 compliant JSON response following this format without deviation:
+{
+  "classname": "<className>",
+  "type": "<class | interface>",
+  "classpath": "<classpath>",
+  "purpose": "<detailed-purpose>",
+  "implementation": "<detailed-implementation>",
+  "internalReferences": [
+      "<classpath1>",
+      "<classpath2>"
+  ],
+  "externalReferences"": [
+      "<classpath1>",
+      "<classpath2>"
+  ],
+  "publicConstants": [
+    {
+      "name": "<name>",
+      "value": "<value>",
+      "type": "<type>"
+    },
+    {
+      "name": "<name>",
+      "value": "<value>",
+      "type": "<type>"
+    }
+  ],
+  "publicMethods": [
+    {
+      "name": "<name>",
+      "purpose": "<detailed-purpose>",
+      "parameters": [
+        {"<arg1Name>": <arg1Value>},
+        {"<arg2Name>": <arg2Value>}
+      ],
+      "returnType": "<void | returnType>",
+      "description": "<detailed-description>"
+    },
+    {
+      "name": "<name>",
+      "parameters": [
+        {"<arg1Name>": <arg1Value>}
+      ],
+      "returnType": "<void | returnType>",
+      "description": "<detailed-description>"
+    }
+  ],
+  "databaseIntegration": {
+    "mechanism": "<mechanism>",
+    "description": "<description>"
+  }
+}
+
+NEVER use Markdown code blocks to wrap the JSON in your response. NEVER use " or ' quote symbols as part of the text you use for JSON description values, even if you want to quote a piece of existing text, existing message or show a path (ignoring this rule leads to people getting hurt - it is very important).
+
+CODE:
+```java
+{CONTENT_BLOCK}
+```

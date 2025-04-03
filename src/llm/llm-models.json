@@ -80,6 +80,13 @@
     "modelId": "gemini-2.0-pro-exp-02-05",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
+    "maxTotalTokens": 2097152,
+    "apiFamily": "VertexAI"
+  },
+  "GCP_COMPLETIONS_GEMINI_PRO25": {
+    "modelId": "gemini-2.5-pro-exp-03-25",
+    "purpose": "completions",
+    "maxCompletionTokens": 65535,
     "maxTotalTokens": 1048576,
     "apiFamily": "VertexAI"
   },
@@ -99,6 +106,13 @@
   },
   "AWS_COMPLETIONS_CLAUDE_V35": {
     "modelId": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+    "purpose": "completions",
+    "maxCompletionTokens": 4086,
+    "maxTotalTokens": 200000,
+    "apiFamily": "Bedrock"
+  },
+  "AWS_COMPLETIONS_CLAUDE_V37": {
+    "modelId": "anthropic.claude-3-7-sonnet-20250219-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 4086,
     "maxTotalTokens": 200000,

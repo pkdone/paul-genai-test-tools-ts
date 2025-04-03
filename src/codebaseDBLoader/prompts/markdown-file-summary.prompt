@@ -1,0 +1,12 @@
+Act as a programmer. Take the content of an application markdown file shown below in the section marked 'CONTENT' and for this content, return a JSON response containing data which includes a very detailed summary of the content as a 'purpose' response field (you must write at least 10 sentences for this purpose) and a summary of why this file is necessary in the application as an 'implementation' response field.
+
+In the JSON response, do not include any explanations or markdown, only provide a RFC8259 compliant JSON response following this format without deviation:
+{
+  "purpose": "<purpose>",
+  "implementation": "<implementation>"
+}
+
+NEVER use Markdown code blocks to wrap the JSON in your response.
+
+CONTENT:
+{CONTENT_BLOCK}
