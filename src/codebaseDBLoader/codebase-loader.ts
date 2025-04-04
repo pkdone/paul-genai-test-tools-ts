@@ -2,14 +2,15 @@ import { Collection, MongoClient } from "mongodb";
 import LLMRouter from "../llm/llm-router";
 import path from "path";
 import appConst from "../types/app-constants";
-import { readFile, readDirContents, getFileSuffix, countLines } from "../utils/fs-utils";
+import { readFile, readDirContents, getFileSuffix, transformJSToTSFilePath } from "../utils/fs-utils";
+import { countLines } from "../utils/text-utils";
 import { promiseAllThrottled } from "../utils/control-utils";
 import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
 import { LLMModelQuality } from "../types/llm-types";
 
 
-/*
+/** 
  * Loads each source file into a class to represent it.
  */
 class CodebaseToDBLoader {
@@ -17,14 +18,14 @@ class CodebaseToDBLoader {
   private readonly promptBuilder = new PromptBuilder();
   private doneCheckingAlreadyCapturedFiles = false;
   
-  /*
+  /**
    * Constructor.
    */
   constructor(private readonly mongoClient: MongoClient, private readonly llmRouter: LLMRouter,
               private readonly projectName: string, private readonly srcDirPath: string, 
               private readonly ignoreIfAlreadyCaptured: boolean) {}
 
-  /*
+  /**
    * Generate the set of representations of source files including each one's content and metadata.
    */
   async loadIntoDB() {
@@ -50,7 +51,7 @@ class CodebaseToDBLoader {
           const fullPath = path.join(directory, entry.name);
 
           if (entry.isDirectory()) {
-            if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name)) {
+            if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name as typeof appConst.FOLDER_IGNORE_LIST[number])) {
               queue.push(fullPath);
             }
           } else {
@@ -65,7 +66,7 @@ class CodebaseToDBLoader {
     return files;
   }
 
-  /*
+  /**
    * Loops through a list of file paths, loads each file's content, and prints the content.
    */
   private async insertSourceContentIntoDB(filepaths: string[]) {
@@ -99,7 +100,7 @@ class CodebaseToDBLoader {
   private async captureSrcFileMetadataToCollection(colctn: Collection, fullFilepath: string) {    
     const type = getFileSuffix(fullFilepath).toLowerCase();
     const filepath = fullFilepath.replace(this.srcDirPath + "/", "");
-    if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type)) return;  // Skip file if it has binary content
+    if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof appConst.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) return;  // Skip file if it has binary content
 
     if ((this.ignoreIfAlreadyCaptured) && (await this.doesMedataForFileExistsInDB(colctn, filepath))) {
       if (!this.doneCheckingAlreadyCapturedFiles) {
@@ -131,7 +132,7 @@ class CodebaseToDBLoader {
     });
   }
 
-  /*
+  /**
    * Get the embeddings vector for a piece of content, limiting the content's size if it is likely
    * to blow the LLM context window size.
    */
@@ -139,7 +140,7 @@ class CodebaseToDBLoader {
     return await this.llmRouter.generateEmbeddings(filepath, content, {resource: filepath, type});      
   }
 
-  /*
+  /**
    * QUery the DB `sources` collection for existence of a record with matching filepath field for 
    * this project.
    */
@@ -155,7 +156,7 @@ class CodebaseToDBLoader {
     return !!record;
   }
 
-  /*
+  /**
    * Invoke an LLM completion with a prompt to get a symmary, returning the LLM's response as JSON.
    */
   private async getContentSummarisedAsJSON(filepath: string, type: string, content: string) {
@@ -171,11 +172,11 @@ class CodebaseToDBLoader {
       promptFileName = appConst.DEFAULT_FILE_SUMMARY_PROMPTS;
     }
 
-    const promptFilePath = this.getPromptFilePath(promptFileName);
     let response;
 
     try {        
       const contentToReplaceList = [{ label: appConst.PROMPT_CONTENT_BLOCK_LABEL, content }];
+      const promptFilePath = transformJSToTSFilePath(__dirname, appConst.PROMPTS_FOLDER_NAME, promptFileName);
       const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
       response = await this.llmRouter.executeCompletion(filepath, prompt, LLMModelQuality.REGULAR_PLUS, true, {resource: filepath, requireJSON: true});      
     } catch (error: unknown) {
@@ -184,11 +185,6 @@ class CodebaseToDBLoader {
     }
 
     return response;
-  }
-
-  private getPromptFilePath(promptFileName: string) {
-    const filepath = path.join(__dirname, appConst.PROMPTS_FOLDER_NAME, promptFileName);
-    return filepath.replace("/dist/", "/src/");
   }
 
   /**

@@ -1,6 +1,6 @@
 import { readFile } from "../utils/fs-utils";
 
-/*
+/**
  * This module provides a class for building prompts from templates with expanded variables.
  */
 export interface PromptLabelContentBlock {
@@ -8,20 +8,20 @@ export interface PromptLabelContentBlock {
   content: string;
 }
 
-/*
+/**
  * This is an array of objects where each object has two keys, 'label' and 'content', where the
  * value for each is a string.
  */
 export type PromptLabelContentBlocks = PromptLabelContentBlock[];
 
-/*
+/**
  * Class for building a prompt from a template with expanded vairables.
  */
 export class PromptBuilder {
   // Private fields
   private readonly promptFileCache = new Map<string, Promise<string>>();
 
-  /*
+  /**
    * Construct a prompt from a template and the provided data.
    *
    * 'contentToReplaceList' is an array of object where each object has two keys, 'label' and
@@ -32,11 +32,11 @@ export class PromptBuilder {
     return this.generatePromptFromFilledOutTemplate(promptFilePath, promptTemplate, contentToReplaceList);
   }
 
-  //
-  // Get prompt file, retrieving from memory cache if it's not already present, otherwise load
-  // from disk and add to cache.
-  // Internally this stores a promise for against the filepath key to enable concurrency.
-  //
+  /**
+   * Get prompt file, retrieving from memory cache if it's not already present, otherwise load
+   * from disk and add to cache.
+   * Internally this stores a promise for against the filepath key to enable concurrency.
+   */
   private async getPromptFileContents(promptFilePath: string) {
     if (this.promptFileCache.has(promptFilePath)) {
       return await this.promptFileCache.get(promptFilePath);
@@ -57,7 +57,7 @@ export class PromptBuilder {
   }
 
 
-  /*
+  /**
    * For the text content of a file as a template string and replaces a specific variables with  
    * pieces of content.
    *

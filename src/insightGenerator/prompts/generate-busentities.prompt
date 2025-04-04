@@ -1,0 +1,12 @@
+Act as a programmer analyzing the code in a legacy application. Take the list of paths and descriptions of its source flles shown below in the section marked 'SOURCES', and based on their content, return a JSON response that contains a concise list of the application's main business entities from a Domain Driven Design perspective, each with a name plus and a description. You MUST write at most 3 sentences for each description. Note a business entity often doesn't map to a single source file's code and is usually an aggregate across multiple sources.
+
+In the JSON response, do not include any explanations - only provide an RFC8259 compliant JSON response following this format without deviation:
+{
+  "busentities": [
+    {"name": "<name>", "description": "<description>"},
+    {"name": "<name>", "description": "<description>"}
+  ]
+}
+
+SOURCES:
+{CONTENT_BLOCK}

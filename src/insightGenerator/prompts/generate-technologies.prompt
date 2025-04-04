@@ -1,0 +1,12 @@
+Act as a programmer analyzing the code in a legacy application. Take the list of paths and descriptions of its source flles shown below in the section marked 'SOURCES', and based on their content, return a JSON response that contains a concise list of the key external and host platform technologies depended on by the application, each with a name plus and a description. You MUST write at most 3 sentences for each description. Note the key technologies you catalog should include the programming languages, databases, runtimes, containers, and 3rd party systems (eg, queuing systems, email services, etc).
+
+In the JSON response, do not include any explanations - only provide an RFC8259 compliant JSON response following this format without deviation:
+{
+  "technologies": [
+    {"name": "<name>", "description": "<description>"},
+    {"name": "<name>", "description": "<description>"}
+  ]
+}
+
+SOURCES:
+{CONTENT_BLOCK}

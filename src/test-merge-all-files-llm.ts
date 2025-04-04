@@ -47,7 +47,7 @@ async function buildDirDescendingListOfFiles(srcDirPath: string) {
         const fullPath = path.join(directory, entry.name);
 
         if (entry.isDirectory()) {
-          if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name)) {
+          if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name as typeof appConst.FOLDER_IGNORE_LIST[number])) {
             queue.push(fullPath);
           }
         } else if (entry.isFile()) {
@@ -88,7 +88,7 @@ async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string) 
   for (const filepath of filepaths) {
     const relativeFilepath = filepath.replace(srcDirPath + "/", "");
     const type = getFileSuffix(filepath).toLowerCase();
-    if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type)) continue; // Skip file if it has binary content
+    if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof appConst.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) continue; // Skip file if it has binary content
     const content = await readFile(filepath);
     mergedContent += "\n``` " + relativeFilepath + "\n" + content.trim() + "\n```\n";
   }

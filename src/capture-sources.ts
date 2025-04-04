@@ -21,18 +21,23 @@ async function main() {
     const llmProvider = getEnvVar<ModelFamily>(envConst.ENV_LLM);
     const mdbURL = getEnvVar<string>(envConst.ENV_MONGODB_URL); 
     const ignoreIfAlreadyCaptured = getEnvVar(envConst.ENV_IGNORE_ALREADY_PROCESSED_FILES, false);
+    console.log(`Processing source files for project: ${projectName}`);
 
     // Ensure database indexes exist first
     const mongoClient = await mongoDBService.connect("default", mdbURL);
-    const dbInitializer = new DBInitializer(mongoClient, appConst.SOURCES_COLLCTN_NAME, appConst.SUMMARIES_COLLCTN_NAME);
+    const dbInitializer = new DBInitializer(mongoClient, appConst.CODEBASE_DB_NAME, 
+                                            appConst.SOURCES_COLLCTN_NAME,
+                                            appConst.SUMMARIES_COLLCTN_NAME);
     await dbInitializer.ensureRequiredIndexes();
   
     // Load metadata about every file in the project into the database
     const llmRouter = new LLMRouter(llmProvider, getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+    console.log("LLM inovocation event types that will be recorded:");
     llmRouter.displayLLMStatusSummary();
     const codebaseToDBLoader = new CodebaseToDBLoader(mongoClient, llmRouter, projectName, srcDirPath, ignoreIfAlreadyCaptured);
     await codebaseToDBLoader.loadIntoDB();  
     console.log("Finished capturing project files metadata into database");
+    console.log("Summary of LLM invocations outcomes:");
     llmRouter.displayLLMStatusDetails();
     await llmRouter.close();
   } finally {

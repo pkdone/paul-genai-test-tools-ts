@@ -8,7 +8,7 @@ const appConst = {
   SOURCES_COLLCTN_NAME: "sources",
   SUMMARIES_COLLCTN_NAME: "appsummaries",
   SAMPLE_PROMPT_FILEPATH: "./test/sample.prompt",
-  FOLDER_IGNORE_LIST: [".git", "bin", "build", "node_modules", ".vscode", "dist", "output"] as string[],
+  FOLDER_IGNORE_LIST: [".git", "bin", "build", "node_modules", ".vscode", "dist", "output"] as const,
   FILENAME_PREFIX_IGNORE: "test-",
   MAX_CONCURRENCY: 50,
   BINARY_FILE_SUFFIX_IGNORE_LIST: ["aac", "abw", "arc", "avif", "avi", "azw", "bin", "bmp", "bz",
@@ -16,8 +16,11 @@ const appConst = {
     "mid", "midi", "mp3", "mp4", "mpeg", "mpkg", "odp", "ods", "odt", "oga", "ogv", "ogx", "opus",
     "otf", "png", "pdf", "ppt", "pptx", "rar", "rtf", "svg", "tar", "tif", "tiff", "ttf", "vsd",
     "wav", "weba", "webm", "webp", "woff", "woff2", "xls", "xlsx", "xul", "zip", "3gp", "3g2",
-    "7z", "ear", "war", "tar", "gz", "tgz"] as string[],  
+    "7z", "ear", "war", "tar", "gz", "tgz"] as const,  
+  SOURCE_FILES_FOR_CODE: ["js", "ts", "java", "py"] as const,
   PROMPTS_FOLDER_NAME: "prompts",
+  SRC_FOLDER_NAME: "/src/",
+  DIST_FOLDER_NAME: "/dist/",
   FILE_SUMMARY_PROMPTS: {
     java: "java-file-summary.prompt",
     js: "js-file-summary.prompt",
@@ -31,13 +34,32 @@ const appConst = {
     ddl: "ddl-file-summary.prompt",
     spd: "ddl-file-summary.prompt",
     _: "default-file-summary.prompt",
-  },
+  } as const,
   MARKDOWN_FILE_SUMMARY_PROMPTS: "markdown-file-summary.prompt",
   DEFAULT_FILE_SUMMARY_PROMPTS: "default-file-summary.prompt",
   PROMPT_CONTENT_BLOCK_LABEL: "CONTENT_BLOCK",
+  APP_DESCRIPTION_KEY: "appdescription",
+  APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS: [
+    "technologies",
+    "boundedcontexts",
+    "busentities",
+    "busprocesses",
+  ] as const,  
+  CATEGORY_TITLES: {
+    appdescription: "Application Description",
+    technologies: "Technology Stack",
+    boundedcontexts: "Bounded Contexts",
+    busentities: "Business Entities",
+    busprocesses: "Business Processes",
+  } as const,  
   DEFAULT_VECTOR_DIMENSIONS_AMOUNT: 1536,    
   DEFAULT_VECTOR_SIMILARITY_TYPE: "euclidean",  // euclidean | cosine | dotProduct
   DEFAULT_VECTOR_QUANTIZATION_TYPE: "scalar",  // scalar | binary
+  COMPLEXITY_LEVELS: ["low", "medium", "high"],
+  ERROR_MESSAGES: {
+    MISSING_FIELD: "A required field is missing.",
+    INVALID_TYPE: "The provided type is invalid.",
+  } as const,
 } as const;
 
 export default appConst;

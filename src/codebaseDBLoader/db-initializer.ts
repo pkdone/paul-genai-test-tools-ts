@@ -3,35 +3,36 @@ import { getErrorStack } from "../utils/error-utils";
 import appConst from "../types/app-constants"
     
 
-//
-// Class for initializing the MongoDB database.
-//
+/**
+ * Class for initializing the MongoDB database.
+ */
 class DBInitializer {
-  //
-  // Constructor.
-  //
-  constructor(private readonly mongoDBClient: MongoClient, 
+  /**
+   * Constructor.
+   */
+  constructor(private readonly mongoClient: MongoClient, 
+              private readonly databaseName: string,
               private readonly sourceCollectionName: string,
               private readonly appSummariesCollectionName: string) { 
-    this.mongoDBClient = mongoDBClient;
+    this.mongoClient = mongoClient;
     this.sourceCollectionName = sourceCollectionName;
     this.appSummariesCollectionName = appSummariesCollectionName;
   }
 
 
-  //
-  // Ensure require indexes exist, creating them if not
-  // 
+  /**
+   * Ensure require indexes exist, creating them if not
+   */ 
   async ensureRequiredIndexes() {
-    const db = this.mongoDBClient.db(appConst.CODEBASE_DB_NAME);
+    const db = this.mongoClient.db(this.databaseName);
     await this.generateNormalIndexes(db);
     await this.generateSearchIndexes(db);    
   }
 
 
-  //
-  // Create normal MongoDB collection indexes if they don't yet exist.
-  //
+  /**
+   * Create normal MongoDB collection indexes if they don't yet exist.
+   */
   private async generateNormalIndexes(db: Db) {
     const sourcesColctn = db.collection(this.sourceCollectionName);    
     await this.createNormalIndexIfNotExists(db, sourcesColctn, { projectName: 1, type: 1, "summary.classpath": 1 });
@@ -39,17 +40,17 @@ class DBInitializer {
     await this.createNormalIndexIfNotExists(db, appSummariesColctn, { projectName: 1 });
   }
 
-  //
-  // Create normal MongoDB collection indexes if they don't yet exist.
-  //
+  /**
+   * Create normal MongoDB collection indexes if they don't yet exist.
+   */
   private async createNormalIndexIfNotExists(db: Db, colctn: Collection, indexSpec: IndexSpecification, isUnique = false) {
     await colctn.createIndex(indexSpec, { unique: isUnique });
     console.log(`Ensured normal indexes exist for the MongoDB database collection: '${db.databaseName}.${colctn.collectionName}'`);
   }
 
-  //
-  // Create Atlas Vector Search indexes if they don't yet exist.
-  //
+  /**
+   * Create Atlas Vector Search indexes if they don't yet exist.
+   */
   private async generateSearchIndexes(db: Db) {
     let unknownErrorOccurred = false;
     const sourcesColctn = db.collection(this.sourceCollectionName);    

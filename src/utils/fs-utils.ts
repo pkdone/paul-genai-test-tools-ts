@@ -1,3 +1,4 @@
+import appConst from "../types/app-constants";
 import { promises as fs } from "fs";
 import path from "path";
 import { logErrorMsgAndDetail } from "./error-utils";
@@ -80,9 +81,10 @@ export async function clearDirectory(dirPath: string) {
   await fs.mkdir(dirPath, { recursive: true });  
 }
 
-/*
- * Count the lines in a piece of text.
+/**
+ * For the text content of a file as a template string and replaces a specific variables with
  */
-export function countLines(text: string) {
-  return text.split("\n").length;
-}
+export function transformJSToTSFilePath(jsSrcPath: string, localFolderName: string, localFileName: string) {
+  const filepath = path.join(jsSrcPath, localFolderName, localFileName);
+  return filepath.replace(appConst.DIST_FOLDER_NAME, appConst.SRC_FOLDER_NAME);
+}  
