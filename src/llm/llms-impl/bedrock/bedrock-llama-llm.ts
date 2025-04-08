@@ -13,8 +13,8 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
   constructor() { 
     super(
       ModelKey.AWS_EMBEDDINGS_TITAN_V1,
+      ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,
       ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT,
-      ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,     
     ); 
   }
 

@@ -1,108 +1,140 @@
 import LLMRouter from "../llm/llm-router";
-import appConst from "../types/app-constants";
+import appConst from "../env/app-consts";
 import { MongoClient, Collection } from "mongodb";
 import CodeMetadataQueryer from "./code-metadata-queryer";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { LLMModelQuality } from "../types/llm-types";
 import { joinArrayWithSeparators } from "../utils/text-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";
 import { transformJSToTSFilePath } from "../utils/fs-utils";
 
-/** 
- * Responsible for generating metadata in database collections to caputure applicaiton information
- * like the business entities or the business processes in an applicaiton.
+/**
+ * Generates metadata in database collections to capture application information,
+ * such as business entities and processes, for a given project.
  */
 class SummariesGenerator {
-  // Private fields
   private readonly promptBuilder = new PromptBuilder();
-  private readonly destColtn: Collection;
+  private readonly destinationCollection: Collection;
   private readonly llmProviderDescription: string;
   private readonly codeMetadataQueryer: CodeMetadataQueryer;
 
   /**
-   * Constructor.
+   * Creates a new SummariesGenerator.
    */
-  constructor(mongoClient: MongoClient, private readonly llmRouter: LLMRouter, databaseName: string,
-              sourceCollectionName: string, destinationCollectionName: string,
-              private readonly projectName: string) {   
-    const db = mongoClient.db(databaseName);    
-    this.destColtn = db.collection(destinationCollectionName);
-    this.codeMetadataQueryer = new CodeMetadataQueryer(mongoClient, databaseName, sourceCollectionName, projectName);
+  constructor(
+    mongoClient: MongoClient,
+    private readonly llmRouter: LLMRouter,
+    databaseName: string,
+    sourceCollectionName: string,
+    destinationCollectionName: string,
+    private readonly projectName: string,
+  ) {
+    const db = mongoClient.db(databaseName);
+    this.destinationCollection = db.collection(destinationCollectionName);
+    this.codeMetadataQueryer = new CodeMetadataQueryer(
+      mongoClient,
+      databaseName,
+      sourceCollectionName,
+      projectName
+    );
     this.llmProviderDescription = llmRouter.getModelsUsedDescription();
   }
 
-
-  /** 
-   * Gather metdata about all classes in an application and then use an LLM to identify the
-   * business entities and the business proesses for the application, storing this resulting
-   * data in appropriate database collections.
+  /**
+   * Gathers metadata about all classes in an application and uses an LLM to identify
+   * the business entities and processes for the application, storing the results
+   * in the database.
    */
-  async generateSummariesDataIntoInDB() {    
-    const srcFilesSummaries = await this.codeMetadataQueryer.buildSourceFileListSummaryList();
-    if (srcFilesSummaries.length <= 0) throw new Error("No existing code file summaries found in the metadata database to be able to feed the LLM to build application summary from - ensure you first run the script to process the source data"); 
-    await this.createAppSummaryRecordInDB({ llmProvider: this.llmProviderDescription });
-    const jobs = [];
-    
-    for (const category of [appConst.APP_DESCRIPTION_KEY, ...appConst.APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS]) {
-      jobs.push(this.dataSetGeneratorJob(category, srcFilesSummaries));
+  async generateSummariesDataInDB() {
+    const sourceFileSummaries = await this.codeMetadataQueryer.buildSourceFileListSummaryList();
+
+    if (sourceFileSummaries.length === 0) {
+      throw new Error(
+        "No existing code file summaries found in the metadata database. " +
+          "Please ensure you have run the script to process the source data first."
+      );
     }
 
-    await Promise.all(jobs);   
+    await this.createAppSummaryRecordInDB({ llmProvider: this.llmProviderDescription });
+    const categories = [
+      appConst.APP_DESCRIPTION_KEY,
+      ...appConst.APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS,
+    ];
+    await Promise.all(
+      categories.map(async (category) => this.generateDataForCategory(category, sourceFileSummaries))
+    );
   }
 
-
-  /** 
-   * Job to call an LLM to summarise a specific set of data and then save this data set hanging off
-   * a field of the main app summary collection.
+  /**
+   * Calls an LLM to summarize a specific set of data (i.e., one category),
+   * and then saves the dataset under a named field of the main application summary record.
    */
-  private async dataSetGeneratorJob(category: string, srcFilesSummaries: string[]) {
+  private async generateDataForCategory(
+    category: string,
+    sourceFileSummaries: string[]
+  ): Promise<void> {
     const categoryLabel = appConst.CATEGORY_TITLES[category as keyof typeof appConst.CATEGORY_TITLES];
 
     try {
       console.log(`Processing ${categoryLabel}`);
       const promptFileName = `generate-${category}.prompt`;
-      const promptFilePath = transformJSToTSFilePath(__dirname, appConst.PROMPTS_FOLDER_NAME, promptFileName);
+      const promptFilePath = transformJSToTSFilePath(
+        __dirname,
+        appConst.PROMPTS_FOLDER_NAME,
+        promptFileName
+      );
       const resourceName = `${category} - ${promptFileName}`;
-      const content = joinArrayWithSeparators(srcFilesSummaries);
+      const content = joinArrayWithSeparators(sourceFileSummaries);
       const contentToReplaceList = [{ label: appConst.PROMPT_CONTENT_BLOCK_LABEL, content }];
       const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
-      const keysValuesObject = await this.llmRouter.executeCompletion(promptFilePath, prompt, LLMModelQuality.REGULAR_PLUS, true, {resource: resourceName, requireJSON: true});      
+      const keysValuesObject = await this.llmRouter.executeCompletion(
+        promptFilePath,
+        prompt,
+        true,
+        {
+          resource: resourceName,
+          requireJSON: true,
+        }
+      );
 
-      if (keysValuesObject && typeof keysValuesObject === 'object' && category in keysValuesObject) {
-        await this.insertNamedFieldsWithValuesIntoAppSummaryDBRecord(keysValuesObject);
+      if (keysValuesObject && typeof keysValuesObject === "object" && Object.hasOwn(keysValuesObject, category)) {
+        await this.updateAppSummaryRecord(keysValuesObject as Record<string, unknown>);
         console.log(`Captured main ${categoryLabel} details into database`);
       } else {
-        console.log(`WARNING: Unable to generate and persist ${categoryLabel} metadata because none were found using the LLM with the sources metadata`);
+        console.warn(`WARNING: Unable to generate and persist ${categoryLabel} metadata. No valid LLM output found.` );
       }
     } catch (error: unknown) {
-      logErrorMsgAndDetail(`Unable to generate ${categoryLabel} details into database`, error);          
+      logErrorMsgAndDetail(`Unable to generate ${categoryLabel} details into database`, error);
     }
   }
 
-  
-  /** 
-   * Insert one new app summary 'skeleton' record into colleciton, replacing older one if it
-   * exsits.
+  /**
+   * Inserts or replaces a single 'app summary' skeleton record in the collection,
+   * keyed by the project name.
    */
-  private async createAppSummaryRecordInDB(fieldValuesToInclude = {}) {
+  private async createAppSummaryRecordInDB(fieldValuesToInclude: Record<string, unknown> = {}) {
     const record = { projectName: this.projectName, ...fieldValuesToInclude };
-    await this.destColtn.replaceOne(
+    await this.destinationCollection.replaceOne(
       { projectName: this.projectName },
       record,
-      { upsert: true },
+      { upsert: true }
     );
   }
 
-
   /**
-   * Set a named fields and their values of the matching app summary record in a colleciton.
+   * Updates the existing 'app summary' record with the specified key-value pairs.
    */
-  private async insertNamedFieldsWithValuesIntoAppSummaryDBRecord(keysValuesObject: object) {
-    const result = await this.destColtn.updateOne(
+  private async updateAppSummaryRecord(keysValuesObject: Record<string, unknown> ) {
+    const result = await this.destinationCollection.updateOne(
       { projectName: this.projectName },
       { $set: keysValuesObject }
     );
-    if (result.modifiedCount < 1) throw new Error(`Unable to insert dataset with field name(s) '${Object.keys(keysValuesObject).toString()}' of collection '${this.destColtn.collectionName}'`);
+
+    if (result.modifiedCount < 1) {
+      throw new Error(
+        `Unable to insert dataset with field name(s) '${Object.keys(keysValuesObject).join(", ")}' ` +
+          `into collection '${this.destinationCollection.collectionName}'.`
+      );
+    }
   }
 }
 

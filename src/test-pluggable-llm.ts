@@ -1,28 +1,28 @@
-import appConst from "./types/app-constants";
-import envConst from "./types/env-constants";
-import { LLMModelQuality, ModelFamily } from "./types/llm-types";
-import { getEnvVar } from "./utils/envvar-utils";
+import appConst from "./env/app-consts";
 import { readFile } from "./utils/fs-utils";
 import LLMRouter from "./llm/llm-router";
+import { loadEnvVars } from "./env/env-vars";
+import { LLMModelQuality } from "./types/llm-types";
 
 /**
  * Main function to run the program.
  */
 async function main() {
+  const env = loadEnvVars();
   console.log(`START: ${new Date().toISOString()}`);
-  const llmRouter = new LLMRouter(getEnvVar<ModelFamily>(envConst.ENV_LLM), getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+  const llmRouter = new LLMRouter(env.LLM);  
   const prompt = await readFile(appConst.SAMPLE_PROMPT_FILEPATH);
   console.log("\n---PROMPT---");
   console.log(prompt);
   console.log("\n\n---EMBEDDINGS---");
   const embeddingsResult = await llmRouter.generateEmbeddings("hard-coded-test-input", prompt);
   console.log(embeddingsResult);
-  console.log("\n\n---COMPLETION (Regular LLM)---");
-  const completionRegularResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, LLMModelQuality.REGULAR, false);
-  console.log(completionRegularResult);
-  console.log("\n\n---COMPLETION (Premium LLM)---");
-  const completionPremiumResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, LLMModelQuality.PREMIUM, false);
-  console.log(completionPremiumResult);
+  console.log("\n\n---COMPLETION (Primary LLM)---");
+  const completionPrimaryResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, false, {}, LLMModelQuality.PRIMARY);
+  console.log(completionPrimaryResult);
+  console.log("\n\n---COMPLETION (Secondary LLM)---");
+  const completionSecondaryResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, false, {}, LLMModelQuality.SECONDARY);
+  console.log(completionSecondaryResult);
   console.log(" ");
   await llmRouter.close();
   console.log(`END: ${new Date().toISOString()}`);
@@ -31,4 +31,3 @@ async function main() {
 
 // Bootstrap
 main().catch(console.error);
-

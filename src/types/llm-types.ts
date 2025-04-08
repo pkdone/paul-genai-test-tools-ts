@@ -3,20 +3,19 @@
  */
 export interface LLMProviderImpl {
   generateEmbeddings: LLMFunction,
-  executeCompletionRegular: LLMFunction,
-  executeCompletionPremium: LLMFunction,
+  executeCompletionPrimary: LLMFunction,
+  executeCompletionSecondary: LLMFunction,
   getModelsNames(): LLMConfiguredModelTypesNames,
   getAvailableCompletionModelQualities(): LLMModelQuality[],
   close(): Promise<void>,
 };
 
 /**
- * Enum to define the model quality required (regular, regular+, premium)
+ * Enum to define the model quality required (primary, secondary)
  */
 export enum LLMModelQuality {
-  REGULAR = "regular",
-  REGULAR_PLUS = "regular+",
-  PREMIUM = "premium",
+  PRIMARY = "primary",
+  SECONDARY = "secondary",
 };
 
 /**
@@ -24,8 +23,8 @@ export enum LLMModelQuality {
  */
 export interface LLMConfiguredModelTypesNames {
   embeddings: string,
-  regular: string,
-  premium: string,
+  primary: string,
+  secondary: string,
 }
 
 /**
@@ -115,7 +114,7 @@ export interface LLMFunctionResponse {
 /**
  * Type to define the embedding or completion function
  */
-export type LLMFunction = (content: string, doReturnJSON: boolean, context: LLMContext) => Promise<LLMFunctionResponse>;
+export type LLMFunction = (content: string, asJson: boolean, context: LLMContext) => Promise<LLMFunctionResponse>;
 
 /**
  * Type definitions for a partucular status
@@ -132,7 +131,7 @@ export interface LLMStatsCategoryStatus {
 export interface LLMStatsCategoriesSummary {
   readonly SUCCESS: LLMStatsCategoryStatus,
   readonly FAILURE: LLMStatsCategoryStatus,
-  readonly STEPUP: LLMStatsCategoryStatus,
+  readonly SWITCH: LLMStatsCategoryStatus,
   readonly RETRY: LLMStatsCategoryStatus,
   readonly CROP: LLMStatsCategoryStatus,
   readonly TOTAL?: LLMStatsCategoryStatus,

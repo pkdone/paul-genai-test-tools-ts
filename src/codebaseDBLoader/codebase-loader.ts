@@ -1,14 +1,13 @@
 import { Collection, MongoClient } from "mongodb";
 import LLMRouter from "../llm/llm-router";
 import path from "path";
-import appConst from "../types/app-constants";
-import { readFile, readDirContents, getFileSuffix, transformJSToTSFilePath } from "../utils/fs-utils";
+import appConst from "../env/app-consts";
+import { readFile, getFileSuffix, transformJSToTSFilePath, buildDirDescendingListOfFiles } 
+       from "../utils/fs-utils";
 import { countLines } from "../utils/text-utils";
 import { promiseAllThrottled } from "../utils/control-utils";
 import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
-import { LLMModelQuality } from "../types/llm-types";
-
 
 /** 
  * Loads each source file into a class to represent it.
@@ -29,41 +28,8 @@ class CodebaseToDBLoader {
    * Generate the set of representations of source files including each one's content and metadata.
    */
   async loadIntoDB() {
-    const srcFilepaths = await this.buildDirDescendingListOfFiles();
+    const srcFilepaths = await buildDirDescendingListOfFiles(this.srcDirPath);
     await this.insertSourceContentIntoDB(srcFilepaths);
-  }
-
-  /**
-   * Build the list of files descending from a directory 
-   */
-  private async buildDirDescendingListOfFiles() {
-    const files = [];
-    const queue: string[] = [this.srcDirPath];
-
-    while (queue.length) {
-      const directory = queue.shift();
-      if (!directory) continue;
-
-      try {
-        const entries = await readDirContents(directory);
-
-        for (const entry of entries) {
-          const fullPath = path.join(directory, entry.name);
-
-          if (entry.isDirectory()) {
-            if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name as typeof appConst.FOLDER_IGNORE_LIST[number])) {
-              queue.push(fullPath);
-            }
-          } else {
-            files.push(fullPath);
-          }
-        }
-      } catch (error: unknown) {
-        logErrorMsgAndDetail(`Failed to read directory: ${directory}`, error);    
-      }
-    }
-
-    return files;
   }
 
   /**
@@ -75,7 +41,7 @@ class CodebaseToDBLoader {
     console.log(`Creating metadata for ${filepaths.length.toString()} files to the MongoDB database collection: '${db.databaseName}.${colctn.collectionName}'`);
     
     if (!this.ignoreIfAlreadyCaptured) {
-      console.log(`Deleteing older version of the project's metadata files from the database to enable the metadata to be re-generated - change env var 'ENV_IGNORE_ALREADY_PROCESSED_FILES' to avoid re-processing of all files`);
+      console.log(`Deleteing older version of the project's metadata files from the database to enable the metadata to be re-generated - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to avoid re-processing of all files`);
       await colctn.deleteMany({projectName: this.projectName});
     }
 
@@ -86,7 +52,7 @@ class CodebaseToDBLoader {
         try {
           await this.captureSrcFileMetadataToCollection(colctn, filepath);   
         } catch (error: unknown) {
-          logErrorMsgAndDetail("Problem introspecting and processing source files", error);    
+          logErrorMsgAndDetail(`Problem introspecting and processing source file: ${filepath}`, error);    
         }
       });
     }
@@ -104,7 +70,7 @@ class CodebaseToDBLoader {
 
     if ((this.ignoreIfAlreadyCaptured) && (await this.doesMedataForFileExistsInDB(colctn, filepath))) {
       if (!this.doneCheckingAlreadyCapturedFiles) {
-        console.log(`Not capturing some of the metadata files into the database because they've already been captured by a previous run - change env var 'ENV_IGNORE_ALREADY_PROCESSED_FILES' to force re-processing of all files`);
+        console.log(`Not capturing some of the metadata files into the database because they've already been captured by a previous run - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to force re-processing of all files`);
         this.doneCheckingAlreadyCapturedFiles = true;
       }
 
@@ -152,8 +118,7 @@ class CodebaseToDBLoader {
     const options = {
       projection: { _id: 1 },
     };
-    const record = await colctn.findOne(query, options);
-    return !!record;
+    return await colctn.findOne(query, options);
   }
 
   /**
@@ -168,8 +133,8 @@ class CodebaseToDBLoader {
     
     if (path.basename(filepath).toUpperCase() === "README") {
       promptFileName = appConst.MARKDOWN_FILE_SUMMARY_PROMPTS;
-    } else if (!promptFileName) {
-      promptFileName = appConst.DEFAULT_FILE_SUMMARY_PROMPTS;
+    } else {
+      promptFileName ??= appConst.DEFAULT_FILE_SUMMARY_PROMPTS;
     }
 
     let response;
@@ -178,7 +143,7 @@ class CodebaseToDBLoader {
       const contentToReplaceList = [{ label: appConst.PROMPT_CONTENT_BLOCK_LABEL, content }];
       const promptFilePath = transformJSToTSFilePath(__dirname, appConst.PROMPTS_FOLDER_NAME, promptFileName);
       const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
-      response = await this.llmRouter.executeCompletion(filepath, prompt, LLMModelQuality.REGULAR_PLUS, true, {resource: filepath, requireJSON: true});      
+      response = await this.llmRouter.executeCompletion(filepath, prompt, true, {resource: filepath, requireJSON: true});      
     } catch (error: unknown) {
       logErrorMsgAndDetail(`No summary generated for file '${filepath}' due to processing error`, error);
       response = {error: getErrorText(error)};

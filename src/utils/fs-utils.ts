@@ -1,17 +1,16 @@
-import appConst from "../types/app-constants";
+import appConst from "../env/app-consts";
 import { promises as fs } from "fs";
 import path from "path";
 import { logErrorMsgAndDetail } from "./error-utils";
 const UTF8_ENCODING = "utf8";
 
-//
-// Get the name of a project from its path.
-//
+/**
+ * Get the name of a project from its path.
+ */
 export function getProjectNameFromPath(filePath: string) { 
   const normalisedPath = filePath.endsWith("/") ? filePath.slice(0, -1) : filePath;  
   return path.basename(normalisedPath);   
 }
-
 
 /**
  * Read content from a file
@@ -20,16 +19,16 @@ export async function readFile(filepath: string) {
   return fs.readFile(filepath, UTF8_ENCODING);
 }
 
-//
-// Write content to a file.
-//
+/**
+ * Write content to a file.
+ */
 export async function writeFile(filepath: string, content: string) {
   await fs.writeFile(filepath, content, UTF8_ENCODING);
 }
 
-//
-// Append content to a file.
-//
+/**
+ * Append content to a file.
+ */
 export async function appendFile(filepath: string, content: string) {
   await fs.appendFile(filepath, content, UTF8_ENCODING);
 }
@@ -55,9 +54,9 @@ export function getFileSuffix(filepath: string) {
   return suffix;
 }  
 
-//
-// Deletes all files and folders in a directory, except for a file named `.gitignore`.
-//
+/**
+ * Deletes all files and folders in a directory, except for a file named `.gitignore`.
+ */
 export async function clearDirectory(dirPath: string) {
   try {
     const files = await fs.readdir(dirPath);
@@ -88,3 +87,38 @@ export function transformJSToTSFilePath(jsSrcPath: string, localFolderName: stri
   const filepath = path.join(jsSrcPath, localFolderName, localFileName);
   return filepath.replace(appConst.DIST_FOLDER_NAME, appConst.SRC_FOLDER_NAME);
 }  
+
+/**
+ * Build the list of files descending from a directory 
+ */
+export async function buildDirDescendingListOfFiles(srcDirPath: string) {
+  const files = [];
+  const queue: string[] = [srcDirPath];
+
+  while (queue.length) {
+    const directory = queue.shift();
+    if (!directory) continue;
+
+    try {
+      const entries = await readDirContents(directory);
+
+      for (const entry of entries) {
+        const fullPath = path.join(directory, entry.name);
+
+        if (entry.isDirectory()) {
+          if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name as typeof appConst.FOLDER_IGNORE_LIST[number])) {
+            queue.push(fullPath);
+          }
+        } else if (entry.isFile()) {
+          if (!entry.name.toLowerCase().startsWith(appConst.FILENAME_PREFIX_IGNORE)) {
+            files.push(fullPath);
+          } 
+        }
+      }
+    } catch (error: unknown) {
+      logErrorMsgAndDetail(`Failed to read directory: ${directory}`, error);
+    }
+  }
+
+  return files;
+}

@@ -1,22 +1,23 @@
 import path from "path";
-import appConst from "./types/app-constants";
-import envConst from "./types/env-constants";
-import { LLMModelQuality, ModelFamily } from "./types/llm-types";
-import { readFile, writeFile, clearDirectory, readDirContents, getFileSuffix } from "./utils/fs-utils";
+import appConst from "./env/app-consts";
+import { readFile, writeFile, clearDirectory, getFileSuffix, buildDirDescendingListOfFiles }
+       from "./utils/fs-utils";
 import { promiseAllThrottled } from "./utils/control-utils";
-import { getEnvVar } from "./utils/envvar-utils";
 import { logErrorMsgAndDetail, getErrorText } from "./utils/error-utils";
 import LLMRouter from "./llm/llm-router";
+import { loadEnvVars } from "./env/env-vars";
 
 /**
  * Main function to run the program.
  */
-async function main() {
+async function main()
+ {
   console.log(`START: ${new Date().toISOString()}`);
-  const srcDirPath = getEnvVar<string>(envConst.ENV_CODEBASE_DIR_PATH).replace(/\/$/, "");
+  const env = loadEnvVars();
+  const srcDirPath = env.CODEBASE_DIR_PATH.replace(/\/$/, "");
   const filepaths = await buildDirDescendingListOfFiles(srcDirPath);
-  const llmProvider = getEnvVar<ModelFamily>(envConst.ENV_LLM);
-  const llmRouter = new LLMRouter(llmProvider, getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+  const llmProvider = env.LLM;
+  const llmRouter = new LLMRouter(llmProvider);  
   llmRouter.displayLLMStatusSummary();
   const result = await mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter, filepaths, srcDirPath);
   await clearDirectory(appConst.OUTPUT_DIR);  
@@ -27,41 +28,6 @@ async function main() {
   console.log(`View generared results at: file://${outputFilePath}`);
   console.log(`END: ${new Date().toISOString()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
-}
-
-/**
- * Build the list of files descending from a directory 
- */
-async function buildDirDescendingListOfFiles(srcDirPath: string) {
-  const files = [];
-  const queue: string[] = [srcDirPath];
-
-  while (queue.length) {
-    const directory = queue.shift();
-    if (!directory) continue;
-
-    try {
-      const entries = await readDirContents(directory);
-
-      for (const entry of entries) {
-        const fullPath = path.join(directory, entry.name);
-
-        if (entry.isDirectory()) {
-          if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name as typeof appConst.FOLDER_IGNORE_LIST[number])) {
-            queue.push(fullPath);
-          }
-        } else if (entry.isFile()) {
-          if (!entry.name.toLowerCase().startsWith(appConst.FILENAME_PREFIX_IGNORE)) {
-            files.push(fullPath);
-          } 
-        }
-      }
-    } catch (error: unknown) {
-      logErrorMsgAndDetail(`Failed to read directory: ${directory}`, error);
-    }
-  }
-
-  return files;
 }
 
 /**
@@ -107,7 +73,7 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksCo
   let response = "";
 
   try {
-    response = await llmRouter.executeCompletion(resource, fullPrompt, LLMModelQuality.REGULAR_PLUS, false, context) as string;
+    response = await llmRouter.executeCompletion(resource, fullPrompt, false, context) as string;
   } catch (error: unknown) {
     logErrorMsgAndDetail("Problem introspecting and processing source files", error);    
     response = getErrorText(error);
@@ -143,11 +109,6 @@ change. Provide a brief description of the current state and a suggestion for im
 `Identify the top 10 key areas to improve the code in terms of clarity, conciseness, following
 Javascript best practices, and ensuring the code is maintainable and scalable.`,
   },
-  {
-    key: "BAD-COMMENTS",
-    question:
-`Identify the top 10 class/function comments which are innacurate or missing.`,
-  },  
   {
     key: "MODERN-JAVASCRIPT",
     question:
@@ -187,71 +148,18 @@ reduce(), filter(), or find() could be used instead to provide a cleaner more fu
 programming style solution.`,
   },    
   {
-    key: "MISSING_TYPES",
+    key: "MISSING-TYPES",
     question:
 `Identifiy any parts of the codebase that are missing TypeScript types for function parameters, 
  or variables.`,
   },    
   {
-    key: "MISSING_SEMICOLONS",
+    key: "MISSING-SEMICOLONS",
     question:
 `Identifiy any statements in the code which are missing a final semi-colon.`,
   },    
-
   {
-    key: "MISSING_SEMICOLONS",
-    question:
-`Identifiy any statements in the code which are missing a final semi-colon.`,
-  },
-];
-
-// Alternate Prompts
-/*
-const PROMPT_PREFIX_ALT = `Act as a programmer analyzing the code in a legacy application where the 
-content of each file in the application's codebase is shown below in a code block.`;
-const PROMPT_SUFFIX_ALT = ``;
-const PROMPTS_ALT: TemplatePrompt[] = [
-  {
-    key: "DETAILED-DESCRIPTION",
-    question:
-`Provide a detailed description outlining the software application's purpose and implementation.
-`,
-  },
-  {
-    key: "BUSINESS-PROCESSES",
-    question:
-`Provide a list of the inherent business processes (a collection tasks to achieve a business goal 
-for the user or the system) that exist across the software applications's codebase.
-`
-  },
-  {
-    key: "EXTERNAL-TECHNOLOGIES",
-    question:
-`Provide a list of the key external and host platform technologies depended on by the application, 
-each with a name plus and a description.
-`
-  },
-  {
-    key: "DATABASE-INTERACTIONS",
-    question:
-`Provide a list the files in the application's code that interacts with an external databaase, and 
-for each interaction, state the mechanism the code uses to invoke the database and a description 
-of what that database interaction does (e.g., inserts a new person record, queries stock, etc.).
-
-Note, examples of types of database interactions application can employs are:
-    - Code uses a JDBC driver or JDBC API (specify mechanism as: 'JDBC')
-    - Code contains SQL code (specify mechanism as: 'SQL')
-    - Code uses a database driver or library (specify mechanism as: 'DRIVER')
-    - Code uses a database Object-Relational-Mapper (ORM) like JPA, TopLink, Hibernate, etc, (specify mechanism as: 'ORM')
-    - Code uses a Spring Data API (specify mechanism as: 'SPRING-DATA')
-    - Code has a Java class integrating with a database by an Enterprise Java Bean (EJB), which also could be CMP or BMP based (specify mechanism as: 'EJB')
-    - Code uses a 3rd party framework/library for database access (specify mechanism as: 'OTHER')
-    - Otherwise, if the code does not use a database, then specify mechanism as: 'NONE'
-    (note, JMS and JNDI are not related to interacting with a dataase)
-`
-  },
-  {
-    key: "MICROSERVICES",
+    key: "MONOLITH-TO-MICROSERVICES",
     question:
 `The existing application is a monolith, but the application needs to be modernized to a new
 microservices-based architecture. Analyze the existing application's monolithic structure and make
@@ -261,11 +169,9 @@ your recommendations, list your suggested names and descriptions of each microse
 the set of CRUD operations that each microservice should implement as a REST API. When identifying 
 the microservices, ensure you adhere to the "Single Responsibility Principle" for each microservice:
 "gather together in a microservice those things that change for the same reason and separate those
-things that change for different reasons into different microservices.”
-`
-  },
+things that change for different reasons into different microservices.`,
+  },    
 ];
-*/
 
 // Bootstrap
 main().catch(console.error);

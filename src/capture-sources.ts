@@ -1,12 +1,10 @@
-import appConst from "./types/app-constants";
-import envConst from "./types/env-constants";
+import appConst from "./env/app-consts";
 import DBInitializer from "./codebaseDBLoader/db-initializer";
 import { getProjectNameFromPath } from "./utils/fs-utils";
-import { getEnvVar } from "./utils/envvar-utils";
 import mongoDBService from "./utils/mongodb-service";
 import LLMRouter from "./llm/llm-router";
 import CodebaseToDBLoader from "./codebaseDBLoader/codebase-loader";
-import { ModelFamily } from "./types/llm-types";
+import { loadEnvVars } from "./env/env-vars";
 
 /**
  * Main function to run the program.
@@ -16,11 +14,12 @@ async function main() {
 
   try {
     // Load environment variables
-    const srcDirPath = getEnvVar<string>(envConst.ENV_CODEBASE_DIR_PATH);
+    const env = loadEnvVars();
+    const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
-    const llmProvider = getEnvVar<ModelFamily>(envConst.ENV_LLM);
-    const mdbURL = getEnvVar<string>(envConst.ENV_MONGODB_URL); 
-    const ignoreIfAlreadyCaptured = getEnvVar(envConst.ENV_IGNORE_ALREADY_PROCESSED_FILES, false);
+    const llmProvider = env.LLM;
+    const mdbURL = env.MONGODB_URL; 
+    const ignoreIfAlreadyCaptured = env.IGNORE_ALREADY_PROCESSED_FILES;
     console.log(`Processing source files for project: ${projectName}`);
 
     // Ensure database indexes exist first
@@ -31,7 +30,7 @@ async function main() {
     await dbInitializer.ensureRequiredIndexes();
   
     // Load metadata about every file in the project into the database
-    const llmRouter = new LLMRouter(llmProvider, getEnvVar<boolean>(envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+    const llmRouter = new LLMRouter(llmProvider);  
     console.log("LLM inovocation event types that will be recorded:");
     llmRouter.displayLLMStatusSummary();
     const codebaseToDBLoader = new CodebaseToDBLoader(mongoClient, llmRouter, projectName, srcDirPath, ignoreIfAlreadyCaptured);

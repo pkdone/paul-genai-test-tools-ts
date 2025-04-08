@@ -10,7 +10,7 @@ In the JSON response, do not include any explanations or markdown, only provide 
   }
 }
 
-NEVER use Markdown code blocks to wrap the JSON in your response.
+NEVER ever respond with XML. NEVER use Markdown code blocks to wrap the JSON in your response.
 
 CONTENT:
 {CONTENT_BLOCK}

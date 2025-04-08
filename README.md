@@ -5,7 +5,7 @@ A personal playground for experiencing LLMs and GenAI, in general - may not be u
 Current test tools:
 
 * Test a MongoDB Connection (`src/test-mdb-connection.ts`)
-* Test various LLM providers models - embeddings models + completions regular/premium models (`src/test-pluggable-llm.ts`)
+* Test various LLM providers models - embeddings models + completions primary/secondary models (`src/test-pluggable-llm.ts`)
 * Test an LLM under load, analyzing files in a codebase concurrently (`src/test-treewalk-llm.ts`)
 * Test giving all the source files in one go in a prompt, with a question, to an LLM that has a large token size limit (`src/test-merge-all-files-llm.ts`)
 
@@ -27,8 +27,8 @@ Current test tools:
 1. Ensure you have can leverage LLMs from OpenAI/Azure GPT, GCP Vertex AI or AWS Bedrock API, with the following three models types available to use, along with appropriate API keys / credentials:
 
     -  __Embeddings model__ for generating vector embeddings 
-    -  __Text completions 'regular'model, typically with a small token limit__ for generating text and JSON content for dealing with smaller inputs 
-    -  __Text completions 'premium' model, typically with a large token limit__ for generating text and JSON content for dealing with larger inputs 
+    -  __Text completions 'primate'model, typically with a small token limit__ for generating text and JSON content for dealing with text inputs 
+    -  __Text completions 'secondary' model, typically with a large token limit__ for generating text and JSON content for dealing with text inputs (as backup if primary model errors for a particular piece of cotnent)
 
 1. From the root folder of this project, run the following command to copy an example environment configuration file to a new file into the same root folder called `.env`, and then edit the values for the properties shown in this new `.env` file to reflect your specific environment settings:
 
@@ -90,4 +90,10 @@ Then edit the file `~/.aws/config` and rename the line `[profile ...]` for the n
 ``` console
 aws sso login
 aws sts get-caller-identity        # to est the CLI works
+```
+
+For later Bedrock hosted models, need to use the ARN of an inference profile for the particlar region for the model id. To see the region ARNs for models in Bedrock, run:
+
+```console
+aws bedrock list-inference-profiles
 ```

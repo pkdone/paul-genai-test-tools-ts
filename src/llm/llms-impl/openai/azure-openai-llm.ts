@@ -14,12 +14,12 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Constructor.
    */
-  constructor(apiKey: string, endpoint: string, embeddingsDeployment: string, regularCompletionsDeployment: string, premiumCompletionsDeployment: string) {
-    super(ModelKey.GPT_EMBEDDINGS_ADA002, ModelKey.GPT_COMPLETIONS_GPT4_32k, ModelKey.GPT_COMPLETIONS_GPT4_O);
+  constructor(apiKey: string, endpoint: string, embeddingsDeployment: string, primaryCompletionsDeployment: string, secondaryCompletionsDeployment: string) {
+    super(ModelKey.GPT_EMBEDDINGS_ADA002, ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_32k);
     this.modelToDeploymentMappings = {
       [ModelKey.GPT_EMBEDDINGS_ADA002]: embeddingsDeployment,
-      [ModelKey.GPT_COMPLETIONS_GPT4_32k]: regularCompletionsDeployment,
-      [ModelKey.GPT_COMPLETIONS_GPT4_O]: premiumCompletionsDeployment,
+      [ModelKey.GPT_COMPLETIONS_GPT4_O]: primaryCompletionsDeployment,
+      [ModelKey.GPT_COMPLETIONS_GPT4_32k]: secondaryCompletionsDeployment,
     } as const;
     const apiVersion = llmConst.AZURE_API_VERION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
@@ -31,8 +31,8 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   getModelsNames() {
     return {
       embeddings: llmModels[ModelKey.GPT_EMBEDDINGS_ADA002].modelId,
-      regular: llmModels[ModelKey.GPT_COMPLETIONS_GPT4].modelId,
-      premium: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_32k].modelId,      
+      primary: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_O].modelId,
+      secondary: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_32k].modelId,      
     };
   }
 
@@ -53,7 +53,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
       const params: OpenAI.EmbeddingCreateParams = {
         model: deployment,
         input: prompt
-      }
+      };
       return params;  
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {

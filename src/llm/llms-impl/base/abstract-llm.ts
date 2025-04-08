@@ -12,18 +12,10 @@ import { BadConfigurationLLMError } from "../../../types/llm-errors";
  * implemented by an extended class that implements a specific LLM integration.
  */
 abstract class AbstractLLM implements LLMProviderImpl {
-  private readonly embeddingsModelKey: ModelKey;
-  private readonly completionsModelRegularKey: ModelKey | null;
-  private readonly completionsModelPremiumKey: ModelKey | null;
-
   /**
    * Constructor.
    */
-  constructor(embeddingsModelKey: ModelKey, completionsModelRegularKey: ModelKey | null, completionsModelPremiumKey: ModelKey | null) { 
-    this.embeddingsModelKey = embeddingsModelKey;
-    this.completionsModelRegularKey = completionsModelRegularKey;
-    this.completionsModelPremiumKey = completionsModelPremiumKey;
-  }
+  constructor(private readonly embeddingsModelKey: ModelKey, private readonly completionsModelPrimaryKey: ModelKey | null, private readonly completionsModelSecondaryKey: ModelKey | null) {}
 
   /**
    * Get the types of different token context windows models supported.
@@ -31,12 +23,12 @@ abstract class AbstractLLM implements LLMProviderImpl {
   getAvailableCompletionModelQualities(): LLMModelQuality[] {
     const llmQualities: LLMModelQuality[] = [];
 
-    if (this.completionsModelRegularKey) {
-      llmQualities.push(LLMModelQuality.REGULAR);
+    if (this.completionsModelPrimaryKey) {
+      llmQualities.push(LLMModelQuality.PRIMARY);
     }
 
-    if (this.completionsModelPremiumKey) {
-      llmQualities.push(LLMModelQuality.PREMIUM);
+    if (this.completionsModelSecondaryKey) {
+      llmQualities.push(LLMModelQuality.SECONDARY);
     }
 
     return llmQualities;
@@ -45,30 +37,38 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Send the content to the LLM for it to generate and return the content's embeddings.
    * 
-   * Need _doReturnJSON arg because this function and executeCompletion* functions will all be
+   * Need _asJson arg because this function and executeCompletion* functions will all be
    * called generically with the same args.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async generateEmbeddings(content: string, _doReturnJSON = false, context: LLMContext = {}) {
+  async generateEmbeddings(content: string, _asJson = false, context: LLMContext = {}) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!this.embeddingsModelKey) throw new BadConfigurationLLMError(`Embeddings model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.embeddingsModelKey, LLMPurpose.EMBEDDINGS, content, false, context);
   }
 
   /**
-   * Send the prompt to the 'regular' LLM and retrieve the LLM's answer.
+   * Send the prompt to the LLM for using the 'primary' model quality specifically, and retrieve
+   * the LLM's answer.
    */
-  async executeCompletionRegular(prompt: string, doReturnJSON = false, context: LLMContext = {}) {
-    if (!this.completionsModelRegularKey) throw new BadConfigurationLLMError(`'Regular' text model represented by ${this.constructor.name} does not exist - do not use this method`);
-    return this.executeLLMImplFunction(this.completionsModelRegularKey, LLMPurpose.COMPLETIONS, prompt, doReturnJSON, context);
+  async executeCompletion(prompt: string, asJson = false, context: LLMContext = {}) {
+    return await this.executeCompletionPrimary(prompt, asJson, context); 
   }
 
   /**
-   * Send the prompt to the 'premium' LLM and retrieve the LLM's answer.
+   * Send the prompt to the 'primary' LLM and retrieve the LLM's answer.
    */
-  async executeCompletionPremium(prompt: string, doReturnJSON = false, context: LLMContext = {}) {
-    if (!this.completionsModelPremiumKey) throw new BadConfigurationLLMError(`'Premium' text model represented by ${this.constructor.name} does not exist - do not use this method`);
-    return await this.executeLLMImplFunction(this.completionsModelPremiumKey, LLMPurpose.COMPLETIONS, prompt, doReturnJSON, context);
+  async executeCompletionPrimary(prompt: string, asJson = false, context: LLMContext = {}) {
+    if (!this.completionsModelPrimaryKey) throw new BadConfigurationLLMError(`'Primary' text model represented by ${this.constructor.name} does not exist - do not use this method`);
+    return this.executeLLMImplFunction(this.completionsModelPrimaryKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
+  }
+
+  /**
+   * Send the prompt to the 'secondary' LLM and retrieve the LLM's answer.
+   */
+  async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}) {
+    if (!this.completionsModelSecondaryKey) throw new BadConfigurationLLMError(`'Secondary' text model represented by ${this.constructor.name} does not exist - do not use this method`);
+    return await this.executeLLMImplFunction(this.completionsModelSecondaryKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
   /**
@@ -82,7 +82,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Method to invoke the pluggable implementation of an LLM and then take the proprietary response
    * and normalise them back for geneeric consumption.
    */
-  private async executeLLMImplFunction(modelKey: ModelKey, taskType: LLMPurpose, request: string, doReturnJSON: boolean, context: LLMContext) { 
+  private async executeLLMImplFunction(modelKey: ModelKey, taskType: LLMPurpose, request: string, asJson: boolean, context: LLMContext) { 
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, modelKey };
 
     try {
@@ -91,9 +91,9 @@ abstract class AbstractLLM implements LLMProviderImpl {
       if (isIncompleteResponse) { // Often occurs if combination of prompt + generated completion execeed the max token limit (e.g. actual internal LLM completion has been executed and the completion has been cut short)
         return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountFromMetadataDefaultingMissingValues(modelKey, tokenUsage) };
       } else {
-        return postProcessAsJSONIfNeededGeneratingNewResult(skeletonResponse, modelKey, taskType, responseContent, doReturnJSON);
+        return postProcessAsJSONIfNeededGeneratingNewResult(skeletonResponse, modelKey, taskType, responseContent, asJson, context);
       }
-    } catch (error: unknown) {
+    } catch (error: unknown) { // Explicitly type error as unknown
       if (this.isLLMOverloaded(error)) {
         return { ...skeletonResponse, status: LLMResponseStatus.OVERLOADED };
       } else if (this.isTokenLimitExceeded(error)) { // Often occurs if the prompt on its own execeeds the max token limit (e.g. actual internal LLM completion generation was not even initiated by the LLM)

@@ -26,8 +26,8 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Constructor
    */
   constructor(project: string, location: string) {
-    super(ModelKey.GCP_EMBEDDINGS_TEXT_005, ModelKey.GCP_COMPLETIONS_GEMINI_PRO25, 
-          ModelKey.GCP_COMPLETIONS_GEMINI_PRO20);  // Trying model with larger context first!!
+    super(ModelKey.GCP_EMBEDDINGS_TEXT_005, ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20, 
+          ModelKey.GCP_COMPLETIONS_GEMINI_PRO25); 
     this.vertexAiApiClient = new VertexAI({project, location});
     this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });
     this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;
@@ -39,8 +39,8 @@ class VertexAIGeminiLLM extends AbstractLLM {
   getModelsNames() {
     return {
       embeddings: llmModels[ModelKey.GCP_EMBEDDINGS_TEXT_005].modelId,
-      regular: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_PRO25].modelId,
-      premium: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_PRO20].modelId,      
+      primary: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20].modelId,
+      secondary: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_PRO25].modelId,      
     };
   }  
 
@@ -90,7 +90,8 @@ class VertexAIGeminiLLM extends AbstractLLM {
     if (!llmResponse) throw new BadResponseContentLLMError("LLM response was completely empty");
 
     // Capture response content
-    const responseContent = llmResponse.content.parts[0]?.text ?? "";
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const responseContent = llmResponse?.content?.parts?.[0]?.text ?? "";  // Using extra checking because even though Vertex AI types say these should exists they may not if there is a bad "finish reason"
 
     // Capture finish reason
     const finishReason = llmResponse.finishReason ?? FinishReason.OTHER;

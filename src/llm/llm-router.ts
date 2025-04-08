@@ -1,12 +1,10 @@
 import { llmConst } from "../types/llm-constants";
-import envConst from "../types/env-constants";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse, 
          ModelFamily} 
   from "../types/llm-types";
 import { RetryFunc } from "../types/control-types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors";
-import { getEnvVar } from "../utils/envvar-utils";
 import { withRetry } from "../utils/control-utils";
 import { initializeLLMImplementation  } from "./llm-initializer";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
@@ -22,20 +20,15 @@ import LLMStats from "./llm-stats";
  */
 class LLMRouter {
   // Private fields
-  private readonly llmProviderName: ModelFamily;
   private readonly llmImpl: LLMProviderImpl;
   private readonly llmStats: LLMStats;
-  private readonly usePremiumLModelOnly: boolean;
-  private readonly loggedMissingModelWarning: Record<string, boolean> = { regular: false, premium: false };
 
   /**
    * Constructor.
    */
-  constructor(llmProviderName: ModelFamily, doLogLLMInvocationEvents: boolean) {
-    this.llmProviderName = llmProviderName;
+  constructor(private readonly llmProviderName: ModelFamily) {
     this.llmImpl = initializeLLMImplementation(llmProviderName);
-    this.llmStats = new LLMStats(doLogLLMInvocationEvents);
-    this.usePremiumLModelOnly = getEnvVar<boolean>(envConst.ENV_LLM_USE_PREMIUM_ONLY, false);
+    this.llmStats = new LLMStats();
     log(`Initiated LLMs from: ${this.llmProviderName}`);
   }
 
@@ -50,8 +43,8 @@ class LLMRouter {
    * Get the description of models the chosen plug-in provides.
    */
   getModelsUsedDescription() {
-    const { embeddings, regular, premium } = this.llmImpl.getModelsNames();
-    return `${this.llmProviderName} (embeddings: ${embeddings}, completions-regular: ${regular}, completions-premium: ${premium})`;
+    const { embeddings, primary, secondary } = this.llmImpl.getModelsNames();
+    return `${this.llmProviderName} (embeddings: ${embeddings}, completions-primary: ${primary}, completions-secondary: ${secondary})`;
   }  
 
   /**
@@ -67,17 +60,23 @@ class LLMRouter {
   }
 
   /**
-   * Send the prompt to the LLM for a particular model quality and retrieve the LLM's answer.
+   * Send the prompt to the LLM for and retrieve the LLM's answer.
+   * 
+   * If a particilar LLM quality is not defined, will try to use the primary LLM quality and 
+   * failover to the secondary LLM quality if the primary fails.
    *
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  async executeCompletion(resourceName: string, prompt: string, startingModelQuality: LLMModelQuality, doReturnJSON = false, context: LLMContext = {}) {
+  async executeCompletion(resourceName: string, prompt: string, asJson = false,
+                          context: LLMContext = {},
+                          modelQualityOverride: LLMModelQuality | null = null) {
+                            
+    const availableModelQualities = modelQualityOverride? [modelQualityOverride] : this.llmImpl.getAvailableCompletionModelQualities();
+    const modelQualityCompletionFunctions = this.getModelQualityCompletionFunctions(availableModelQualities);
     context.purpose = LLMPurpose.COMPLETIONS;
-    const modelQualitiesSupported = this.llmImpl.getAvailableCompletionModelQualities();
-    startingModelQuality = this.adjustStartingModelQualityBasedOnAvailability(modelQualitiesSupported, startingModelQuality);
-    context.modelQuality = (startingModelQuality === LLMModelQuality.REGULAR_PLUS) ? LLMModelQuality.REGULAR : startingModelQuality;
-    return this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, this.getModelQualityCompletionFunctions(startingModelQuality), doReturnJSON);
+    context.modelQuality = availableModelQualities[0];
+    return this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, modelQualityCompletionFunctions, asJson);
   }  
 
   /**
@@ -96,12 +95,12 @@ class LLMRouter {
 
   /**
    * Executes an LLM function applying a series of before and after non-functional aspects (e.g.
-   * retries, stepping up LLM qualities, truncating large prompts)..
+   * retries, switching LLM qualities, truncating large prompts)..
    *
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[], doReturnJSON = false) {
+  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[], asJson = false) {
     let result: LLMGeneratedContent | null = null;
     let currentPrompt = prompt;
     let llmFuncIndex = 0;
@@ -109,29 +108,33 @@ class LLMRouter {
     try {
       // Don't want to increment 'llmFuncIndex' before looping again if going to crop prompt so we can try cropped prompt with same size LLM as last iteration
       while (llmFuncIndex < llmFuncs.length) {
-        const llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, doReturnJSON, context);
+        const llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, asJson, context);
 
         if (llmResponse?.status === LLMResponseStatus.COMPLETED) {
           result = llmResponse.generated ?? null;
           this.llmStats.recordSuccess();
           break;
-        } else if ((!llmResponse) || (llmResponse.status === LLMResponseStatus.OVERLOADED)) {
-          logWithContext(`LLM problem processing prompt for completion with current LLM model because it is overloaded or timing out, even after retries`, context);
-          break;
-        } else if (llmResponse.status === LLMResponseStatus.EXCEEDED) {
-          logWithContext(`LLM prompt tokens used ${String(llmResponse.tokensUage?.promptTokens ?? 0)} plus completion tokens used ${String(llmResponse.tokensUage?.completionTokens ?? 0)} exceeded EITHER: 1) the model's total token limit of ${String(llmResponse.tokensUage?.maxTotalTokens ?? 0)}, or: 2) the model's completion tokens limit`, context);
+        } else {
+          if ((!llmResponse) || (llmResponse.status === LLMResponseStatus.OVERLOADED)) {
+            logWithContext(`LLM problem processing prompt for completion with current LLM model because it is overloaded or timing out, even after retries (or a JSON parse error occurred we just wanted to force a retry)`, context);
+          } else if (llmResponse.status === LLMResponseStatus.EXCEEDED) {
+            logWithContext(`LLM prompt tokens used ${String(llmResponse.tokensUage?.promptTokens ?? 0)} plus completion tokens used ${String(llmResponse.tokensUage?.completionTokens ?? 0)} exceeded EITHER: 1) the model's total token limit of ${String(llmResponse.tokensUage?.maxTotalTokens ?? 0)}, or: 2) the model's completion tokens limit`, context);
 
-          if (llmFuncIndex + 1 >= llmFuncs.length) { 
-            if (!llmResponse.tokensUage) throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present", llmResponse);
-            currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.modelKey, llmResponse.tokensUage);
-            this.llmStats.recordCrop();
+            if (llmFuncIndex + 1 >= llmFuncs.length) { 
+              if (!llmResponse.tokensUage) throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present", llmResponse);
+              currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.modelKey, llmResponse.tokensUage);
+              this.llmStats.recordCrop();
+              continue;
+            }            
           } else {
-            context.modelQuality = LLMModelQuality.PREMIUM;
-            this.llmStats.recordStepUp();
+            throw new RejectionResponseLLMError(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse.status}'`, llmResponse);
+          }
+
+          if (llmFuncIndex + 1 < llmFuncs.length) { 
+            context.modelQuality = LLMModelQuality.SECONDARY;
+            this.llmStats.recordSwitch();
             llmFuncIndex++;
           }  
-        } else {
-          throw new RejectionResponseLLMError(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse.status}'`, llmResponse);
         }
       }
 
@@ -151,11 +154,11 @@ class LLMRouter {
   /**
    * Send a prompt to an LLM for completion, retrying a number of times if the LLM is overloaded. 
    */
-  private async executeLLMFuncWithRetries(llmFunc: LLMFunction, prompt: string, doReturnJSON: boolean, context: LLMContext) {
+  private async executeLLMFuncWithRetries(llmFunc: LLMFunction, prompt: string, asJson: boolean, context: LLMContext) {
     const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
     return await withRetry(
       llmFunc as RetryFunc<LLMFunctionResponse>,
-      [prompt, doReturnJSON, context],
+      [prompt, asJson, context],
       result => (result.status === LLMResponseStatus.OVERLOADED),
       recordRetryFunc,
       llmConst.INVOKE_LLM_NUM_ATTEMPTS, llmConst.MIN_RETRY_DELAY_MILLIS,
@@ -165,79 +168,15 @@ class LLMRouter {
 
   /**
    * Retrieve the specific LLM's embedding/completion functions to be used based on the desired
-   * model quality.
+   * model qualities.
    */
-  private getModelQualityCompletionFunctions(modelQuality: LLMModelQuality) {
-    const modelFuncs = [];
-    
-    if ([LLMModelQuality.REGULAR, LLMModelQuality.REGULAR_PLUS].includes(modelQuality)) { 
-      modelFuncs.push(this.llmImpl.executeCompletionRegular.bind(this.llmImpl));
-    }
-
-    if ([LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS].includes(modelQuality)) { 
-      modelFuncs.push(this.llmImpl.executeCompletionPremium.bind(this.llmImpl));
-    }
-
-    return modelFuncs;
-  }
-
-  /**
-   * Adjust the starting model quality used based on availability and log warnings if necessary.
-   */
-  private adjustStartingModelQualityBasedOnAvailability(invocableModelQualitiesAvailable: LLMModelQuality[], startingModelQuality: LLMModelQuality) {
-    let currentStartingModelQuality: LLMModelQuality | null = startingModelQuality;
-
-    if (invocableModelQualitiesAvailable.length <= 0) {
-      throw new BadConfigurationLLMError("The LLM implementation doesn't implement any completions models");
-    }
-
-    if (this.usePremiumLModelOnly) currentStartingModelQuality = LLMModelQuality.PREMIUM;
-
-    currentStartingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
-      [LLMModelQuality.REGULAR, LLMModelQuality.REGULAR_PLUS], 
-      currentStartingModelQuality, 
-      invocableModelQualitiesAvailable, 
-      LLMModelQuality.REGULAR,
-      llmConst.REGULAR_MODEL_QUALITY_NAME, 
-      LLMModelQuality.PREMIUM,
-      llmConst.PREMIUM_MODEL_QUALITY_NAME);
-
-      currentStartingModelQuality = this.adjustCategoryOfModelQualityIfNeededLoggingIssue(
-      [LLMModelQuality.PREMIUM, LLMModelQuality.REGULAR_PLUS], 
-      currentStartingModelQuality, 
-      invocableModelQualitiesAvailable, 
-      LLMModelQuality.PREMIUM,
-      llmConst.PREMIUM_MODEL_QUALITY_NAME, 
-      this.usePremiumLModelOnly ? null : LLMModelQuality.REGULAR,
-      this.usePremiumLModelOnly ? "<none>" : llmConst.REGULAR_MODEL_QUALITY_NAME);
-
-    if (currentStartingModelQuality) {
-      return currentStartingModelQuality;
-    } else if (this.usePremiumLModelOnly) {
-      throw new BadConfigurationLLMError("Configured preference `PREMIUM_LLM_ONLY` was set to true, but a premium model is not available, so can't continue");
-    } else {
-      throw new BadConfigurationLLMError("Neither a regular or premium model is available to use, so can't continue");
-    }
-  }
-
-  /**
-   * Adjust the model quality used based on availability and log warning if necessary.
-   */
-  private adjustCategoryOfModelQualityIfNeededLoggingIssue(categoryOfModelQualityOptions: LLMModelQuality[], startingModelQuality: LLMModelQuality | null, invocableModelQualitiesAvailable: LLMModelQuality[], targetModelQuality: LLMModelQuality, targetModelQualityName: string, fallbackModelQuality: LLMModelQuality | null, fallbackModelQualityName: string) {
-    let resolvedStartingModelQuality: LLMModelQuality | null = startingModelQuality;
-
-    if (resolvedStartingModelQuality && categoryOfModelQualityOptions.includes(resolvedStartingModelQuality)) {
-      if (!invocableModelQualitiesAvailable.includes(targetModelQuality)) {
-        if (!this.loggedMissingModelWarning[targetModelQualityName]) {
-          log(`WARNING: Requested LLM completion model type of '${targetModelQualityName}' does not exist, so will only attempt to use '${fallbackModelQualityName}' model`);
-          this.loggedMissingModelWarning[targetModelQualityName] = true;
-        }
-
-        resolvedStartingModelQuality = fallbackModelQuality;
-      }
-    }
-
-    return resolvedStartingModelQuality;
+  private getModelQualityCompletionFunctions(availableModelQualities: LLMModelQuality[]) {
+    if (availableModelQualities.length <= 0) throw new BadConfigurationLLMError("No LLM implementation completions models provided");
+    return availableModelQualities.map(quality => 
+      quality === LLMModelQuality.PRIMARY 
+        ? this.llmImpl.executeCompletionPrimary.bind(this.llmImpl)
+        : this.llmImpl.executeCompletionSecondary.bind(this.llmImpl)
+    );    
   }
 }
 

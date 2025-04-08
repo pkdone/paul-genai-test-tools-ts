@@ -1,11 +1,9 @@
-import envConst from "./types/env-constants";
-import { getEnvVar } from "./utils/envvar-utils";
 import mongoDBService from "./utils/mongodb-service";
-import appConst from "./types/app-constants";
+import appConst from "./env/app-consts";
 import SummariesGenerator from "./insightGenerator/summaries-generator";
 import { getProjectNameFromPath } from "./utils/fs-utils";
-import { ModelFamily } from "./types/llm-types";
 import LLMRouter from "./llm/llm-router";
+import { loadEnvVars } from "./env/env-vars";
 
 /**
  * Main function to run the program.
@@ -15,22 +13,22 @@ async function main() {
 
   try {
     // Load environment variables
-    const srcDirPath = getEnvVar<string>(envConst.ENV_CODEBASE_DIR_PATH);
+    const env = loadEnvVars();
+    const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
-    const llmProvider = getEnvVar<ModelFamily>(envConst.ENV_LLM);
-    const mdbURL = getEnvVar<string>(envConst.ENV_MONGODB_URL); 
+    const llmProvider = env.LLM;
+    const mdbURL = env.MONGODB_URL; 
     const mongoClient = await mongoDBService.connect("default", mdbURL);
     console.log(`Generating insights for project: ${projectName}`);
 
     // Load metadata about every file in the project into the database
-    const llmRouter = new LLMRouter(llmProvider, getEnvVar<boolean>(
-      envConst.ENV_LOG_LLM_INOVOCATION_EVENTS, true));  
+    const llmRouter = new LLMRouter(llmProvider);  
     console.log("LLM inovocation event types that will be recorded:");
     llmRouter.displayLLMStatusSummary();
     const summariesGenerator = new SummariesGenerator(mongoClient, llmRouter, 
       appConst.CODEBASE_DB_NAME, appConst.SOURCES_COLLCTN_NAME, appConst.SUMMARIES_COLLCTN_NAME,
       projectName);
-    await summariesGenerator.generateSummariesDataIntoInDB();
+    await summariesGenerator.generateSummariesDataInDB()
     console.log("Finished enerating insights for the project");
     console.log("Summary of LLM invocations outcomes:");
     llmRouter.displayLLMStatusDetails();

@@ -1,15 +1,21 @@
 import { Db } from "mongodb";
-import appConst from "./types/app-constants";
-import { getEnvVar } from "./utils/envvar-utils";
+import appConst from "./env/app-consts";
 import mongoDBService from "./utils/mongodb-service";
-import envConst from "./types/env-constants";
+import { loadEnvVars } from "./env/env-vars";
+
+// Interface for the project document
+interface ProjectDoc {
+  projectName: string,
+  filepath: string,
+}  
 
 /**
  * Main function to run the program.
  */
 async function main() {
   try {
-    const mdbURL = getEnvVar<string>(envConst.ENV_MONGODB_URL); 
+    const env = loadEnvVars();
+    const mdbURL = env.MONGODB_URL; 
     const prjName = "dummy"; 
     const mongoClient = await mongoDBService.connect("default", mdbURL);
     const db = mongoClient.db(appConst.CODEBASE_DB_NAME);
@@ -25,10 +31,6 @@ async function main() {
  * Collects the file paths of Java files from a MongoDB collection based on the given project name.
  */
 async function collectJavaFilePaths(db: Db, collName: string, prjName: string) {
-  interface ProjectDoc {
-    projectName: string,
-    filepath: string,
-  }  
   const coll = db.collection<ProjectDoc>(collName);  
   return await coll.find({ projectName: prjName }, { projection: { filepath: 1 } })
              .map(doc => doc.filepath)

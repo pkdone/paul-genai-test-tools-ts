@@ -51,11 +51,10 @@ export class PromptBuilder {
       return content;
     } catch (error) {
       this.promptFileCache.delete(promptFilePath);
-      console.error("Unable to load prompt file contents", error);    
+      console.error(`Failed to load prompt file contents for "${promptFilePath}":`, error);
       throw error;
     } 
   }
-
 
   /**
    * For the text content of a file as a template string and replaces a specific variables with  

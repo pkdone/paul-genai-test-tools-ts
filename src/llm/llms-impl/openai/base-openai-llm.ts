@@ -53,7 +53,8 @@ abstract class BaseOpenAILLM extends AbstractLLM {
     const llmResponse = llmResponses.choices[0];
 
     // Capture response content
-    const responseContent = llmResponse.message.content;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const responseContent = llmResponse?.message?.content; // Using extra condition checking in case Open AI types say these should exists, but they don't happen to at runtime
 
     // Capture finish reason
     const finishReason = llmResponse.finish_reason;

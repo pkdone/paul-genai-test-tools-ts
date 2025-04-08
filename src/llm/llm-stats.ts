@@ -9,7 +9,7 @@ class LLMStats {
   private readonly statusTypes: Readonly<Record<string, LLMStatsCategoryStatus>> = {
     SUCCESS: { description: "LLM invocation suceeded", symbol: ">", count: 0 },
     FAILURE: { description: "LLM invocation failed so no data produced", symbol: "!", count: 0 },
-    STEPUP: { description: "Stepped up to a premimum LLM to hopeully provide larger tokens limit", symbol: "+", count: 0 },
+    SWITCH: { description: "Switched to secondary LLM to try to process request", symbol: "+", count: 0 },
     RETRY: { description: "Retried calling LLM due to overload or network issue", symbol: "?", count: 0 },
     CROP: { description: "Cropping prompt due to excessive size, before resending", symbol: "-", count: 0 },
   } as const;
@@ -17,40 +17,40 @@ class LLMStats {
   /**
    * Constructor.
    */
-  constructor(doPrintEventTicks: boolean) {
+  constructor(doPrintEventTicks = true) {
     this.doPrintEventTicks = doPrintEventTicks;
   }
 
   /**
-   * Log success event occurrence and print its symbol
+   * Log LLM success event occurrence and print its symbol
    */
   recordSuccess() {
     this.record(this.statusTypes.SUCCESS);
   }
 
   /**
-   * Log failure event occurrence and print its symbol
+   * Log fLLM ailure event occurrence and print its symbol
    */
   recordFailure() {
     this.record(this.statusTypes.FAILURE);
   }
 
   /**
-   * Log step-up event occurrence and print its symbol
+   * Log LLM switch event occurrence and print its symbol
    */
-  recordStepUp() {
-    this.record(this.statusTypes.STEPUP);
+  recordSwitch() {
+    this.record(this.statusTypes.SWITCH);
   }
 
   /**
-   * Log retry event occurrence and print its symbol
+   * Log LLM retry event occurrence and print its symbol
    */
   recordRetry() {
     this.record(this.statusTypes.RETRY);
   }
 
   /**
-   * Log reactive truncate event occurrence, capturing that a smaller size prompt is required by 
+   * Log LLM reactive truncate event occurrence, capturing that a smaller size prompt is required by 
    * cropping, and print its symbol
    */
   recordCrop() {

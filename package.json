@@ -19,7 +19,8 @@
     "@google-cloud/vertexai": "^1.9.0",
     "dotenv": "^16.4.5",
     "mongodb": "^6.13.0",
-    "openai": "^4.70.2"
+    "openai": "^4.70.2",
+    "zod": "^3.24.2"
   },
   "overrides": {
     "whatwg-url": "^14.1.0"

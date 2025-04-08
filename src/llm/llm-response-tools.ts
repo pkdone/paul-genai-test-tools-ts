@@ -1,9 +1,11 @@
 import { llmModels, llmConst,llmAPIErrorPatterns } from "../types/llm-constants";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
          LLMResponseStatus, 
-         ModelKey} from "../types/llm-types";
+         ModelKey,
+         LLMContext} from "../types/llm-types";
 import { BadResponseContentLLMError } from "../types/llm-errors";
 import { convertTextToJSON } from "../utils/json-tools";
+import { getErrorText } from "../utils/error-utils";
 
 /**
  * Etract token usage information from LLM response metadata, defaulting missing
@@ -72,14 +74,15 @@ function parseTokenUsageFromLLMError(modelKey: ModelKey, errorMsg: string) {
  * Post-process the LLM response, converting it to JSON if necessary, and build the
  * response metadaat object.
  */
-export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLMFunctionResponse, modelKey: ModelKey, taskType: LLMPurpose, responseContent: LLMGeneratedContent, doReturnJSON: boolean) {
+export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLMFunctionResponse, modelKey: ModelKey, taskType: LLMPurpose, responseContent: LLMGeneratedContent, asJson: boolean, context: LLMContext) {
   if (taskType === LLMPurpose.COMPLETIONS) {
     try {
       if (typeof responseContent !== "string") throw new BadResponseContentLLMError("Generated content is not a string", responseContent);
-      const generatedContent = doReturnJSON ? convertTextToJSON(responseContent) : responseContent;
+      const generatedContent = asJson ? convertTextToJSON(responseContent) : responseContent;
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: generatedContent };
-    } catch {
+    } catch (error: unknown) {
       console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${llmModels[modelKey].modelId})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);
+      context.jsonParseError = getErrorText(error);
       return { ...skeletonResult, status: LLMResponseStatus.OVERLOADED };
     }
   } else {

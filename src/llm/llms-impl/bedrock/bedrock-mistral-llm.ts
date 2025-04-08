@@ -13,13 +13,13 @@ class BedrockMistralLLM extends BaseBedrockLLM {
   constructor() { 
     super(
       ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-      ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE,
       ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE2,
+      ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE,
     ); 
   }
 
   /**
-   * Assemble the Bedrock parameters for Claude completions only.
+   * Assemble the Bedrock parameters for Mistral completions only.
    */
   protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
     return JSON.stringify({

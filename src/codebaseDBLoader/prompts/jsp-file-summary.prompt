@@ -10,9 +10,7 @@ In the JSON response, do not include any explanations - only provide a RFC8259 c
   ]
 }
 
-NEVER use Markdown code blocks to wrap the JSON in your response.
+NEVER ever respond with XML. NEVER use Markdown code blocks to wrap the JSON in your response.
 
 CODE:
-```jsp
 {CONTENT_BLOCK}
-```

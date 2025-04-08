@@ -14,7 +14,7 @@ class OpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(apiKey: string) { 
-    super(ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL, ModelKey.GPT_COMPLETIONS_GPT4_TURBO, ModelKey.GPT_COMPLETIONS_GPT4_O);
+    super(ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL, ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_TURBO);
     this.client = new OpenAI({ apiKey });
   }
 
@@ -24,8 +24,8 @@ class OpenAILLM extends BaseOpenAILLM {
   getModelsNames() {
     return {
       embeddings: llmModels[ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL].modelId,
-      regular: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_TURBO].modelId,
-      premium: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_O].modelId,      
+      primary: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_O].modelId,
+      secondary: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_TURBO].modelId,      
     };
   }
 

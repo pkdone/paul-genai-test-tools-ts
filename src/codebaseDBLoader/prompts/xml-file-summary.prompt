@@ -28,9 +28,7 @@ In the JSON response, do NOT include any explanations even if the input content 
   ]
 }
 
-NEVER use Markdown code blocks to wrap the JSON in your response.
+NEVER ever respond with XML. NEVER use Markdown code blocks to wrap the JSON in your response.
 
 CODE:
-```xml
 {CONTENT_BLOCK}
-```

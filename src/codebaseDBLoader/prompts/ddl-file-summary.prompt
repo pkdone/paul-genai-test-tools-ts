@@ -59,9 +59,7 @@ In the JSON response, do not include any explanations - only provide an RFC8259 
   }
 }
 
-NEVER use Markdown code blocks to wrap the JSON in your response. NEVER use " or ' quote symbols as part of the text you use for JSON description values, even if you want to quote a piece of existing text, existing message or show a path (ignoring this rule leads to people getting hurt - it is very important).
+NEVER ever respond with XML. NEVER use Markdown code blocks to wrap the JSON in your response. NEVER use " or ' quote symbols as part of the text you use for JSON description values, even if you want to quote a piece of existing text, existing message or show a path (ignoring this rule leads to people getting hurt - it is very important).
 
 CODE:
-```java
 {CONTENT_BLOCK}
-```

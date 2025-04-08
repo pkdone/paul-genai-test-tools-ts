@@ -13,7 +13,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
   constructor() { 
     super(
       ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-      null,
+      ModelKey.AWS_COMPLETIONS_CLAUDE_V37,
       ModelKey.AWS_COMPLETIONS_CLAUDE_V35,
     ); 
   }

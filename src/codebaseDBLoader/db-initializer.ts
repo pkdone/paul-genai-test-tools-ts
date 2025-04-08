@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { getErrorStack } from "../utils/error-utils";
-import appConst from "../types/app-constants"
+import appConst from "../env/app-consts"
     
 
 /**
@@ -19,7 +19,6 @@ class DBInitializer {
     this.appSummariesCollectionName = appSummariesCollectionName;
   }
 
-
   /**
    * Ensure require indexes exist, creating them if not
    */ 
@@ -28,7 +27,6 @@ class DBInitializer {
     await this.generateNormalIndexes(db);
     await this.generateSearchIndexes(db);    
   }
-
 
   /**
    * Create normal MongoDB collection indexes if they don't yet exist.
@@ -120,6 +118,5 @@ class DBInitializer {
     } 
   }
 }
-
 
 export default DBInitializer;

@@ -6,8 +6,8 @@ import jsonLlmModelsData from "../llm/llm-models.json";
  * Set of LLM related constants
  */
 export const llmConst = {
-  REGULAR_MODEL_QUALITY_NAME: "regular",
-  PREMIUM_MODEL_QUALITY_NAME: "premium",
+  PRIMARY_MODEL_QUALITY_NAME: "primary",
+  SECONDARY_MODEL_QUALITY_NAME: "secondary",
   MIN_RETRY_DELAY_MILLIS: 20 * 1000,
   MAX_RETRY_ADDITIONAL_MILLIS: 30 * 1000,
   REQUEST_WAIT_TIMEOUT_MILLIS: 7 * 60 * 1000,
@@ -46,6 +46,9 @@ export const llmConst = {
  *  - AWS_COMPLETIONS_CLAUDE_V35: According to Anthropic site, the 'maxCompletionTokens' should be 
  *    8192 but Bedrock seems to cut this short to usually 4095 or 4096 but have seen 4090 reported 
  *    for some LLM responses, so using a few tokens buffer to come up with a limit of 4088
+ * 
+ *  - AWS_COMPLETIONS_CLAUDE_V37: For the model's ID, need to use the ARN of an inference profile 
+ *    for the particlar region,
  * 
  *  - AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT & AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT: Not clear if
  *    'maxCompletionTokens' is actually less than listed value of 8192

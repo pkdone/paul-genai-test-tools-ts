@@ -13,19 +13,17 @@ import AbstractLLM from "../base/abstract-llm";
  */
 abstract class BaseBedrockLLM extends AbstractLLM {
   // Private fields
-  private readonly embeddingsModelName: ModelKey;
-  private readonly completionsModelRegularName: ModelKey;
-  private readonly completionsModelPremiumName: ModelKey;
+  private readonly completionsModelPrimaryName: ModelKey;
+  private readonly completionsModelSecondaryName: ModelKey;
   private readonly client: BedrockRuntimeClient;
 
   /**
    * Constructor.
    */
-  constructor(embeddingsModelKey: ModelKey, completionsModelRegularKey: ModelKey | null, completionsModelPremiumKey: ModelKey | null) { 
-    super(embeddingsModelKey, completionsModelRegularKey, completionsModelPremiumKey );
-    this.embeddingsModelName = embeddingsModelKey;
-    this.completionsModelRegularName = completionsModelRegularKey ?? ModelKey.UNSPECIFIED;
-    this.completionsModelPremiumName = completionsModelPremiumKey ?? ModelKey.UNSPECIFIED;
+  constructor(private readonly embeddingsModelName: ModelKey, completionsModelPrimaryKey: ModelKey | null, completionsModelSecondaryKey: ModelKey | null) { 
+    super(embeddingsModelName, completionsModelPrimaryKey, completionsModelSecondaryKey );
+    this.completionsModelPrimaryName = completionsModelPrimaryKey ?? ModelKey.UNSPECIFIED;
+    this.completionsModelSecondaryName = completionsModelSecondaryKey ?? ModelKey.UNSPECIFIED;
     this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS } });
     console.log("AWS Bedrock client created");
   }
@@ -38,7 +36,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     try {
       this.client.destroy();
     } catch (error: unknown) {
-      logErrorMsgAndDetail("Error when calling destroy on AWSBedroc LLM", error);
+      logErrorMsgAndDetail("Error when calling destroy on AWSBedrock LLM", error);
     }
   }
 
@@ -48,8 +46,8 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   getModelsNames() {
     return {
       embeddings: llmModels[this.embeddingsModelName].modelId,
-      regular: llmModels[this.completionsModelRegularName].modelId,
-      premium: llmModels[this.completionsModelPremiumName].modelId,
+      primary: llmModels[this.completionsModelPrimaryName].modelId,
+      secondary: llmModels[this.completionsModelSecondaryName].modelId,
     };
   }  
 
