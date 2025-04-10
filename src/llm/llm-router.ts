@@ -85,15 +85,16 @@ class LLMRouter {
   async executeCompletion(resourceName: string, prompt: string, asJson = false,
                           context: LLMContext = {},
                           modelQualityOverride: LLMModelQuality | null = null
-                         ): Promise<string | null> {                            
+                         ): Promise<string | object | null> {                            
     const availableModelQualities = modelQualityOverride? [modelQualityOverride] : this.llmImpl.getAvailableCompletionModelQualities();
     const modelQualityCompletionFunctions = this.getModelQualityCompletionFunctions(availableModelQualities);
     context.purpose = LLMPurpose.COMPLETIONS;
     context.modelQuality = availableModelQualities[0];
     const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, modelQualityCompletionFunctions, asJson);
 
-    if (typeof contentResponse !== 'string') {
-      throw new BadResponseMetadataLLMError("LLM response for completion was not a string", contentResponse);
+    // must be string | object
+    if ((typeof contentResponse !== 'object') && (typeof contentResponse !== 'string')) {
+      throw new BadResponseMetadataLLMError("LLM response for completion was not an object or string", contentResponse);
     }
 
     return contentResponse;

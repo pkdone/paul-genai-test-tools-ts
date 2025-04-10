@@ -56,7 +56,7 @@ class CodeQuestioner {
 
     if (response) {
       const referencesText = bestMatchFiles.map(match => ` * ${match.filepath}`).join("\n");
-      return `${response}\n\nReferences:\n${referencesText}`;
+      return `${typeof response === "string" ? response : JSON.stringify(response)}\n\nReferences:\n${referencesText}`;
     } else {
       console.log("Called the LLN with some data returned by Vector Search but the LLM returned an empty response");
       return "Unable to answer question because no insight was generated";

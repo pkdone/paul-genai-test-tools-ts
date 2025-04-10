@@ -2,14 +2,14 @@
   "GPT_EMBEDDINGS_ADA002": {
     "modelId": "text-embedding-ada-002",
     "purpose": "embeddings",
-    "maxDimensions": 1536,
+    "dimensions": 1536,
     "maxTotalTokens": 8191,
     "apiFamily": "OpenAI"
   },
   "GPT_EMBEDDINGS_TEXT_3SMALL": {
     "modelId": "text-embedding-3-small",
     "purpose": "embeddings",
-    "maxDimensions": 1536,
+    "dimensions": 1536,
     "maxTotalTokens": 8191,
     "apiFamily": "OpenAI"
   },
@@ -45,14 +45,14 @@
     "modelId": "textembedding-gecko",
     "purpose": "embeddings",
     "maxTotalTokens": 3072,
-    "maxDimensions": 768,
+    "dimensions": 768,
     "apiFamily": "VertexAI"
   },
   "GCP_EMBEDDINGS_TEXT_005": {
     "modelId": "text-embedding-005",
     "purpose": "embeddings",
     "maxTotalTokens": 2048,
-    "maxDimensions": 768,
+    "dimensions": 768,
     "apiFamily": "VertexAI"
   },
   "GCP_COMPLETIONS_GEMINI_FLASH15": {
@@ -94,7 +94,7 @@
     "modelId": "amazon.titan-embed-text-v1",
     "purpose": "embeddings",
     "maxTotalTokens": 8192,
-    "maxDimensions": 1024,
+    "dimensions": 1024,
     "apiFamily": "Bedrock"
   },
   "AWS_COMPLETIONS_TITAN_EXPRESS_V1": {

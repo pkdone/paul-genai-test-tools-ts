@@ -31,7 +31,7 @@ test("LLM metadata positive check", () => {
     A_DUMMY_MODEL: {
       modelId: "dummy-model",
       purpose: "embeddings",
-      maxDimensions: 1536,
+      dimensions: 1536,
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
@@ -39,7 +39,7 @@ test("LLM metadata positive check", () => {
   expect(assembleLLMModelMetadataFromJSON(dummyModels)).toStrictEqual(dummyModels);
 });
 
-test("LLM metadata negative check - maxDimensions field missing", () => {
+test("LLM metadata negative check - dimensions field missing", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
     A_DUMMY_MODEL: {
       modelId: "dummy-model",
@@ -68,7 +68,7 @@ test("LLM metadata negative check - purpose field bad enum", () => {
     A_DUMMY_MODEL: {
       modelId: "dummy-model",
       purpose: "XXXXXXXXXXXXXXXXXXX",
-      maxDimensions: 1536,
+      dimensions: 1536,
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
@@ -76,12 +76,12 @@ test("LLM metadata negative check - purpose field bad enum", () => {
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
-test("LLM metadata negative check - maxDimensions is not positive num - minus", () => {
+test("LLM metadata negative check - dimensions is not positive num - minus", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
     A_DUMMY_MODEL: {
       modelId: "dummy-model",
       purpose: "embeddings",
-      maxDimensions: -1234,
+      dimensions: -1234,
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
@@ -89,12 +89,12 @@ test("LLM metadata negative check - maxDimensions is not positive num - minus", 
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
-test("LLM metadata negative check - maxDimensions is not positive num - zero", () => {
+test("LLM metadata negative check - dimensions is not positive num - zero", () => {
   const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
     A_DUMMY_MODEL: {
       modelId: "dummy-model",
       purpose: "embeddings",
-      maxDimensions: 0,
+      dimensions: 0,
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
@@ -120,7 +120,7 @@ test("LLM metadata negative check - maxTotalTokens is not positive num", () => {
     A_DUMMY_MODEL: {
       modelId: "dummy-model",
       purpose: "embeddings",
-      maxDimensions: 1536,
+      dimensions: 1536,
       maxTotalTokens: -1,
       apiFamily: "OpenAI",
     }
@@ -133,7 +133,7 @@ test("LLM metadata negative check - apiFamily field bad enum", () => {
     A_DUMMY_MODEL: {
       modelId: "another-dummy-model",
       purpose: "embeddings",
-      maxDimensions: 1536,
+      dimensions: 1536,
       maxTotalTokens: 8191,
       apiFamily: "XXXXXXXXXXXXXXXXXXX",
     }

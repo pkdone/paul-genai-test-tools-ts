@@ -53,7 +53,7 @@ export enum LLMApiFamily {
 export interface LLMModelMetadata {
   readonly modelId: string;
   readonly purpose: LLMPurpose;
-  readonly maxDimensions?: number;
+  readonly dimensions?: number;
   readonly maxCompletionTokens?: number;
   readonly maxTotalTokens: number;
   readonly apiFamily: LLMApiFamily;
@@ -65,7 +65,7 @@ export interface LLMModelMetadata {
 export type JSONLLMModelMetadata = Record<string, unknown> & {
   readonly modelId?: string;
   readonly purpose?: string;
-  readonly maxDimensions?: number;
+  readonly dimensions?: number;
   readonly maxCompletionTokens?: number;
   readonly maxTotalTokens?: number;
   readonly apiFamily?: string;

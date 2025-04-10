@@ -32,7 +32,7 @@ function validateJSONModelMetadata(llmModelsData: Record<string, JSONLLMModelMet
 
     // Checks of each property's value
     errorIfPropertyEnumInvalid<LLMPurpose>(model, key, LlmMetadataProps.PURPOSE, LLMPurpose);
-    errorIfPropertyNonPositiveNumber(model, modelMetadataOptionalPropsToCheck, key, LlmMetadataProps.MAX_DIMENSIONS);
+    errorIfPropertyNonPositiveNumber(model, modelMetadataOptionalPropsToCheck, key, LlmMetadataProps.DIMENSIONS);
     errorIfPropertyNonPositiveNumber(model, modelMetadataOptionalPropsToCheck, key, LlmMetadataProps.MAX_COMPLETION_TOKENS);
     errorIfPropertyNonPositiveNumber(model, modelMetadataOptionalPropsToCheck, key, LlmMetadataProps.MAX_TOTAL_TOKENS);    
     errorIfPropertyEnumInvalid<LLMApiFamily>(model, key, LlmMetadataProps.API_FAMILY, LLMApiFamily);
@@ -88,7 +88,7 @@ function doPropertyCheck(optionalPropsToCheck: ModelMetadataOptionalPropsToCheck
 enum LlmMetadataProps { 
   MODEL_ID = "modelId",
   PURPOSE = "purpose",
-  MAX_DIMENSIONS = "maxDimensions",
+  DIMENSIONS = "dimensions",
   MAX_COMPLETION_TOKENS = "maxCompletionTokens",
   MAX_TOTAL_TOKENS = "maxTotalTokens",
   API_FAMILY = "apiFamily",
@@ -105,6 +105,6 @@ type ModelMetadataOptionalPropsToCheck = Readonly<Record<string, LLMPurpose>>;
  * purpose of the model.
  */
 const modelMetadataOptionalPropsToCheck: ModelMetadataOptionalPropsToCheck = {
-  [LlmMetadataProps.MAX_DIMENSIONS]: LLMPurpose.EMBEDDINGS,
+  [LlmMetadataProps.DIMENSIONS]: LLMPurpose.EMBEDDINGS,
   [LlmMetadataProps.MAX_COMPLETION_TOKENS]: LLMPurpose.COMPLETIONS,
 } as const;

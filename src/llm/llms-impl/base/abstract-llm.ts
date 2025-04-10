@@ -39,7 +39,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Get the maximum number of tokens for the given model quality. 
    */
   getEmbeddedModelDimensions() {
-    return llmModels[this.embeddingsModelKey].maxDimensions;
+    return llmModels[this.embeddingsModelKey].dimensions;
   }
 
   /**

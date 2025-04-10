@@ -11,7 +11,7 @@ const baseAppConst = {
   SOURCES_COLLCTN_NAME: "sources",
   SUMMARIES_COLLCTN_NAME: "appsummaries",
   SAMPLE_PROMPT_FILEPATH: "./test/sample.prompt",
-  QUESTIONS_PROMPTS_FILEPATH: "./questions.prompts",  
+  QUESTIONS_PROMPTS_FILEPATH: "./test/questions.prompts",  
   CODEBASE_QUERY_PROMPT: "summarize-codebase-query.prompt",
   FOLDER_IGNORE_LIST: [
     ".git", 

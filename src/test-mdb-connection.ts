@@ -2,6 +2,7 @@ import { Db } from "mongodb";
 import appConst from "./env/app-consts";
 import mongoDBService from "./utils/mongodb-service";
 import { loadEnvVars } from "./env/env-vars";
+import { getProjectNameFromPath } from "./utils/fs-utils";
 
 // Interface for the project document
 interface ProjectDoc {
@@ -16,12 +17,13 @@ async function main() {
   try {
     const env = loadEnvVars();
     const mdbURL = env.MONGODB_URL; 
-    const prjName = "dummy"; 
+    const srcDirPath = env.CODEBASE_DIR_PATH;
+    const projectName = getProjectNameFromPath(srcDirPath);     
     const mongoClient = await mongoDBService.connect("default", mdbURL);
     const db = mongoClient.db(appConst.CODEBASE_DB_NAME);
     const collName = appConst.SOURCES_COLLCTN_NAME;  
-    const result = await collectJavaFilePaths(db, collName, prjName);
-    console.log("Result:", result);
+    const result = await collectJavaFilePaths(db, collName, projectName);
+    console.log("Result:", JSON.stringify(result, null, 2));
   } finally {
     await mongoDBService.closeAll();
   }

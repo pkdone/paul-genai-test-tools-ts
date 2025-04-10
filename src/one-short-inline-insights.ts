@@ -74,7 +74,12 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksCo
 
   try {
     const executionResult = await llmRouter.executeCompletion(resource, fullPrompt, false, context);
-    response = executionResult ?? "No response received from LLM.";
+
+    if (!executionResult) {
+      response = "No response received from LLM.";
+    } else {
+      response = typeof executionResult === "object" ? JSON.stringify(executionResult) : executionResult;
+    }
   } catch (error: unknown) {
     logErrorMsgAndDetail("Problem introspecting and processing source files", error);    
     response = getErrorText(error);
