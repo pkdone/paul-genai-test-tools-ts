@@ -13,7 +13,8 @@ class DBInitializer {
   constructor(private readonly mongoClient: MongoClient, 
               private readonly databaseName: string,
               private readonly sourceCollectionName: string,
-              private readonly appSummariesCollectionName: string) { 
+              private readonly appSummariesCollectionName: string,
+              private readonly numDimensions: number | undefined = appConst.DEFAULT_VECTOR_DIMENSIONS_AMOUNT) { 
     this.mongoClient = mongoClient;
     this.sourceCollectionName = sourceCollectionName;
     this.appSummariesCollectionName = appSummariesCollectionName;
@@ -61,7 +62,7 @@ class DBInitializer {
             {
               "type": "vector",
               "path": "contentVector",
-              "numDimensions": appConst.DEFAULT_VECTOR_DIMENSIONS_AMOUNT,
+              "numDimensions": this.numDimensions,
               "similarity": appConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
               "quantization": appConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
             },
@@ -84,7 +85,7 @@ class DBInitializer {
             {
               "type": "vector",
               "path": "summaryVector",
-              "numDimensions": appConst.DEFAULT_VECTOR_DIMENSIONS_AMOUNT,
+              "numDimensions": this.numDimensions,
               "similarity": appConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
               "quantization": appConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
             },

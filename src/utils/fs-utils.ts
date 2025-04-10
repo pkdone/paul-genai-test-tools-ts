@@ -81,6 +81,19 @@ export async function clearDirectory(dirPath: string) {
 }
 
 /**
+ * Reads the contents of a file and returns an array of lines, filtering out blank lines and lines
+ * starting with #.
+ */
+export async function getTextLines(filePath: string) {
+  const fileContents = await readFile(filePath);
+  const lines = fileContents
+    .split("\n")
+    .map(line => line.trim())
+    .filter(line => line && !line.startsWith("#"));
+  return lines;
+}
+
+/**
  * For the text content of a file as a template string and replaces a specific variables with
  */
 export function transformJSToTSFilePath(jsSrcPath: string, localFolderName: string, localFileName: string) {

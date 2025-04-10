@@ -47,16 +47,30 @@ class LLMRouter {
     return `${this.llmProviderName} (embeddings: ${embeddings}, completions-primary: ${primary}, completions-secondary: ${secondary})`;
   }  
 
+
+  /**
+   * Get the maximum number of tokens for the given model quality. 
+   */
+  getEmbeddedModelDimensions(): number | undefined {
+    return this.llmImpl.getEmbeddedModelDimensions();
+  }
+
   /**
    * Send the content to the LLM for it to generate and return the content's embedding.
    *
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}) {
+  async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}): Promise<number[] | null> {
     context.purpose = LLMPurpose.EMBEDDINGS;
     const llmFunc = this.llmImpl.generateEmbeddings.bind(this.llmImpl);
-    return await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
+    const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
+
+    if (contentResponse !== null && !(Array.isArray(contentResponse) && contentResponse.every(item => typeof item === 'number'))) {
+      throw new BadResponseMetadataLLMError("LLM response for embeddings was not an array of numbers", contentResponse);
+    }
+
+    return contentResponse;
   }
 
   /**
@@ -70,13 +84,19 @@ class LLMRouter {
    */
   async executeCompletion(resourceName: string, prompt: string, asJson = false,
                           context: LLMContext = {},
-                          modelQualityOverride: LLMModelQuality | null = null) {
-                            
+                          modelQualityOverride: LLMModelQuality | null = null
+                         ): Promise<string | null> {                            
     const availableModelQualities = modelQualityOverride? [modelQualityOverride] : this.llmImpl.getAvailableCompletionModelQualities();
     const modelQualityCompletionFunctions = this.getModelQualityCompletionFunctions(availableModelQualities);
     context.purpose = LLMPurpose.COMPLETIONS;
     context.modelQuality = availableModelQualities[0];
-    return this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, modelQualityCompletionFunctions, asJson);
+    const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, modelQualityCompletionFunctions, asJson);
+
+    if (typeof contentResponse !== 'string') {
+      throw new BadResponseMetadataLLMError("LLM response for completion was not a string", contentResponse);
+    }
+
+    return contentResponse;
   }  
 
   /**
@@ -100,7 +120,7 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[], asJson = false) {
+  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[], asJson = false): Promise<LLMGeneratedContent> {
     let result: LLMGeneratedContent | null = null;
     let currentPrompt = prompt;
     let llmFuncIndex = 0;

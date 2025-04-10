@@ -1,3 +1,5 @@
+import { Double } from "bson";
+
 /**
  * Count the lines in a piece of text.
  */
@@ -16,4 +18,11 @@ export function joinArrayWithSeparators(lines: string[], suffix = "\n", prefix =
   });
 
   return content;
+}
+
+/**
+ * Iterates through the numbers in the array and converts each one explicitly to a BSON Double.
+ */
+export function convertArrayOfNumbersToArrayOfDoubles(numbers: number[]): Double[] {
+  return numbers.map(number => new Double(number));
 }

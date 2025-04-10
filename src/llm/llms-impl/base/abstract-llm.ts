@@ -1,5 +1,6 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMResponseStatus,
-         LLMConfiguredModelTypesNames, ModelKey} from "../../../types/llm-types";
+         LLMConfiguredModelTypesNames, LLMFunctionResponse, ModelKey} from "../../../types/llm-types";
+import { llmModels } from "../../../types/llm-constants";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText } from "../../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
@@ -35,13 +36,20 @@ abstract class AbstractLLM implements LLMProviderImpl {
   }
 
   /**
+   * Get the maximum number of tokens for the given model quality. 
+   */
+  getEmbeddedModelDimensions() {
+    return llmModels[this.embeddingsModelKey].maxDimensions;
+  }
+
+  /**
    * Send the content to the LLM for it to generate and return the content's embeddings.
    * 
    * Need _asJson arg because this function and executeCompletion* functions will all be
    * called generically with the same args.
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async generateEmbeddings(content: string, _asJson = false, context: LLMContext = {}) {
+  async generateEmbeddings(content: string, _asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!this.embeddingsModelKey) throw new BadConfigurationLLMError(`Embeddings model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.embeddingsModelKey, LLMPurpose.EMBEDDINGS, content, false, context);
@@ -51,14 +59,14 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Send the prompt to the LLM for using the 'primary' model quality specifically, and retrieve
    * the LLM's answer.
    */
-  async executeCompletion(prompt: string, asJson = false, context: LLMContext = {}) {
+  async executeCompletion(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     return await this.executeCompletionPrimary(prompt, asJson, context); 
   }
 
   /**
    * Send the prompt to the 'primary' LLM and retrieve the LLM's answer.
    */
-  async executeCompletionPrimary(prompt: string, asJson = false, context: LLMContext = {}) {
+  async executeCompletionPrimary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     if (!this.completionsModelPrimaryKey) throw new BadConfigurationLLMError(`'Primary' text model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.completionsModelPrimaryKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
@@ -66,7 +74,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Send the prompt to the 'secondary' LLM and retrieve the LLM's answer.
    */
-  async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}) {
+  async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     if (!this.completionsModelSecondaryKey) throw new BadConfigurationLLMError(`'Secondary' text model represented by ${this.constructor.name} does not exist - do not use this method`);
     return await this.executeLLMImplFunction(this.completionsModelSecondaryKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
@@ -82,7 +90,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Method to invoke the pluggable implementation of an LLM and then take the proprietary response
    * and normalise them back for geneeric consumption.
    */
-  private async executeLLMImplFunction(modelKey: ModelKey, taskType: LLMPurpose, request: string, asJson: boolean, context: LLMContext) { 
+  private async executeLLMImplFunction(modelKey: ModelKey, taskType: LLMPurpose, request: string, asJson: boolean, context: LLMContext): Promise<LLMFunctionResponse> { 
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, modelKey };
 
     try {

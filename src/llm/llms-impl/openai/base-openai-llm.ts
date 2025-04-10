@@ -10,6 +10,7 @@ import AbstractLLM from "../base/abstract-llm";
  */
 abstract class BaseOpenAILLM extends AbstractLLM {
   /**
+   * 
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
   protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {

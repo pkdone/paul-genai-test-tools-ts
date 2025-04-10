@@ -7,6 +7,7 @@ export interface LLMProviderImpl {
   executeCompletionSecondary: LLMFunction,
   getModelsNames(): LLMConfiguredModelTypesNames,
   getAvailableCompletionModelQualities(): LLMModelQuality[],
+  getEmbeddedModelDimensions(): number | undefined,
   close(): Promise<void>,
 };
 

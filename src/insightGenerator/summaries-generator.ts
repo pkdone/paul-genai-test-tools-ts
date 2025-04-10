@@ -77,11 +77,7 @@ class SummariesGenerator {
     try {
       console.log(`Processing ${categoryLabel}`);
       const promptFileName = `generate-${category}.prompt`;
-      const promptFilePath = transformJSToTSFilePath(
-        __dirname,
-        appConst.PROMPTS_FOLDER_NAME,
-        promptFileName
-      );
+      const promptFilePath = transformJSToTSFilePath(__dirname, appConst.PROMPTS_FOLDER_NAME, promptFileName);
       const resourceName = `${category} - ${promptFileName}`;
       const content = joinArrayWithSeparators(sourceFileSummaries);
       const contentToReplaceList = [{ label: appConst.PROMPT_CONTENT_BLOCK_LABEL, content }];

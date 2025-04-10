@@ -3,12 +3,16 @@ const baseAppConst = {
   DEFAULT_VECTOR_DIMENSIONS_AMOUNT: 1536,
   DEFAULT_VECTOR_SIMILARITY_TYPE: "euclidean",  // euclidean | cosine | dotProduct
   DEFAULT_VECTOR_QUANTIZATION_TYPE: "scalar",   // scalar | binary
+  VECTOR_SEARCH_NUM_CANDIDATES: 150,
+  VECTOR_SEARCH_NUM_LIMIT: 6,
   OUTPUT_DIR: "output",
   OUTPUT_SUMMARY_FILE: "report.txt",
   CODEBASE_DB_NAME: "codebase-analyzed",
   SOURCES_COLLCTN_NAME: "sources",
   SUMMARIES_COLLCTN_NAME: "appsummaries",
   SAMPLE_PROMPT_FILEPATH: "./test/sample.prompt",
+  QUESTIONS_PROMPTS_FILEPATH: "./questions.prompts",  
+  CODEBASE_QUERY_PROMPT: "summarize-codebase-query.prompt",
   FOLDER_IGNORE_LIST: [
     ".git", 
     "bin", 
@@ -31,6 +35,7 @@ const baseAppConst = {
     "war", "tar", "gz", "tgz"
   ] as const,
   SOURCE_FILES_FOR_CODE: ["js", "ts", "java", "py"] as const,
+  JAVA_FILE_TYPE: "java",
   PROMPTS_FOLDER_NAME: "prompts",
   SRC_FOLDER_NAME: "/src/",
   DIST_FOLDER_NAME: "/dist/",
@@ -51,6 +56,8 @@ const baseAppConst = {
   MARKDOWN_FILE_SUMMARY_PROMPTS: "markdown-file-summary.prompt",
   DEFAULT_FILE_SUMMARY_PROMPTS: "default-file-summary.prompt",
   PROMPT_CONTENT_BLOCK_LABEL: "CONTENT_BLOCK",
+  PROMPT_QUESTION_BLOCK_LABEL: "QUESTION_BLOCK",
+  CODE_BLOCK_MARKDOWN: "```",
   APP_DESCRIPTION_KEY: "appdescription",
   APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS: [
     "technologies",

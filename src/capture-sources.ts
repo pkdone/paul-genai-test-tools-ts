@@ -20,17 +20,18 @@ async function main() {
     const llmProvider = env.LLM;
     const mdbURL = env.MONGODB_URL; 
     const ignoreIfAlreadyCaptured = env.IGNORE_ALREADY_PROCESSED_FILES;
+    const llmRouter = new LLMRouter(llmProvider);  
     console.log(`Processing source files for project: ${projectName}`);
 
     // Ensure database indexes exist first
     const mongoClient = await mongoDBService.connect("default", mdbURL);
     const dbInitializer = new DBInitializer(mongoClient, appConst.CODEBASE_DB_NAME, 
                                             appConst.SOURCES_COLLCTN_NAME,
-                                            appConst.SUMMARIES_COLLCTN_NAME);
+                                            appConst.SUMMARIES_COLLCTN_NAME,
+                                            llmRouter.getEmbeddedModelDimensions());
     await dbInitializer.ensureRequiredIndexes();
   
     // Load metadata about every file in the project into the database
-    const llmRouter = new LLMRouter(llmProvider);  
     console.log("LLM inovocation event types that will be recorded:");
     llmRouter.displayLLMStatusSummary();
     const codebaseToDBLoader = new CodebaseToDBLoader(mongoClient, llmRouter, projectName, srcDirPath, ignoreIfAlreadyCaptured);
