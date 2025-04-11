@@ -13,17 +13,13 @@ import AbstractLLM from "../base/abstract-llm";
  */
 abstract class BaseBedrockLLM extends AbstractLLM {
   // Private fields
-  private readonly completionsModelPrimaryName: ModelKey;
-  private readonly completionsModelSecondaryName: ModelKey;
   private readonly client: BedrockRuntimeClient;
 
   /**
    * Constructor.
    */
-  constructor(private readonly embeddingsModelName: ModelKey, completionsModelPrimaryKey: ModelKey | null, completionsModelSecondaryKey: ModelKey | null) { 
-    super(embeddingsModelName, completionsModelPrimaryKey, completionsModelSecondaryKey );
-    this.completionsModelPrimaryName = completionsModelPrimaryKey ?? ModelKey.UNSPECIFIED;
-    this.completionsModelSecondaryName = completionsModelSecondaryKey ?? ModelKey.UNSPECIFIED;
+  constructor(embeddingsModelKey: ModelKey, completionsModelsKeys: ModelKey[]) { 
+    super(embeddingsModelKey, completionsModelsKeys);
     this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS } });
     console.log("AWS Bedrock client created");
   }
@@ -39,17 +35,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
       logErrorMsgAndDetail("Error when calling destroy on AWSBedrock LLM", error);
     }
   }
-
-  /**
-   * Get the names of the models this plug-in provides.
-   */ 
-  getModelsNames() {
-    return {
-      embeddings: llmModels[this.embeddingsModelName].modelId,
-      primary: llmModels[this.completionsModelPrimaryName].modelId,
-      secondary: llmModels[this.completionsModelSecondaryName].modelId,
-    };
-  }  
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.

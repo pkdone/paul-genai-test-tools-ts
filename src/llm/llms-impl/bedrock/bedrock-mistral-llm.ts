@@ -1,6 +1,8 @@
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
+const AWSMISTRAL_EMBEDDINGS_MODEL_KEY = ModelKey.AWS_EMBEDDINGS_TITAN_V1;
+const AWSMISTRAL_COMPLETIONS_MODELS_KEYS = [ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE2, ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE];
 
 /** 
  * Class for the AWS Bedrock Mistral LLMs.
@@ -11,11 +13,7 @@ class BedrockMistralLLM extends BaseBedrockLLM {
    * Constructor.
    */
   constructor() { 
-    super(
-      ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-      ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE2,
-      ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE,
-    ); 
+    super(AWSMISTRAL_EMBEDDINGS_MODEL_KEY, AWSMISTRAL_COMPLETIONS_MODELS_KEYS); 
   }
 
   /**

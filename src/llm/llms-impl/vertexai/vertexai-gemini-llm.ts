@@ -12,6 +12,9 @@ import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponse
 const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT,
                                            FinishReason.RECITATION, FinishReason.SAFETY,
                                            FinishReason.SPII];
+// TODO: move these + same for other LLM impls, into .evnv
+const VERTEXAI_EMBEDDINGS_MODEL_KEY = ModelKey.GCP_EMBEDDINGS_TEXT_005;
+const VERTEXAI_COMPLETIONS_MODELS_KEYS = [ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20, ModelKey.GCP_COMPLETIONS_GEMINI_PRO25];
 
 /**
  * Class for the GCP Vertex AI Gemini service.
@@ -26,23 +29,11 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Constructor
    */
   constructor(project: string, location: string) {
-    super(ModelKey.GCP_EMBEDDINGS_TEXT_005, ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20, 
-          ModelKey.GCP_COMPLETIONS_GEMINI_PRO25); 
+    super(VERTEXAI_EMBEDDINGS_MODEL_KEY, VERTEXAI_COMPLETIONS_MODELS_KEYS); 
     this.vertexAiApiClient = new VertexAI({project, location});
     this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });
     this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;
   }
-
-  /**
-   * Get the names of the models this plug-in provides.
-   */
-  getModelsNames() {
-    return {
-      embeddings: llmModels[ModelKey.GCP_EMBEDDINGS_TEXT_005].modelId,
-      primary: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20].modelId,
-      secondary: llmModels[ModelKey.GCP_COMPLETIONS_GEMINI_PRO25].modelId,      
-    };
-  }  
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.

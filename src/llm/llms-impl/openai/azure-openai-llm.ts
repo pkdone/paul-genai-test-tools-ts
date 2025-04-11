@@ -1,7 +1,9 @@
 import { AzureOpenAI, OpenAI } from "openai";
-import { llmModels, llmConst } from "../../../types/llm-constants";
+import { llmConst } from "../../../types/llm-constants";
 import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
+const AZURE_EMBEDDINGS_MODEL_KEY = ModelKey.GPT_EMBEDDINGS_ADA002;
+const AZURE_COMPLETIONS_MODELS_KEYS = [ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_32k];
 
 /**
  * Class for Azure's own managed version of the OpenAI service.
@@ -9,31 +11,20 @@ import BaseOpenAILLM from "./base-openai-llm";
 class AzureOpenAILLM extends BaseOpenAILLM {
   // Private fields
   private readonly client: OpenAI;
-  private readonly modelToDeploymentMappings: Readonly<Record<string, string>>;
+  private readonly modelToDeploymentMappings: Record<string, string>;
 
   /**
    * Constructor.
    */
   constructor(apiKey: string, endpoint: string, embeddingsDeployment: string, primaryCompletionsDeployment: string, secondaryCompletionsDeployment: string) {
-    super(ModelKey.GPT_EMBEDDINGS_ADA002, ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_32k);
+    super(AZURE_EMBEDDINGS_MODEL_KEY, AZURE_COMPLETIONS_MODELS_KEYS);
     this.modelToDeploymentMappings = {
-      [ModelKey.GPT_EMBEDDINGS_ADA002]: embeddingsDeployment,
-      [ModelKey.GPT_COMPLETIONS_GPT4_O]: primaryCompletionsDeployment,
-      [ModelKey.GPT_COMPLETIONS_GPT4_32k]: secondaryCompletionsDeployment,
-    } as const;
+      [AZURE_EMBEDDINGS_MODEL_KEY]: embeddingsDeployment,
+      [AZURE_COMPLETIONS_MODELS_KEYS[0]]: primaryCompletionsDeployment,
+    };
+    if ((AZURE_COMPLETIONS_MODELS_KEYS.length > 1) && secondaryCompletionsDeployment) this.modelToDeploymentMappings[AZURE_COMPLETIONS_MODELS_KEYS[1]] = secondaryCompletionsDeployment;
     const apiVersion = llmConst.AZURE_API_VERION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
-  }
-
-  /**
-   * Get the names of the models this plug-in provides.
-   */
-  getModelsNames() {
-    return {
-      embeddings: llmModels[ModelKey.GPT_EMBEDDINGS_ADA002].modelId,
-      primary: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_O].modelId,
-      secondary: llmModels[ModelKey.GPT_COMPLETIONS_GPT4_32k].modelId,      
-    };
   }
 
   /**

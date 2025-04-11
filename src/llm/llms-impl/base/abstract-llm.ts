@@ -13,27 +13,38 @@ import { BadConfigurationLLMError } from "../../../types/llm-errors";
  * implemented by an extended class that implements a specific LLM integration.
  */
 abstract class AbstractLLM implements LLMProviderImpl {
+  // Private fields
+  private readonly completionsModelPrimaryKey: ModelKey;
+  private readonly completionsModelSecondaryKey: ModelKey;
+
   /**
    * Constructor.
    */
-  constructor(private readonly embeddingsModelKey: ModelKey, private readonly completionsModelPrimaryKey: ModelKey | null, private readonly completionsModelSecondaryKey: ModelKey | null) {}
+  constructor(private readonly embeddingsModelKey: ModelKey, readonly completionsModelsKeys: ModelKey[]) {
+    if (completionsModelsKeys.length === 0) throw new BadConfigurationLLMError(`No completions models provided for ${this.constructor.name}`);
+    this.completionsModelPrimaryKey = completionsModelsKeys[0];
+    this.completionsModelSecondaryKey = completionsModelsKeys.length > 1 ? completionsModelsKeys[1] : ModelKey.UNSPECIFIED;
+  }
 
   /**
    * Get the types of different token context windows models supported.
    */ 
   getAvailableCompletionModelQualities(): LLMModelQuality[] {
-    const llmQualities: LLMModelQuality[] = [];
-
-    if (this.completionsModelPrimaryKey) {
-      llmQualities.push(LLMModelQuality.PRIMARY);
-    }
-
-    if (this.completionsModelSecondaryKey) {
-      llmQualities.push(LLMModelQuality.SECONDARY);
-    }
-
+    const llmQualities: LLMModelQuality[] = [LLMModelQuality.PRIMARY];
+    if (this.completionsModelSecondaryKey !== ModelKey.UNSPECIFIED) llmQualities.push(LLMModelQuality.SECONDARY);
     return llmQualities;
   }
+
+  /**
+   * Get the names of the models this plug-in provides.
+   */ 
+  getModelsNames(): LLMConfiguredModelTypesNames {
+    return {
+      embeddings: llmModels[this.embeddingsModelKey].modelId,
+      primary: llmModels[this.completionsModelPrimaryKey].modelId,
+      secondary: llmModels[this.completionsModelSecondaryKey].modelId,
+    };
+  }  
 
   /**
    * Get the maximum number of tokens for the given model quality. 
@@ -56,18 +67,9 @@ abstract class AbstractLLM implements LLMProviderImpl {
   }
 
   /**
-   * Send the prompt to the LLM for using the 'primary' model quality specifically, and retrieve
-   * the LLM's answer.
-   */
-  async executeCompletion(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    return await this.executeCompletionPrimary(prompt, asJson, context); 
-  }
-
-  /**
    * Send the prompt to the 'primary' LLM and retrieve the LLM's answer.
    */
   async executeCompletionPrimary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    if (!this.completionsModelPrimaryKey) throw new BadConfigurationLLMError(`'Primary' text model represented by ${this.constructor.name} does not exist - do not use this method`);
     return this.executeLLMImplFunction(this.completionsModelPrimaryKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
@@ -75,7 +77,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Send the prompt to the 'secondary' LLM and retrieve the LLM's answer.
    */
   async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    if (!this.completionsModelSecondaryKey) throw new BadConfigurationLLMError(`'Secondary' text model represented by ${this.constructor.name} does not exist - do not use this method`);
+    if (this.completionsModelSecondaryKey === ModelKey.UNSPECIFIED) throw new BadConfigurationLLMError(`'Secondary' text model represented by ${this.constructor.name} does not exist - do not use this method`);
     return await this.executeLLMImplFunction(this.completionsModelSecondaryKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
@@ -111,11 +113,6 @@ abstract class AbstractLLM implements LLMProviderImpl {
       }
     }
   }
-
-  /**
-   * Abstract method to be overridden to get the names of the models this plug-in provides.
-   */
-  abstract getModelsNames(): LLMConfiguredModelTypesNames;
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.

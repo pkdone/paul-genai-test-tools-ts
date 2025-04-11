@@ -1,6 +1,8 @@
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
+const AWSCLAUDE_EMBEDDINGS_MODEL_KEY = ModelKey.AWS_EMBEDDINGS_TITAN_V1;
+const AWSCLAUDE_COMPLETIONS_MODELS_KEYS = [ModelKey.AWS_COMPLETIONS_CLAUDE_V37, ModelKey.AWS_COMPLETIONS_CLAUDE_V35];
 
 /** 
  * Class for the AWS Bedrock [Anthropic] Claude LLMs.
@@ -11,11 +13,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
    * Constructor.
    */
   constructor() { 
-    super(
-      ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-      ModelKey.AWS_COMPLETIONS_CLAUDE_V37,
-      ModelKey.AWS_COMPLETIONS_CLAUDE_V35,
-    ); 
+    super(AWSCLAUDE_EMBEDDINGS_MODEL_KEY, AWSCLAUDE_COMPLETIONS_MODELS_KEYS); 
   }
 
   /**

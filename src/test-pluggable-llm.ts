@@ -11,6 +11,7 @@ async function main() {
   const env = loadEnvVars();
   console.log(`START: ${new Date().toISOString()}`);
   const llmRouter = new LLMRouter(env.LLM);  
+  // TODO: log LLMs being used, not just overall provider - have a look as how did this in old generated report
   const prompt = await readFile(appConst.SAMPLE_PROMPT_FILEPATH);
   console.log("\n---PROMPT---");
   console.log(prompt);
