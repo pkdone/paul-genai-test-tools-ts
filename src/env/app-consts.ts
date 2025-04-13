@@ -1,10 +1,7 @@
-// Define the object of constants
+/**
+ * Define the object of constants
+ */
 const baseAppConst = {
-  DEFAULT_VECTOR_DIMENSIONS_AMOUNT: 1536,
-  DEFAULT_VECTOR_SIMILARITY_TYPE: "euclidean",  // euclidean | cosine | dotProduct
-  DEFAULT_VECTOR_QUANTIZATION_TYPE: "scalar",   // scalar | binary
-  VECTOR_SEARCH_NUM_CANDIDATES: 150,
-  VECTOR_SEARCH_NUM_LIMIT: 6,
   OUTPUT_DIR: "output",
   OUTPUT_SUMMARY_FILE: "report.txt",
   CODEBASE_DB_NAME: "codebase-analyzed",

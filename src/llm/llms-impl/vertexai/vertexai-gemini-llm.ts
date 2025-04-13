@@ -3,7 +3,7 @@ import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshol
        from "@google-cloud/vertexai";
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
-import { llmModels, llmConst } from "../../../types/llm-constants";
+import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
 import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
@@ -12,9 +12,6 @@ import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponse
 const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT,
                                            FinishReason.RECITATION, FinishReason.SAFETY,
                                            FinishReason.SPII];
-// TODO: move these + same for other LLM impls, into .evnv
-const VERTEXAI_EMBEDDINGS_MODEL_KEY = ModelKey.GCP_EMBEDDINGS_TEXT_005;
-const VERTEXAI_COMPLETIONS_MODELS_KEYS = [ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20, ModelKey.GCP_COMPLETIONS_GEMINI_PRO25];
 
 /**
  * Class for the GCP Vertex AI Gemini service.
@@ -29,7 +26,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Constructor
    */
   constructor(project: string, location: string) {
-    super(VERTEXAI_EMBEDDINGS_MODEL_KEY, VERTEXAI_COMPLETIONS_MODELS_KEYS); 
+    super(modelMappings.VERTEXAI_EMBEDDINGS_MODEL_KEY, modelMappings.VERTEXAI_COMPLETIONS_MODELS_KEYS); 
     this.vertexAiApiClient = new VertexAI({project, location});
     this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });
     this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;

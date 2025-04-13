@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { getErrorStack } from "../utils/error-utils";
-import appConst from "../env/app-consts"
+import { llmConst } from "../types/llm-constants";
     
 
 /**
@@ -14,7 +14,7 @@ class DBInitializer {
               private readonly databaseName: string,
               private readonly sourceCollectionName: string,
               private readonly appSummariesCollectionName: string,
-              private readonly numDimensions: number | undefined = appConst.DEFAULT_VECTOR_DIMENSIONS_AMOUNT) { 
+              private readonly numDimensions: number | undefined = llmConst.DEFAULT_VECTOR_DIMENSIONS_AMOUNT) { 
     this.mongoClient = mongoClient;
     this.sourceCollectionName = sourceCollectionName;
     this.appSummariesCollectionName = appSummariesCollectionName;
@@ -63,8 +63,8 @@ class DBInitializer {
               "type": "vector",
               "path": "contentVector",
               "numDimensions": this.numDimensions,
-              "similarity": appConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
-              "quantization": appConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
+              "similarity": llmConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
+              "quantization": llmConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
             },
             {
               "type": "filter",
@@ -86,8 +86,8 @@ class DBInitializer {
               "type": "vector",
               "path": "summaryVector",
               "numDimensions": this.numDimensions,
-              "similarity": appConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
-              "quantization": appConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
+              "similarity": llmConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
+              "quantization": llmConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
             },
             {
               "type": "filter",

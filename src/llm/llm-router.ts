@@ -29,7 +29,7 @@ class LLMRouter {
   constructor(private readonly llmProviderName: ModelFamily) {
     this.llmImpl = initializeLLMImplementation(llmProviderName);
     this.llmStats = new LLMStats();
-    log(`Initiated LLMs from: ${this.llmProviderName}`);
+    log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
 
   /**

@@ -74,6 +74,10 @@ abstract class BaseOpenAILLM extends AbstractLLM {
    */
   protected isLLMOverloaded(error: unknown) {
     // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
+    if ((error instanceof APIError) && (error.code === "insufficient_quota")) {
+      return false;
+    }
+
     return ((error instanceof RateLimitError) || (error instanceof InternalServerError));
   }
 

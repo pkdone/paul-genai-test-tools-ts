@@ -1,8 +1,6 @@
-import { llmModels, llmConst } from "../../../types/llm-constants";
+import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
-const AWSTITAN_EMBEDDINGS_MODEL_KEY = ModelKey.AWS_EMBEDDINGS_TITAN_V1;
-const AWSTITAN_COMPLETIONS_MODELS_KEYS = [ModelKey.AWS_COMPLETIONS_TITAN_EXPRESS_V1];
 
 /**
  * Class for the AWS Bedrock Titan LLMs.
@@ -12,7 +10,7 @@ class BedrockTitanLLM extends BaseBedrockLLM {
    * Constructor.
    */
   constructor() { 
-    super(AWSTITAN_EMBEDDINGS_MODEL_KEY, AWSTITAN_COMPLETIONS_MODELS_KEYS);
+    super(modelMappings.AWS_TITAN_EMBEDDINGS_MODEL_KEY, modelMappings.AWS_TITAN_COMPLETIONS_MODELS_KEYS);
   }
 
   /**

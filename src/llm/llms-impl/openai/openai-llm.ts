@@ -1,9 +1,7 @@
 import { OpenAI } from "openai";
-import { llmModels, llmConst } from "../../../types/llm-constants";
+import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
 import { LLMPurpose,ModelKey } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
-const OPENAI_EMBEDDINGS_MODEL_KEY = ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL;
-const OPENAI_COMPLETIONS_MODELS_KEYS = [ModelKey.GPT_COMPLETIONS_GPT4_O, ModelKey.GPT_COMPLETIONS_GPT4_TURBO];
 
 /**
  * Class for the public OpenAI service.
@@ -16,7 +14,7 @@ class OpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(apiKey: string) { 
-    super(OPENAI_EMBEDDINGS_MODEL_KEY, OPENAI_COMPLETIONS_MODELS_KEYS);
+    super(modelMappings.OPENAI_EMBEDDINGS_MODEL_KEY, modelMappings.OPENAI_COMPLETIONS_MODELS_KEYS);
     this.client = new OpenAI({ apiKey });
   }
 

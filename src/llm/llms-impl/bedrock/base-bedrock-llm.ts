@@ -18,7 +18,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Constructor.
    */
-  constructor(embeddingsModelKey: ModelKey, completionsModelsKeys: ModelKey[]) { 
+  constructor(embeddingsModelKey: ModelKey, completionsModelsKeys: readonly ModelKey[]) {
     super(embeddingsModelKey, completionsModelsKeys);
     this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS } });
     console.log("AWS Bedrock client created");

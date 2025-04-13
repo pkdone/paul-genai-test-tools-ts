@@ -48,8 +48,8 @@ export async function withRetry<T>(
   checkResultForNeedToRetryFunc: CheckResultFunc<T>,
   logRetryEventFunc: LogRetryEventFunc | null = null,
   maxAttempts = 3,
-  minRetryDelay = 10000,
-  maxRetryAdditionalDelay = 10000,
+  minRetryDelay = 7000,
+  maxRetryAdditionalDelay = 3000,
   waitTimeout = 300000,
   logTimeouts = true
 ) {
@@ -65,7 +65,7 @@ export async function withRetry<T>(
       attempts++;
 
       if (attempts < maxAttempts) {
-        const delayMillis = minRetryDelay * Math.min(attempts, 3) + Math.random() * maxRetryAdditionalDelay;
+        const delayMillis = (minRetryDelay * Math.min(attempts, 3)) + (Math.random() * maxRetryAdditionalDelay);
         await new Promise(resolve => setTimeout(resolve, delayMillis));
       }
     } else {

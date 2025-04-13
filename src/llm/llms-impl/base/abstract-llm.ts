@@ -20,7 +20,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Constructor.
    */
-  constructor(private readonly embeddingsModelKey: ModelKey, readonly completionsModelsKeys: ModelKey[]) {
+  constructor(private readonly embeddingsModelKey: ModelKey, readonly completionsModelsKeys: readonly ModelKey[]) {
     if (completionsModelsKeys.length === 0) throw new BadConfigurationLLMError(`No completions models provided for ${this.constructor.name}`);
     this.completionsModelPrimaryKey = completionsModelsKeys[0];
     this.completionsModelSecondaryKey = completionsModelsKeys.length > 1 ? completionsModelsKeys[1] : ModelKey.UNSPECIFIED;
@@ -77,7 +77,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Send the prompt to the 'secondary' LLM and retrieve the LLM's answer.
    */
   async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    if (this.completionsModelSecondaryKey === ModelKey.UNSPECIFIED) throw new BadConfigurationLLMError(`'Secondary' text model represented by ${this.constructor.name} does not exist - do not use this method`);
+    if (this.completionsModelSecondaryKey === ModelKey.UNSPECIFIED) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
     return await this.executeLLMImplFunction(this.completionsModelSecondaryKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 

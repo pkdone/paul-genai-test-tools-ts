@@ -5,8 +5,11 @@ import { convertArrayOfNumbersToArrayOfDoubles } from "../utils/text-utils";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
 import { transformJSToTSFilePath } from "../utils/fs-utils";
+import { llmConst } from "../types/llm-constants";
 
-// Interface for source file record
+/**
+ * Interface for source file record
+ */
 interface SourceFileCodeMetadata {
   projectName: string;
   type: string;
@@ -78,8 +81,8 @@ class CodeQuestioner {
           ],
         },
         queryVector: queryVector,
-        numCandidates: appConst.VECTOR_SEARCH_NUM_CANDIDATES,
-        limit: appConst.VECTOR_SEARCH_NUM_LIMIT,
+        numCandidates: llmConst.VECTOR_SEARCH_NUM_CANDIDATES,
+        limit: llmConst.VECTOR_SEARCH_NUM_LIMIT,
       }},
 
       {$project: {

@@ -1,8 +1,6 @@
-import { llmModels, llmConst } from "../../../types/llm-constants";
+import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
 import { ModelKey } from "../../../types/llm-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
-const AWSLLAMA_EMBEDDINGS_MODEL_KEY = ModelKey.AWS_EMBEDDINGS_TITAN_V1;
-const AWSLLAMA_COMPLETIONS_MODELS_KEYS = [ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT];
 
 /** 
  * Class for the AWS Bedrock Llama LLMs.
@@ -13,7 +11,7 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
    * Constructor.
    */
   constructor() { 
-    super(AWSLLAMA_EMBEDDINGS_MODEL_KEY, AWSLLAMA_COMPLETIONS_MODELS_KEYS); 
+    super(modelMappings.AWS_LLAMA_EMBEDDINGS_MODEL_KEY, modelMappings.AWS_LLAMA_COMPLETIONS_MODELS_KEYS); 
   }
 
   /**
