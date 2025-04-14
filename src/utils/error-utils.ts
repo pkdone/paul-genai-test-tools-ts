@@ -20,14 +20,16 @@ export function logErrorDetail(error: unknown) {
  * Get the error text from a thrown variable which may or may not be an Error object.
  */
 export function getErrorText(error: unknown) {
+  const errType  = (error instanceof Error) ? error.constructor.name : "<unknown-type>";
+
   if (!error) {
-    return "No error message available";
+    return `${errType}. No error message available`;
   } else if (error instanceof Error) {
-    return error.message;
+    return `${errType}. ${error.message}`;
   } else if ((typeof error === "object") && ("message" in error)) {
-    return String(error.message);
+    return `${errType}. ${String(error.message)}`;
   } else {
-    return JSON.stringify(error);
+    return `${errType}. ${JSON.stringify(error)}`;
   }
 }
 

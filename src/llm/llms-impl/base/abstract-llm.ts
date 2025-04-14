@@ -88,6 +88,15 @@ abstract class AbstractLLM implements LLMProviderImpl {
     // No-op - default assuming LLM client doesn't provide a close function to call
   }
   
+  /** 
+   * Print error type and details for debugging
+   */
+  protected debugCurrentlyNonCheckedErrorTypes(error: unknown, modelKey: ModelKey) {
+    if (error instanceof Error) {
+      console.log(`${error.constructor.name}: ${getErrorText(error)} - LLM: ${llmModels[modelKey].modelId}`);
+    }
+  }
+
   /**
    * Method to invoke the pluggable implementation of an LLM and then take the proprietary response
    * and normalise them back for geneeric consumption.
@@ -104,6 +113,8 @@ abstract class AbstractLLM implements LLMProviderImpl {
         return postProcessAsJSONIfNeededGeneratingNewResult(skeletonResponse, modelKey, taskType, responseContent, asJson, context);
       }
     } catch (error: unknown) { // Explicitly type error as unknown
+      // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error, modelKey);
+
       if (this.isLLMOverloaded(error)) {
         return { ...skeletonResponse, status: LLMResponseStatus.OVERLOADED };
       } else if (this.isTokenLimitExceeded(error)) { // Often occurs if the prompt on its own execeeds the max token limit (e.g. actual internal LLM completion generation was not even initiated by the LLM)

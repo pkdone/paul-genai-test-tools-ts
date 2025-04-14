@@ -139,6 +139,13 @@
     "maxTotalTokens": 128000,
     "apiFamily": "Bedrock"
   },
+  "AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT": {
+    "modelId": "meta.llama3-3-70b-instruct-v1:0",
+    "purpose": "completions",
+    "maxCompletionTokens": 8192,
+    "maxTotalTokens": 128000,
+    "apiFamily": "Bedrock"
+  },
   "AWS_COMPLETIONS_MISTRAL_LARGE": {
     "modelId": "mistral.mistral-large-2402-v1:0",
     "purpose": "completions",

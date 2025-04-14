@@ -1,5 +1,4 @@
-import { OpenAI, RateLimitError, InternalServerError, BadRequestError, AuthenticationError, 
-         PermissionDeniedError, NotFoundError, UnprocessableEntityError } from "openai";
+import { OpenAI, RateLimitError, InternalServerError } from "openai";
 import { APIError } from "openai/error";
 import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import AbstractLLM from "../base/abstract-llm";
@@ -7,6 +6,11 @@ import AbstractLLM from "../base/abstract-llm";
 /**
  * Abstract class for GPT managed LLM provider services (subclasses might be OpenAI or Azure
  * implementations).
+ * 
+ * Some of the possible recevable Bedrock exceptions as of April 2025:
+ * 
+ * APIError, BadRequestError, AuthenticationError, RateLimitError, InternalServerError, 
+ * PermissionDeniedError, NotFoundError, UnprocessableEntityError
  */
 abstract class BaseOpenAILLM extends AbstractLLM {
   /**
@@ -73,7 +77,6 @@ abstract class BaseOpenAILLM extends AbstractLLM {
    * See if an error object indicates a network issue or throttling event.
    */
   protected isLLMOverloaded(error: unknown) {
-    // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
     if ((error instanceof APIError) && (error.code === "insufficient_quota")) {
       return false;
     }
@@ -85,26 +88,12 @@ abstract class BaseOpenAILLM extends AbstractLLM {
    * Check to see if error code indicates potential token limit has been exceeded.
    */
   protected isTokenLimitExceeded(error: unknown) {
-    // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
     if (error instanceof APIError) {
       return error.code === "context_length_exceeded" ||
              error.type === "invalid_request_error";
     }
 
     return false;
-  }
-
-  /** 
-   * Debug currently non-checked error types.
-   */
-  protected debugCurrentlyNonCheckedErrorTypes(error: unknown) {
-    if (error instanceof BadRequestError) console.log("BadRequestError");
-    if (error instanceof AuthenticationError) console.log("AuthenticationError");
-    if (error instanceof RateLimitError) console.log("RateLimitError");
-    if (error instanceof InternalServerError) console.log("InternalServerError");
-    if (error instanceof PermissionDeniedError) console.log("PermissionDeniedError");
-    if (error instanceof NotFoundError) console.log("NotFoundError");
-    if (error instanceof UnprocessableEntityError) console.log("UnprocessableEntityError");
   }
 
   /**

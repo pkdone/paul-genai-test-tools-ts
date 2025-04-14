@@ -1,6 +1,5 @@
 import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshold, GoogleApiError,
-         ClientError, GoogleAuthError, GoogleGenerativeAIError, IllegalArgumentError } 
-       from "@google-cloud/vertexai";
+         ClientError } from "@google-cloud/vertexai";
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
@@ -15,6 +14,10 @@ const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.
 
 /**
  * Class for the GCP Vertex AI Gemini service.
+ * 
+ * Some of the possible recevable Bedrock exceptions as of April 2025:
+ * 
+ * GoogleApiError, ClientError, GoogleAuthError, GoogleGenerativeAIError, IllegalArgumentError
  */
 class VertexAIGeminiLLM extends AbstractLLM {
   // Private fields
@@ -98,8 +101,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * See if the respnse error indicated that the LLM was overloaded.
    */
   protected isLLMOverloaded(error: unknown) {  
-    // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
-
     if (error instanceof Error) {
       const errMsg = getErrorText(error).toLowerCase() || "";
 
@@ -130,17 +131,6 @@ class VertexAIGeminiLLM extends AbstractLLM {
   protected isTokenLimitExceeded(_error: unknown) {    
     return false;
   }  
-
-  /** 
-   * Debug currently non-checked error types.
-   */
-  protected debugCurrentlyNonCheckedErrorTypes(error: unknown) {
-    if (error instanceof GoogleApiError) console.log(`GoogleApiError ${getErrorText(error)}`);
-    if (error instanceof ClientError) console.log(`ClientError ${getErrorText(error)}`);
-    if (error instanceof GoogleAuthError) console.log(`GoogleAuthError ${getErrorText(error)}`);
-    if (error instanceof GoogleGenerativeAIError) console.log(`GoogleGenerativeAIError ${getErrorText(error)}`);
-    if (error instanceof IllegalArgumentError) console.log(`IllegalArgumentError ${getErrorText(error)}`);
-  }
 
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.

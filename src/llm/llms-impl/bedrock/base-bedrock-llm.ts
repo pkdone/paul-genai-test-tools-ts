@@ -1,7 +1,6 @@
-import { BedrockRuntimeClient, InvokeModelCommand, ModelErrorException, ModelStreamErrorException,
-         ResourceNotFoundException, ServiceQuotaExceededException, ServiceUnavailableException,
-         ThrottlingException, ModelNotReadyException, ModelTimeoutException, ValidationException }
-       from "@aws-sdk/client-bedrock-runtime";
+import { BedrockRuntimeClient, InvokeModelCommand, ServiceUnavailableException,
+  ThrottlingException, ModelTimeoutException, ValidationException }
+from "@aws-sdk/client-bedrock-runtime";     
 import { LLMPurpose, ModelKey } from "../../../types/llm-types";
 import { llmModels, llmConst } from "../../../types/llm-constants";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
@@ -10,6 +9,13 @@ import AbstractLLM from "../base/abstract-llm";
 
 /**
  * Class for the public AWS Bedrock service (multiple possible LLMs)
+ * 
+ * Some of the possible recevable Bedrock exceptions as of April 2025:
+ * 
+ * BedrockRuntimeClient, InvokeModelCommand, ModelErrorException, ModelStreamErrorException, 
+ * ResourceNotFoundException, ServiceQuotaExceededException, ServiceUnavailableException,
+ * ThrottlingException, ModelNotReadyException, ModelTimeoutException, ValidationException,
+ * CredentialsProviderError
  */
 abstract class BaseBedrockLLM extends AbstractLLM {
   // Private fields
@@ -100,7 +106,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * overloading.
    */
   protected isLLMOverloaded(error: unknown) { 
-    // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error);
     return ((error instanceof ThrottlingException) || 
             (error instanceof ModelTimeoutException)  ||
             (error instanceof ServiceUnavailableException));
@@ -122,18 +127,6 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     }
 
     return false;
-  }
-
-  /** 
-   * Debug currently non-checked error types.
-   */
-  protected debugCurrentlyNonCheckedErrorTypes(error: unknown) {
-    if (error instanceof ModelErrorException) console.log(`ModelErrorException: ${getErrorText(error)}`);
-    if (error instanceof ModelStreamErrorException) console.log(`ModelStreamErrorException: ${getErrorText(error)}`);
-    if (error instanceof ResourceNotFoundException) console.log(`ResourceNotFoundException: ${getErrorText(error)}`);
-    if (error instanceof ServiceQuotaExceededException) console.log(`ServiceQuotaExceededException: ${getErrorText(error)}`);
-    if (error instanceof ValidationException) console.log(`ValidationException: ${getErrorText(error)}`);
-    if (error instanceof ModelNotReadyException) console.log(`ModelNotReadyException: ${getErrorText(error)}`);
   }
 
   /**
