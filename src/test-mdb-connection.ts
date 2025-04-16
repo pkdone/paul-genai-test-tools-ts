@@ -4,7 +4,9 @@ import mongoDBService from "./utils/mongodb-service";
 import { loadEnvVars } from "./env/env-vars";
 import { getProjectNameFromPath } from "./utils/fs-utils";
 
-// Interface for the project document
+/**
+ * Interface for the project document
+ */
 interface ProjectDoc {
   projectName: string,
   filepath: string,

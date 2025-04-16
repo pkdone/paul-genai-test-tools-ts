@@ -8,6 +8,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution": "nodenext",
+    "isolatedModules": true,    
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
