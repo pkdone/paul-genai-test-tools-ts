@@ -2,6 +2,25 @@ import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 
+// Constants for HTTP status codes
+const HTTP_INTERNAL_SERVER_ERROR_CODE = 500;
+const HTTP_BAD_REQUEST_CODE = 400;
+const HTTP_NOT_FOUND_CODE = 404;
+
+// Constants for HTTP methods
+const METHOD_GET = "GET";
+const METHOD_POST = "POST";
+
+// Constants for URL paths
+const PATH_SSE = "/sse";
+const PATH_MESSAGES = "/messages";
+
+// Constants for HTTP request processing
+const ENCODING_UTF8 = "utf8";
+const EVENT_DATA = "data";
+const EVENT_END = "end";
+const EVENT_ERROR = "error";
+
 /** 
  * Class to handle HTTP requests and responses for the Model Context Protocol (MCP) server.
  */
@@ -18,7 +37,7 @@ class McpHttpServer {
     const asyncHandler = this.getHttpAsyncHandler();  
     return createServer((req: IncomingMessage, res: ServerResponse) => {
       asyncHandler(req, res).catch((error: unknown) => {
-        this.sendHTTPError(res, 500, "Internal Server Error", "Error handling request:", error);      
+        this.sendHTTPError(res, HTTP_INTERNAL_SERVER_ERROR_CODE, "Internal Server Error", "Error handling request:", error);      
       });
     });
   }
@@ -35,17 +54,17 @@ class McpHttpServer {
         const { pathname, searchParams } = url;
         const method = req.method;
   
-        if (method === "GET" && pathname === "/sse") {
+        if (method === METHOD_GET && pathname === PATH_SSE) {
           if (res.writableEnded) return;
-          const transport = new SSEServerTransport("/messages", res);
+          const transport = new SSEServerTransport(PATH_MESSAGES, res);
           transports.set(transport.sessionId, transport);
           res.on("close", () => transports.delete(transport.sessionId));
           try {
             await this.mcpServer.connect(transport);
           } catch (err: unknown) {
-            this.sendHTTPError(res, 500, "SSE Connection Error", `SSE connect error for ${transport.sessionId}:`, err);
+            this.sendHTTPError(res, HTTP_INTERNAL_SERVER_ERROR_CODE, "SSE Connection Error", `SSE connect error for ${transport.sessionId}:`, err);
           }
-        } else if (method === "POST" && pathname === "/messages") {
+        } else if (method === METHOD_POST && pathname === PATH_MESSAGES) {
           if (res.writableEnded) return;
           const body = await this.buildHTTPBody(req);
           let parsedData: unknown;
@@ -56,18 +75,18 @@ class McpHttpServer {
             const transport = sessionId && transports.get(sessionId);
   
             if (!transport) {
-              this.sendHTTPError(res, 400, "No session", `No active session found for ID: ${sessionId ?? "unknown"}`);
+              this.sendHTTPError(res, HTTP_BAD_REQUEST_CODE, "No session", `No active session found for ID: ${sessionId ?? "unknown"}`);
             } else {
               await transport.handlePostMessage(req, res, parsedData);
             }
           } catch (parseError) {
-            this.sendHTTPError(res, 400, "Bad Request: Invalid JSON", "Error parsing JSON:", parseError);
+            this.sendHTTPError(res, HTTP_BAD_REQUEST_CODE, "Bad Request: Invalid JSON", "Error parsing JSON:", parseError);
           }
         } else if (!res.writableEnded) {
-          this.sendHTTPError(res, 404, "Not Found", "Non writableEnded response for unknown path");
+          this.sendHTTPError(res, HTTP_NOT_FOUND_CODE, "Not Found", "Non writableEnded response for unknown path");
         }
-      } catch (error) {
-        if (!res.writableEnded) this.sendHTTPError(res, 500, "Internal Server Error", "Unhandled error in HTTP request handler:", error);
+      } catch (error: unknown) {
+        if (!res.writableEnded) this.sendHTTPError(res, HTTP_INTERNAL_SERVER_ERROR_CODE, "Internal Server Error", "Unhandled error in HTTP request handler:", error);
       }
     };
   }
@@ -91,10 +110,10 @@ class McpHttpServer {
   private async buildHTTPBody(req: IncomingMessage) {
     return await new Promise<string>((resolve, reject) => {
       let data = "";
-      req.setEncoding("utf8");
-      req.on("data", (chunk: string) => { data += chunk; });
-      req.on("end", () => { resolve(data); });
-      req.on("error", (err) => { reject(err); });
+      req.setEncoding(ENCODING_UTF8);
+      req.on(EVENT_DATA, (chunk: string) => { data += chunk; });
+      req.on(EVENT_END, () => { resolve(data); });
+      req.on(EVENT_ERROR, (err) => { reject(err); });
     });
   }  
    
