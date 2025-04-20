@@ -2,8 +2,11 @@
  * Define the object of constants
  */
 const baseAppConst = {
+  DEFAULT_MCP_HOSTNAME: "localhost",
+  DEFAULT_MCP_PORT: 3001,
   OUTPUT_DIR: "output",
   OUTPUT_SUMMARY_FILE: "report.txt",
+  DEFAULT_MONGO_SVC: "default",  
   CODEBASE_DB_NAME: "codebase-analyzed",
   SOURCES_COLLCTN_NAME: "sources",
   SUMMARIES_COLLCTN_NAME: "appsummaries",

@@ -20,7 +20,7 @@ async function main() {
     const llmProvider = env.LLM;
     const mdbURL = env.MONGODB_URL; 
     console.log(`Performing vector search then invoking LLM for optimal results for for project: ${projectName}`);
-    const mongoClient = await mongoDBService.connect("default", mdbURL);
+    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
     const llmRouter = new LLMRouter(llmProvider);  
     const codeQuestioner = new CodeQuestioner(mongoClient, llmRouter, projectName);
     const questions = await getTextLines(appConst.QUESTIONS_PROMPTS_FILEPATH);

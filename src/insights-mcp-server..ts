@@ -1,43 +1,34 @@
-import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
-import McpHttpServer from "./mcp-framework/mcp-http-server"
+import McpHttpServer from "./mcpFramework/mcp-http-server"
+import appConst from "./env/app-consts";
+import AnalysisDataServer from "./dataServer/analysis-data-server";
+import { loadEnvVars } from "./env/env-vars";
+import mongoDBService from "./utils/mongodb-service";
+import McpDataServer from "./mcpFramework/mcp-data-server";
+import { getProjectNameFromPath } from "./utils/fs-utils";
 
 /**
  * Main function to run the program.
  */
-function main() {
+async function main() {
   console.log(`START: ${new Date().toISOString()}`);
-  const mcpServer = configureMCPServer();
-  const mcpHttpServer = new McpHttpServer(mcpServer, "localhost");
-  const httpServer = mcpHttpServer.configureHTTPServer();
-  httpServer.listen(3001, () => { console.log("MCP server listening on port 3001"); });
-  httpServer.on("close", () => { console.log(`END: ${new Date().toISOString()}`); });    
-}
 
-/**
- * Configures the Model Context Protocol (MCP) server with tools and resources.
- */
-function configureMCPServer() {
-  const mcpServer = new McpServer({ name: "example-server", version: "1.0.0" });
-  mcpServer.tool("add",
-    { a: z.number(), b: z.number() },
-    ({ a, b }: { a: number; b: number; }) => ({
-      content: [{ type: "text", text: String(a + b) }]
-    })
-  );
-  mcpServer.resource(
-    "greeting",
-    new ResourceTemplate("greeting://{name}", { list: undefined }),
-    (uri, { name }) => ({
-      contents: [{
-        uri: uri.href,
-        text: `Hello, ${Array.isArray(name) ? name.join(", ") : name}!`
-      }]
-    })
-  );
-  return mcpServer;
+  try {
+    const env = loadEnvVars();
+    const srcDirPath = env.CODEBASE_DIR_PATH;
+    const projectName = getProjectNameFromPath(srcDirPath);     
+    const mdbURL = env.MONGODB_URL; 
+    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
+    const analysisDataServer = new AnalysisDataServer(mongoClient, appConst.CODEBASE_DB_NAME, projectName);
+    const mcpDataServer = new McpDataServer(analysisDataServer);
+    const mcpServer = mcpDataServer.configureMCPServer();
+    const mcpHttpServer = new McpHttpServer(mcpServer, appConst.DEFAULT_MCP_HOSTNAME);
+    const httpServer = mcpHttpServer.configureHTTPServer();
+    httpServer.listen(appConst.DEFAULT_MCP_PORT, () => { console.log("MCP server listening on port 3001"); });
+    httpServer.on("close", () => { console.log(`END: ${new Date().toISOString()}`); });    
+  } finally {
+    await mongoDBService.closeAll();
+  }
 }
 
 // Bootstrap
-main();
-
+main().catch(console.error);

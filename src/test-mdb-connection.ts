@@ -21,7 +21,7 @@ async function main() {
     const mdbURL = env.MONGODB_URL; 
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
-    const mongoClient = await mongoDBService.connect("default", mdbURL);
+    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
     const db = mongoClient.db(appConst.CODEBASE_DB_NAME);
     const collName = appConst.SOURCES_COLLCTN_NAME;  
     const result = await collectJavaFilePaths(db, collName, projectName);

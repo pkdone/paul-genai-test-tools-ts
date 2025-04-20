@@ -24,7 +24,7 @@ async function main() {
     console.log(`Processing source files for project: ${projectName}`);
 
     // Ensure database indexes exist first
-    const mongoClient = await mongoDBService.connect("default", mdbURL);
+    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
     const dbInitializer = new DBInitializer(mongoClient, appConst.CODEBASE_DB_NAME, 
                                             appConst.SOURCES_COLLCTN_NAME,
                                             appConst.SUMMARIES_COLLCTN_NAME,

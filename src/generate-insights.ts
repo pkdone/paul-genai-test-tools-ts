@@ -18,7 +18,7 @@ async function main() {
     const projectName = getProjectNameFromPath(srcDirPath);     
     const llmProvider = env.LLM;
     const mdbURL = env.MONGODB_URL; 
-    const mongoClient = await mongoDBService.connect("default", mdbURL);
+    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
     console.log(`Generating insights for project: ${projectName}`);
 
     // Load metadata about every file in the project into the database
