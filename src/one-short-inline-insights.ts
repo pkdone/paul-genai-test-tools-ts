@@ -88,9 +88,7 @@ async function executePromptAgainstCodebase(prompt: TemplatePrompt, codeBlocksCo
   return `\n< ${prompt.key}\n${promptFirstPart}>\n\n${response}\n==========================================================\n\n`;
 }
 
-/**
- * Type to define the key and question of template prompt to ask an LLM
- */ 
+// Type to define the key and question of template prompt to ask an LLM
 interface TemplatePrompt {
   key: string;
   question: string;

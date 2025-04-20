@@ -141,9 +141,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   protected abstract extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary;
 }
 
-/**
- * Type definitions for the Titan specific embeddings LLM response usage.
- */
+// Type definitions for the Titan specific embeddings LLM response usage.
 interface TitanEmbeddingsLLMSpecificResponse {
   embedding?: number[]; 
   inputTextTokenCount?: number;

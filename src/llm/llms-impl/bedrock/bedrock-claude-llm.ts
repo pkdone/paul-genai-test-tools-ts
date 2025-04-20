@@ -55,9 +55,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
   }
 }
 
-/**
- * Type definitions for the Claude specific completions LLM response usage.
- */
+// Type definitions for the Claude specific completions LLM response usage.
 interface ClaudeCompletionLLMSpecificResponse {
   content?: { text: string }[];
   stop_reason?: string;

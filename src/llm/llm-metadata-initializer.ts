@@ -82,9 +82,7 @@ function doPropertyCheck(optionalPropsToCheck: ModelMetadataOptionalPropsToCheck
   return ((!(property in optionalPropsToCheck)) || (optionalPropsToCheck[property] === purpose));
 }
 
-/**
- * Enum to define the keys of the LLM metadata properties
- */
+// Enum to define the keys of the LLM metadata properties
 enum LlmMetadataProps { 
   MODEL_ID = "modelId",
   PURPOSE = "purpose",
@@ -94,16 +92,11 @@ enum LlmMetadataProps {
   API_FAMILY = "apiFamily",
 };
 
-/**
- * Type to define the set of seemingly optional model metadata properties that are actually
- * mandatory depending on the purpose of the model.
- */
+// Type to define the set of seemingly optional model metadata properties that are actually
 type ModelMetadataOptionalPropsToCheck = Readonly<Record<string, LLMPurpose>>;
 
-/**
- * Set of seemingly optional model metadata properties that are actual mandatory depending on the 
- * purpose of the model.
- */
+// Set of seemingly optional model metadata properties that are actual mandatory depending on the 
+// purpose of the model.
 const modelMetadataOptionalPropsToCheck: ModelMetadataOptionalPropsToCheck = {
   [LlmMetadataProps.DIMENSIONS]: LLMPurpose.EMBEDDINGS,
   [LlmMetadataProps.MAX_COMPLETION_TOKENS]: LLMPurpose.COMPLETIONS,

@@ -2,7 +2,7 @@ import { MongoClient, Collection, Sort } from "mongodb";
 import appConst from "../env/app-consts";
 
 // Enum for complexity levels
-export enum Complexity {
+enum Complexity {
   LOW = "low",
   MEDIUM = "medium",
   HIGH = "high",

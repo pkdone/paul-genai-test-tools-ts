@@ -9,6 +9,9 @@ interface SummariesRecord {
    };
 }
 
+/**
+ * Class to handle analysis data server operations.
+ */
 export default class AnalysisDataServer {
   // Private fields
   private readonly colctn: Collection<SummariesRecord>;

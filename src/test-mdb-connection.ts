@@ -5,14 +5,6 @@ import { loadEnvVars } from "./env/env-vars";
 import { getProjectNameFromPath } from "./utils/fs-utils";
 
 /**
- * Interface for the project document
- */
-interface ProjectDoc {
-  projectName: string,
-  filepath: string,
-}  
-
-/**
  * Main function to run the program.
  */
 async function main() {
@@ -40,6 +32,12 @@ async function collectJavaFilePaths(db: Db, collName: string, prjName: string) {
              .map(doc => doc.filepath)
              .toArray();
 }
+
+// Interface for the project document
+interface ProjectDoc {
+  projectName: string,
+  filepath: string,
+}  
 
 // Bootstrap
 main().catch(console.error);

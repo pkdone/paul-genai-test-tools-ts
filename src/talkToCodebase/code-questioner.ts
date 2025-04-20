@@ -7,9 +7,7 @@ import { PromptBuilder } from "../promptTemplating/prompt-builder";
 import { transformJSToTSFilePath } from "../utils/fs-utils";
 import { llmConst } from "../types/llm-constants";
 
-/**
- * Interface for source file record
- */
+// Interface for source file record
 interface SourceFileCodeMetadata {
   projectName: string;
   type: string;

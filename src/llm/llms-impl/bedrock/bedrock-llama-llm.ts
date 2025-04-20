@@ -52,9 +52,7 @@ You are a helpful software engineering and programming assistant, and you need t
   }
 }
 
-/**
- * Type definitions for the Llama specific completions LLM response usage.
- */
+// Type definitions for the Llama specific completions LLM response usage.
 interface LlamaCompletionLLMSpecificResponse {
   generation?: string; 
   stop_reason?: string;
