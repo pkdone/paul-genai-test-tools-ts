@@ -1,19 +1,17 @@
 import { Db } from "mongodb";
 import appConst from "./env/app-consts";
 import mongoDBService from "./utils/mongodb-service";
-import { loadEnvVars } from "./env/env-vars";
 import { getProjectNameFromPath } from "./utils/fs-utils";
+import { bootstrap } from "./env/bootstrap";
 
 /**
  * Main function to run the program.
  */
 async function main() {
   try {
-    const env = loadEnvVars();
-    const mdbURL = env.MONGODB_URL; 
+    const { env, mongoClient } = await bootstrap();   
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
-    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
     const db = mongoClient.db(appConst.CODEBASE_DB_NAME);
     const collName = appConst.SOURCES_COLLCTN_NAME;  
     const result = await collectJavaFilePaths(db, collName, projectName);

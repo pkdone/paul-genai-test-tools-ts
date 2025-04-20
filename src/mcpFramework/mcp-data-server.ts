@@ -1,5 +1,5 @@
 import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
-import AnalysisDataServer from "../dataServer/analysis-data-server";
+import AnalysisDataServer from "../insightsServer/insights-data-server";
 import { z } from "zod";
 
 // Constants for the MCP server
@@ -30,7 +30,7 @@ class McpDataServer {
       async (uri) => ({
         contents: [{
           uri: uri.href,
-          text: await this.analysisDataServer.getBusinessProcesses(),
+          text: JSON.stringify(await this.analysisDataServer.getBusinessProcesses(), null, 2),
         }]
       })
     );

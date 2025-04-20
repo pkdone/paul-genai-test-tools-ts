@@ -2,9 +2,8 @@ import appConst from "./env/app-consts";
 import DBInitializer from "./codebaseDBLoader/db-initializer";
 import { getProjectNameFromPath } from "./utils/fs-utils";
 import mongoDBService from "./utils/mongodb-service";
-import LLMRouter from "./llm/llm-router";
 import CodebaseToDBLoader from "./codebaseDBLoader/codebase-loader";
-import { loadEnvVars } from "./env/env-vars";
+import { bootstrap } from "./env/bootstrap";
 
 /**
  * Main function to run the program.
@@ -13,18 +12,13 @@ async function main() {
   console.log(`START: ${new Date().toISOString()}`);
 
   try {
-    // Load environment variables
-    const env = loadEnvVars();
+    const { env, mongoClient, llmRouter } = await bootstrap();   
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
-    const llmProvider = env.LLM;
-    const mdbURL = env.MONGODB_URL; 
     const ignoreIfAlreadyCaptured = env.IGNORE_ALREADY_PROCESSED_FILES;
-    const llmRouter = new LLMRouter(llmProvider);  
     console.log(`Processing source files for project: ${projectName}`);
 
     // Ensure database indexes exist first
-    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
     const dbInitializer = new DBInitializer(mongoClient, appConst.CODEBASE_DB_NAME, 
                                             appConst.SOURCES_COLLCTN_NAME,
                                             appConst.SUMMARIES_COLLCTN_NAME,

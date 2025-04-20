@@ -1,9 +1,8 @@
 import { getProjectNameFromPath, getTextLines } from "./utils/fs-utils";
 import mongoDBService from "./utils/mongodb-service";
-import LLMRouter from "./llm/llm-router";
-import { loadEnvVars } from "./env/env-vars";
 import CodeQuestioner from "./talkToCodebase/code-questioner";
 import appConst from "./env/app-consts";
+import { bootstrap } from "./env/bootstrap";
 
 /** 
  * Main app runner to query a codebase, using the RAG pattern of first finding likely revelant
@@ -14,14 +13,10 @@ async function main() {
   console.log(`START: ${new Date().toISOString()}`);
 
   try {
-    const env = loadEnvVars();
+    const { env, mongoClient, llmRouter } = await bootstrap();   
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
-    const llmProvider = env.LLM;
-    const mdbURL = env.MONGODB_URL; 
     console.log(`Performing vector search then invoking LLM for optimal results for for project: ${projectName}`);
-    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
-    const llmRouter = new LLMRouter(llmProvider);  
     const codeQuestioner = new CodeQuestioner(mongoClient, llmRouter, projectName);
     const questions = await getTextLines(appConst.QUESTIONS_PROMPTS_FILEPATH);
 

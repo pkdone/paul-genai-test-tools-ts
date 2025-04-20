@@ -5,7 +5,7 @@ import { readFile, writeFile, clearDirectory, getFileSuffix, buildDirDescendingL
 import { promiseAllThrottled } from "./utils/control-utils";
 import { logErrorMsgAndDetail, getErrorText } from "./utils/error-utils";
 import LLMRouter from "./llm/llm-router";
-import { loadEnvVars } from "./env/env-vars";
+import { bootstrap } from "./env/bootstrap";
 
 /**
  * Main function to run the program.
@@ -13,16 +13,14 @@ import { loadEnvVars } from "./env/env-vars";
 async function main()
  {
   console.log(`START: ${new Date().toISOString()}`);
-  const env = loadEnvVars();
+  const { env, llmRouter } = await bootstrap();   
   const srcDirPath = env.CODEBASE_DIR_PATH.replace(/\/$/, "");
   const filepaths = await buildDirDescendingListOfFiles(srcDirPath);
-  const llmProvider = env.LLM;
-  const llmRouter = new LLMRouter(llmProvider);  
   llmRouter.displayLLMStatusSummary();
   const result = await mergeSourceFilesAndAskQuestionsOfItToAnLLM(llmRouter, filepaths, srcDirPath);
   await clearDirectory(appConst.OUTPUT_DIR);  
   const outputFilePath = path.join(__dirname, "..", appConst.OUTPUT_DIR, appConst.OUTPUT_SUMMARY_FILE);
-  await writeFile(outputFilePath, `-- ${llmProvider} --\n${result}`); 
+  await writeFile(outputFilePath, `-- ${env.LLM} --\n${result}`); 
   llmRouter.displayLLMStatusDetails();
   await llmRouter.close();
   console.log(`View generared results at: file://${outputFilePath}`);
@@ -52,7 +50,7 @@ async function mergeSourceFilesContent(filepaths: string[], srcDirPath: string) 
   let mergedContent = "";
 
   for (const filepath of filepaths) {
-    const relativeFilepath = filepath.replace(srcDirPath + "/", "");
+    const relativeFilepath = filepath.replace(`${srcDirPath}/`, "");    
     const type = getFileSuffix(filepath).toLowerCase();
     if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof appConst.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) continue; // Skip file if it has binary content
     const content = await readFile(filepath);
@@ -156,6 +154,14 @@ programming style solution.`,
     question:
 `Identifiy any parts of the codebase that are missing TypeScript types for function parameters, 
  or variables.`,
+  },    
+  {
+    key: "INTERFACES-VS-TYPES",
+    question:
+`Using TypeScript best practices for when to use Interfaces vs Types, and whether to define these 
+within existing source code files containing other code or to have in their own types file or 
+folder, highlight when these best practices are not being adopted, in what way, and recommend how 
+to resolve.`,
   },    
   {
     key: "MISSING-SEMICOLONS",

@@ -2,8 +2,7 @@ import mongoDBService from "./utils/mongodb-service";
 import appConst from "./env/app-consts";
 import SummariesGenerator from "./insightGenerator/summaries-generator";
 import { getProjectNameFromPath } from "./utils/fs-utils";
-import LLMRouter from "./llm/llm-router";
-import { loadEnvVars } from "./env/env-vars";
+import { bootstrap } from "./env/bootstrap";
 
 /**
  * Main function to run the program.
@@ -12,17 +11,10 @@ async function main() {
   console.log(`START: ${new Date().toISOString()}`);
 
   try {
-    // Load environment variables
-    const env = loadEnvVars();
+    const { env, mongoClient, llmRouter } = await bootstrap();   
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
-    const llmProvider = env.LLM;
-    const mdbURL = env.MONGODB_URL; 
-    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
     console.log(`Generating insights for project: ${projectName}`);
-
-    // Load metadata about every file in the project into the database
-    const llmRouter = new LLMRouter(llmProvider);  
     console.log("LLM inovocation event types that will be recorded:");
     llmRouter.displayLLMStatusSummary();
     const summariesGenerator = new SummariesGenerator(mongoClient, llmRouter, 

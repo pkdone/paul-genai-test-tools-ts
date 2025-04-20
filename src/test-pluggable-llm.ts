@@ -1,16 +1,14 @@
 import appConst from "./env/app-consts";
 import { readFile } from "./utils/fs-utils";
-import LLMRouter from "./llm/llm-router";
-import { loadEnvVars } from "./env/env-vars";
 import { LLMModelQuality } from "./types/llm-types";
+import { bootstrap } from "./env/bootstrap";
 
 /**
  * Main function to run the program.
  */
 async function main() {
-  const env = loadEnvVars();
+  const { llmRouter } = await bootstrap();   
   console.log(`START: ${new Date().toISOString()}`);
-  const llmRouter = new LLMRouter(env.LLM);  
   const prompt = await readFile(appConst.SAMPLE_PROMPT_FILEPATH);
   console.log("\n---PROMPT---");
   console.log(prompt);

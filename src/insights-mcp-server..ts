@@ -1,21 +1,19 @@
 import McpHttpServer from "./mcpFramework/mcp-http-server"
 import appConst from "./env/app-consts";
-import AnalysisDataServer from "./dataServer/analysis-data-server";
-import { loadEnvVars } from "./env/env-vars";
+import AnalysisDataServer from "./insightsServer/insights-data-server";
 import mongoDBService from "./utils/mongodb-service";
 import McpDataServer from "./mcpFramework/mcp-data-server";
 import { getProjectNameFromPath } from "./utils/fs-utils";
+import { bootstrap } from "./env/bootstrap";
 
 /**
  * Main function to run the program.
  */
 async function main() {
   console.log(`START: ${new Date().toISOString()}`);
-  const env = loadEnvVars();
+  const { env, mongoClient } = await bootstrap();   
   const srcDirPath = env.CODEBASE_DIR_PATH;
   const projectName = getProjectNameFromPath(srcDirPath);     
-  const mdbURL = env.MONGODB_URL; 
-  const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
   const analysisDataServer = new AnalysisDataServer(mongoClient, appConst.CODEBASE_DB_NAME, projectName);
   const mcpDataServer = new McpDataServer(analysisDataServer);
   const mcpServer = mcpDataServer.configure();
