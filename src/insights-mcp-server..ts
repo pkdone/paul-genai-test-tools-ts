@@ -11,23 +11,21 @@ import { getProjectNameFromPath } from "./utils/fs-utils";
  */
 async function main() {
   console.log(`START: ${new Date().toISOString()}`);
-
-  try {
-    const env = loadEnvVars();
-    const srcDirPath = env.CODEBASE_DIR_PATH;
-    const projectName = getProjectNameFromPath(srcDirPath);     
-    const mdbURL = env.MONGODB_URL; 
-    const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
-    const analysisDataServer = new AnalysisDataServer(mongoClient, appConst.CODEBASE_DB_NAME, projectName);
-    const mcpDataServer = new McpDataServer(analysisDataServer);
-    const mcpServer = mcpDataServer.configureMCPServer();
-    const mcpHttpServer = new McpHttpServer(mcpServer, appConst.DEFAULT_MCP_HOSTNAME);
-    const httpServer = mcpHttpServer.configureHTTPServer();
-    httpServer.listen(appConst.DEFAULT_MCP_PORT, () => { console.log("MCP server listening on port 3001"); });
-    httpServer.on("close", () => { console.log(`END: ${new Date().toISOString()}`); });    
-  } finally {
-    await mongoDBService.closeAll();
-  }
+  const env = loadEnvVars();
+  const srcDirPath = env.CODEBASE_DIR_PATH;
+  const projectName = getProjectNameFromPath(srcDirPath);     
+  const mdbURL = env.MONGODB_URL; 
+  const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, mdbURL);
+  const analysisDataServer = new AnalysisDataServer(mongoClient, appConst.CODEBASE_DB_NAME, projectName);
+  const mcpDataServer = new McpDataServer(analysisDataServer);
+  const mcpServer = mcpDataServer.configure();
+  const mcpHttpServer = new McpHttpServer(mcpServer, appConst.DEFAULT_MCP_HOSTNAME);
+  const httpServer = mcpHttpServer.configure();
+  httpServer.listen(appConst.DEFAULT_MCP_PORT, () => { console.log("MCP server listening on port 3001"); });
+  httpServer.on("close", () => {
+    mongoDBService.closeAll().catch(console.error);
+    console.log(`END: ${new Date().toISOString()}`);
+  });    
 }
 
 // Bootstrap

@@ -22,7 +22,7 @@ class McpDataServer {
   /**
    * Configures the MCP server with the given AnalysisDataServer.
    */
-  configureMCPServer() {
+  configure() {
     const mcpServer = new McpServer({ name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION });
     mcpServer.resource(
       BUSPROCS_RSC_NAME,

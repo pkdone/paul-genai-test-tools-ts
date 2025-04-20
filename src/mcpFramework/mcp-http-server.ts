@@ -33,7 +33,7 @@ class McpHttpServer {
   /**
    * Configures the HTTP server to handle incoming requests.
    */
-  configureHTTPServer() {
+  configure() {
     const asyncHandler = this.getHttpAsyncHandler();  
     return createServer((req: IncomingMessage, res: ServerResponse) => {
       asyncHandler(req, res).catch((error: unknown) => {

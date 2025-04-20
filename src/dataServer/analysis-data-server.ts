@@ -24,10 +24,9 @@ export default class AnalysisDataServer {
    * Creates a new application summary record in the database.
    */
   async getBusinessProcesses() {
-    //const processes = await this.getBusinessProcessList();
-    //const processString = processes.map((process) => process?.name).join(", ");
-    //return processString;
-    return await Promise.resolve("Order Management, Catalog Management, Customer Account Management");
+    const processes = await this.getBusinessProcessList();
+    const processString = processes.map((process) => process?.name).join(", ");
+    return processString;
   }
 
   /**
@@ -44,8 +43,7 @@ export default class AnalysisDataServer {
       },
       sort: { "busprocesses": 1 } as Sort,
     };
-    const cursor = this.colctn.find(query, options);
-    const records = await cursor.toArray();
+    const records = await this.colctn.find(query, options).toArray();
     return records.flatMap(record => record.busprocesses);
   }
 }
