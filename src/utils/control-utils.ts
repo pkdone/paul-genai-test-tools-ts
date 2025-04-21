@@ -16,7 +16,7 @@ export async function promiseAllThrottled<T>(tasks: PromiseFunction<T>[], maxCon
   const totalTasks = tasks.length;
 
   while (tasks.length) {
-    console.log(`Processing next batch of ${String(Math.min(tasks.length, maxConcurrency))} tasks (already processed: ${String(totalTasks - tasks.length)} of ${String(totalTasks)} tasks)`);
+    console.log(`Processing next batch of ${Math.min(tasks.length, maxConcurrency)} tasks (already processed: ${totalTasks - tasks.length} of ${totalTasks} tasks)`);
     const batch = tasks.splice(0, maxConcurrency).map(async f => f());
     results.push(...await Promise.all(batch));
   }

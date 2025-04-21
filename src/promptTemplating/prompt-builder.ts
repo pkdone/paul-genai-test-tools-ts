@@ -49,7 +49,7 @@ export class PromptBuilder {
       const content = await fileContentPromise;
       this.promptFileCache.set(promptFilePath, Promise.resolve(content)); 
       return content;
-    } catch (error) {
+    } catch (error: unknown) {
       this.promptFileCache.delete(promptFilePath);
       console.error(`Failed to load prompt file contents for "${promptFilePath}":`, error);
       throw error;

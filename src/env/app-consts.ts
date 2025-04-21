@@ -1,7 +1,7 @@
 /**
  * Define the object of constants
  */
-const baseAppConst = {
+const appConst = {
   DEFAULT_MCP_HOSTNAME: "localhost",
   DEFAULT_MCP_PORT: 3001,
   OUTPUT_DIR: "output",
@@ -74,6 +74,4 @@ const baseAppConst = {
   } as const,
 } as const;
 
-// Freeze it so it can’t be mutated at runtime and then export it
-const appConst = Object.freeze(baseAppConst);
 export default appConst;

@@ -53,7 +53,7 @@ class MongoDBService {
 
       this.clients.set(id, newClient);
       return newClient;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`Failed to connect to MongoDB: ${JSON.stringify(error)}`);
       throw new MongoError(`Failed to connect to MongoDB with id '${id}'.`);
     }
@@ -80,7 +80,7 @@ class MongoDBService {
       try {
         await client.close();
         console.log(`Closed MongoDB connection for id '${id}'.`);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(`Error closing MongoDB client '${id}': ${JSON.stringify(error)}`);
       }
     }

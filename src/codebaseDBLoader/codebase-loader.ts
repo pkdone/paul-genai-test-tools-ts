@@ -38,7 +38,7 @@ class CodebaseToDBLoader {
   private async insertSourceContentIntoDB(filepaths: string[]) {
     const db = this.mongoClient.db(appConst.CODEBASE_DB_NAME);
     const colctn = db.collection(appConst.SOURCES_COLLCTN_NAME);    
-    console.log(`Creating metadata for ${filepaths.length.toString()} files to the MongoDB database collection: '${db.databaseName}.${colctn.collectionName}'`);
+    console.log(`Creating metadata for ${filepaths.length} files to the MongoDB database collection: '${db.databaseName}.${colctn.collectionName}'`);
     
     if (!this.ignoreIfAlreadyCaptured) {
       console.log(`Deleteing older version of the project's metadata files from the database to enable the metadata to be re-generated - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to avoid re-processing of all files`);

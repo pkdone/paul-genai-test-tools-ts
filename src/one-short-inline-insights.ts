@@ -121,8 +121,8 @@ of newer versions of JavaScript up to the 14th Edition of ECMAScript (ECMAScript
   {
     key: "BAD-PRACTICE",
     question:
-`Identify any bits of code that aren't leveraging 'const' or even 'readonly' rather then 'let' for
- variable declarations, when they could be.`,
+`Identify any bits of code that aren't leveraging 'const' (rather then 'let'), 'as const' or 
+'readonly' for variable declarations, when they could be.`,
   },    
   {
     key: "CODE-ORGANIZATION",
@@ -153,7 +153,9 @@ programming style solution.`,
     key: "MISSING-TYPES",
     question:
 `Identifiy any parts of the codebase that are missing TypeScript types for function parameters, 
- or variables.`,
+or variables. I prefer not to have types defined for the return value of functions, but if you 
+think it is important, please include it. Also, if you think the type is too generic, please 
+suggest a more specific type.`,
   },    
   {
     key: "INTERFACES-VS-TYPES",

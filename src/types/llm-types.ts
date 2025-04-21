@@ -62,7 +62,7 @@ export interface LLMModelMetadata {
 /**
  * Intermediate type to use when moving JSON data to final strongly typed LLMModelMetadata type
  */
-export type JSONLLMModelMetadata = Record<string, unknown> & {
+export interface JSONLLMModelMetadata extends Record<string, unknown> {
   readonly modelId?: string;
   readonly purpose?: string;
   readonly dimensions?: number;

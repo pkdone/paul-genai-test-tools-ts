@@ -35,7 +35,7 @@ test("LLM metadata positive check", () => {
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
-  };
+  } as const;
   expect(assembleLLMModelMetadataFromJSON(dummyModels)).toStrictEqual(dummyModels);
 });
 
@@ -47,7 +47,7 @@ test("LLM metadata negative check - dimensions field missing", () => {
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
-  };
+  } as const;
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
@@ -59,7 +59,7 @@ test("LLM metadata negative check - maxCompletionTokens field missing", () => {
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
-  };
+  } as const;
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
@@ -72,7 +72,7 @@ test("LLM metadata negative check - purpose field bad enum", () => {
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
-  };
+  } as const;
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
@@ -85,7 +85,7 @@ test("LLM metadata negative check - dimensions is not positive num - minus", () 
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
-  };
+  } as const;
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
@@ -98,7 +98,7 @@ test("LLM metadata negative check - dimensions is not positive num - zero", () =
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
-  };
+  } as const;
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
@@ -111,7 +111,7 @@ test("LLM metadata negative check - maxCompletionTokens is not positive num", ()
       maxTotalTokens: 8191,
       apiFamily: "OpenAI",
     }
-  };
+  } as const;
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
@@ -124,7 +124,7 @@ test("LLM metadata negative check - maxTotalTokens is not positive num", () => {
       maxTotalTokens: -1,
       apiFamily: "OpenAI",
     }
-  };
+  } as const;
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
 
@@ -137,6 +137,6 @@ test("LLM metadata negative check - apiFamily field bad enum", () => {
       maxTotalTokens: 8191,
       apiFamily: "XXXXXXXXXXXXXXXXXXX",
     }
-  };
+  } as const;
   expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
 });
