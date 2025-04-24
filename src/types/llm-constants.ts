@@ -72,7 +72,8 @@ export const modelMappings = {
  *    for some LLM responses, so using a few tokens buffer to come up with a limit of 4088
  * 
  *  - AWS_COMPLETIONS_CLAUDE_V37: For the model's ID, need to use the ARN of an inference profile 
- *    for the particlar region,
+ *    for the particlar region, Also, Bedrock seems to be limiting the max model tokens to 132k and 
+ *    erroring if greater, even though Bedrock advertises it as 200k.
  * 
  *  - AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT & AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT: Not clear if
  *    'maxCompletionTokens' is actually less than listed value of 8192

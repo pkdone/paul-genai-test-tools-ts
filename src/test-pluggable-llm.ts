@@ -1,13 +1,13 @@
 import appConst from "./env/app-consts";
 import { readFile } from "./utils/fs-utils";
 import { LLMModelQuality } from "./types/llm-types";
-import { bootstrap } from "./env/bootstrap";
+import { bootstrapJustLLM } from "./env/bootstrap";
 
 /**
  * Main function to run the program.
  */
 async function main() {
-  const { llmRouter } = await bootstrap();   
+  const llmRouter = bootstrapJustLLM();
   console.log(`START: ${new Date().toISOString()}`);
   const prompt = await readFile(appConst.SAMPLE_PROMPT_FILEPATH);
   console.log("\n---PROMPT---");

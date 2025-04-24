@@ -97,3 +97,5 @@ For later Bedrock hosted models, need to use the ARN of an inference profile for
 ```console
 aws bedrock list-inference-profiles
 ```
+
+From this output, use the URL defined for the `inferenceProfileArn` parameter.

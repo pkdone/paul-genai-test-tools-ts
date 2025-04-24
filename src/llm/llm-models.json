@@ -112,10 +112,10 @@
     "apiFamily": "Bedrock"
   },
   "AWS_COMPLETIONS_CLAUDE_V37": {
-    "modelId": "arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-3-7-sonnet-20250219-v1:0",
+    "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 4086,
-    "maxTotalTokens": 200000,
+    "maxTotalTokens": 131072,
     "apiFamily": "Bedrock"
   },
   "AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT": {
@@ -140,7 +140,7 @@
     "apiFamily": "Bedrock"
   },
   "AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT": {
-    "modelId": "meta.llama3-3-70b-instruct-v1:0",
+    "modelId": "us.meta.llama3-3-70b-instruct-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 128000,

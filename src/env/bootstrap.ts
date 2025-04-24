@@ -9,3 +9,8 @@ export async function bootstrap() {
   const llmRouter = new LLMRouter(env.LLM);
   return { env, mongoClient, llmRouter };
 }
+
+export function bootstrapJustLLM() {
+  const env = loadEnvVars();
+  return new LLMRouter(env.LLM);
+}
