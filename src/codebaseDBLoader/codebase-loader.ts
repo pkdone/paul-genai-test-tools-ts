@@ -65,7 +65,7 @@ class CodebaseToDBLoader {
    */
   private async captureSrcFileMetadataToCollection(colctn: Collection, fullFilepath: string) {    
     const type = getFileSuffix(fullFilepath).toLowerCase();
-    const filepath = fullFilepath.replace(this.srcDirPath + "/", "");
+    const filepath = fullFilepath.replace(`${this.srcDirPath}/`, "");    
     if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof appConst.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) return;  // Skip file if it has binary content
 
     if ((this.ignoreIfAlreadyCaptured) && (await this.doesMedataForFileExistsInDB(colctn, filepath))) {

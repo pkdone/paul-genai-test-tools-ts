@@ -40,9 +40,8 @@ class BedrockNovaLLM extends BaseBedrockLLM {
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-/* eslint-disable */
   protected extractCompletionModelSpecificResponse(llmResponse: NovaCompletionLLMSpecificResponse) {
-    const responseContent = llmResponse?.output.message?.content?.[0].text ?? null;
+    const responseContent = llmResponse.output.message?.content?.[0]?.text ?? null;
     const finishReason = llmResponse.stopReason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
     const isIncompleteResponse = (finishReasonLowercase === "max_tokens") || (!responseContent);
@@ -58,7 +57,7 @@ class BedrockNovaLLM extends BaseBedrockLLM {
 interface NovaCompletionLLMSpecificResponse {
   output: {
     message?: {
-      content: [
+      content?: [
         {
           text: string;
         }
