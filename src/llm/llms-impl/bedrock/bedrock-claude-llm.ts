@@ -34,7 +34,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
       temperature: llmConst.ZERO_TEMP,
       top_p: llmConst.TOP_P_LOWEST,
       top_k: llmConst.TOP_K_LOWEST,
-      max_tokens: llmModels[modelKey].maxTotalTokens,
+      max_tokens: llmModels[modelKey].maxTotalTokens,    
     });
   }
 
@@ -49,7 +49,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
       || !responseContent); // No content - assume prompt maxed out total tokens available
     const promptTokens = llmResponse.usage?.input_tokens ?? -1;
     const completionTokens = llmResponse.usage?.output_tokens ?? -1;
-    const maxTotalTokens = -1;
+    const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
     const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };
   }

@@ -159,5 +159,19 @@
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 131072,
     "apiFamily": "Bedrock"
+  },
+  "AWS_COMPLETIONS_NOVA_PRO_V1": {
+    "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.amazon.nova-pro-v1:0",
+    "purpose": "completions",
+    "maxCompletionTokens": 5000,
+    "maxTotalTokens": 300000,
+    "apiFamily": "Bedrock"
+  },
+  "AWS_COMPLETIONS_NOVA_LITE_V1": {
+    "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.amazon.nova-lite-v1:0",
+    "purpose": "completions",
+    "maxCompletionTokens": 5000,
+    "maxTotalTokens": 300000,
+    "apiFamily": "Bedrock"
   }
 }

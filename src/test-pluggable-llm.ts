@@ -7,7 +7,7 @@ import { bootstrapJustLLM } from "./env/bootstrap";
  * Main function to run the program.
  */
 async function main() {
-  const llmRouter = bootstrapJustLLM();
+  const { llmRouter } = bootstrapJustLLM();
   console.log(`START: ${new Date().toISOString()}`);
   const prompt = await readFile(appConst.SAMPLE_PROMPT_FILEPATH);
   console.log("\n---PROMPT---");

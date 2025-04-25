@@ -6,6 +6,7 @@ import BedrockTitanLLM from "./llms-impl/bedrock/bedrock-titan-llm";
 import BedrockClaudeLLM from "./llms-impl/bedrock/bedrock-claude-llm";
 import BedrockLlamaLLM from "./llms-impl/bedrock/bedrock-llama-llm";
 import BedrockMistralLLM from "./llms-impl/bedrock/bedrock-mistral-llm";
+import BedrockNovaLLM from "./llms-impl/bedrock/bedrock-nova-llm";
 import { loadEnvVars } from "../env/env-vars";
 
 /**
@@ -44,5 +45,8 @@ export function initializeLLMImplementation(providerName: ModelFamily) {
     case ModelFamily.BEDROCK_MISTRAL_MODELS: {
       return new BedrockMistralLLM();
     }
+    case ModelFamily.BEDROCK_NOVA_MODELS: {
+      return new BedrockNovaLLM();
+    }    
   }
 }

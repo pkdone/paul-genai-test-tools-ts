@@ -5,7 +5,7 @@ import { readFile, writeFile, clearDirectory, getFileSuffix, buildDirDescendingL
 import { promiseAllThrottled } from "./utils/control-utils";
 import { logErrorMsgAndDetail, getErrorText } from "./utils/error-utils";
 import LLMRouter from "./llm/llm-router";
-import { bootstrap } from "./env/bootstrap";
+import { bootstrapJustLLM } from "./env/bootstrap";
 
 /**
  * Main function to run the program.
@@ -13,7 +13,7 @@ import { bootstrap } from "./env/bootstrap";
 async function main()
  {
   console.log(`START: ${new Date().toISOString()}`);
-  const { env, llmRouter } = await bootstrap();   
+  const { env, llmRouter } = bootstrapJustLLM();   
   const srcDirPath = env.CODEBASE_DIR_PATH.replace(/\/$/, "");
   const filepaths = await buildDirDescendingListOfFiles(srcDirPath);
   llmRouter.displayLLMStatusSummary();
