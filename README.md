@@ -89,7 +89,7 @@ Then edit the file `~/.aws/config` and rename the line `[profile ...]` for the n
 
 ``` console
 aws sso login
-aws sts get-caller-identity        # to est the CLI works
+aws sts get-caller-identity        # to test the CLI works
 ```
 
 For later Bedrock hosted models, need to use the ARN of an inference profile for the particlar region for the model id. To see the region ARNs for models in Bedrock, run:
