@@ -3,18 +3,18 @@ import { ModelKey } from "../../../types/llm-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /** 
- * Class for the AWS Bedrock [Anthropic] Claude LLMs.
+ * Class for the AWS Bedrock [Anthropic] Nova LLMs.
  */
 class BedrockNovaLLM extends BaseBedrockLLM {
   /**
    * Constructor.
    */
   constructor() { 
-    super(modelMappings.AWS_CLAUDE_EMBEDDINGS_MODEL_KEY, modelMappings.AWS_NOVA_COMPLETIONS_MODELS_KEYS); 
+    super(modelMappings.AWS_NOVA_EMBEDDINGS_MODEL_KEY, modelMappings.AWS_NOVA_COMPLETIONS_MODELS_KEYS); 
   }
 
   /**
-   * Assemble the Bedrock parameters for Claude completions only.
+   * Assemble the Bedrock parameters for Nova completions only.
    */
   protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
     return JSON.stringify({
