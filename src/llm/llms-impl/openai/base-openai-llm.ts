@@ -1,6 +1,7 @@
 import { OpenAI, RateLimitError, InternalServerError } from "openai";
 import { APIError } from "openai/error";
-import { LLMPurpose, ModelKey } from "../../../types/llm-types";
+import { LLMPurpose } from "../../../types/llm-types";
+import { ModelKey } from "../../../types/llm-models-metadata";
 import AbstractLLM from "../base/abstract-llm";
 
 /**

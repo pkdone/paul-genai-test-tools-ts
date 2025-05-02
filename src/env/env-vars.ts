@@ -1,6 +1,6 @@
 import { z } from "zod";
 import dotenv from "dotenv";
-import { ModelFamily } from "../types/llm-types";
+import { ModelFamily } from "../types/llm-models-metadata";
 
 /**
  * Utility function to load environment variables and validate them.

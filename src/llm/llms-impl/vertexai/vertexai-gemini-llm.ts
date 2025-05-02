@@ -2,8 +2,9 @@ import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshol
          ClientError } from "@google-cloud/vertexai";
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
-import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
-import { LLMPurpose, ModelKey } from "../../../types/llm-types";
+import { llmConst } from "../../../types/llm-constants";
+import { ModelKey } from "../../../types/llm-models-metadata";
+import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
@@ -28,8 +29,8 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Constructor
    */
-  constructor(project: string, location: string) {
-    super(modelMappings.VERTEXAI_EMBEDDINGS_MODEL_KEY, modelMappings.VERTEXAI_COMPLETIONS_MODELS_KEYS); 
+  constructor(modelsKeys: LLMModelSet, project: string, location: string) {
+    super(modelsKeys); 
     this.vertexAiApiClient = new VertexAI({project, location});
     this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });
     this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;
@@ -136,7 +137,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
   private buildFullEmebddingsLLMParameters(modelKey: ModelKey, prompt: string) {
-    const model = llmModels[modelKey].modelId;
+    const model = this.llmModelsMetadata[modelKey].modelId;
     const endpoint = `${this.apiEndpointPrefix}${model}`;
     const instance = helpers.toValue({ content: prompt, task_type: llmConst.GCP_API_EMBEDDINGS_TASK_TYPE });
     if (!instance) throw new BadConfigurationLLMError("Failed to convert prompt to IValue");
@@ -149,13 +150,13 @@ class VertexAIGeminiLLM extends AbstractLLM {
    */
   private buildFullCompletionLLMParameters(modelKey: ModelKey) {
     const modelParams = { 
-      model: llmModels[modelKey].modelId,
+      model: this.llmModelsMetadata[modelKey].modelId,
       generationConfig: { 
         candidateCount: 1,
         topP: llmConst.TOP_P_LOWEST,
         topK: llmConst.TOP_K_LOWEST,
         temperature: llmConst.ZERO_TEMP,   
-        maxOutputTokens: llmModels[modelKey].maxCompletionTokens,
+        maxOutputTokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       },
       safetySettings: [
         { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },

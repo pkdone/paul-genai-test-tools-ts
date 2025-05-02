@@ -1,5 +1,5 @@
-import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
-import { ModelKey } from "../../../types/llm-types";
+import { llmConst } from "../../../types/llm-constants";
+import { ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /** 
@@ -7,19 +7,12 @@ import BaseBedrockLLM from "./base-bedrock-llm";
  */
 class BedrockNovaLLM extends BaseBedrockLLM {
   /**
-   * Constructor.
-   */
-  constructor() { 
-    super(modelMappings.AWS_NOVA_EMBEDDINGS_MODEL_KEY, modelMappings.AWS_NOVA_COMPLETIONS_MODELS_KEYS); 
-  }
-
-  /**
    * Assemble the Bedrock parameters for Nova completions only.
    */
   protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
     return JSON.stringify({
       inferenceConfig: {
-        max_new_tokens: llmModels[modelKey].maxCompletionTokens,
+        max_new_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
         temperature: llmConst.ZERO_TEMP,
         top_p: llmConst.TOP_P_LOWEST,
         top_k: llmConst.TOP_K_LOWEST,

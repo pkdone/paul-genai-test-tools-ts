@@ -1,3 +1,5 @@
+import { ModelKey } from "./llm-models-metadata";
+
 /**
  * Interface for LLM implementation provider
  */
@@ -5,7 +7,7 @@ export interface LLMProviderImpl {
   generateEmbeddings: LLMFunction,
   executeCompletionPrimary: LLMFunction,
   executeCompletionSecondary: LLMFunction,
-  getModelsNames(): LLMConfiguredModelTypesNames,
+  getModelsNames(): string[],
   getAvailableCompletionModelQualities(): LLMModelQuality[],
   getEmbeddedModelDimensions(): number | undefined,
   close(): Promise<void>,
@@ -22,10 +24,10 @@ export enum LLMModelQuality {
 /**
  * Types to define the status types statistics
  */
-export interface LLMConfiguredModelTypesNames {
-  embeddings: string,
-  primary: string,
-  secondary: string,
+export interface LLMModelSet {
+  embeddings: ModelKey,
+  primaryCompletion: ModelKey,
+  secondaryCompletion?: ModelKey,
 }
 
 /**
@@ -110,7 +112,7 @@ export interface LLMFunctionResponse {
   readonly context: LLMContext,
   readonly generated?: LLMGeneratedContent,
   readonly tokensUage?: LLMResponseTokensUsage,
-}
+};
 
 /**
  * Type to define the embedding or completion function
@@ -124,7 +126,7 @@ export interface LLMStatsCategoryStatus {
   readonly description: string,
   readonly symbol: string,
   count: number,
-}
+};
 
 /**
  * Type to define the status types
@@ -136,7 +138,7 @@ export interface LLMStatsCategoriesSummary {
   readonly RETRY: LLMStatsCategoryStatus,
   readonly CROP: LLMStatsCategoryStatus,
   readonly TOTAL?: LLMStatsCategoryStatus,
-}
+};
 
 /**
  * Type to define the pattern definition for the error messages
@@ -144,52 +146,4 @@ export interface LLMStatsCategoriesSummary {
 export interface LLMErrorMsgRegExPattern {
   readonly pattern: RegExp,
   readonly units: string,
-}
-
-/**
- * Enum to define the LLM model family.
- */
-export enum ModelFamily {
-  OPENAI_MODELS = "OpenAI",
-  AZURE_OPENAI_MODELS = "AzureOpenAI",
-  VERTEXAI_GEMINI_MODELS = "VertexAIGemini",
-  BEDROCK_TITAN_MODELS = "BedrockTitan",
-  BEDROCK_CLAUDE_MODELS = "BedrockClaude",
-  BEDROCK_LLAMA_MODELS = "BedrockLlama",
-  BEDROCK_MISTRAL_MODELS = "BedrockMistral",
-  BEDROCK_NOVA_MODELS = "BedrockNova",
-  BEDROCK_DEEPSEEK_MODELS = "BedrockDeepseek",
-};
-
-/**
- * Enum to define the keys of the service provider-speciifc exposed LLM models.
- */
-export enum ModelKey {
-  UNSPECIFIED = "UNSPECIFIED",
-  GPT_EMBEDDINGS_ADA002 = "GPT_EMBEDDINGS_ADA002",
-  GPT_EMBEDDINGS_TEXT_3SMALL = "GPT_EMBEDDINGS_TEXT_3SMALL",
-  GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4",
-  GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k",
-  GPT_COMPLETIONS_GPT4_TURBO = "GPT_COMPLETIONS_GPT4_TURBO",
-  GPT_COMPLETIONS_GPT4_O = "GPT_COMPLETIONS_GPT4_O",
-  GCP_EMBEDDINGS_ADA_GECKO = "GCP_EMBEDDINGS_ADA_GECKO",
-  GCP_EMBEDDINGS_TEXT_005 = "GCP_EMBEDDINGS_TEXT_005",
-  GCP_COMPLETIONS_GEMINI_FLASH15 = "GCP_COMPLETIONS_GEMINI_FLASH15",
-  GCP_COMPLETIONS_GEMINI_PRO15 = "GCP_COMPLETIONS_GEMINI_PRO15",
-  GCP_COMPLETIONS_GEMINI_FLASH20 = "GCP_COMPLETIONS_GEMINI_FLASH20",  
-  GCP_COMPLETIONS_GEMINI_PRO20 = "GCP_COMPLETIONS_GEMINI_PRO20",
-  GCP_COMPLETIONS_GEMINI_PRO25 = "GCP_COMPLETIONS_GEMINI_PRO25",
-  AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1",
-  AWS_COMPLETIONS_TITAN_EXPRESS_V1 = "AWS_COMPLETIONS_TITAN_EXPRESS_V1",
-  AWS_COMPLETIONS_CLAUDE_V35 = "AWS_COMPLETIONS_CLAUDE_V35",
-  AWS_COMPLETIONS_CLAUDE_V37 = "AWS_COMPLETIONS_CLAUDE_V37",
-  AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT",
-  AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT",
-  AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT",
-  AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT",
-  AWS_COMPLETIONS_MISTRAL_LARGE = "AWS_COMPLETIONS_MISTRAL_LARGE",
-  AWS_COMPLETIONS_MISTRAL_LARGE2 = "AWS_COMPLETIONS_MISTRAL_LARGE2",
-  AWS_COMPLETIONS_NOVA_PRO_V1 = "AWS_COMPLETIONS_NOVA_PRO_V1",
-  AWS_COMPLETIONS_NOVA_LITE_V1 = "AWS_COMPLETIONS_NOVA_LITE_V1",
-  AWS_COMPLETIONS_DEEPSEEKE_R1 = "AWS_COMPLETIONS_DEEPSEEKE_R1",  
 };

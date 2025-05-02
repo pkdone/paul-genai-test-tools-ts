@@ -1,12 +1,13 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMResponseStatus,
-         LLMConfiguredModelTypesNames, LLMFunctionResponse, ModelKey} from "../../../types/llm-types";
-import { llmModels } from "../../../types/llm-constants";
+         LLMModelSet, LLMFunctionResponse, LLMModelMetadata } from "../../../types/llm-types";
+import { ModelKey } from "../../../types/llm-models-metadata";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText } from "../../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
        } from "../../llm-response-tools";
 import { BadConfigurationLLMError } from "../../../types/llm-errors";
+import { llmModelsLoaderSrvc } from "../../llm-models-loader";
 
 /**
  * Abstract class for any LLM provider services - provides outline of abstract methods to be
@@ -14,16 +15,13 @@ import { BadConfigurationLLMError } from "../../../types/llm-errors";
  */
 abstract class AbstractLLM implements LLMProviderImpl {
   // Private fields
-  private readonly completionsModelPrimaryKey: ModelKey;
-  private readonly completionsModelSecondaryKey: ModelKey;
-
+  protected readonly llmModelsMetadata: Record<string, LLMModelMetadata>;
+  
   /**
    * Constructor.
    */
-  constructor(private readonly embeddingsModelKey: ModelKey, readonly completionsModelsKeys: readonly ModelKey[]) {
-    if (completionsModelsKeys.length === 0) throw new BadConfigurationLLMError(`No completions models provided for ${this.constructor.name}`);
-    this.completionsModelPrimaryKey = completionsModelsKeys[0];
-    this.completionsModelSecondaryKey = completionsModelsKeys.length > 1 ? completionsModelsKeys[1] : ModelKey.UNSPECIFIED;
+  constructor(private readonly modelsKeys: LLMModelSet) {
+    this.llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
   }
 
   /**
@@ -31,26 +29,28 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */ 
   getAvailableCompletionModelQualities(): LLMModelQuality[] {
     const llmQualities: LLMModelQuality[] = [LLMModelQuality.PRIMARY];
-    if (this.completionsModelSecondaryKey !== ModelKey.UNSPECIFIED) llmQualities.push(LLMModelQuality.SECONDARY);
+    if (this.modelsKeys.secondaryCompletion !== ModelKey.UNSPECIFIED) llmQualities.push(LLMModelQuality.SECONDARY);
     return llmQualities;
   }
 
   /**
    * Get the names of the models this plug-in provides.
    */ 
-  getModelsNames(): LLMConfiguredModelTypesNames {
-    return {
-      embeddings: llmModels[this.embeddingsModelKey].modelId,
-      primary: llmModels[this.completionsModelPrimaryKey].modelId,
-      secondary: llmModels[this.completionsModelSecondaryKey].modelId,
-    };
+  getModelsNames(): string[] {
+    return [
+      this.llmModelsMetadata[this.modelsKeys.embeddings].modelId,
+      this.llmModelsMetadata[this.modelsKeys.primaryCompletion].modelId,
+      this.modelsKeys.secondaryCompletion
+        ? this.llmModelsMetadata[this.modelsKeys.secondaryCompletion].modelId
+        : "n/a"
+    ];
   }  
 
   /**
    * Get the maximum number of tokens for the given model quality. 
    */
   getEmbeddedModelDimensions() {
-    return llmModels[this.embeddingsModelKey].dimensions;
+    return this.llmModelsMetadata[this.modelsKeys.embeddings].dimensions;
   }
 
   /**
@@ -61,24 +61,24 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async generateEmbeddings(content: string, _asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!this.embeddingsModelKey) throw new BadConfigurationLLMError(`Embeddings model represented by ${this.constructor.name} does not exist - do not use this method`);
-    return this.executeLLMImplFunction(this.embeddingsModelKey, LLMPurpose.EMBEDDINGS, content, false, context);
+    return this.executeLLMImplFunction(this.modelsKeys.embeddings, LLMPurpose.EMBEDDINGS, content, false, context);
   }
 
   /**
    * Send the prompt to the 'primary' LLM and retrieve the LLM's answer.
    */
   async executeCompletionPrimary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    return this.executeLLMImplFunction(this.completionsModelPrimaryKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
+    return this.executeLLMImplFunction(this.modelsKeys.primaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
   /**
    * Send the prompt to the 'secondary' LLM and retrieve the LLM's answer.
    */
   async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    if (this.completionsModelSecondaryKey === ModelKey.UNSPECIFIED) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
-    return await this.executeLLMImplFunction(this.completionsModelSecondaryKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
+    if (this.modelsKeys.secondaryCompletion === ModelKey.UNSPECIFIED) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
+    const secondaryCompletion = this.modelsKeys.secondaryCompletion;
+    if (!secondaryCompletion) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
+    return await this.executeLLMImplFunction(secondaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
   /**
@@ -93,7 +93,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   protected debugCurrentlyNonCheckedErrorTypes(error: unknown, modelKey: ModelKey) {
     if (error instanceof Error) {
-      console.log(`${error.constructor.name}: ${getErrorText(error)} - LLM: ${llmModels[modelKey].modelId}`);
+      console.log(`${error.constructor.name}: ${getErrorText(error)} - LLM: ${this.llmModelsMetadata[modelKey].modelId}`);
     }
   }
 

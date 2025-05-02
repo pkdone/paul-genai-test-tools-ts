@@ -1,5 +1,5 @@
-import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
-import { ModelKey } from "../../../types/llm-types";
+import { llmConst } from "../../../types/llm-constants";
+import { ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /** 
@@ -7,13 +7,6 @@ import BaseBedrockLLM from "./base-bedrock-llm";
  *
  */
 class BedrockMistralLLM extends BaseBedrockLLM {
-  /**
-   * Constructor.
-   */
-  constructor() { 
-    super(modelMappings.AWS_MISTRAL_EMBEDDINGS_MODEL_KEY, modelMappings.AWS_MISTRAL_COMPLETIONS_MODELS_KEYS); 
-  }
-
   /**
    * Assemble the Bedrock parameters for Mistral completions only.
    */
@@ -27,7 +20,7 @@ class BedrockMistralLLM extends BaseBedrockLLM {
       ],
       temperature: llmConst.ZERO_TEMP,
       top_p: llmConst.TOP_P_LOWEST,
-      max_tokens: llmModels[modelKey].maxCompletionTokens,
+      max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
     });
   }
 

@@ -1,8 +1,7 @@
 import { llmConst } from "../types/llm-constants";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
-         LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse, 
-         ModelFamily} 
-  from "../types/llm-types";
+         LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } from "../types/llm-types";
+import { ModelFamily } from "../types/llm-models-metadata";
 import { RetryFunc } from "../types/control-types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors";
 import { withRetry } from "../utils/control-utils";
@@ -43,7 +42,7 @@ class LLMRouter {
    * Get the description of models the chosen plug-in provides.
    */
   getModelsUsedDescription() {
-    const { embeddings, primary, secondary } = this.llmImpl.getModelsNames();
+    const [ embeddings, primary, secondary ] = this.llmImpl.getModelsNames();
     return `${this.llmProviderName} (embeddings: ${embeddings}, completions-primary: ${primary}, completions-secondary: ${secondary})`;
   }  
 

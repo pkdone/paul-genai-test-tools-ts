@@ -1,18 +1,11 @@
-import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
-import { ModelKey } from "../../../types/llm-types";
+import { llmConst } from "../../../types/llm-constants";
+import { ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /**
  * Class for the AWS Bedrock Titan LLMs.
  */
 class BedrockTitanLLM extends BaseBedrockLLM {
-  /**
-   * Constructor.
-   */
-  constructor() { 
-    super(modelMappings.AWS_TITAN_EMBEDDINGS_MODEL_KEY, modelMappings.AWS_TITAN_COMPLETIONS_MODELS_KEYS);
-  }
-
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
@@ -22,7 +15,7 @@ class BedrockTitanLLM extends BaseBedrockLLM {
       textGenerationConfig: {
         temperature: llmConst.ZERO_TEMP,
         topP: llmConst.TOP_P_VLOW,
-        maxTokenCount: llmModels[modelKey].maxCompletionTokens,
+        maxTokenCount: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       },
     });
   }

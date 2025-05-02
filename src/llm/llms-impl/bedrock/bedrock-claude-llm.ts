@@ -1,5 +1,5 @@
-import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
-import { ModelKey } from "../../../types/llm-types";
+import { llmConst } from "../../../types/llm-constants";
+import { ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /** 
@@ -7,13 +7,6 @@ import BaseBedrockLLM from "./base-bedrock-llm";
  *
  */
 class BedrockClaudeLLM extends BaseBedrockLLM {
-  /**
-   * Constructor.
-   */
-  constructor() { 
-    super(modelMappings.AWS_CLAUDE_EMBEDDINGS_MODEL_KEY, modelMappings.AWS_CLAUDE_COMPLETIONS_MODELS_KEYS); 
-  }
-
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
@@ -34,7 +27,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
       temperature: llmConst.ZERO_TEMP,
       top_p: llmConst.TOP_P_LOWEST,
       top_k: llmConst.TOP_K_LOWEST,
-      max_tokens: llmModels[modelKey].maxTotalTokens,    
+      max_tokens: this.llmModelsMetadata[modelKey].maxTotalTokens,    
     });
   }
 

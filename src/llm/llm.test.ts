@@ -1,8 +1,9 @@
-import { llmConst, llmModels } from "../types/llm-constants";
-import { ModelKey, JSONLLMModelMetadata } from "../types/llm-types";
+import { llmConst } from "../types/llm-constants";
+import { ModelKey } from "../types/llm-models-metadata";
+import { JSONLLMModelMetadata } from "../types/llm-types";
 import { LLMMetadataError } from "../types/llm-errors";
-import { assembleLLMModelMetadataFromJSON } from "./llm-metadata-initializer";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
+import { llmModelsLoaderSrvc, LLMModelsLoader } from "./llm-models-loader";
 
 test("LLMRouter reduce prompt size 1", () => {
   const prompt = "1234 1234 1234 1234"; 
@@ -19,10 +20,11 @@ test("LLMRouter reduce prompt size 2", () => {
 });
 
 test("LLMRouter reduce prompt size 3", () => {
+  const llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
   const prompt = "x".repeat(2000000); 
   const promptTokens = Math.floor(prompt.length / llmConst.MODEL_CHARS_PER_TOKEN_ESTIMATE);
   console.log(promptTokens);
-  const tokensUage = { promptTokens, completionTokens: 124, maxTotalTokens: llmModels[ModelKey.GPT_COMPLETIONS_GPT4].maxTotalTokens };
+  const tokensUage = { promptTokens, completionTokens: 124, maxTotalTokens: llmModelsMetadata[ModelKey.GPT_COMPLETIONS_GPT4].maxTotalTokens };
   expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage).length).toBe(22933);
 });
 
@@ -36,7 +38,7 @@ test("LLM metadata positive check", () => {
       apiFamily: "OpenAI",
     }
   } as const;
-  expect(assembleLLMModelMetadataFromJSON(dummyModels)).toStrictEqual(dummyModels);
+  expect((new LLMModelsLoader(dummyModels)).getModelsMetadata()).toStrictEqual(dummyModels);
 });
 
 test("LLM metadata negative check - dimensions field missing", () => {
@@ -48,7 +50,7 @@ test("LLM metadata negative check - dimensions field missing", () => {
       apiFamily: "OpenAI",
     }
   } as const;
-  expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
+  expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
 });
 
 test("LLM metadata negative check - maxCompletionTokens field missing", () => {
@@ -60,7 +62,7 @@ test("LLM metadata negative check - maxCompletionTokens field missing", () => {
       apiFamily: "OpenAI",
     }
   } as const;
-  expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
+  expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
 });
 
 test("LLM metadata negative check - purpose field bad enum", () => {
@@ -73,7 +75,7 @@ test("LLM metadata negative check - purpose field bad enum", () => {
       apiFamily: "OpenAI",
     }
   } as const;
-  expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
+  expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
 });
 
 test("LLM metadata negative check - dimensions is not positive num - minus", () => {
@@ -86,7 +88,7 @@ test("LLM metadata negative check - dimensions is not positive num - minus", () 
       apiFamily: "OpenAI",
     }
   } as const;
-  expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
+  expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
 });
 
 test("LLM metadata negative check - dimensions is not positive num - zero", () => {
@@ -99,7 +101,7 @@ test("LLM metadata negative check - dimensions is not positive num - zero", () =
       apiFamily: "OpenAI",
     }
   } as const;
-  expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
+  expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
 });
 
 test("LLM metadata negative check - maxCompletionTokens is not positive num", () => {
@@ -112,7 +114,7 @@ test("LLM metadata negative check - maxCompletionTokens is not positive num", ()
       apiFamily: "OpenAI",
     }
   } as const;
-  expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
+  expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
 });
 
 test("LLM metadata negative check - maxTotalTokens is not positive num", () => {
@@ -125,7 +127,7 @@ test("LLM metadata negative check - maxTotalTokens is not positive num", () => {
       apiFamily: "OpenAI",
     }
   } as const;
-  expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
+  expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
 });
 
 test("LLM metadata negative check - apiFamily field bad enum", () => {
@@ -138,5 +140,5 @@ test("LLM metadata negative check - apiFamily field bad enum", () => {
       apiFamily: "XXXXXXXXXXXXXXXXXXX",
     }
   } as const;
-  expect(() => assembleLLMModelMetadataFromJSON(dummyModels)).toThrow(LLMMetadataError);
+  expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
 });

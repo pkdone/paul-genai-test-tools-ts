@@ -1,6 +1,6 @@
 import { RateLimitError, InternalServerError, APIError } from "openai";
 import AzureOpenAI from "./openai/azure-openai-llm";
-import { ModelKey } from "../../types/llm-types";
+import { ModelKey, modelMappings } from "../../types/llm-models-metadata";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
 
@@ -131,30 +131,30 @@ test(`AbstractLLM extract tokens from metadtata 4`, () => {
 });
 
 test("OpenAI count models", () => {
-  const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
+  const llm = new AzureOpenAI(modelMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
   expect(Object.keys(llm.getModelsNames()).length).toBe(3);
 });
 
 test("BaseOpenAI try overload error RateLimitError", () => {
-  const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
+  const llm = new AzureOpenAI(modelMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
   const error = new RateLimitError(429, undefined, "Rate limit exceeded", {});
   expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
 }); 
 
 test("BaseOpenAI try overload error InternalServerError", () => {
-  const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
+  const llm = new AzureOpenAI(modelMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
   const error = new InternalServerError(429, undefined, "System overloaded", {});
   expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
 }); 
 
 test("BaseOpenAI try error token limit exceeded 1", () => {
-  const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
+  const llm = new AzureOpenAI(modelMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
   const error = new APIError(400, { code: "context_length_exceeded" }, "context_length_exceeded", undefined);
   expect(llm.TEST_isTokenLimitExceeded(error)).toBe(true);   
 }); 
 
 test("BaseOpenAI try error token limit exceeded 2", () => {
-  const llm = new AzureOpenAI("dummy key", "dummy endpoint", "dummy emb", "dummy reg", "dummy prem");
+  const llm = new AzureOpenAI(modelMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
   const error = new APIError(400, { type: "invalid_request_error" }, "context_length_exceeded", undefined);
   expect(llm.TEST_isTokenLimitExceeded(error)).toBe(true);   
 }); 

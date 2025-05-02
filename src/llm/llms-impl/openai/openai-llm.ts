@@ -1,6 +1,7 @@
 import { OpenAI } from "openai";
-import { llmModels, llmConst, modelMappings } from "../../../types/llm-constants";
-import { LLMPurpose,ModelKey } from "../../../types/llm-types";
+import { llmConst } from "../../../types/llm-constants";
+import { ModelKey } from "../../../types/llm-models-metadata";
+import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 
 /**
@@ -13,8 +14,8 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Constructor.
    */
-  constructor(apiKey: string) { 
-    super(modelMappings.OPENAI_EMBEDDINGS_MODEL_KEY, modelMappings.OPENAI_COMPLETIONS_MODELS_KEYS);
+  constructor(modelsKeys: LLMModelSet, apiKey: string) { 
+    super(modelsKeys);
     this.client = new OpenAI({ apiKey });
   }
 
@@ -31,16 +32,16 @@ class OpenAILLM extends BaseOpenAILLM {
   protected buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string) {
     if (taskType === LLMPurpose.EMBEDDINGS.toString()) {
       const params: OpenAI.EmbeddingCreateParams = {
-        model: llmModels[modelKey].modelId,
+        model: this.llmModelsMetadata[modelKey].modelId,
         input: prompt
       };
       return params;  
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
-        model: llmModels[modelKey].modelId,
+        model: this.llmModelsMetadata[modelKey].modelId,
         temperature: llmConst.ZERO_TEMP,
         messages: [{ role: "user", content: prompt } ],
-        max_completion_tokens: llmModels[modelKey].maxCompletionTokens,
+        max_completion_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       };        
       return params;
     } 
