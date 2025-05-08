@@ -75,6 +75,10 @@ class LLMModelsLoader {
    */
   private validateJSONModelMetadata(llmModelsData: Record<string, JSONLLMModelMetadata>) {
     for (const [key, model] of Object.entries(llmModelsData)) {
+      // Check for modelId
+      if (!model.modelId) throw new LLMMetadataError(`Model for '${key}' is missing modelId`, "modelId");
+      if (model.modelId.trim() === "") throw new LLMMetadataError(`Model for '${key}' has empty modelId`, model.modelId);
+
       // Presence checks for "optional" properties
       for (const property of Object.keys(modelMetadataOptionalPropsToCheck)) {
         this.errorIfPropertyMissing(model, modelMetadataOptionalPropsToCheck, key, property);
@@ -86,6 +90,17 @@ class LLMModelsLoader {
       this.errorIfPropertyNonPositiveNumber(model, modelMetadataOptionalPropsToCheck, key, LlmMetadataProps.MAX_COMPLETION_TOKENS);
       this.errorIfPropertyNonPositiveNumber(model, modelMetadataOptionalPropsToCheck, key, LlmMetadataProps.MAX_TOTAL_TOKENS);    
       this.errorIfPropertyEnumInvalid<LLMApiFamily>(model, key, LlmMetadataProps.API_FAMILY, LLMApiFamily);
+
+      // Check if maxCompletionTokens exceeds maxTotalTokens for completion models
+      if (model.purpose === LLMPurpose.COMPLETIONS && 
+          typeof model.maxCompletionTokens === 'number' && 
+          typeof model.maxTotalTokens === 'number' &&
+          model.maxCompletionTokens > model.maxTotalTokens) {
+        throw new LLMMetadataError(
+          `Model for '${key}' has maxCompletionTokens (${model.maxCompletionTokens}) exceeding maxTotalTokens (${model.maxTotalTokens})`,
+          model.maxCompletionTokens
+        );
+      }
     }
   }
 

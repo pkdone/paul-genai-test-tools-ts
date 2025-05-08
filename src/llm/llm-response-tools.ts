@@ -100,6 +100,9 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLM
  * Reduce the size of the prompt to be inside the LLM's indicated token limit.
  */
 export function reducePromptSizeToTokenLimit(prompt: string, modelKey: ModelKey, tokensUage: LLMResponseTokensUsage) {
+  // Special case: if prompt is only whitespace, return it unchanged
+  if (prompt.trim() === "") return prompt;
+  
   const llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
   const { promptTokens, completionTokens, maxTotalTokens } = tokensUage;
   const maxCompletionTokensLimit = llmModelsMetadata[modelKey].maxCompletionTokens; // will be undefined if for embeddings
