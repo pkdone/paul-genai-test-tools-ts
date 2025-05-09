@@ -12,7 +12,7 @@ interface SummariesRecord {
 /**
  * Class to handle analysis data server operations.
  */
-export default class AnalysisDataServer {
+export default class InsightsDataServer {
   // Private fields
   private readonly colctn: Collection<SummariesRecord>;
 

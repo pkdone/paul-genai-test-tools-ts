@@ -1,5 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import AnalysisDataServer from "../insightsServer/insights-data-server";
+import InsightsDataServer from "../insightsServer/insights-data-server";
 
 // Constants for the MCP server
 const MCP_SERVER_NAME = "MCPAnalyzeDataServer";
@@ -14,7 +14,7 @@ class McpDataServer {
   /**
    * Constructor.
    */
-  constructor(private readonly analysisDataServer: AnalysisDataServer) {}
+  constructor(private readonly analysisDataServer: InsightsDataServer) {}
 
   /**
    * Configures the MCP server with the given AnalysisDataServer.

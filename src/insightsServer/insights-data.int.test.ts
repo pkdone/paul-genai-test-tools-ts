@@ -1,4 +1,4 @@
-import AnalysisDataServer from "./insights-data-server";
+import InsightsDataServer from "./insights-data-server";
 import mongoDBService from "../utils/mongodb-service";
 import appConst from "../env/app-consts";
 import { loadEnvVars } from "../env/env-vars";
@@ -11,7 +11,7 @@ describe("AnalysisDataServer", () => {
   it("should return an array of objects where each object has keys 'name' and 'description'", async () => {
     try {
       const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, env.MONGODB_URL);
-      const analysisDataServer = new AnalysisDataServer(mongoClient, appConst.CODEBASE_DB_NAME, projectName); 
+      const analysisDataServer = new InsightsDataServer(mongoClient, appConst.CODEBASE_DB_NAME, projectName); 
       const result = await analysisDataServer.getBusinessProcesses();
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeGreaterThan(0);
