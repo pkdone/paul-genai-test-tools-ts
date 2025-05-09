@@ -77,9 +77,14 @@ export enum ModelKey {
 }
 
 /**
+ * Type for model provider to set of model keys mappings.
+ */
+export type ModelProviderMappings = Readonly<Record<string, LLMModelSet>>
+
+/**
  * Constants for the LLM model mappings for each provider.
  */
-export const modelMappings: Readonly<Record<string, LLMModelSet>> = {
+export const modelProviderMappings: ModelProviderMappings = {
   OPENAI_MODELS: {
     embeddings: ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL,
     primaryCompletion:  ModelKey.GPT_COMPLETIONS_GPT4_O,
