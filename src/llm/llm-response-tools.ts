@@ -1,6 +1,6 @@
 import { llmConst,llmAPIErrorPatterns } from "../types/llm-constants";
 import { ModelKey } from "../types/llm-models-metadata";
-import { llmModelsLoaderSrvc } from "./llm-models-loader";
+import { llmModelsMetadataLoaderSrvc } from "./llm-models-metadata-loader";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
          LLMResponseStatus, 
          LLMContext} from "../types/llm-types";
@@ -13,7 +13,7 @@ import { getErrorText } from "../utils/error-utils";
  * values.
  */
 export function extractTokensAmountFromMetadataDefaultingMissingValues(modelKey: ModelKey, tokenUsage: LLMResponseTokensUsage) {
-  const llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
+  const llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
   let { promptTokens, completionTokens, maxTotalTokens } = tokenUsage;
   if (completionTokens < 0) completionTokens = 0;
   if (maxTotalTokens < 0) maxTotalTokens = llmModelsMetadata[modelKey].maxTotalTokens;
@@ -26,7 +26,7 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(modelKey:
  * for all prompt/completions/maxTokens if not found in the error message.
  */
 export function extractTokensAmountAndLimitFromErrorMsg(modelKey: ModelKey, prompt: string, errorMsg: string) {
-  const llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
+  const llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
   // eslint-disable-next-line prefer-const
   let { maxTotalTokens, promptTokens, completionTokens } = parseTokenUsageFromLLMError(modelKey, errorMsg);
   const publishedMaxTotalTokens  = llmModelsMetadata[modelKey].maxTotalTokens;
@@ -48,7 +48,7 @@ function parseTokenUsageFromLLMError(modelKey: ModelKey, errorMsg: string) {
   let promptTokens = -1;
   let completionTokens = 0;
   let maxTotalTokens = -1;      
-  const llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
+  const llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
   const patternDefinitions = llmAPIErrorPatterns[llmModelsMetadata[modelKey].apiFamily];
   
   for (const patternDefinition of patternDefinitions) {
@@ -79,7 +79,7 @@ function parseTokenUsageFromLLMError(modelKey: ModelKey, errorMsg: string) {
  * response metadaat object.
  */
 export function postProcessAsJSONIfNeededGeneratingNewResult(skeletonResult: LLMFunctionResponse, modelKey: ModelKey, taskType: LLMPurpose, responseContent: LLMGeneratedContent, asJson: boolean, context: LLMContext) {
-  const llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
+  const llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
 
   if (taskType === LLMPurpose.COMPLETIONS) {
     try {
@@ -103,7 +103,7 @@ export function reducePromptSizeToTokenLimit(prompt: string, modelKey: ModelKey,
   // Special case: if prompt is only whitespace, return it unchanged
   if (prompt.trim() === "") return prompt;
   
-  const llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
+  const llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
   const { promptTokens, completionTokens, maxTotalTokens } = tokensUage;
   const maxCompletionTokensLimit = llmModelsMetadata[modelKey].maxCompletionTokens; // will be undefined if for embeddings
   let reductionRatio = 1;

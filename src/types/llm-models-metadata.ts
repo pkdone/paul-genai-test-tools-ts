@@ -11,9 +11,9 @@ import { LLMModelSet } from "./llm-types";
  *    response is a fixed size array of numbers).
  * 
  * SPECIFIC LLM NOTES:
- *  - GCP_COMPLETIONS_GEMINI_FLASH15: For some reason the listed 'maxCompletionsTokens' value of 8192
- *    isn't always hit for Flash15, so not clear if it is actually higher than for Pro which, if it,
- *    is, would be a bit weird
+ *  - GCP_COMPLETIONS_GEMINI_FLASH15: For some reason the listed 'maxCompletionsTokens' value of
+ *    8192isn't always hit for Flash15, so not clear if it is actually higher than for Pro which, if
+ *    it, is, would be a bit weird
  * 
  *  - AWS_COMPLETIONS_CLAUDE_V35: According to Anthropic site, the 'maxCompletionsTokens' should be 
  *    8192 but Bedrock seems to cut this short to usually 4095 or 4096 but have seen 4090 reported 
@@ -97,8 +97,8 @@ export const modelProviderMappings: ModelProviderMappings = {
   },
   VERTEXAI_MODELS: {
     embeddings: ModelKey.GCP_EMBEDDINGS_TEXT_005,
-    primaryCompletion:  ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20,
-    secondaryCompletion: ModelKey.GCP_COMPLETIONS_GEMINI_PRO25,
+    primaryCompletion:  ModelKey.GCP_COMPLETIONS_GEMINI_PRO25,
+    secondaryCompletion: ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20,
   },
   BEDROCK_TITAN_MODELS: {
     embeddings: ModelKey.AWS_EMBEDDINGS_TITAN_V1,

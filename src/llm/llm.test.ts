@@ -3,7 +3,7 @@ import { ModelKey } from "../types/llm-models-metadata";
 import { JSONLLMModelMetadata } from "../types/llm-types";
 import { LLMMetadataError } from "../types/llm-errors";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
-import { llmModelsLoaderSrvc, LLMModelsLoader } from "./llm-models-loader";
+import { llmModelsMetadataLoaderSrvc, LLMModelsMetadataLoader } from "./llm-models-metadata-loader";
 
 describe("LLM Router", () => {
   describe("reducePromptSizeToTokenLimit", () => {
@@ -22,7 +22,7 @@ describe("LLM Router", () => {
     });
 
     test("reduces prompt size for very large input", () => {
-      const llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
+      const llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
       const prompt = "x".repeat(2000000); 
       const promptTokens = Math.floor(prompt.length / llmConst.MODEL_CHARS_PER_TOKEN_ESTIMATE);
       console.log(promptTokens);
@@ -71,7 +71,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect((new LLMModelsLoader(dummyModels)).getModelsMetadata()).toStrictEqual(dummyModels);
+      expect((new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toStrictEqual(dummyModels);
     });
 
     test("validates multiple models", () => {
@@ -91,7 +91,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect((new LLMModelsLoader(dummyModels)).getModelsMetadata()).toStrictEqual(dummyModels);
+      expect((new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toStrictEqual(dummyModels);
     });
 
     test("throws error when dimensions field is missing", () => {
@@ -103,7 +103,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when maxCompletionTokens field is missing", () => {
@@ -115,7 +115,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when purpose field has invalid enum value", () => {
@@ -128,7 +128,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when dimensions is negative", () => {
@@ -141,7 +141,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when dimensions is zero", () => {
@@ -154,7 +154,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when maxCompletionTokens is negative", () => {
@@ -167,7 +167,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when maxTotalTokens is negative", () => {
@@ -180,7 +180,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when apiFamily field has invalid enum value", () => {
@@ -193,7 +193,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "XXXXXXXXXXXXXXXXXXX",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when modelId is missing", () => {
@@ -205,7 +205,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when modelId is empty string", () => {
@@ -218,7 +218,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
     test("throws error when maxCompletionTokens exceeds maxTotalTokens", () => {
@@ -231,7 +231,7 @@ describe("LLM Models Loader", () => {
           apiFamily: "OpenAI",
         }
       } as const;
-      expect(() => (new LLMModelsLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
   });
 });

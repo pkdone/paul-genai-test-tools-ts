@@ -7,7 +7,7 @@ import { extractTokensAmountFromMetadataDefaultingMissingValues,
          extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
        } from "../../llm-response-tools";
 import { BadConfigurationLLMError } from "../../../types/llm-errors";
-import { llmModelsLoaderSrvc } from "../../llm-models-loader";
+import { llmModelsMetadataLoaderSrvc } from "../../llm-models-metadata-loader";
 
 /**
  * Abstract class for any LLM provider services - provides outline of abstract methods to be
@@ -21,7 +21,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Constructor.
    */
   constructor(private readonly modelsKeys: LLMModelSet) {
-    this.llmModelsMetadata = llmModelsLoaderSrvc.getModelsMetadata();    
+    this.llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
   }
 
   /**

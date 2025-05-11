@@ -5,7 +5,8 @@ import { ModelFamily } from "../types/llm-models-metadata";
 import { RetryFunc } from "../types/control-types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors";
 import { withRetry } from "../utils/control-utils";
-import { initializeLLMImplementation  } from "./llm-initializer";
+import { initializeLLMImplementation } from "./llm-configurator/llm-initializer";
+import { LLMConfig } from "./llm-configurator/llm-config-types";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { log, logErrWithContext, logWithContext } from "./llm-router-logging";
 import LLMStats from "./llm-stats";
@@ -21,12 +22,16 @@ class LLMRouter {
   // Private fields
   private readonly llmImpl: LLMProviderImpl;
   private readonly llmStats: LLMStats;
+  private readonly llmProviderName: ModelFamily;
 
   /**
    * Constructor.
+   * 
+   * @param llmConfig The provider-specific configuration
    */
-  constructor(private readonly llmProviderName: ModelFamily) {
-    this.llmImpl = initializeLLMImplementation(llmProviderName);
+  constructor(llmConfig: LLMConfig) {
+    this.llmProviderName = llmConfig.modelFamily as ModelFamily;
+    this.llmImpl = initializeLLMImplementation(llmConfig);
     this.llmStats = new LLMStats();
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
