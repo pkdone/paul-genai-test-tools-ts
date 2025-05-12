@@ -174,7 +174,7 @@
     "maxTotalTokens": 300000,
     "apiFamily": "Bedrock"
   },
-  "AWS_COMPLETIONS_DEEPSEEK_R1": {
+  "AWS_COMPLETIONS_DEEPSEEKE_R1": {
     "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.deepseek.r1-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 32768,

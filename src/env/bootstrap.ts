@@ -2,8 +2,7 @@ import appConst from "../env/app-consts";
 import mongoDBService from "../utils/mongodb-service";
 import LLMRouter from "../llm/llm-router";
 import { loadEnvVars } from "../env/env-vars";
-import LLMInitializer from "../llm/llm-configurator/llm-initializer";
-import "../llm/llm-configurator/register-providers";
+import { initializeLLMImplementation } from "../llm/llm-configurator/llm-initializer";
 
 /**
  * Function to bootstrap the application by loading environment variables,
@@ -19,7 +18,7 @@ export async function bootstrap() {
  */
 export function bootstrapJustLLM() {
   const env = loadEnvVars();
-  const llmImpl = (new LLMInitializer()).getLLMImplementation(env);
+  const llmImpl = initializeLLMImplementation(env);
   const llmRouter = new LLMRouter(llmImpl);  
   return { env, llmRouter };
 }
