@@ -1,8 +1,6 @@
 import { LLMModelSet } from "./llm-types";
 
 /**
- * Validate the llm-model.json contents and bring them into a strongly const object.
- * 
  * GENERAL NOTES:
  *  - For Completionss LLMs, the total allowed tokens is the sum of the prompt tokens and the 
  *    completions tokens.

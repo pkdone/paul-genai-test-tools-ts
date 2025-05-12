@@ -1,11 +1,17 @@
 import { ModelFamily } from "../../types/llm-models-metadata";
-import { EnvVars } from "../../types/env-types";
-import { LLMModelSet, LLMProviderImpl } from "../../types/llm-types";
+import { LLMProviderImpl } from "../../types/llm-types";
+import { 
+  LLMProviderConfig, 
+  OpenAIProviderConfig, 
+  AzureOpenAIProviderConfig, 
+  VertexAIGeminiProviderConfig,
+  BedrockProviderConfig
+} from "../../types/llm-provider-config";
 
 /**
  * Type to define the factory function for creating LLM provider implementations.
  */
-export type LLMProviderFactory = (env: EnvVars, models: LLMModelSet) => LLMProviderImpl;
+export type LLMProviderFactory<T extends LLMProviderConfig> = (config: T) => LLMProviderImpl;
 
 /**
  * Registry for LLM providers using the Singleton pattern.
@@ -20,7 +26,7 @@ class LLMProviderRegistry {
   /**
    * Map storing provider factories indexed by model family.
    */
-  private readonly providers: Map<ModelFamily, LLMProviderFactory>;
+  private readonly providers: Map<ModelFamily, LLMProviderFactory<LLMProviderConfig>>;
 
   /**
    * Private constructor to prevent direct instantiation.
@@ -38,16 +44,72 @@ class LLMProviderRegistry {
   }
 
   /**
-   * Registers a provider factory for a specific model family.
+   * Registers a provider factory for OpenAI models.
    */
-  registerProvider(family: ModelFamily, factory: LLMProviderFactory): void {
-    this.providers.set(family, factory);
+  registerOpenAIProvider(factory: LLMProviderFactory<OpenAIProviderConfig>): void {
+    this.providers.set(ModelFamily.OPENAI_MODELS, factory as LLMProviderFactory<LLMProviderConfig>);
+  }
+
+  /**
+   * Registers a provider factory for Azure OpenAI models.
+   */
+  registerAzureOpenAIProvider(factory: LLMProviderFactory<AzureOpenAIProviderConfig>): void {
+    this.providers.set(ModelFamily.AZURE_OPENAI_MODELS, factory as LLMProviderFactory<LLMProviderConfig>);
+  }
+
+  /**
+   * Registers a provider factory for VertexAI Gemini models.
+   */
+  registerVertexAIGeminiProvider(factory: LLMProviderFactory<VertexAIGeminiProviderConfig>): void {
+    this.providers.set(ModelFamily.VERTEXAI_GEMINI_MODELS, factory as LLMProviderFactory<LLMProviderConfig>);
+  }
+
+  /**
+   * Registers a provider factory for Bedrock Titan models.
+   */
+  registerBedrockTitanProvider(factory: LLMProviderFactory<BedrockProviderConfig>): void {
+    this.providers.set(ModelFamily.BEDROCK_TITAN_MODELS, factory as LLMProviderFactory<LLMProviderConfig>);
+  }
+
+  /**
+   * Registers a provider factory for Bedrock Claude models.
+   */
+  registerBedrockClaudeProvider(factory: LLMProviderFactory<BedrockProviderConfig>): void {
+    this.providers.set(ModelFamily.BEDROCK_CLAUDE_MODELS, factory as LLMProviderFactory<LLMProviderConfig>);
+  }
+
+  /**
+   * Registers a provider factory for Bedrock Llama models.
+   */
+  registerBedrockLlamaProvider(factory: LLMProviderFactory<BedrockProviderConfig>): void {
+    this.providers.set(ModelFamily.BEDROCK_LLAMA_MODELS, factory as LLMProviderFactory<LLMProviderConfig>);
+  }
+
+  /**
+   * Registers a provider factory for Bedrock Mistral models.
+   */
+  registerBedrockMistralProvider(factory: LLMProviderFactory<BedrockProviderConfig>): void {
+    this.providers.set(ModelFamily.BEDROCK_MISTRAL_MODELS, factory as LLMProviderFactory<LLMProviderConfig>);
+  }
+
+  /**
+   * Registers a provider factory for Bedrock Nova models.
+   */
+  registerBedrockNovaProvider(factory: LLMProviderFactory<BedrockProviderConfig>): void {
+    this.providers.set(ModelFamily.BEDROCK_NOVA_MODELS, factory as LLMProviderFactory<LLMProviderConfig>);
+  }
+
+  /**
+   * Registers a provider factory for Bedrock Deepseek models.
+   */
+  registerBedrockDeepseekProvider(factory: LLMProviderFactory<BedrockProviderConfig>): void {
+    this.providers.set(ModelFamily.BEDROCK_DEEPSEEK_MODELS, factory as LLMProviderFactory<LLMProviderConfig>);
   }
 
   /**
    * Retrieves a provider factory for a given model family.
    */
-  getProvider(family: ModelFamily): LLMProviderFactory | undefined {
+  getProvider(family: ModelFamily): LLMProviderFactory<LLMProviderConfig> | undefined {
     return this.providers.get(family);
   }
 
