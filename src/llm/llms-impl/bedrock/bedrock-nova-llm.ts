@@ -1,11 +1,18 @@
 import { llmConst } from "../../../types/llm-constants";
-import { ModelKey } from "../../../types/llm-models-metadata";
+import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /** 
  * Class for the AWS Bedrock [Anthropic] Nova LLMs.
  */
 class BedrockNovaLLM extends BaseBedrockLLM {
+  /**
+   * Get the model family this LLM implementation belongs to.
+   */
+  getModelFamily(): ModelFamily {
+    return ModelFamily.BEDROCK_NOVA_MODELS;
+  }    
+    
   /**
    * Assemble the Bedrock parameters for Nova completions only.
    */

@@ -1,11 +1,18 @@
 import { llmConst } from "../../../types/llm-constants";
-import { ModelKey } from "../../../types/llm-models-metadata";
+import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /**
  * Class for the AWS Bedrock Titan LLMs.
  */
 class BedrockTitanLLM extends BaseBedrockLLM {
+  /**
+   * Get the model family this LLM implementation belongs to.
+   */
+  getModelFamily(): ModelFamily {
+    return ModelFamily.BEDROCK_TITAN_MODELS;
+  }    
+    
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */

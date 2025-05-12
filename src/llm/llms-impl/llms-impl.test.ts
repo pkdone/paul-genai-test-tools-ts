@@ -1,6 +1,6 @@
 import { RateLimitError, InternalServerError, APIError } from "openai";
 import AzureOpenAI from "./openai/azure-openai-llm";
-import { ModelKey, modelProviderMappings } from "../../types/llm-models-metadata";
+import { ModelKey, ModelFamily, modelProviderMappings } from "../../types/llm-models-metadata";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
 
@@ -145,32 +145,32 @@ describe("Token extraction from metadata", () => {
 describe("OpenAI implementation", () => {
   describe("model management", () => {
     test("counts available models", () => {
-      const llm = new AzureOpenAI(modelProviderMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
+      const llm = new AzureOpenAI(modelProviderMappings[ModelFamily.AZURE_OPENAI_MODELS], "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
       expect(Object.keys(llm.getModelsNames()).length).toBe(3);
     });
   });
 
   describe("error handling", () => {
     test("detects rate limit error", () => {
-      const llm = new AzureOpenAI(modelProviderMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
+      const llm = new AzureOpenAI(modelProviderMappings[ModelFamily.AZURE_OPENAI_MODELS], "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
       const error = new RateLimitError(429, undefined, "Rate limit exceeded", {});
       expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
     }); 
 
     test("detects internal server error", () => {
-      const llm = new AzureOpenAI(modelProviderMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
+      const llm = new AzureOpenAI(modelProviderMappings[ModelFamily.AZURE_OPENAI_MODELS], "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
       const error = new InternalServerError(429, undefined, "System overloaded", {});
       expect(llm.TEST_isLLMOverloaded(error)).toBe(true);
     }); 
 
     test("detects token limit exceeded with code", () => {
-      const llm = new AzureOpenAI(modelProviderMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
+      const llm = new AzureOpenAI(modelProviderMappings[ModelFamily.AZURE_OPENAI_MODELS], "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
       const error = new APIError(400, { code: "context_length_exceeded" }, "context_length_exceeded", undefined);
       expect(llm.TEST_isTokenLimitExceeded(error)).toBe(true);   
     }); 
 
     test("detects token limit exceeded with type", () => {
-      const llm = new AzureOpenAI(modelProviderMappings.AZURE_MODELS, "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
+      const llm = new AzureOpenAI(modelProviderMappings[ModelFamily.AZURE_OPENAI_MODELS], "dummy key", "dummy endpoint", "dummy emb", "dummy prim", "dummy sec");
       const error = new APIError(400, { type: "invalid_request_error" }, "context_length_exceeded", undefined);
       expect(llm.TEST_isTokenLimitExceeded(error)).toBe(true);   
     }); 

@@ -3,7 +3,7 @@ import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshol
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import { llmConst } from "../../../types/llm-constants";
-import { ModelKey } from "../../../types/llm-models-metadata";
+import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
@@ -35,6 +35,13 @@ class VertexAIGeminiLLM extends AbstractLLM {
     this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });
     this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;
   }
+
+  /**
+   * Get the model family this LLM implementation belongs to.
+   */
+  getModelFamily(): ModelFamily {
+    return ModelFamily.VERTEXAI_GEMINI_MODELS;
+  }    
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.

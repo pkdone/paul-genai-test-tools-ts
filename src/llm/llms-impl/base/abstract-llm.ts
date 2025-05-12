@@ -1,41 +1,36 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMResponseStatus,
          LLMModelSet, LLMFunctionResponse, LLMModelMetadata } from "../../../types/llm-types";
-import { ModelKey } from "../../../types/llm-models-metadata";
+import { ModelKey, ModelFamily } from "../../../types/llm-models-metadata";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText } from "../../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
        } from "../../llm-response-tools";
 import { BadConfigurationLLMError } from "../../../types/llm-errors";
-import { llmModelsMetadataLoaderSrvc } from "../../llm-models-metadata-loader";
+import { llmModelsMetadataLoaderSrvc } from "../../llm-configurator/llm-models-metadata-loader";
 
 /**
  * Abstract class for any LLM provider services - provides outline of abstract methods to be
  * implemented by an extended class that implements a specific LLM integration.
  */
 abstract class AbstractLLM implements LLMProviderImpl {
-  // Private fields
+  // Fields
   protected readonly llmModelsMetadata: Record<string, LLMModelMetadata>;
+  private readonly modelsKeys: LLMModelSet;
   
-  /**
-   * Constructor.
-   */
-  constructor(private readonly modelsKeys: LLMModelSet) {
+  // Constructor
+  constructor(modelsKeys: LLMModelSet) {
+    this.modelsKeys = modelsKeys;
     this.llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
   }
 
-  /**
-   * Get the types of different token context windows models supported.
-   */ 
+  // Public methods
   getAvailableCompletionModelQualities(): LLMModelQuality[] {
     const llmQualities: LLMModelQuality[] = [LLMModelQuality.PRIMARY];
     if (this.modelsKeys.secondaryCompletion !== ModelKey.UNSPECIFIED) llmQualities.push(LLMModelQuality.SECONDARY);
     return llmQualities;
   }
 
-  /**
-   * Get the names of the models this plug-in provides.
-   */ 
   getModelsNames(): string[] {
     return [
       this.llmModelsMetadata[this.modelsKeys.embeddings].modelId,
@@ -46,34 +41,18 @@ abstract class AbstractLLM implements LLMProviderImpl {
     ];
   }  
 
-  /**
-   * Get the maximum number of tokens for the given model quality. 
-   */
   getEmbeddedModelDimensions() {
     return this.llmModelsMetadata[this.modelsKeys.embeddings].dimensions;
   }
 
-  /**
-   * Send the content to the LLM for it to generate and return the content's embeddings.
-   * 
-   * Need _asJson arg because this function and executeCompletion* functions will all be
-   * called generically with the same args.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async generateEmbeddings(content: string, _asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    return this.executeLLMImplFunction(this.modelsKeys.embeddings, LLMPurpose.EMBEDDINGS, content, false, context);
+  async generateEmbeddings(content: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
+    return this.executeLLMImplFunction(this.modelsKeys.embeddings, LLMPurpose.EMBEDDINGS, content, asJson, context);
   }
 
-  /**
-   * Send the prompt to the 'primary' LLM and retrieve the LLM's answer.
-   */
   async executeCompletionPrimary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     return this.executeLLMImplFunction(this.modelsKeys.primaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
-  /**
-   * Send the prompt to the 'secondary' LLM and retrieve the LLM's answer.
-   */
   async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     if (this.modelsKeys.secondaryCompletion === ModelKey.UNSPECIFIED) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
     const secondaryCompletion = this.modelsKeys.secondaryCompletion;
@@ -81,26 +60,18 @@ abstract class AbstractLLM implements LLMProviderImpl {
     return await this.executeLLMImplFunction(secondaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
-  /**
-   * Method to close underlying LLM client library to release resources.
-   */
   async close(): Promise<void> {
     // No-op - default assuming LLM client doesn't provide a close function to call
   }
-  
-  /** 
-   * Print error type and details for debugging
-   */
+
+  // Protected methods
   protected debugCurrentlyNonCheckedErrorTypes(error: unknown, modelKey: ModelKey) {
     if (error instanceof Error) {
       console.log(`${error.constructor.name}: ${getErrorText(error)} - LLM: ${this.llmModelsMetadata[modelKey].modelId}`);
     }
   }
 
-  /**
-   * Method to invoke the pluggable implementation of an LLM and then take the proprietary response
-   * and normalise them back for geneeric consumption.
-   */
+  // Private methods
   private async executeLLMImplFunction(modelKey: ModelKey, taskType: LLMPurpose, request: string, asJson: boolean, context: LLMContext): Promise<LLMFunctionResponse> { 
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, modelKey };
 
@@ -125,21 +96,10 @@ abstract class AbstractLLM implements LLMProviderImpl {
     }
   }
 
-  /**
-   * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
-   */
+  // Abstract methods must be declared last
+  abstract getModelFamily(): ModelFamily;
   protected abstract invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary>;
-
-  /**
-   * Abstract method to be overridden. Check if an error object indicates a network issue or
-   * throttling event.
-   */
   protected abstract isLLMOverloaded(error: unknown): boolean;
-
-  /**
-   * Abstract method to be overridden. Check if error code indicates potential token limit has been
-   * exceeded.
-   */
   protected abstract isTokenLimitExceeded(error: unknown): boolean;
 }  
 

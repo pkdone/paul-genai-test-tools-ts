@@ -1,4 +1,4 @@
-import { ModelKey } from "./llm-models-metadata";
+import { ModelKey, ModelFamily } from "./llm-models-metadata";
 
 /**
  * Interface for LLM implementation provider
@@ -10,6 +10,7 @@ export interface LLMProviderImpl {
   getModelsNames(): string[],
   getAvailableCompletionModelQualities(): LLMModelQuality[],
   getEmbeddedModelDimensions(): number | undefined,
+  getModelFamily(): ModelFamily,
   close(): Promise<void>,
 };
 

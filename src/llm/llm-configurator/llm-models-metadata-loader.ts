@@ -1,7 +1,7 @@
-import { JSONLLMModelMetadata, LLMApiFamily, LLMModelMetadata, LLMPurpose } from "../types/llm-types";
-import { ModelKey } from "../types/llm-models-metadata";
-import { LLMMetadataError } from "../types/llm-errors";
-import jsonLlmModelsData from "../types/llm-models.json";
+import { JSONLLMModelMetadata, LLMApiFamily, LLMModelMetadata, LLMPurpose } from "../../types/llm-types";
+import { ModelKey } from "../../types/llm-models-metadata";
+import { LLMMetadataError } from "../../types/llm-errors";
+import jsonLlmModelsData from "../../types/llm-models.json";
 
 
 // Enum to define the keys of the LLM metadata properties

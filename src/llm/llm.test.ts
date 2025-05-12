@@ -3,7 +3,7 @@ import { ModelKey } from "../types/llm-models-metadata";
 import { JSONLLMModelMetadata } from "../types/llm-types";
 import { LLMMetadataError } from "../types/llm-errors";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
-import { llmModelsMetadataLoaderSrvc, LLMModelsMetadataLoader } from "./llm-models-metadata-loader";
+import { llmModelsMetadataLoaderSrvc, LLMModelsMetadataLoader } from "./llm-configurator/llm-models-metadata-loader";
 
 describe("LLM Router", () => {
   describe("reducePromptSizeToTokenLimit", () => {

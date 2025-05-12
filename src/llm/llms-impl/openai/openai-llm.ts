@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
 import { llmConst } from "../../../types/llm-constants";
-import { ModelKey } from "../../../types/llm-models-metadata";
+import { ModelKey, ModelFamily } from "../../../types/llm-models-metadata";
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 
@@ -17,6 +17,13 @@ class OpenAILLM extends BaseOpenAILLM {
   constructor(modelsKeys: LLMModelSet, apiKey: string) { 
     super(modelsKeys);
     this.client = new OpenAI({ apiKey });
+  }
+
+  /**
+   * Get the model family this LLM implementation belongs to.
+   */
+  getModelFamily(): ModelFamily {
+    return ModelFamily.OPENAI_MODELS;
   }
 
   /**

@@ -73,58 +73,59 @@ export enum ModelKey {
  AWS_COMPLETIONS_MISTRAL_LARGE2 = "AWS_COMPLETIONS_MISTRAL_LARGE2",
  AWS_COMPLETIONS_NOVA_PRO_V1 = "AWS_COMPLETIONS_NOVA_PRO_V1",
  AWS_COMPLETIONS_NOVA_LITE_V1 = "AWS_COMPLETIONS_NOVA_LITE_V1",
- AWS_COMPLETIONS_DEEPSEEKE_R1 = "AWS_COMPLETIONS_DEEPSEEKE_R1"
+ AWS_COMPLETIONS_DEEPSEEKE_R1 = "AWS_COMPLETIONS_DEEPSEEKE_R1",
+ AZURE_OPENAI_MODELS = "AZURE_OPENAI_MODELS"
 }
 
 /**
  * Type for model provider to set of model keys mappings.
  */
-export type ModelProviderMappings = Readonly<Record<string, LLMModelSet>>
+export type ModelProviderMappings = Readonly<Record<ModelFamily, LLMModelSet>>
 
 /**
  * Constants for the LLM model mappings for each provider.
  */
 export const modelProviderMappings: ModelProviderMappings = {
-  OPENAI_MODELS: {
+  [ModelFamily.OPENAI_MODELS]: {
     embeddings: ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL,
     primaryCompletion:  ModelKey.GPT_COMPLETIONS_GPT4_O,
     secondaryCompletion: ModelKey.GPT_COMPLETIONS_GPT4_TURBO,
   },
-  AZURE_MODELS: {
+  [ModelFamily.AZURE_OPENAI_MODELS]: {
     embeddings: ModelKey.GPT_EMBEDDINGS_ADA002,
     primaryCompletion:  ModelKey.GPT_COMPLETIONS_GPT4_O,
     secondaryCompletion: ModelKey.GPT_COMPLETIONS_GPT4_32k,
   },
-  VERTEXAI_MODELS: {
+  [ModelFamily.VERTEXAI_GEMINI_MODELS]: {
     embeddings: ModelKey.GCP_EMBEDDINGS_TEXT_005,
     primaryCompletion:  ModelKey.GCP_COMPLETIONS_GEMINI_PRO25,
     secondaryCompletion: ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20,
   },
-  BEDROCK_TITAN_MODELS: {
+  [ModelFamily.BEDROCK_TITAN_MODELS]: {
     embeddings: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
     primaryCompletion:  ModelKey.AWS_COMPLETIONS_TITAN_EXPRESS_V1,
   },
-  BEDROCK_CLAUDE_MODELS: {
+  [ModelFamily.BEDROCK_CLAUDE_MODELS]: {
     embeddings: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
     primaryCompletion:  ModelKey.AWS_COMPLETIONS_CLAUDE_V37,
     secondaryCompletion: ModelKey.AWS_COMPLETIONS_CLAUDE_V35,
   },
-  BEDROCK_MISTRAL_MODELS: {
+  [ModelFamily.BEDROCK_MISTRAL_MODELS]: {
     embeddings: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
     primaryCompletion:  ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE2,
     secondaryCompletion: ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE,
   },
-  BEDROCK_LLAMA_MODELS: {
+  [ModelFamily.BEDROCK_LLAMA_MODELS]: {
     embeddings: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
     primaryCompletion:  ModelKey.AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT,
     secondaryCompletion: ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT,
   },
-  BEDROCK_NOVA_MODELS: {
+  [ModelFamily.BEDROCK_NOVA_MODELS]: {
     embeddings: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
     primaryCompletion:  ModelKey.AWS_COMPLETIONS_NOVA_PRO_V1,
     secondaryCompletion: ModelKey.AWS_COMPLETIONS_NOVA_LITE_V1,
   },
-  BEDROCK_DEEPSEEK_MODELS: {
+  [ModelFamily.BEDROCK_DEEPSEEK_MODELS]: {
     embeddings: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
     primaryCompletion:  ModelKey.AWS_COMPLETIONS_DEEPSEEKE_R1,
   },

@@ -1,12 +1,9 @@
 import { llmConst } from "../types/llm-constants";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } from "../types/llm-types";
-import { ModelFamily } from "../types/llm-models-metadata";
 import { RetryFunc } from "../types/control-types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors";
 import { withRetry } from "../utils/control-utils";
-import { initializeLLMImplementation } from "./llm-configurator/llm-initializer";
-import { LLMConfig } from "./llm-configurator/llm-config-types";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { log, logErrWithContext, logWithContext } from "./llm-router-logging";
 import LLMStats from "./llm-stats";
@@ -20,18 +17,14 @@ import LLMStats from "./llm-stats";
  */
 class LLMRouter {
   // Private fields
-  private readonly llmImpl: LLMProviderImpl;
   private readonly llmStats: LLMStats;
-  private readonly llmProviderName: ModelFamily;
 
   /**
    * Constructor.
    * 
-   * @param llmConfig The provider-specific configuration
+   * @param llmImpl The initialized LLM provider implementation
    */
-  constructor(llmConfig: LLMConfig) {
-    this.llmProviderName = llmConfig.modelFamily as ModelFamily;
-    this.llmImpl = initializeLLMImplementation(llmConfig);
+  constructor(private readonly llmImpl: LLMProviderImpl) {
     this.llmStats = new LLMStats();
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
@@ -48,7 +41,7 @@ class LLMRouter {
    */
   getModelsUsedDescription() {
     const [ embeddings, primary, secondary ] = this.llmImpl.getModelsNames();
-    return `${this.llmProviderName} (embeddings: ${embeddings}, completions-primary: ${primary}, completions-secondary: ${secondary})`;
+    return `${this.llmImpl.getModelFamily()} (embeddings: ${embeddings}, completions-primary: ${primary}, completions-secondary: ${secondary})`;
   }  
 
 

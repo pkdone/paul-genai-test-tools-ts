@@ -1,6 +1,6 @@
 import { llmConst,llmAPIErrorPatterns } from "../types/llm-constants";
 import { ModelKey } from "../types/llm-models-metadata";
-import { llmModelsMetadataLoaderSrvc } from "./llm-models-metadata-loader";
+import { llmModelsMetadataLoaderSrvc } from "./llm-configurator/llm-models-metadata-loader";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
          LLMResponseStatus, 
          LLMContext} from "../types/llm-types";

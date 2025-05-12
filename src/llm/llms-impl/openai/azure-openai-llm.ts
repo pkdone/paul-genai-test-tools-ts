@@ -1,6 +1,6 @@
 import { AzureOpenAI, OpenAI } from "openai";
 import { llmConst } from "../../../types/llm-constants";
-import { ModelKey } from "../../../types/llm-models-metadata";
+import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 import { BadConfigurationLLMError } from "../../../types/llm-errors";
@@ -30,6 +30,13 @@ class AzureOpenAILLM extends BaseOpenAILLM {
     const apiVersion = llmConst.AZURE_API_VERION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
+
+  /**
+   * Get the model family this LLM implementation belongs to.
+   */
+  getModelFamily(): ModelFamily {
+    return ModelFamily.AZURE_OPENAI_MODELS;
+  }    
 
   /**
    * Abstract method to get the client object for the specific LLM provider.
