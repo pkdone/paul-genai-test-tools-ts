@@ -10,8 +10,10 @@ const appConst = {
   CODEBASE_DB_NAME: "codebase-analyzed",
   SOURCES_COLLCTN_NAME: "sources",
   SUMMARIES_COLLCTN_NAME: "appsummaries",
-  SAMPLE_PROMPT_FILEPATH: "./test/sample.prompt",
-  QUESTIONS_PROMPTS_FILEPATH: "./test/questions.prompts",  
+  REQUIREMENTS_PROMPTS_FOLDERPATH: "./input/requirements",
+  REQS_FILE_REGEX: /requirement\d+\.prompt$/i,
+  SAMPLE_PROMPT_FILEPATH: "./input/sample.prompt",
+  QUESTIONS_PROMPTS_FILEPATH: "./input/questions.prompts",  
   CODEBASE_QUERY_PROMPT: "summarize-codebase-query.prompt",
   FOLDER_IGNORE_LIST: [
     ".git", 
