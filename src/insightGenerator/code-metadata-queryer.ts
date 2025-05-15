@@ -1,7 +1,7 @@
 import { MongoClient, Collection, Sort } from "mongodb";
 import appConst from "../env/app-consts";
 
-// Enum for complexity levels
+// Enum for stored procedure complexity levels
 enum Complexity {
   LOW = "low",
   MEDIUM = "medium",
@@ -16,22 +16,19 @@ interface StoredProcedureOrTrigger {
   linesOfCode: number;
 }
 
-// Interface for source file summary
-interface SourceFileSummary {
-  classpath?: string;
-  purpose?: string;
-  implementation?: string;
-  databaseIntegration?: {
-    mechanism: string;
-    description: string;
-  };
-  storedProcedures?: StoredProcedureOrTrigger[];
-  triggers?: StoredProcedureOrTrigger[];
-}
-
 // Interface for source file record
 interface SourceFileRecord {
-  summary?: SourceFileSummary;
+  summary?: {
+    classpath?: string;
+    purpose?: string;
+    implementation?: string;
+    databaseIntegration?: {
+      mechanism: string;
+      description: string;
+    };
+    storedProcedures?: StoredProcedureOrTrigger[];
+    triggers?: StoredProcedureOrTrigger[];
+  };
   filepath: string;
 }
 
@@ -78,9 +75,9 @@ export class CodeMetadataQueryer {
    * Constructor
    */
   constructor(
-    mongoClient: MongoClient,
-    databaseName: string,
-    sourceCollectionName: string,
+    readonly mongoClient: MongoClient,
+    readonly databaseName: string,
+    readonly sourceCollectionName: string,
     private readonly projectName: string
   ) {
     const db = mongoClient.db(databaseName);
@@ -154,6 +151,7 @@ export class CodeMetadataQueryer {
 
     for (const record of records) {
       const { summary } = record;
+
       if (!summary?.databaseIntegration) {
         console.log(`No DB interaction summary exists for file: ${record.filepath}. Skipping.`);
         continue;
@@ -196,6 +194,7 @@ export class CodeMetadataQueryer {
 
     for (const record of records) {
       const { summary } = record;
+      
       if (!summary) {
         console.log(`No stored procs / triggers summary exists for file: ${record.filepath}. Skipping.`);
         continue;

@@ -1,4 +1,5 @@
 import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
+import { logErrorMsg, logErrorMsgAndDetail } from "./error-utils";
 
 /**
  * A class that manages multiple MongoDB connections and provides client instances.
@@ -54,7 +55,7 @@ class MongoDBService {
       this.clients.set(id, newClient);
       return newClient;
     } catch (error: unknown) {
-      console.error(`Failed to connect to MongoDB: ${JSON.stringify(error)}`);
+      logErrorMsgAndDetail("Failed to connect to MongoDB", error);
       throw new MongoError(`Failed to connect to MongoDB with id '${id}'.`);
     }
   }
@@ -81,7 +82,7 @@ class MongoDBService {
         await client.close();
         console.log(`Closed MongoDB connection for id '${id}'.`);
       } catch (error: unknown) {
-        console.error(`Error closing MongoDB client '${id}': ${JSON.stringify(error)}`);
+        logErrorMsgAndDetail(`Error closing MongoDB client '${id}'`, error);
       }
     }
 
@@ -103,7 +104,7 @@ class MongoDBService {
       }
       return parsedUrl.toString();
     } catch {
-      console.warn("Could not parse URL for redaction.");
+      logErrorMsg("Could not parse URL for redaction.");
       return "REDACTED_URL";
     }
   }
@@ -116,7 +117,7 @@ process.on("SIGINT", () => {
     console.log("MongoDB connections closed. Exiting process.");
     process.exit(0);
   }).catch((error: unknown) => {
-    console.error("Error closing MongoDB connections:", error);
+    logErrorMsgAndDetail("Error closing MongoDB connections:", error);
     process.exit(1);
   });
 });

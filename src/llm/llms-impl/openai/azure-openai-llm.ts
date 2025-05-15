@@ -16,7 +16,9 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Constructor.
    */
-  constructor(modelsKeys: LLMModelSet, apiKey: string, endpoint: string, embeddingsDeployment: string, primaryCompletionsDeployment: string, secondaryCompletionsDeployment: string) {
+  constructor(modelsKeys: LLMModelSet, readonly apiKey: string, readonly endpoint: string,
+              readonly embeddingsDeployment: string, readonly primaryCompletionsDeployment: string,
+              readonly secondaryCompletionsDeployment: string) {
     super(modelsKeys);
     this.modelToDeploymentMappings = new Map();
     this.modelToDeploymentMappings.set(modelsKeys.embeddings, embeddingsDeployment);

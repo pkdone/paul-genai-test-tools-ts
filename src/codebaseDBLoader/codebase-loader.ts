@@ -122,21 +122,19 @@ class CodebaseToDBLoader {
   }
 
   /**
-   * Invoke an LLM completion with a prompt to get a symmary, returning the LLM's response as JSON.
+   * Invoke an LLM completion with a prompt to get a summary, returning the LLM's response as JSON.
    */
   private async getContentSummarisedAsJSON(filepath: string, type: string, content: string) {
-    // If file is in markdown or is the README, just use its content as-is as its summary
-    if (type === "md" || path.basename(filepath).toUpperCase() === "README") return { content };
-    if (content.length <= 0) return { content: "<empty-file>" }; 
-    
-    let promptFileName = this.getSummaryPromptTemplateFileName(type);
+    if (content.length <= 0) return { content: "<empty-file>" };     
+    let promptFileName;
     
     if (path.basename(filepath).toUpperCase() === "README") {
       promptFileName = appConst.MARKDOWN_FILE_SUMMARY_PROMPTS;
     } else {
-      promptFileName ??= appConst.DEFAULT_FILE_SUMMARY_PROMPTS;
+      promptFileName = this.getSummaryPromptTemplateFileName(type);
     }
 
+    promptFileName ??= appConst.DEFAULT_FILE_SUMMARY_PROMPTS;
     let response;
 
     try {        

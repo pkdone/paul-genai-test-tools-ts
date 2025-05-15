@@ -21,21 +21,17 @@ class SummariesGenerator {
    * Creates a new SummariesGenerator.
    */
   constructor(
-    mongoClient: MongoClient,
+    readonly mongoClient: MongoClient,
     private readonly llmRouter: LLMRouter,
-    databaseName: string,
-    sourceCollectionName: string,
-    destinationCollectionName: string,
+    readonly databaseName: string,
+    readonly sourceCollectionName: string,
+    readonly destinationCollectionName: string,
     private readonly projectName: string,
   ) {
     const db = mongoClient.db(databaseName);
     this.destinationCollection = db.collection(destinationCollectionName);
-    this.codeMetadataQueryer = new CodeMetadataQueryer(
-      mongoClient,
-      databaseName,
-      sourceCollectionName,
-      projectName
-    );
+    this.codeMetadataQueryer = new CodeMetadataQueryer(mongoClient, databaseName, 
+                                                       sourceCollectionName, projectName);
     this.llmProviderDescription = llmRouter.getModelsUsedDescription();
   }
 
@@ -50,7 +46,7 @@ class SummariesGenerator {
     if (sourceFileSummaries.length === 0) {
       throw new Error(
         "No existing code file summaries found in the metadata database. " +
-          "Please ensure you have run the script to process the source data first."
+        "Please ensure you have run the script to process the source data first."
       );
     }
 
@@ -65,13 +61,10 @@ class SummariesGenerator {
   }
 
   /**
-   * Calls an LLM to summarize a specific set of data (i.e., one category),
-   * and then saves the dataset under a named field of the main application summary record.
+   * Calls an LLM to summarize a specific set of data (i.e., one category), and then saves the 
+   * dataset under a named field of the main application summary record.
    */
-  private async generateDataForCategory(
-    category: string,
-    sourceFileSummaries: string[]
-  ): Promise<void> {
+  private async generateDataForCategory(category: string, sourceFileSummaries: string[]) {
     const categoryLabel = appConst.CATEGORY_TITLES[category as keyof typeof appConst.CATEGORY_TITLES];
 
     try {
@@ -86,10 +79,7 @@ class SummariesGenerator {
         promptFilePath,
         prompt,
         true,
-        {
-          resource: resourceName,
-          requireJSON: true,
-        }
+        { resource: resourceName, requireJSON: true }
       );
 
       if (keysValuesObject && typeof keysValuesObject === "object" && Object.hasOwn(keysValuesObject, category)) {

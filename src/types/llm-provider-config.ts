@@ -3,6 +3,8 @@
  * These types represent the specific configuration required for each LLM provider.
  */
 
+// TODO: remove this whole file?
+
 import { ModelFamily } from "./llm-models-metadata";
 import { LLMModelSet } from "./llm-types";
 

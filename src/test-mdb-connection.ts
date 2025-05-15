@@ -9,6 +9,7 @@ import { bootstrap } from "./env/bootstrap";
  */
 async function main() {
   try {
+    console.log(`START: ${new Date().toISOString()}`);
     const { env, mongoClient } = await bootstrap();   
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
@@ -16,6 +17,7 @@ async function main() {
     const collName = appConst.SOURCES_COLLCTN_NAME;  
     const result = await collectJavaFilePaths(db, collName, projectName);
     console.log("Result:", JSON.stringify(result, null, 2));
+    console.log(`END: ${new Date().toISOString()}`);
   } finally {
     await mongoDBService.closeAll();
   }

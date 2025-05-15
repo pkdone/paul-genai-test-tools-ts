@@ -14,7 +14,7 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Constructor.
    */
-  constructor(modelsKeys: LLMModelSet, apiKey: string) { 
+  constructor(modelsKeys: LLMModelSet, readonly apiKey: string) { 
     super(modelsKeys);
     this.client = new OpenAI({ apiKey });
   }

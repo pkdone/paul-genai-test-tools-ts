@@ -29,7 +29,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Constructor
    */
-  constructor(modelsKeys: LLMModelSet, project: string, location: string) {
+  constructor(modelsKeys: LLMModelSet, readonly project: string, readonly location: string) {
     super(modelsKeys); 
     this.vertexAiApiClient = new VertexAI({project, location});
     this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });

@@ -33,5 +33,4 @@ async function main() {
   process.exit();  // Force exit because some abandoned LLM requests may still be hanging  
 }
 
-// Bootstrap
 main().catch(console.error);

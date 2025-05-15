@@ -1,11 +1,22 @@
 import appConst from "../env/app-consts";
 import mongoDBService from "../utils/mongodb-service";
 import LLMRouter from "../llm/llm-router";
-import { loadEnvVars } from "../env/env-vars";
 import { initializeLLMImplementation } from "../llm/llm-configurator/llm-initializer";
+import dotenv from "dotenv";
+import { envVarsSchema, EnvVars } from "../types/env-types";
 
 /**
- * Function to bootstrap the application by loading environment variables,
+ * Utility function to load environment variables and validate them.
+ */
+export function loadEnvVars(): EnvVars {
+  dotenv.config();
+  return envVarsSchema.parse(process.env);
+}
+
+/**
+ * Function to bootstrap the initiated MongoDB client + the LLM router with the specified model 
+ * family and configuration based in  environment variable (also returning the list of environemnt 
+ * variables for wider use.
  */
 export async function bootstrap() {
   const { env, llmRouter } = bootstrapJustLLM();
@@ -14,7 +25,8 @@ export async function bootstrap() {
 }
 
 /**
- * Function to bootstrap the LLM router with the specified model family and configuration.
+ * Function to bootstrap the LLM router with the specified model family and configuration based in 
+ * environment variable (also returning the list of environemnt variables for wider use.
  */
 export function bootstrapJustLLM() {
   const env = loadEnvVars();

@@ -125,5 +125,4 @@ interface FileRequirementPrompt {
   question: string;
 }
 
-// Bootstrap
 main().catch(console.error);

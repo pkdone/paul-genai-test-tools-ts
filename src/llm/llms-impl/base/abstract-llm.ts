@@ -18,19 +18,26 @@ abstract class AbstractLLM implements LLMProviderImpl {
   protected readonly llmModelsMetadata: Record<string, LLMModelMetadata>;
   private readonly modelsKeys: LLMModelSet;
   
-  // Constructor
+  /**
+   * Constructor.
+   */
   constructor(modelsKeys: LLMModelSet) {
     this.modelsKeys = modelsKeys;
     this.llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
   }
 
-  // Public methods
+  /**
+   * Get the model key for the embeddings model.
+   */
   getAvailableCompletionModelQualities(): LLMModelQuality[] {
     const llmQualities: LLMModelQuality[] = [LLMModelQuality.PRIMARY];
     if (this.modelsKeys.secondaryCompletion !== ModelKey.UNSPECIFIED) llmQualities.push(LLMModelQuality.SECONDARY);
     return llmQualities;
   }
 
+  /**
+   * Get the model key for the embeddings model.
+   */
   getModelsNames(): string[] {
     return [
       this.llmModelsMetadata[this.modelsKeys.embeddings].modelId,
@@ -41,18 +48,30 @@ abstract class AbstractLLM implements LLMProviderImpl {
     ];
   }  
 
+  /**
+   * Get the model key for the embeddings model.
+   */
   getEmbeddedModelDimensions() {
     return this.llmModelsMetadata[this.modelsKeys.embeddings].dimensions;
   }
 
+  /**
+   * Generate embeddings for the given content.
+   */
   async generateEmbeddings(content: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     return this.executeLLMImplFunction(this.modelsKeys.embeddings, LLMPurpose.EMBEDDINGS, content, asJson, context);
   }
 
+  /**
+   * Execute the LLM function for the primary completion model.
+   */
   async executeCompletionPrimary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     return this.executeLLMImplFunction(this.modelsKeys.primaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
+  /**
+   * Execute the LLM function for the secondary completion model.
+   */
   async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     if (this.modelsKeys.secondaryCompletion === ModelKey.UNSPECIFIED) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
     const secondaryCompletion = this.modelsKeys.secondaryCompletion;
@@ -60,18 +79,25 @@ abstract class AbstractLLM implements LLMProviderImpl {
     return await this.executeLLMImplFunction(secondaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
+  /**
+   * Close the LLM client.
+   */
   async close(): Promise<void> {
     // No-op - default assuming LLM client doesn't provide a close function to call
   }
 
-  // Protected methods
+  /**
+   * Used for debugging purposes - prints the error type and message to the console.
+   */
   protected debugCurrentlyNonCheckedErrorTypes(error: unknown, modelKey: ModelKey) {
     if (error instanceof Error) {
       console.log(`${error.constructor.name}: ${getErrorText(error)} - LLM: ${this.llmModelsMetadata[modelKey].modelId}`);
     }
   }
 
-  // Private methods
+  /**
+   * Executes the LLM function for the given model key and task type.
+   */
   private async executeLLMImplFunction(modelKey: ModelKey, taskType: LLMPurpose, request: string, asJson: boolean, context: LLMContext): Promise<LLMFunctionResponse> { 
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, modelKey };
 
@@ -96,10 +122,24 @@ abstract class AbstractLLM implements LLMProviderImpl {
     }
   }
 
-  // Abstract methods must be declared last
+  /**
+   * Get the model family for this LLM provider.
+   */
   abstract getModelFamily(): ModelFamily;
+
+  /**
+   * Invoke the implementation-specific LLM function.
+   */
   protected abstract invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary>;
+
+  /**
+   * Is the LLM overloaded?
+   */
   protected abstract isLLMOverloaded(error: unknown): boolean;
+
+  /**
+   * Is the token limit exceeded?
+   */
   protected abstract isTokenLimitExceeded(error: unknown): boolean;
 }  
 

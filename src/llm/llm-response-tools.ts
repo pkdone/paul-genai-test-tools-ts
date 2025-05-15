@@ -1,15 +1,14 @@
-import { llmConst,llmAPIErrorPatterns } from "../types/llm-constants";
-import { ModelKey } from "../types/llm-models-metadata";
+import { llmConst } from "../types/llm-constants";
+import { ModelKey, llmAPIErrorPatterns } from "../types/llm-models-metadata";
 import { llmModelsMetadataLoaderSrvc } from "./llm-configurator/llm-models-metadata-loader";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
-         LLMResponseStatus, 
-         LLMContext} from "../types/llm-types";
+         LLMResponseStatus, LLMContext} from "../types/llm-types";
 import { BadResponseContentLLMError } from "../types/llm-errors";
 import { convertTextToJSON } from "../utils/json-tools";
 import { getErrorText } from "../utils/error-utils";
 
 /**
- * Etract token usage information from LLM response metadata, defaulting missing
+ * Extract token usage information from LLM response metadata, defaulting missing
  * values.
  */
 export function extractTokensAmountFromMetadataDefaultingMissingValues(modelKey: ModelKey, tokenUsage: LLMResponseTokensUsage) {

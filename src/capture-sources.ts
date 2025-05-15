@@ -17,15 +17,11 @@ async function main() {
     const projectName = getProjectNameFromPath(srcDirPath);     
     const ignoreIfAlreadyCaptured = env.IGNORE_ALREADY_PROCESSED_FILES;
     console.log(`Processing source files for project: ${projectName}`);
-
-    // Ensure database indexes exist first
     const dbInitializer = new DBInitializer(mongoClient, appConst.CODEBASE_DB_NAME, 
                                             appConst.SOURCES_COLLCTN_NAME,
                                             appConst.SUMMARIES_COLLCTN_NAME,
                                             llmRouter.getEmbeddedModelDimensions());
     await dbInitializer.ensureRequiredIndexes();
-  
-    // Load metadata about every file in the project into the database
     console.log("LLM inovocation event types that will be recorded:");
     llmRouter.displayLLMStatusSummary();
     const codebaseToDBLoader = new CodebaseToDBLoader(mongoClient, llmRouter, projectName, srcDirPath, ignoreIfAlreadyCaptured);
@@ -42,5 +38,4 @@ async function main() {
   process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
 }
 
-// Bootstrap
 main().catch(console.error);

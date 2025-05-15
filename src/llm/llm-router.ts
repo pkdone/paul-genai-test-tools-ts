@@ -89,7 +89,6 @@ class LLMRouter {
     context.modelQuality = availableModelQualities[0];
     const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, modelQualityCompletionFunctions, asJson);
 
-    // must be string | object
     if ((typeof contentResponse !== 'object') && (typeof contentResponse !== 'string')) {
       throw new BadResponseMetadataLLMError("LLM response for completion was not an object or string", contentResponse);
     }
@@ -124,7 +123,7 @@ class LLMRouter {
     let llmFuncIndex = 0;
 
     try {
-      // Don't want to increment 'llmFuncIndex' before looping again if going to crop prompt so we can try cropped prompt with same size LLM as last iteration
+      // Don't want to increment 'llmFuncIndex' before looping again, if going to crop prompt, so we can try cropped prompt with same size LLM as last iteration
       while (llmFuncIndex < llmFuncs.length) {
         const llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, asJson, context);
 

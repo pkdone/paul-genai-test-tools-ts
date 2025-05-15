@@ -1,7 +1,6 @@
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
-import { getErrorStack } from "../utils/error-utils";
+import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { llmConst } from "../types/llm-constants";
-    
 
 /**
  * Class for initializing the MongoDB database.
@@ -14,7 +13,7 @@ class DBInitializer {
               private readonly databaseName: string,
               private readonly sourceCollectionName: string,
               private readonly appSummariesCollectionName: string,
-              private readonly numDimensions: number | undefined = llmConst.DEFAULT_VECTOR_DIMENSIONS_AMOUNT) { 
+              private readonly numDimensions: number = llmConst.DEFAULT_VECTOR_DIMENSIONS_AMOUNT) { 
     this.mongoClient = mongoClient;
     this.sourceCollectionName = sourceCollectionName;
     this.appSummariesCollectionName = appSummariesCollectionName;
@@ -53,54 +52,9 @@ class DBInitializer {
   private async generateSearchIndexes(db: Db) {
     let unknownErrorOccurred = false;
     const sourcesColctn = db.collection(this.sourceCollectionName);    
-    const vectorSearchIndexes = [
-      {
-        name:"contentVectorIndex",
-        type:"vectorSearch",
-        definition: {
-          "fields": [
-            {
-              "type": "vector",
-              "path": "contentVector",
-              "numDimensions": this.numDimensions,
-              "similarity": llmConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
-              "quantization": llmConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
-            },
-            {
-              "type": "filter",
-              "path": "projectName"
-            },
-            {
-              "type": "filter",
-              "path": "type"
-            }
-          ]
-        },
-      },
-      {
-        name:"summaryVectorIndex",
-        type:"vectorSearch",
-        definition: {
-          "fields": [
-            {
-              "type": "vector",
-              "path": "summaryVector",
-              "numDimensions": this.numDimensions,
-              "similarity": llmConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
-              "quantization": llmConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
-            },
-            {
-              "type": "filter",
-              "path": "projectName"
-            },
-            {
-              "type": "filter",
-              "path": "type"
-            }
-          ]
-        },
-      },
-    ]
+    const vectorSearchIndexes = [];
+    vectorSearchIndexes.push(this.createFileContentVectorIndexDefiniton("contentVector"));
+    vectorSearchIndexes.push(this.createFileContentVectorIndexDefiniton("summaryVector"));
 
     try {
       await sourcesColctn.createSearchIndexes(vectorSearchIndexes);
@@ -108,8 +62,10 @@ class DBInitializer {
       const isDuplicateIndexError = typeof error === "object" && error !== null && "codeName" in error && (error as { codeName: string }).codeName === "IndexAlreadyExists";
 
       if (!isDuplicateIndexError) {
-        console.error(`Issue when creating Vector Search indexes, therefore you must create these Vector Search indexes manully (see README) for the MongoDB database collection: '${db.databaseName}.${sourcesColctn.collectionName}'`,
-          error, getErrorStack(error));    
+        logErrorMsgAndDetail(
+          `Issue when creating Vector Search indexes, therefore you must create these Vector Search indexes manully (see README) for the MongoDB database collection: '${db.databaseName}.${sourcesColctn.collectionName}'`,
+          error
+        );    
         unknownErrorOccurred = true;
       }
     }
@@ -117,6 +73,36 @@ class DBInitializer {
     if (!unknownErrorOccurred) {
       console.log(`Ensured Vector Search indexes exist for the MongoDB database collection: '${db.databaseName}.${sourcesColctn.collectionName}'`);
     } 
+  }
+
+  /**
+   * Create a vector search index woth a prokect and file type filter for a particular metadata 
+   * field exxtracted from a file.
+   */
+  private createFileContentVectorIndexDefiniton(fieldToIndex: string) {
+    return {
+      name: "contentVectorIndex",
+      type: "vectorSearch",
+      definition: {
+        "fields": [
+          {
+            "type": "vector",
+            "path": fieldToIndex,
+            "numDimensions": this.numDimensions,
+            "similarity": llmConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
+            "quantization": llmConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
+          },
+          {
+            "type": "filter",
+            "path": "projectName"
+          },
+          {
+            "type": "filter",
+            "path": "type"
+          }
+        ]
+      },
+    }
   }
 }
 

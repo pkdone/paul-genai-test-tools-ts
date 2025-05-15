@@ -35,5 +35,4 @@ async function main() {
 
 }
 
-// Bootstrap
 main().catch(console.error);

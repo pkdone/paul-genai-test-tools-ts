@@ -1,3 +1,4 @@
+import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { readFile } from "../utils/fs-utils";
 
 /**
@@ -51,7 +52,7 @@ export class PromptBuilder {
       return content;
     } catch (error: unknown) {
       this.promptFileCache.delete(promptFilePath);
-      console.error(`Failed to load prompt file contents for "${promptFilePath}":`, error);
+      logErrorMsgAndDetail(`Failed to load prompt file contents for "${promptFilePath}":`, error);
       throw error;
     } 
   }

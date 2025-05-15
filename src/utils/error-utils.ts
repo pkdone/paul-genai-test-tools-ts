@@ -17,6 +17,13 @@ export function logErrorDetail(error: unknown) {
 }
 
 /**
+ * Log an string msg flagged as an error.
+ */
+export function logErrorMsg(errMsg: string) {
+  logErrorMsgAndDetail(errMsg, null);
+}
+
+/**
  * Get the error text from a thrown variable which may or may not be an Error object.
  */
 export function getErrorText(error: unknown) {

@@ -1,6 +1,7 @@
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { logErrorMsgAndDetail } from "../utils/error-utils";
 
 // Constants for HTTP status codes
 const HTTP_INTERNAL_SERVER_ERROR_CODE = 500;
@@ -95,7 +96,7 @@ class McpHttpServer {
    * Sends an HTTP error response.
    */
   private sendHTTPError(res: ServerResponse, code: number, externamMsg: string, errMsg: string, error: unknown = null) {
-    console.error(errMsg, error);
+    logErrorMsgAndDetail(errMsg, error);
   
     if (!res.headersSent) {
       res.writeHead(code).end(externamMsg);

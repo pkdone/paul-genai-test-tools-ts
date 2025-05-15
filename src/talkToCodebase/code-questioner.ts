@@ -26,7 +26,7 @@ class CodeQuestioner {
   /**
    * Constructor.
    */
-  constructor(mongoClient: MongoClient, private readonly llmRouter: LLMRouter, private readonly projectName: string) { 
+  constructor(readonly mongoClient: MongoClient, private readonly llmRouter: LLMRouter, private readonly projectName: string) { 
     this.colctn = mongoClient.db(appConst.CODEBASE_DB_NAME).collection(appConst.SOURCES_COLLCTN_NAME);
   }
 

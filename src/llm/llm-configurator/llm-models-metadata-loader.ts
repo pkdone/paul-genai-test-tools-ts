@@ -35,7 +35,7 @@ class LLMModelsMetadataLoader {
   /**
    * Import LLM models JSON metadata after first checking its fields are valid.
    */
-  constructor(llmModelsData: Record<string, JSONLLMModelMetadata>) {
+  constructor(readonly llmModelsData: Record<string, JSONLLMModelMetadata>) {
     this.validateJSONModelMetadata(llmModelsData);
     this.llmModelsMetadata = llmModelsData as Record<string, LLMModelMetadata>;
     this.llmModelsMetadata[ModelKey.UNSPECIFIED] = {   // Add entity to represent an unspecified model
