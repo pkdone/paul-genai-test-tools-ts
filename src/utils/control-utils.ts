@@ -1,6 +1,5 @@
 import { PromiseFunction, RetryFunc, CheckResultFunc, LogRetryEventFunc }
        from "../types/control-types";
-import { logErrorMsg } from "../utils/error-utils";
 
 /**
  * Executes a given array of task promise functions in batches, limiting the number of concurrent 
@@ -110,7 +109,7 @@ async function executeFunctionWithTimeout<T>(
   } catch (error: unknown) {
     if (error instanceof RetryableTimeoutError) {
       if (logTimeouts) {
-        logErrorMsg("<retryable timeout error>");
+        console.error("<retryable timeout error>");
       }
     } else {
       throw error;
