@@ -154,12 +154,13 @@ Description: {description}
     expect(errorUtils.logErrorMsgAndDetail).toHaveBeenCalled();
     
     // Get the actual arguments that were passed to the mock
-    const calls = (errorUtils.logErrorMsgAndDetail as jest.Mock).mock.calls;
+    const calls = (errorUtils.logErrorMsgAndDetail as jest.Mock).mock.calls as unknown[][];
     expect(calls.length).toBe(1);
     
     // Check that the first argument contains the expected text
-    const firstArg = calls[0][0]; 
-    expect(firstArg).toContain('Failed to load prompt file contents');
+    const [firstArg] = calls[0] as [unknown, unknown];
+    expect(typeof firstArg === 'string').toBe(true);
+    expect(firstArg as string).toContain('Failed to load prompt file contents');
     
     // Check that the second argument is error-like
     const secondArg = calls[0][1];
