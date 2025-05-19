@@ -68,7 +68,7 @@ class CodebaseToDBLoader {
     const filepath = fullFilepath.replace(`${this.srcDirPath}/`, "");    
     if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof appConst.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) return;  // Skip file if it has binary content
 
-    if ((this.ignoreIfAlreadyCaptured) && (await this.doesMedataForFileExistsInDB(colctn, filepath))) {
+    if ((this.ignoreIfAlreadyCaptured) && (await this.doesMetadataForFileExistsInDB(colctn, filepath))) {
       if (!this.doneCheckingAlreadyCapturedFiles) {
         console.log(`Not capturing some of the metadata files into the database because they've already been captured by a previous run - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to force re-processing of all files`);
         this.doneCheckingAlreadyCapturedFiles = true;
@@ -110,7 +110,7 @@ class CodebaseToDBLoader {
    * QUery the DB `sources` collection for existence of a record with matching filepath field for 
    * this project.
    */
-  private async doesMedataForFileExistsInDB(colctn: Collection, filepath: string) {
+  private async doesMetadataForFileExistsInDB(colctn: Collection, filepath: string) {
     const query = { 
       projectName: this.projectName, 
       filepath,
