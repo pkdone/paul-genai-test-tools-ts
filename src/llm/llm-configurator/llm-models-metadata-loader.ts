@@ -28,8 +28,6 @@ const modelMetadataOptionalPropsToCheck: ModelMetadataOptionalPropsToCheck = {
  * Class to handle the LLM models metadata.
  */
 class LLMModelsMetadataLoader {
-  // Private fields
-  private static instance: LLMModelsMetadataLoader;
   private readonly llmModelsMetadata: Record<string, LLMModelMetadata>;
 
   /**
@@ -44,19 +42,6 @@ class LLMModelsMetadataLoader {
       maxTotalTokens: 999999999,
       apiFamily: LLMApiFamily.N_A,
     }
-  }
-
-  /**
-   * Singleton pattern to ensure only one instance of LLMModelsLoader exists.
-   */
-  static getInstance() {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!LLMModelsMetadataLoader.instance) {
-      LLMModelsMetadataLoader.instance = new LLMModelsMetadataLoader(jsonLlmModelsData);
-      Object.freeze(LLMModelsMetadataLoader.instance);
-    }
-
-    return LLMModelsMetadataLoader.instance;
   }
 
   /**
@@ -148,5 +133,9 @@ class LLMModelsMetadataLoader {
   }
 }
 
-const llmModelsMetadataLoaderSrvc = LLMModelsMetadataLoader.getInstance();
+// Create a single instance of the service as the default export
+const llmModelsMetadataLoaderSrvc = new LLMModelsMetadataLoader(jsonLlmModelsData);
+// Optional: freeze the instance to prevent modification
+Object.freeze(llmModelsMetadataLoaderSrvc);
+
 export { llmModelsMetadataLoaderSrvc, LLMModelsMetadataLoader };

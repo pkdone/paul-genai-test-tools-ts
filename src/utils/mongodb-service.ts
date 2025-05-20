@@ -5,23 +5,7 @@ import { logErrorMsg, logErrorMsgAndDetail } from "./error-utils";
  * A class that manages multiple MongoDB connections and provides client instances.
  */
 class MongoDBService {
-  private static instance: MongoDBService;
   private readonly clients = new Map<string, MongoClient>();
-
-  /**
-   * Returns the singleton instance of the MongoDBService class.
-   *
-   * @returns The singleton instance.
-   */
-  static getInstance() {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (!MongoDBService.instance) {
-      MongoDBService.instance = new MongoDBService();
-      Object.freeze(MongoDBService.instance);
-    }
-
-    return MongoDBService.instance;
-  }
 
   /**
    * Connects to a MongoDB instance using the given id and URL. Wraps the MongoClient instance to
@@ -110,16 +94,23 @@ class MongoDBService {
   }
 }
 
+// Create a single instance of the service
+const mongoDBService = new MongoDBService();
+// Optional: freeze the instance to prevent modification
+Object.freeze(mongoDBService);
+
 // Ensure proper cleanup on application exit.
-const mongoDBService = MongoDBService.getInstance();
 process.on("SIGINT", () => {
-  mongoDBService.closeAll().then(() => {
-    console.log("MongoDB connections closed. Exiting process.");
-    process.exit(0);
-  }).catch((error: unknown) => {
-    logErrorMsgAndDetail("Error closing MongoDB connections:", error);
-    process.exit(1);
-  });
+  void (async () => {
+    try {
+      await mongoDBService.closeAll();
+      console.log("MongoDB connections closed. Exiting process.");
+      process.exit(0);
+    } catch (error: unknown) {
+      logErrorMsgAndDetail("Error closing MongoDB connections:", error);
+      process.exit(1);
+    }
+  })();
 });
 
 export default mongoDBService;
