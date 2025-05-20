@@ -5,9 +5,7 @@ import appConst from "./env/app-consts";
 import { bootstrap } from "./env/bootstrap";
 
 /** 
- * Main app runner to query a codebase, using the RAG pattern of first finding likely revelant
- * content using a vector database of source code embeddings (Atlas Vector Search) and then
- * augmenting the prompt with this content, asking it to answer the question with this context.
+ * Main function to run the program.
  */
 async function main() {
   console.log(`START: ${new Date().toISOString()}`);
