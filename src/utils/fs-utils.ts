@@ -64,14 +64,12 @@ export async function clearDirectory(dirPath: string) {
       .filter(file => file !== ".gitignore")
       .map(async file => {
         const filePath = path.join(dirPath, file);
-        return (async () => {
-          try {
-            await fs.rm(filePath, { recursive: true, force: true });
-          } catch (error: unknown) {
-            logErrorMsgAndDetail(`When clearing a directory, unable to remove the file: ${filePath}`, error);
-          }
-        })();
-    });    
+        try {
+          await fs.rm(filePath, { recursive: true, force: true });
+        } catch (error: unknown) {
+          logErrorMsgAndDetail(`When clearing a directory, unable to remove the file: ${filePath}`, error);
+        }
+      });    
     await Promise.all(jobs);
   } catch (error: unknown) {
     logErrorMsgAndDetail(`Unable to recursively clear contents of directory: ${dirPath}`, error);
