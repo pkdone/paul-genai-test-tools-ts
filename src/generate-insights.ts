@@ -1,7 +1,7 @@
 import mongoDBService from "./utils/mongodb-service";
 import appConst from "./env/app-consts";
 import SummariesGenerator from "./insightGenerator/summaries-generator";
-import { getProjectNameFromPath } from "./utils/fs-utils";
+import { getProjectNameFromPath } from "./utils/path-utils";
 import { bootstrap } from "./env/bootstrap";
 
 /**

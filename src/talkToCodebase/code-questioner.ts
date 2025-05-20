@@ -4,7 +4,7 @@ import appConst from "../env/app-consts";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../utils/text-utils";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
-import { transformJSToTSFilePath } from "../utils/fs-utils";
+import { transformJSToTSFilePath } from "../utils/path-utils";
 import { llmConst } from "../types/llm-constants";
 
 // Interface for source file record

@@ -1,5 +1,5 @@
 import { countLines, joinArrayWithSeparators, convertArrayOfNumbersToArrayOfDoubles } from "./text-utils";
-import { getFileSuffix } from "./fs-utils";
+import { getFileSuffix } from "./path-utils";
 import { Double } from "bson";
 import { getErrorText, getErrorStack } from "./error-utils";
 import { convertTextToJSON } from "./json-tools";

@@ -1,6 +1,6 @@
 import appConst from "./env/app-consts";
 import DBInitializer from "./codebaseDBLoader/db-initializer";
-import { getProjectNameFromPath } from "./utils/fs-utils";
+import { getProjectNameFromPath } from "./utils/path-utils";
 import mongoDBService from "./utils/mongodb-service";
 import CodebaseToDBLoader from "./codebaseDBLoader/codebase-loader";
 import { bootstrap } from "./env/bootstrap";

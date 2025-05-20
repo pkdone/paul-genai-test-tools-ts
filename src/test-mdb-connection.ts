@@ -1,7 +1,7 @@
 import { Db } from "mongodb";
 import appConst from "./env/app-consts";
 import mongoDBService from "./utils/mongodb-service";
-import { getProjectNameFromPath } from "./utils/fs-utils";
+import { getProjectNameFromPath } from "./utils/path-utils";
 import { bootstrap } from "./env/bootstrap";
 
 /**

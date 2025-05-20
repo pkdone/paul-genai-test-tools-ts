@@ -2,8 +2,8 @@ import { Collection, MongoClient } from "mongodb";
 import LLMRouter from "../llm/llm-router";
 import path from "path";
 import appConst from "../env/app-consts";
-import { readFile, getFileSuffix, transformJSToTSFilePath, buildDirDescendingListOfFiles } 
-       from "../utils/fs-utils";
+import { readFile, buildDirDescendingListOfFiles } from "../utils/fs-utils";
+import { getFileSuffix, transformJSToTSFilePath } from "../utils/path-utils";
 import { countLines } from "../utils/text-utils";
 import { promiseAllThrottled } from "../utils/control-utils";
 import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";

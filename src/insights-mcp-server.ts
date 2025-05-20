@@ -3,7 +3,7 @@ import appConst from "./env/app-consts";
 import InsightsDataServer from "./insightsServer/insights-data-server";
 import mongoDBService from "./utils/mongodb-service";
 import McpDataServer from "./mcpFramework/mcp-data-server";
-import { getProjectNameFromPath } from "./utils/fs-utils";
+import { getProjectNameFromPath } from "./utils/path-utils";
 import { bootstrap } from "./env/bootstrap";
 
 /**

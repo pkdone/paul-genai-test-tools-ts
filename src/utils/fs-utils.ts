@@ -5,14 +5,6 @@ import { logErrorMsgAndDetail } from "./error-utils";
 const UTF8_ENCODING = "utf8";
 
 /**
- * Get the name of a project from its path.
- */
-export function getProjectNameFromPath(filePath: string) { 
-  const normalisedPath = filePath.endsWith("/") ? filePath.slice(0, -1) : filePath;  
-  return path.basename(normalisedPath);   
-}
-
-/**
  * Read content from a file
  */
 export async function readFile(filepath: string) {
@@ -39,20 +31,6 @@ export async function appendFile(filepath: string, content: string) {
 export async function readDirContents(dirpath: string) {
   return fs.readdir(dirpath, { withFileTypes: true });
 }
-
-/**
- * Returns the suffix of a filename from a full file path.
- */
-export function getFileSuffix(filepath: string) {
-  const baseName = path.basename(filepath);
-  let suffix = "";
-
-  if (baseName.includes(".")) {
-    suffix = baseName.split(".").pop() ?? "";
-  }
-
-  return suffix;
-}  
 
 /**
  * Deletes all files and folders in a directory, except for a file named `.gitignore`.
@@ -90,14 +68,6 @@ export async function getTextLines(filePath: string) {
     .filter(line => line && !line.startsWith("#"));
   return lines;
 }
-
-/**
- * For the text content of a file as a template string and replaces a specific variables with
- */
-export function transformJSToTSFilePath(jsSrcPath: string, localFolderName: string, localFileName: string) {
-  const filepath = path.join(jsSrcPath, localFolderName, localFileName);
-  return filepath.replace(appConst.DIST_FOLDER_NAME, appConst.SRC_FOLDER_NAME);
-}  
 
 /**
  * Build the list of files descending from a directory 

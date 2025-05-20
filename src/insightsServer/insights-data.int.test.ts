@@ -2,7 +2,7 @@ import InsightsDataServer from "./insights-data-server";
 import mongoDBService from "../utils/mongodb-service";
 import appConst from "../env/app-consts";
 import { loadEnvVars } from "../env/bootstrap";
-import { getProjectNameFromPath } from "../utils/fs-utils";
+import { getProjectNameFromPath } from "../utils/path-utils";
 const env = loadEnvVars();
 const srcDirPath = env.CODEBASE_DIR_PATH;
 const projectName = getProjectNameFromPath(srcDirPath);     

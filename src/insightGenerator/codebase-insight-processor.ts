@@ -1,7 +1,8 @@
 import path from "path";
 import fs from "fs";
 import appConst from "../env/app-consts";
-import { readFile, writeFile, getFileSuffix, readDirContents } from "../utils/fs-utils";
+import { readFile, writeFile, readDirContents } from "../utils/fs-utils";
+import { getFileSuffix } from "../utils/path-utils";
 import { promiseAllThrottled } from "../utils/control-utils";
 import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
 import LLMRouter from "../llm/llm-router";

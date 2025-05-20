@@ -1,4 +1,5 @@
-import { getProjectNameFromPath, getTextLines } from "./utils/fs-utils";
+import { getTextLines } from "./utils/fs-utils";
+import { getProjectNameFromPath } from "./utils/path-utils";
 import mongoDBService from "./utils/mongodb-service";
 import CodeQuestioner from "./talkToCodebase/code-questioner";
 import appConst from "./env/app-consts";
