@@ -76,17 +76,17 @@ export class CodebaseInsightProcessor {
    * Merge the content of all source files.
    */
   private async mergeSourceFilesContent(filepaths: string[], srcDirPath: string): Promise<string> {
-    let mergedContent = "";
+    const contentParts: string[] = [];
 
     for (const filepath of filepaths) {
       const relativeFilepath = filepath.replace(`${srcDirPath}/`, "");    
       const type = getFileSuffix(filepath).toLowerCase();
       if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof appConst.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) continue; // Skip file if it has binary content
       const content = await readFile(filepath);
-      mergedContent += "\n``` " + relativeFilepath + "\n" + content.trim() + "\n```\n";
+      contentParts.push(`\n\`\`\` ${relativeFilepath}\n${content.trim()}\n\`\`\`\n`);
     }
 
-    return mergedContent.trim();
+    return contentParts.join("").trim();
   }
 
   /**

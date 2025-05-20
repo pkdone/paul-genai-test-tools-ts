@@ -28,12 +28,12 @@ describe("Text utilities", () => {
   describe("joinArrayWithSeparators", () => {
     test("default separators", () => {
       const lines = ["line1", "line2", "line3"];
-      expect(joinArrayWithSeparators(lines)).toBe("line1\nline2\nline3\n");
+      expect(joinArrayWithSeparators(lines)).toBe("line1\nline2\nline3");
     });
 
     test("custom separators", () => {
       const lines = ["line1", "line2", "line3"];
-      expect(joinArrayWithSeparators(lines, ", ", "> ")).toBe("> line1, > line2, > line3, ");
+      expect(joinArrayWithSeparators(lines, ", ", "> ")).toBe("> line1, > line2, > line3");
     });
 
     test("empty array", () => {

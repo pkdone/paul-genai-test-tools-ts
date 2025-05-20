@@ -105,13 +105,13 @@ class CodeQuestioner {
   // piece of text using Markdown code-block syntax to delinante the content of each source file.
   //
   private mergeSourceCodeFilesContentIntoMarkdownText(sourceFileMetadataList: SourceFileCodeMetadata[]) {
-    let markdown = "";
+    const markdownParts: string[] = [];
 
     for (const fileMetadata of sourceFileMetadataList) {
-      markdown += `${appConst.CODE_BLOCK_MARKDOWN}${fileMetadata.type}\n${fileMetadata.content}\n${appConst.CODE_BLOCK_MARKDOWN}\n\n`;
+      markdownParts.push(`${appConst.CODE_BLOCK_MARKDOWN}${fileMetadata.type}\n${fileMetadata.content}\n${appConst.CODE_BLOCK_MARKDOWN}\n\n`);
     }
 
-    return markdown;
+    return markdownParts.join("");
   }
 }
 

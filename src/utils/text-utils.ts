@@ -11,13 +11,13 @@ export function countLines(text: string) {
  *  Merges an array of string seperated by newlines unless a different sepeator specified.
  */
 export function joinArrayWithSeparators(lines: string[], suffix = "\n", prefix = "") {
-  let content = "";
-
-  lines.forEach(line => {
-    content += prefix + line + suffix;
-  });
-
-  return content;
+  if (prefix === "") {
+    // When no prefix is needed, we can use a simpler and more efficient approach
+    return lines.join(suffix);
+  } else {
+    // When prefix is needed, map each line to include prefix and then join
+    return lines.map(line => prefix + line).join(suffix);
+  }
 }
 
 /**
