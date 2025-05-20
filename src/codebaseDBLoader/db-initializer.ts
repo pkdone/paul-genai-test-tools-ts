@@ -81,7 +81,7 @@ class DBInitializer {
    */
   private createFileContentVectorIndexDefiniton(fieldToIndex: string) {
     return {
-      name: "contentVectorIndex",
+      name: `${fieldToIndex}_vector_index`, // Generate unique name based on the field
       type: "vectorSearch",
       definition: {
         "fields": [
