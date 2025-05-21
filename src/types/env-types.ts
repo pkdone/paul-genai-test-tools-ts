@@ -9,12 +9,19 @@ export const envVarsSchema = z.object({
   LLM: z.nativeEnum(ModelFamily),
   CODEBASE_DIR_PATH: z.string(),
   IGNORE_ALREADY_PROCESSED_FILES: z.enum(["true", "false"]).optional().default("false").transform((val) => val === "true"),
+  
+  // LLM provider configurations
+  // OpenAI
   OPENAI_LLM_API_KEY: z.string(),
+  
+  // Azure OpenAI
   AZURE_LLM_API_KEY: z.string(),
   AZURE_API_ENDPOINT: z.string(),
   AZURE_API_EMBEDDINGS_MODEL: z.string(),
   AZURE_API_COMPLETIONS_MODEL_PRIMARY: z.string(),
   AZURE_API_COMPLETIONS_MODEL_SECONDARY: z.string(),
+  
+  // Google Cloud Platform Vertex AI
   GCP_API_PROJECTID: z.string(),
   GCP_API_LOCATION: z.string(),
 });
