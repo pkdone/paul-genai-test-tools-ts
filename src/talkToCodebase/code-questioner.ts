@@ -1,6 +1,8 @@
 import { MongoClient, Collection, Double } from "mongodb";
 import LLMRouter from "../llm/llm-router";
-import appConst from "../env/app-consts";
+import databaseConfig from "../config/database.config";
+import fileSystemConfig from "../config/fileSystem.config";
+import promptsConfig from "../config/prompts.config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../utils/text-utils";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
@@ -27,7 +29,7 @@ class CodeQuestioner {
    * Constructor.
    */
   constructor(readonly mongoClient: MongoClient, private readonly llmRouter: LLMRouter, private readonly projectName: string) { 
-    this.colctn = mongoClient.db(appConst.CODEBASE_DB_NAME).collection(appConst.SOURCES_COLLCTN_NAME);
+    this.colctn = mongoClient.db(databaseConfig.CODEBASE_DB_NAME).collection(databaseConfig.SOURCES_COLLCTN_NAME);
   }
 
   /**
@@ -46,11 +48,11 @@ class CodeQuestioner {
     }
 
     const codeBlocksAsText = this.mergeSourceCodeFilesContentIntoMarkdownText(bestMatchFiles);
-    const promptFilePath = transformJSToTSFilePath(__dirname, appConst.PROMPTS_FOLDER_NAME, appConst.CODEBASE_QUERY_PROMPT);
+    const promptFilePath = transformJSToTSFilePath(__dirname, promptsConfig.PROMPTS_FOLDER_NAME, promptsConfig.CODEBASE_QUERY_PROMPT);
     const resourceName = `Codebase query using prompt from ${promptFilePath}`;
     const contentToReplaceList = [
-      { label: appConst.PROMPT_QUESTION_BLOCK_LABEL, content: question },
-      { label: appConst.PROMPT_CONTENT_BLOCK_LABEL, content: codeBlocksAsText },
+      { label: promptsConfig.PROMPT_QUESTION_BLOCK_LABEL, content: question },
+      { label: promptsConfig.PROMPT_CONTENT_BLOCK_LABEL, content: codeBlocksAsText },
     ];
     const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
     const response = await this.llmRouter.executeCompletion(promptFilePath, prompt, false, {resource: resourceName, requireJSON: false});      
@@ -75,7 +77,7 @@ class CodeQuestioner {
         filter: {
           $and: [
             {projectName: { $eq: this.projectName} },
-            {type: { $eq: appConst.JAVA_FILE_TYPE} },
+            {type: { $eq: fileSystemConfig.JAVA_FILE_TYPE} },
           ],
         },
         queryVector: queryVector,
@@ -94,7 +96,7 @@ class CodeQuestioner {
     try {
       return await this.colctn.aggregate<SourceFileCodeMetadata>(pipeline).toArray();  
     } catch (error: unknown) {
-      logErrorMsgAndDetail(`Problem performing Atlas Vector Search aggregation - ensure the vector index is defined for the '${appConst.SOURCES_COLLCTN_NAME}' collection`, error);    
+      logErrorMsgAndDetail(`Problem performing Atlas Vector Search aggregation - ensure the vector index is defined for the '${databaseConfig.SOURCES_COLLCTN_NAME}' collection`, error);    
       throw error;
     }
   }
@@ -108,7 +110,7 @@ class CodeQuestioner {
     const markdownParts: string[] = [];
 
     for (const fileMetadata of sourceFileMetadataList) {
-      markdownParts.push(`${appConst.CODE_BLOCK_MARKDOWN}${fileMetadata.type}\n${fileMetadata.content}\n${appConst.CODE_BLOCK_MARKDOWN}\n\n`);
+      markdownParts.push(`${promptsConfig.CODE_BLOCK_MARKDOWN}${fileMetadata.type}\n${fileMetadata.content}\n${promptsConfig.CODE_BLOCK_MARKDOWN}\n\n`);
     }
 
     return markdownParts.join("");

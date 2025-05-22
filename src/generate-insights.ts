@@ -1,5 +1,5 @@
 import mongoDBService from "./utils/mongodb-service";
-import appConst from "./env/app-consts";
+import databaseConfig from "./config/database.config";
 import SummariesGenerator from "./insightGenerator/summaries-generator";
 import { getProjectNameFromPath } from "./utils/path-utils";
 import { bootstrap } from "./env/bootstrap";
@@ -18,7 +18,7 @@ async function main() {
     console.log("LLM inovocation event types that will be recorded:");
     llmRouter.displayLLMStatusSummary();
     const summariesGenerator = new SummariesGenerator(mongoClient, llmRouter, 
-      appConst.CODEBASE_DB_NAME, appConst.SOURCES_COLLCTN_NAME, appConst.SUMMARIES_COLLCTN_NAME,
+      databaseConfig.CODEBASE_DB_NAME, databaseConfig.SOURCES_COLLCTN_NAME, databaseConfig.SUMMARIES_COLLCTN_NAME,
       projectName);
     await summariesGenerator.generateSummariesDataInDB()
     console.log("Finished enerating insights for the project");

@@ -1,4 +1,4 @@
-import appConst from "../env/app-consts";
+import fileSystemConfig from "../config/fileSystem.config";
 import { promises as fs } from "fs";
 import path from "path";
 import { logErrorMsgAndDetail } from "./error-utils";
@@ -87,11 +87,11 @@ export async function buildDirDescendingListOfFiles(srcDirPath: string) {
         const fullPath = path.join(directory, entry.name);
 
         if (entry.isDirectory()) {
-          if (!appConst.FOLDER_IGNORE_LIST.includes(entry.name as typeof appConst.FOLDER_IGNORE_LIST[number])) {
+          if (!fileSystemConfig.FOLDER_IGNORE_LIST.includes(entry.name as typeof fileSystemConfig.FOLDER_IGNORE_LIST[number])) {
             queue.push(fullPath);
           }
         } else if (entry.isFile()) {
-          if (!entry.name.toLowerCase().startsWith(appConst.FILENAME_PREFIX_IGNORE)) {
+          if (!entry.name.toLowerCase().startsWith(fileSystemConfig.FILENAME_PREFIX_IGNORE)) {
             files.push(fullPath);
           } 
         }

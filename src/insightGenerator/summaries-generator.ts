@@ -1,5 +1,6 @@
 import LLMRouter from "../llm/llm-router";
-import appConst from "../env/app-consts";
+import promptsConfig from "../config/prompts.config";
+import reportingConfig from "../config/reporting.config";
 import { MongoClient, Collection } from "mongodb";
 import CodeMetadataQueryer from "./code-metadata-queryer";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
@@ -52,8 +53,8 @@ class SummariesGenerator {
 
     await this.createAppSummaryRecordInDB({ llmProvider: this.llmProviderDescription });
     const categories = [
-      appConst.APP_DESCRIPTION_KEY,
-      ...appConst.APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS,
+      reportingConfig.APP_DESCRIPTION_KEY,
+      ...reportingConfig.APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS,
     ];
     await Promise.all(
       categories.map(async (category) => this.generateDataForCategory(category, sourceFileSummaries))
@@ -65,15 +66,15 @@ class SummariesGenerator {
    * dataset under a named field of the main application summary record.
    */
   private async generateDataForCategory(category: string, sourceFileSummaries: string[]) {
-    const categoryLabel = appConst.CATEGORY_TITLES[category as keyof typeof appConst.CATEGORY_TITLES];
+    const categoryLabel = reportingConfig.CATEGORY_TITLES[category as keyof typeof reportingConfig.CATEGORY_TITLES];
 
     try {
       console.log(`Processing ${categoryLabel}`);
       const promptFileName = `generate-${category}.prompt`;
-      const promptFilePath = transformJSToTSFilePath(__dirname, appConst.PROMPTS_FOLDER_NAME, promptFileName);
+      const promptFilePath = transformJSToTSFilePath(__dirname, promptsConfig.PROMPTS_FOLDER_NAME, promptFileName);
       const resourceName = `${category} - ${promptFileName}`;
       const content = joinArrayWithSeparators(sourceFileSummaries);
-      const contentToReplaceList = [{ label: appConst.PROMPT_CONTENT_BLOCK_LABEL, content }];
+      const contentToReplaceList = [{ label: promptsConfig.PROMPT_CONTENT_BLOCK_LABEL, content }];
       const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
       const keysValuesObject = await this.llmRouter.executeCompletion(
         promptFilePath,

@@ -1,4 +1,4 @@
-import appConst from "../env/app-consts";
+import databaseConfig from "../config/database.config";
 import mongoDBService from "../utils/mongodb-service";
 import LLMRouter from "../llm/llm-router";
 import { getLLMProvider } from "../llm/llm-configurator/llm-provider-factory";
@@ -20,7 +20,7 @@ export function loadEnvVars(): EnvVars {
  */
 export async function bootstrap() {
   const { env, llmRouter } = bootstrapJustLLM();
-  const mongoClient = await mongoDBService.connect(appConst.DEFAULT_MONGO_SVC, env.MONGODB_URL);
+  const mongoClient = await mongoDBService.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
   return { env, mongoClient, llmRouter };
 }
 

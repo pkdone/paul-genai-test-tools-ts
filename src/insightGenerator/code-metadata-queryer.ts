@@ -1,5 +1,5 @@
 import { MongoClient, Collection, Sort } from "mongodb";
-import appConst from "../env/app-consts";
+import fileSystemConfig from "../config/fileSystem.config";
 
 // Enum for stored procedure complexity levels
 enum Complexity {
@@ -91,7 +91,7 @@ export class CodeMetadataQueryer {
     const srcFilesList: string[] = [];
     const query = {
       projectName: this.projectName,
-      type: { $in: appConst.SOURCE_FILES_FOR_CODE },
+      type: { $in: fileSystemConfig.SOURCE_FILES_FOR_CODE },
     };
     const options = {
       projection: {
@@ -131,7 +131,7 @@ export class CodeMetadataQueryer {
     }[] = [];
     const query = {
       projectName: this.projectName,
-      type: { $in: appConst.SOURCE_FILES_FOR_CODE },
+      type: { $in: fileSystemConfig.SOURCE_FILES_FOR_CODE },
       "summary.databaseIntegration.mechanism": { $ne: "NONE" },
     };
     const options = {
@@ -178,7 +178,7 @@ export class CodeMetadataQueryer {
     const query = {
       $and: [
         { projectName: this.projectName },
-        { type: { $in: appConst.SOURCE_FILES_FOR_CODE } },
+        { type: { $in: fileSystemConfig.SOURCE_FILES_FOR_CODE } },
         {
           $or: [
             { "summary.storedProcedures": { $exists: true, $ne: [] } },

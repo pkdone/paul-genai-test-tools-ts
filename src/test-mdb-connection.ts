@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import appConst from "./env/app-consts";
+import databaseConfig from "./config/database.config";
 import mongoDBService from "./utils/mongodb-service";
 import { getProjectNameFromPath } from "./utils/path-utils";
 import { bootstrap } from "./env/bootstrap";
@@ -13,8 +13,8 @@ async function main() {
     const { env, mongoClient } = await bootstrap();   
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
-    const db = mongoClient.db(appConst.CODEBASE_DB_NAME);
-    const collName = appConst.SOURCES_COLLCTN_NAME;  
+    const db = mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
+    const collName = databaseConfig.SOURCES_COLLCTN_NAME;  
     const result = await collectJavaFilePaths(db, collName, projectName);
     console.log("Result:", JSON.stringify(result, null, 2));
     console.log(`END: ${new Date().toISOString()}`);
@@ -35,8 +35,8 @@ async function collectJavaFilePaths(db: Db, collName: string, prjName: string) {
 
 // Interface for the project document
 interface ProjectDoc {
-  projectName: string,
-  filepath: string,
+  projectName: string;
+  filepath: string;
 }  
 
 // Bootstrap

@@ -2,7 +2,7 @@ import { getTextLines } from "./utils/fs-utils";
 import { getProjectNameFromPath } from "./utils/path-utils";
 import mongoDBService from "./utils/mongodb-service";
 import CodeQuestioner from "./talkToCodebase/code-questioner";
-import appConst from "./env/app-consts";
+import promptsConfig from "./config/prompts.config";
 import { bootstrap } from "./env/bootstrap";
 
 /** 
@@ -17,7 +17,7 @@ async function main() {
     const projectName = getProjectNameFromPath(srcDirPath);     
     console.log(`Performing vector search then invoking LLM for optimal results for for project: ${projectName}`);
     const codeQuestioner = new CodeQuestioner(mongoClient, llmRouter, projectName);
-    const questions = await getTextLines(appConst.QUESTIONS_PROMPTS_FILEPATH);
+    const questions = await getTextLines(promptsConfig.QUESTIONS_PROMPTS_FILEPATH);
 
     for (const question of questions) {
       const result = await codeQuestioner.queryCodebaseWithQuestion(question);

@@ -1,7 +1,10 @@
 import { Collection, MongoClient } from "mongodb";
 import LLMRouter from "../llm/llm-router";
 import path from "path";
-import appConst from "../env/app-consts";
+import databaseConfig from "../config/database.config";
+import fileSystemConfig from "../config/fileSystem.config";
+import promptsConfig from "../config/prompts.config";
+import serverConfig from "../config/server.config";
 import { readFile, buildDirDescendingListOfFiles } from "../utils/fs-utils";
 import { getFileSuffix, transformJSToTSFilePath } from "../utils/path-utils";
 import { countLines } from "../utils/text-utils";
@@ -36,8 +39,8 @@ class CodebaseToDBLoader {
    * Loops through a list of file paths, loads each file's content, and prints the content.
    */
   private async insertSourceContentIntoDB(filepaths: string[]) {
-    const db = this.mongoClient.db(appConst.CODEBASE_DB_NAME);
-    const colctn = db.collection(appConst.SOURCES_COLLCTN_NAME);    
+    const db = this.mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
+    const colctn = db.collection(databaseConfig.SOURCES_COLLCTN_NAME);    
     console.log(`Creating metadata for ${filepaths.length} files to the MongoDB database collection: '${db.databaseName}.${colctn.collectionName}'`);
     
     if (!this.ignoreIfAlreadyCaptured) {
@@ -57,7 +60,7 @@ class CodebaseToDBLoader {
       });
     }
 
-    await promiseAllThrottled(jobs, appConst.MAX_CONCURRENCY);
+    await promiseAllThrottled(jobs, serverConfig.MAX_CONCURRENCY);
   }
 
   /**
@@ -66,7 +69,7 @@ class CodebaseToDBLoader {
   private async captureSrcFileMetadataToCollection(colctn: Collection, fullFilepath: string) {    
     const type = getFileSuffix(fullFilepath).toLowerCase();
     const filepath = fullFilepath.replace(`${this.srcDirPath}/`, "");    
-    if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof appConst.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) return;  // Skip file if it has binary content
+    if (fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) return;  // Skip file if it has binary content
 
     if ((this.ignoreIfAlreadyCaptured) && (await this.doesMetadataForFileExistsInDB(colctn, filepath))) {
       if (!this.doneCheckingAlreadyCapturedFiles) {
@@ -126,20 +129,20 @@ class CodebaseToDBLoader {
    */
   private async getContentSummarisedAsJSON(filepath: string, type: string, content: string) {
     if (content.length <= 0) return { content: "<empty-file>" };     
-    let promptFileName;
+    let promptFileName: string | undefined;
     
     if (path.basename(filepath).toUpperCase() === "README") {
-      promptFileName = appConst.MARKDOWN_FILE_SUMMARY_PROMPTS;
+      promptFileName = promptsConfig.MARKDOWN_FILE_SUMMARY_PROMPTS;
     } else {
       promptFileName = this.getSummaryPromptTemplateFileName(type);
     }
 
-    promptFileName ??= appConst.DEFAULT_FILE_SUMMARY_PROMPTS;
+    promptFileName = promptFileName ?? promptsConfig.DEFAULT_FILE_SUMMARY_PROMPTS;
     let response;
 
     try {        
-      const contentToReplaceList = [{ label: appConst.PROMPT_CONTENT_BLOCK_LABEL, content }];
-      const promptFilePath = transformJSToTSFilePath(__dirname, appConst.PROMPTS_FOLDER_NAME, promptFileName);
+      const contentToReplaceList = [{ label: promptsConfig.PROMPT_CONTENT_BLOCK_LABEL, content }];
+      const promptFilePath = transformJSToTSFilePath(__dirname, promptsConfig.PROMPTS_FOLDER_NAME, promptFileName);
       const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
       response = await this.llmRouter.executeCompletion(filepath, prompt, true, {resource: filepath, requireJSON: true});      
     } catch (error: unknown) {
@@ -153,10 +156,10 @@ class CodebaseToDBLoader {
   /**
    * Helper function to get the summary template prompt file name based on the file type.
    */
-  private getSummaryPromptTemplateFileName(type: string): string | null {
-    return Object.hasOwn(appConst.FILE_SUMMARY_PROMPTS, type)
-      ? appConst.FILE_SUMMARY_PROMPTS[type as keyof typeof appConst.FILE_SUMMARY_PROMPTS]
-      : null;
+  private getSummaryPromptTemplateFileName(type: string): string | undefined {
+    return Object.hasOwn(promptsConfig.FILE_SUMMARY_PROMPTS, type)
+      ? promptsConfig.FILE_SUMMARY_PROMPTS[type as keyof typeof promptsConfig.FILE_SUMMARY_PROMPTS]
+      : undefined;
   }
 }
 

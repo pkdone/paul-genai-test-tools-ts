@@ -1,4 +1,4 @@
-import appConst from "./env/app-consts";
+import databaseConfig from "./config/database.config";
 import DBInitializer from "./codebaseDBLoader/db-initializer";
 import { getProjectNameFromPath } from "./utils/path-utils";
 import mongoDBService from "./utils/mongodb-service";
@@ -17,9 +17,9 @@ async function main() {
     const projectName = getProjectNameFromPath(srcDirPath);     
     const ignoreIfAlreadyCaptured = env.IGNORE_ALREADY_PROCESSED_FILES;
     console.log(`Processing source files for project: ${projectName}`);
-    const dbInitializer = new DBInitializer(mongoClient, appConst.CODEBASE_DB_NAME, 
-                                            appConst.SOURCES_COLLCTN_NAME,
-                                            appConst.SUMMARIES_COLLCTN_NAME,
+    const dbInitializer = new DBInitializer(mongoClient, databaseConfig.CODEBASE_DB_NAME, 
+                                            databaseConfig.SOURCES_COLLCTN_NAME,
+                                            databaseConfig.SUMMARIES_COLLCTN_NAME,
                                             llmRouter.getEmbeddedModelDimensions());
     await dbInitializer.ensureRequiredIndexes();
     console.log("LLM inovocation event types that will be recorded:");

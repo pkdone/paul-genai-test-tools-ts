@@ -1,4 +1,4 @@
-import appConst from "./env/app-consts";
+import fileSystemConfig from "./config/fileSystem.config";
 import { clearDirectory, buildDirDescendingListOfFiles } from "./utils/fs-utils";
 import { bootstrapJustLLM } from "./env/bootstrap";
 import { CodebaseInsightProcessor } from "./insightGenerator/codebase-insight-processor";
@@ -14,11 +14,11 @@ async function main() {
   llmRouter.displayLLMStatusSummary();
   const insightProcessor = new CodebaseInsightProcessor();
   const prompts = await insightProcessor.loadPrompts();
-  await clearDirectory(appConst.OUTPUT_DIR);  
+  await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
   await insightProcessor.processSourceFilesWithPrompts(llmRouter, srcFilepaths, srcDirPath, prompts, env.LLM);  
   llmRouter.displayLLMStatusDetails();
   await llmRouter.close();
-  console.log(`View generated results in the '${appConst.OUTPUT_DIR}' folder`);
+  console.log(`View generated results in the '${fileSystemConfig.OUTPUT_DIR}' folder`);
   console.log(`END: ${new Date().toISOString()}`);
   process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
 }

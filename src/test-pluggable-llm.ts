@@ -1,4 +1,4 @@
-import appConst from "./env/app-consts";
+import promptsConfig from "./config/prompts.config";
 import { readFile } from "./utils/fs-utils";
 import { LLMModelQuality } from "./types/llm-types";
 import { bootstrapJustLLM } from "./env/bootstrap";
@@ -9,7 +9,7 @@ import { bootstrapJustLLM } from "./env/bootstrap";
 async function main() {
   const { llmRouter } = bootstrapJustLLM();
   console.log(`START: ${new Date().toISOString()}`);
-  const prompt = await readFile(appConst.SAMPLE_PROMPT_FILEPATH);
+  const prompt = await readFile(promptsConfig.SAMPLE_PROMPT_FILEPATH);
   console.log("\n---PROMPT---");
   console.log(prompt);
   console.log("\n\n---EMBEDDINGS---");

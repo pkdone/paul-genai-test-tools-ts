@@ -1,6 +1,8 @@
 import path from "path";
 import fs from "fs";
-import appConst from "../env/app-consts";
+import fileSystemConfig from "../config/fileSystem.config";
+import serverConfig from "../config/server.config";
+import promptsConfig from "../config/prompts.config";
 import { readFile, writeFile, readDirContents } from "../utils/fs-utils";
 import { getFileSuffix } from "../utils/path-utils";
 import { promiseAllThrottled } from "../utils/control-utils";
@@ -36,27 +38,27 @@ export class CodebaseInsightProcessor {
       jobs.push(async () => {
         const result = await this.executePromptAgainstCodebase(prompt, codeBlocksContent, llmRouter);
         const outputFileName = `${prompt.filename}.result`;
-        const outputFilePath = path.join(__dirname, "..", "..", appConst.OUTPUT_DIR, outputFileName);
+        const outputFilePath = path.join(__dirname, "..", "..", fileSystemConfig.OUTPUT_DIR, outputFileName);
         await writeFile(outputFilePath, 
           `GENERATED-BY: ${llmName}\n\nREQUIREMENT: ${prompt.question}\n\nRECOMENDATIONS:\n\n${result.trim()}\n`);
         return outputFilePath;
       });    
     }
 
-    return await promiseAllThrottled<string>(jobs, appConst.MAX_CONCURRENCY);
+    return await promiseAllThrottled<string>(jobs, serverConfig.MAX_CONCURRENCY);
   }
   
   /**
    * Load prompts from files in the input folder
    */
   async loadPrompts(): Promise<FileRequirementPrompt[]> {
-    const inputDir = appConst.REQUIREMENTS_PROMPTS_FOLDERPATH;
+    const inputDir = promptsConfig.REQUIREMENTS_PROMPTS_FOLDERPATH;
     const prompts: FileRequirementPrompt[] = [];
     
     try {
       if (!fs.existsSync(inputDir)) fs.mkdirSync(inputDir, { recursive: true });
       const files = await readDirContents(inputDir);
-      const promptFiles = files.filter(file => appConst.REQS_FILE_REGEX.exec(file.name) !== null);
+      const promptFiles = files.filter(file => promptsConfig.REQS_FILE_REGEX.exec(file.name) !== null);
       
       for (const file of promptFiles) {
         const filePath = path.join(inputDir, file.name);
@@ -82,7 +84,7 @@ export class CodebaseInsightProcessor {
     for (const filepath of filepaths) {
       const relativeFilepath = filepath.replace(`${srcDirPath}/`, "");    
       const type = getFileSuffix(filepath).toLowerCase();
-      if (appConst.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof appConst.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) continue; // Skip file if it has binary content
+      if (fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) continue; // Skip file if it has binary content
       const content = await readFile(filepath);
       contentParts.push(`\n\`\`\` ${relativeFilepath}\n${content.trim()}\n\`\`\`\n`);
     }

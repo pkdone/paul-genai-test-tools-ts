@@ -1,5 +1,5 @@
 import path from "path";
-import appConst from "../env/app-consts";
+import fileSystemConfig from "../config/fileSystem.config";
 
 /**
  * Get the name of a project from its path.
@@ -28,5 +28,5 @@ export function getFileSuffix(filepath: string) {
  */
 export function transformJSToTSFilePath(jsSrcPath: string, localFolderName: string, localFileName: string) {
   const filepath = path.join(jsSrcPath, localFolderName, localFileName);
-  return filepath.replace(appConst.DIST_FOLDER_NAME, appConst.SRC_FOLDER_NAME);
+  return filepath.replace(fileSystemConfig.DIST_FOLDER_NAME, fileSystemConfig.SRC_FOLDER_NAME);
 }  
