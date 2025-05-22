@@ -1,4 +1,4 @@
-import { llmConst } from "../types/llm-constants";
+import { llmConfig } from "../config/llm.config";
 import { ModelKey, llmAPIErrorPatterns } from "../types/llm-models-metadata";
 import { llmModelsMetadataLoaderSrvc } from "./llm-configurator/llm-models-metadata-loader";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
@@ -32,7 +32,7 @@ export function extractTokensAmountAndLimitFromErrorMsg(modelKey: ModelKey, prom
 
   if (promptTokens < 0) { 
     const assumedMaxTotalTokens = (maxTotalTokens > 0) ? maxTotalTokens : publishedMaxTotalTokens;
-    const estimatedPromptTokensConsumed = Math.floor(prompt.length / llmConst.MODEL_CHARS_PER_TOKEN_ESTIMATE);
+    const estimatedPromptTokensConsumed = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
     promptTokens = Math.max(estimatedPromptTokensConsumed, (assumedMaxTotalTokens + 1));
   }
 
@@ -108,13 +108,13 @@ export function reducePromptSizeToTokenLimit(prompt: string, modelKey: ModelKey,
   let reductionRatio = 1;
   
   // If all the LLM#s available completion tokens have been consumed then will need to reduce prompt size to try influence any subsequenet generated completion to be smaller
-  if (maxCompletionTokensLimit && (completionTokens >= (maxCompletionTokensLimit - llmConst.COMPLETION_MAX_TOKENS_LIMIT_BUFFER))) {
-    reductionRatio = Math.min((maxCompletionTokensLimit / (completionTokens + 1)), llmConst.COMPLETION_TOKENS_REDUCE_MIN_RATIO);
+  if (maxCompletionTokensLimit && (completionTokens >= (maxCompletionTokensLimit - llmConfig.COMPLETION_MAX_TOKENS_LIMIT_BUFFER))) {
+    reductionRatio = Math.min((maxCompletionTokensLimit / (completionTokens + 1)), llmConfig.COMPLETION_TOKENS_REDUCE_MIN_RATIO);
   }
 
   // If the total tokens used is more than the total tokens available then reduce the prompt size proportionally
   if (reductionRatio >= 1) {
-    reductionRatio = Math.min((maxTotalTokens / (promptTokens + completionTokens + 1)), llmConst.PROMPT_TOKENS_REDUCE_MIN_RATIO);
+    reductionRatio = Math.min((maxTotalTokens / (promptTokens + completionTokens + 1)), llmConfig.PROMPT_TOKENS_REDUCE_MIN_RATIO);
   }
 
   const newPromptSize = Math.floor(prompt.length * reductionRatio);

@@ -1,5 +1,5 @@
 import { OpenAI } from "openai";
-import { llmConst } from "../../../types/llm-constants";
+import { llmConfig } from "../../../config/llm.config";
 import { ModelKey, ModelFamily } from "../../../types/llm-models-metadata";
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
@@ -46,7 +46,7 @@ class OpenAILLM extends BaseOpenAILLM {
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
         model: this.llmModelsMetadata[modelKey].modelId,
-        temperature: llmConst.ZERO_TEMP,
+        temperature: llmConfig.ZERO_TEMP,
         messages: [{ role: "user", content: prompt } ],
         max_completion_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       };        

@@ -1,11 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import InsightsDataServer from "../insightsServer/insights-data-server";
-
-// Constants for the MCP server
-const MCP_SERVER_NAME = "MCPAnalyzeDataServer";
-const MCP_SERVER_VERSION = "0.0.1";
-const BUSPROCS_RSC_NAME = "businessprocesses";
-const BUSPROCS_RSC_TEMPLATE = "businessprocesses://list";
+import mcpConfig from "../config/mcp.config";
 
 /** 
  * Class representing the MCP Data Server.
@@ -20,10 +15,10 @@ class McpDataServer {
    * Configures the MCP server with the given AnalysisDataServer.
    */
   configure() {
-    const mcpServer = new McpServer({ name: MCP_SERVER_NAME, version: MCP_SERVER_VERSION });
+    const mcpServer = new McpServer({ name: mcpConfig.MCP_SERVER_NAME, version: mcpConfig.MCP_SERVER_VERSION });
     mcpServer.resource(
-      BUSPROCS_RSC_NAME,
-      BUSPROCS_RSC_TEMPLATE,
+      mcpConfig.BUSPROCS_RSC_NAME,
+      mcpConfig.BUSPROCS_RSC_TEMPLATE,
       async (uri) => ({
         contents: [{
           uri: uri.href,

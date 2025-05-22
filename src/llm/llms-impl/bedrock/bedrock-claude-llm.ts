@@ -1,4 +1,4 @@
-import { llmConst } from "../../../types/llm-constants";
+import { llmConfig } from "../../../config/llm.config";
 import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
@@ -19,7 +19,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
    */
   protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
     return JSON.stringify({
-      anthropic_version: llmConst.AWS_ANTHROPIC_API_VERSION,
+      anthropic_version: llmConfig.AWS_ANTHROPIC_API_VERSION,
       messages: [
         {
           role: "user",
@@ -31,9 +31,9 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
           ],
         },
       ],
-      temperature: llmConst.ZERO_TEMP,
-      top_p: llmConst.TOP_P_LOWEST,
-      top_k: llmConst.TOP_K_LOWEST,
+      temperature: llmConfig.ZERO_TEMP,
+      top_p: llmConfig.TOP_P_LOWEST,
+      top_k: llmConfig.TOP_K_LOWEST,
       max_tokens: this.llmModelsMetadata[modelKey].maxTotalTokens,    
     });
   }

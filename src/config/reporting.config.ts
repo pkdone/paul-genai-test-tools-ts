@@ -1,4 +1,6 @@
-// Reporting configuration
+/**
+ * Reporting configuration
+ */
 export const reportingConfig = {
   APP_DESCRIPTION_KEY: "appdescription",
   APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS: [

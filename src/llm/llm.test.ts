@@ -1,4 +1,4 @@
-import { llmConst } from "../types/llm-constants";
+import { llmConfig } from "../config/llm.config";
 import { ModelKey } from "../types/llm-models-metadata";
 import { JSONLLMModelMetadata } from "../types/llm-types";
 import { LLMMetadataError } from "../types/llm-errors";
@@ -9,14 +9,14 @@ describe("LLM Router", () => {
   describe("reducePromptSizeToTokenLimit", () => {
     test("reduces prompt size for small token limit", () => {
       const prompt = "1234 1234 1234 1234"; 
-      const promptTokens = Math.floor(prompt.length / llmConst.MODEL_CHARS_PER_TOKEN_ESTIMATE);
+      const promptTokens = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
       const tokensUage = { promptTokens, completionTokens: 0, maxTotalTokens: 8 };
       expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage)).toBe("1234 1234 1234 1");
     });
 
     test("reduces prompt size for large completion tokens", () => {
       const prompt = "x".repeat(200); 
-      const promptTokens = Math.floor(prompt.length / llmConst.MODEL_CHARS_PER_TOKEN_ESTIMATE);
+      const promptTokens = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
       const tokensUage = { promptTokens, completionTokens: 8192, maxTotalTokens: 8192 };
       expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage).length).toBe(150);
     });
@@ -24,7 +24,7 @@ describe("LLM Router", () => {
     test("reduces prompt size for very large input", () => {
       const llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
       const prompt = "x".repeat(2000000); 
-      const promptTokens = Math.floor(prompt.length / llmConst.MODEL_CHARS_PER_TOKEN_ESTIMATE);
+      const promptTokens = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
       console.log(promptTokens);
       const tokensUage = { promptTokens, completionTokens: 124, maxTotalTokens: llmModelsMetadata[ModelKey.GPT_COMPLETIONS_GPT4].maxTotalTokens };
       expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage).length).toBe(22933);

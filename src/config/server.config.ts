@@ -1,4 +1,6 @@
-// Server configuration
+/**
+ * Server configuration
+ */
 export const serverConfig = {
   DEFAULT_MCP_HOSTNAME: "localhost",
   DEFAULT_MCP_PORT: 3001,

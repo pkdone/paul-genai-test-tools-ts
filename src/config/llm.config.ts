@@ -1,8 +1,8 @@
 
 /**
- * Set of LLM related constants
+ * LLM (Large Language Model) configuration.
  */
-export const llmConst = {
+export const llmConfig = {
   MIN_RETRY_DELAY_MILLIS: 20 * 1000,
   MAX_RETRY_ADDITIONAL_MILLIS: 30 * 1000,
   REQUEST_WAIT_TIMEOUT_MILLIS: 7 * 60 * 1000,

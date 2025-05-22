@@ -3,7 +3,7 @@ import { BedrockRuntimeClient, InvokeModelCommand, ServiceUnavailableException,
 from "@aws-sdk/client-bedrock-runtime";     
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import { ModelKey } from "../../../types/llm-models-metadata";
-import { llmConst } from "../../../types/llm-constants";
+import { llmConfig } from "../../../config/llm.config";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { logErrorMsgAndDetail, getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
@@ -27,7 +27,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    */
   constructor(modelsKeys: LLMModelSet) {
     super(modelsKeys);
-    this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConst.REQUEST_WAIT_TIMEOUT_MILLIS } });
+    this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS } });
     console.log("AWS Bedrock client created");
   }
   
@@ -55,7 +55,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     const fullParameters = this.buildFullLLMParameters(taskType, modelKey, prompt);
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
-    const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(llmConst.LLM_UTF8_ENCODING)) as Record<string, unknown>;
+    const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(llmConfig.LLM_UTF8_ENCODING)) as Record<string, unknown>;
 
     // Capture response content, finish reason and token usage 
     if (taskType === LLMPurpose.EMBEDDINGS) {
@@ -83,8 +83,8 @@ abstract class BaseBedrockLLM extends AbstractLLM {
 
     return {
       modelId: this.llmModelsMetadata[modelKey].modelId,
-      contentType: llmConst.LLM_RESPONSE_JSON_CONTENT_TYPE,
-      accept: llmConst.LLM_RESPONSE_ANY_CONTENT_TYPE,
+      contentType: llmConfig.LLM_RESPONSE_JSON_CONTENT_TYPE,
+      accept: llmConfig.LLM_RESPONSE_ANY_CONTENT_TYPE,
       body,
     };
   }

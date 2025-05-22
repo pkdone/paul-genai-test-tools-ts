@@ -1,4 +1,4 @@
-import { llmConst } from "../types/llm-constants";
+import { llmConfig } from "../config/llm.config";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } from "../types/llm-types";
 import { RetryFunc } from "../types/control-types";
@@ -181,8 +181,8 @@ class LLMRouter {
       [prompt, asJson, context],
       result => (result.status === LLMResponseStatus.OVERLOADED),
       recordRetryFunc,
-      llmConst.INVOKE_LLM_NUM_ATTEMPTS, llmConst.MIN_RETRY_DELAY_MILLIS,
-      llmConst.MAX_RETRY_ADDITIONAL_MILLIS, llmConst.REQUEST_WAIT_TIMEOUT_MILLIS, true
+      llmConfig.INVOKE_LLM_NUM_ATTEMPTS, llmConfig.MIN_RETRY_DELAY_MILLIS,
+      llmConfig.MAX_RETRY_ADDITIONAL_MILLIS, llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS, true
     );
   }
 

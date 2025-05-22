@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { llmConst } from "../types/llm-constants";
+import { llmConfig } from "../config/llm.config";
 
 /**
  * Class for initializing the MongoDB database.
@@ -13,7 +13,7 @@ class DBInitializer {
               private readonly databaseName: string,
               private readonly sourceCollectionName: string,
               private readonly appSummariesCollectionName: string,
-              private readonly numDimensions: number = llmConst.DEFAULT_VECTOR_DIMENSIONS_AMOUNT) { 
+              private readonly numDimensions: number = llmConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT) { 
     this.mongoClient = mongoClient;
     this.sourceCollectionName = sourceCollectionName;
     this.appSummariesCollectionName = appSummariesCollectionName;
@@ -89,8 +89,8 @@ class DBInitializer {
             "type": "vector",
             "path": fieldToIndex,
             "numDimensions": this.numDimensions,
-            "similarity": llmConst.DEFAULT_VECTOR_SIMILARITY_TYPE,
-            "quantization": llmConst.DEFAULT_VECTOR_QUANTIZATION_TYPE,
+            "similarity": llmConfig.DEFAULT_VECTOR_SIMILARITY_TYPE,
+            "quantization": llmConfig.DEFAULT_VECTOR_QUANTIZATION_TYPE,
           },
           {
             "type": "filter",

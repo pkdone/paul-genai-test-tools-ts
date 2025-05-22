@@ -1,4 +1,4 @@
-import { llmConst } from "../../../types/llm-constants";
+import { llmConfig } from "../../../config/llm.config";
 import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
@@ -20,9 +20,9 @@ class BedrockNovaLLM extends BaseBedrockLLM {
     return JSON.stringify({
       inferenceConfig: {
         max_new_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
-        temperature: llmConst.ZERO_TEMP,
-        top_p: llmConst.TOP_P_LOWEST,
-        top_k: llmConst.TOP_K_LOWEST,
+        temperature: llmConfig.ZERO_TEMP,
+        top_p: llmConfig.TOP_P_LOWEST,
+        top_k: llmConfig.TOP_K_LOWEST,
       },      
       messages: [
         {

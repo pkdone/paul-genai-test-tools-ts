@@ -1,5 +1,5 @@
 import { AzureOpenAI, OpenAI } from "openai";
-import { llmConst } from "../../../types/llm-constants";
+import { llmConfig } from "../../../config/llm.config";
 import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
@@ -29,7 +29,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
       this.modelToDeploymentMappings.set(secondaryCompletion, secondaryCompletionsDeployment);
     }
 
-    const apiVersion = llmConst.AZURE_API_VERION;
+    const apiVersion = llmConfig.AZURE_API_VERION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
 
@@ -63,7 +63,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
         model: deployment,
-        temperature: llmConst.ZERO_TEMP,
+        temperature: llmConfig.ZERO_TEMP,
         messages: [{ role: "user", content: prompt } ],
       };        
       return params;

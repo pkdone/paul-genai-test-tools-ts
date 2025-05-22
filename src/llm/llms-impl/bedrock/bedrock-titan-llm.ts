@@ -1,4 +1,4 @@
-import { llmConst } from "../../../types/llm-constants";
+import { llmConfig } from "../../../config/llm.config";
 import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
@@ -20,8 +20,8 @@ class BedrockTitanLLM extends BaseBedrockLLM {
     return JSON.stringify({
       inputText: prompt,
       textGenerationConfig: {
-        temperature: llmConst.ZERO_TEMP,
-        topP: llmConst.TOP_P_VLOW,
+        temperature: llmConfig.ZERO_TEMP,
+        topP: llmConfig.TOP_P_VLOW,
         maxTokenCount: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       },
     });

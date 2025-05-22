@@ -1,4 +1,6 @@
-// Prompts configuration
+/**
+ * Prompts configuration
+ */
 export const promptsConfig = {
   REQUIREMENTS_PROMPTS_FOLDERPATH: "./input/requirements",
   REQS_FILE_REGEX: /requirement\d+\.prompt$/i,

@@ -1,4 +1,6 @@
-// File system configuration
+/**
+ * File system configuration
+ */
 export const fileSystemConfig = {
   OUTPUT_DIR: "output",
   OUTPUT_SUMMARY_FILE: "report.txt",

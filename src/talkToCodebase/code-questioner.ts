@@ -7,7 +7,7 @@ import { convertArrayOfNumbersToArrayOfDoubles } from "../utils/text-utils";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
 import { transformJSToTSFilePath } from "../utils/path-utils";
-import { llmConst } from "../types/llm-constants";
+import { llmConfig } from "../config/llm.config";
 
 // Interface for source file record
 interface SourceFileCodeMetadata {
@@ -81,8 +81,8 @@ class CodeQuestioner {
           ],
         },
         queryVector: queryVector,
-        numCandidates: llmConst.VECTOR_SEARCH_NUM_CANDIDATES,
-        limit: llmConst.VECTOR_SEARCH_NUM_LIMIT,
+        numCandidates: llmConfig.VECTOR_SEARCH_NUM_CANDIDATES,
+        limit: llmConfig.VECTOR_SEARCH_NUM_LIMIT,
       }},
 
       {$project: {

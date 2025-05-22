@@ -1,4 +1,4 @@
-import { llmConst } from "../../../types/llm-constants";
+import { llmConfig } from "../../../config/llm.config";
 import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
@@ -25,8 +25,8 @@ class BedrockMistralLLM extends BaseBedrockLLM {
           content: prompt,
         }
       ],
-      temperature: llmConst.ZERO_TEMP,
-      top_p: llmConst.TOP_P_LOWEST,
+      temperature: llmConfig.ZERO_TEMP,
+      top_p: llmConfig.TOP_P_LOWEST,
       max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
     });
   }
