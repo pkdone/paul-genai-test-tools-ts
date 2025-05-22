@@ -123,7 +123,7 @@ class LLMRouter {
     let llmFuncIndex = 0;
 
     try {
-      // Don't want to increment 'llmFuncIndex' before looping again, if going to crop prompt, so we can try cropped prompt with same size LLM as last iteration
+      // Don't want to increment 'llmFuncIndex' before looping again, if going to crop prompt (to enable us to try cropped prompt with same size LLM as last iteration)
       while (llmFuncIndex < llmFuncs.length) {
         const llmResponse = await this.executeLLMFuncWithRetries(llmFuncs[llmFuncIndex], currentPrompt, asJson, context);
 
@@ -147,10 +147,7 @@ class LLMRouter {
               this.llmStats.recordCrop();
             }
           } else {
-            throw new RejectionResponseLLMError(
-              `An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse.status}'`,
-              llmResponse
-            );
+            throw new RejectionResponseLLMError(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse.status}'`, llmResponse);
           }
 
           if (canSwitchModel) {
