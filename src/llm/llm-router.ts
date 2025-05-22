@@ -132,26 +132,32 @@ class LLMRouter {
           this.llmStats.recordSuccess();
           break;
         } else {
-          if ((!llmResponse) || (llmResponse.status === LLMResponseStatus.OVERLOADED)) {
+          const isOverloaded = (!llmResponse) || (llmResponse.status === LLMResponseStatus.OVERLOADED);
+          const isExceeded = llmResponse?.status === LLMResponseStatus.EXCEEDED;
+          const canSwitchModel = llmFuncIndex + 1 < llmFuncs.length;
+
+          if (isOverloaded) {
             logWithContext(`LLM problem processing prompt for completion with current LLM model because it is overloaded or timing out, even after retries (or a JSON parse error occurred we just wanted to force a retry)`, context);
-          } else if (llmResponse.status === LLMResponseStatus.EXCEEDED) {
+          } else if (isExceeded) {
             logWithContext(`LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens ?? 0} plus completion tokens used ${llmResponse.tokensUage?.completionTokens ?? 0} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens ?? 0}, or: 2) the model's completion tokens limit`, context);
 
-            if (llmFuncIndex + 1 >= llmFuncs.length) { 
+            if (!canSwitchModel) {
               if (!llmResponse.tokensUage) throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present", llmResponse);
               currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.modelKey, llmResponse.tokensUage);
               this.llmStats.recordCrop();
-              continue;
-            }            
+            }
           } else {
-            throw new RejectionResponseLLMError(`An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse.status}'`, llmResponse);
+            throw new RejectionResponseLLMError(
+              `An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource ''${resourceName}'' - response status received: '${llmResponse.status}'`,
+              llmResponse
+            );
           }
 
-          if (llmFuncIndex + 1 < llmFuncs.length) { 
+          if (canSwitchModel) {
             context.modelQuality = LLMModelQuality.SECONDARY;
             this.llmStats.recordSwitch();
             llmFuncIndex++;
-          }  
+          }
         }
       }
 
