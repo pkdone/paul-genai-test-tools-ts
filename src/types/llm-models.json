@@ -4,181 +4,181 @@
     "purpose": "embeddings",
     "dimensions": 1536,
     "maxTotalTokens": 8191,
-    "apiFamily": "OpenAI"
+    "modelProvider": "OpenAI"
   },
   "GPT_EMBEDDINGS_TEXT_3SMALL": {
     "modelId": "text-embedding-3-small",
     "purpose": "embeddings",
     "dimensions": 1536,
     "maxTotalTokens": 8191,
-    "apiFamily": "OpenAI"
+    "modelProvider": "OpenAI"
   },
   "GPT_COMPLETIONS_GPT4": {
     "modelId": "gpt-4",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 8192,
-    "apiFamily": "OpenAI"
+    "modelProvider": "OpenAI"
   },
   "GPT_COMPLETIONS_GPT4_32k": {
     "modelId": "gpt-4-32k",
     "purpose": "completions",
     "maxCompletionTokens": 4096,
     "maxTotalTokens": 32768,
-    "apiFamily": "OpenAI"
+    "modelProvider": "OpenAI"
   },
   "GPT_COMPLETIONS_GPT4_TURBO": {
     "modelId": "gpt-4-turbo",
     "purpose": "completions",
     "maxCompletionTokens": 4096,
     "maxTotalTokens": 128000,
-    "apiFamily": "OpenAI"
+    "modelProvider": "OpenAI"
   },
   "GPT_COMPLETIONS_GPT4_O": {
     "modelId": "gpt-4o",
     "purpose": "completions",
     "maxCompletionTokens": 16384,
     "maxTotalTokens": 128000,
-    "apiFamily": "OpenAI"
+    "modelProvider": "OpenAI"
   },
   "GCP_EMBEDDINGS_ADA_GECKO": {
     "modelId": "textembedding-gecko",
     "purpose": "embeddings",
     "maxTotalTokens": 3072,
     "dimensions": 768,
-    "apiFamily": "VertexAI"
+    "modelProvider": "VertexAI"
   },
   "GCP_EMBEDDINGS_TEXT_005": {
     "modelId": "text-embedding-005",
     "purpose": "embeddings",
     "maxTotalTokens": 2048,
     "dimensions": 768,
-    "apiFamily": "VertexAI"
+    "modelProvider": "VertexAI"
   },
   "GCP_COMPLETIONS_GEMINI_FLASH15": {
     "modelId": "gemini-1.5-flash-002",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 1048576,
-    "apiFamily": "VertexAI"
+    "modelProvider": "VertexAI"
   },
   "GCP_COMPLETIONS_GEMINI_PRO15": {
     "modelId": "gemini-1.5-pro-002",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 2097152,
-    "apiFamily": "VertexAI"
+    "modelProvider": "VertexAI"
   },
   "GCP_COMPLETIONS_GEMINI_FLASH20": {
     "modelId": "gemini-2.0-flash-001",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 1048576,
-    "apiFamily": "VertexAI"
+    "modelProvider": "VertexAI"
   },
   "GCP_COMPLETIONS_GEMINI_PRO20": {
     "modelId": "gemini-2.0-pro-exp-02-05",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 2097152,
-    "apiFamily": "VertexAI"
+    "modelProvider": "VertexAI"
   },
   "GCP_COMPLETIONS_GEMINI_PRO25": {
     "modelId": "gemini-2.5-pro-preview-05-06",
     "purpose": "completions",
     "maxCompletionTokens": 65535,
     "maxTotalTokens": 1048576,
-    "apiFamily": "VertexAI"
+    "modelProvider": "VertexAI"
   },
   "AWS_EMBEDDINGS_TITAN_V1": {
     "modelId": "amazon.titan-embed-text-v1",
     "purpose": "embeddings",
     "maxTotalTokens": 8192,
     "dimensions": 1024,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_TITAN_EXPRESS_V1": {
     "modelId": "amazon.titan-text-express-v1",
     "purpose": "completions",
     "maxCompletionTokens": 8191,
     "maxTotalTokens": 8191,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_CLAUDE_V35": {
     "modelId": "anthropic.claude-3-5-sonnet-20241022-v2:0",
     "purpose": "completions",
     "maxCompletionTokens": 4086,
     "maxTotalTokens": 200000,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_CLAUDE_V37": {
     "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 4086,
     "maxTotalTokens": 131072,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT": {
     "modelId": "meta.llama3-8b-instruct-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 8192,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT": {
     "modelId": "meta.llama3-70b-instruct-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 8192,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT": {
     "modelId": "meta.llama3-1-405b-instruct-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 128000,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT": {
     "modelId": "us.meta.llama3-3-70b-instruct-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 128000,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_MISTRAL_LARGE": {
     "modelId": "mistral.mistral-large-2402-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 32768,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_MISTRAL_LARGE2": {
     "modelId": "mistral.mistral-large-2407-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 8192,
     "maxTotalTokens": 131072,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_NOVA_PRO_V1": {
     "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.amazon.nova-pro-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 5000,
     "maxTotalTokens": 300000,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_NOVA_LITE_V1": {
     "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.amazon.nova-lite-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 5000,
     "maxTotalTokens": 300000,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_DEEPSEEKE_R1": {
     "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.deepseek.r1-v1:0",
     "purpose": "completions",
     "maxCompletionTokens": 32768,
     "maxTotalTokens": 128000,
-    "apiFamily": "Bedrock"
+    "modelProvider": "Bedrock"
   }
 }

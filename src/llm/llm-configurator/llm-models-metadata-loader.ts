@@ -1,5 +1,5 @@
-import { JSONLLMModelMetadata, LLMApiFamily, LLMModelMetadata, LLMPurpose } from "../../types/llm-types";
-import { ModelKey } from "../../types/llm-models-metadata";
+import { JSONLLMModelMetadata, LLMModelMetadata, LLMPurpose } from "../../types/llm-types";
+import { ModelKey, ModelProviderType } from "../../types/llm-models-types";
 import { LLMMetadataError } from "../../types/llm-errors";
 import jsonLlmModelsData from "../../types/llm-models.json";
 
@@ -11,7 +11,7 @@ enum LlmMetadataProps {
   DIMENSIONS = "dimensions",
   MAX_COMPLETION_TOKENS = "maxCompletionTokens",
   MAX_TOTAL_TOKENS = "maxTotalTokens",
-  API_FAMILY = "apiFamily",
+  MODEL_PROVIDER = "modelProvider",
 };
 
 // Type to define the set of seemingly optional model metadata properties that are actually
@@ -40,7 +40,7 @@ class LLMModelsMetadataLoader {
       modelId: "n/a",
       purpose: LLMPurpose.N_A,
       maxTotalTokens: 999999999,
-      apiFamily: LLMApiFamily.N_A,
+      modelProvider: ModelProviderType.N_A,
     }
   }
 
@@ -74,7 +74,7 @@ class LLMModelsMetadataLoader {
       this.errorIfPropertyNonPositiveNumber(model, modelMetadataOptionalPropsToCheck, key, LlmMetadataProps.DIMENSIONS);
       this.errorIfPropertyNonPositiveNumber(model, modelMetadataOptionalPropsToCheck, key, LlmMetadataProps.MAX_COMPLETION_TOKENS);
       this.errorIfPropertyNonPositiveNumber(model, modelMetadataOptionalPropsToCheck, key, LlmMetadataProps.MAX_TOTAL_TOKENS);    
-      this.errorIfPropertyEnumInvalid<LLMApiFamily>(model, key, LlmMetadataProps.API_FAMILY, LLMApiFamily);
+      this.errorIfPropertyEnumInvalid<ModelProviderType>(model, key, LlmMetadataProps.MODEL_PROVIDER, ModelProviderType);
 
       // Check if maxCompletionTokens exceeds maxTotalTokens for completion models
       if (model.purpose === LLMPurpose.COMPLETIONS && 

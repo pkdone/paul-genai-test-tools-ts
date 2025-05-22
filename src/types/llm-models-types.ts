@@ -1,4 +1,4 @@
-import { LLMApiFamily, LLMErrorMsgRegExPattern, LLMModelSet } from "./llm-types";
+import { LLMErrorMsgRegExPattern, LLMModelSet } from "./llm-types";
 
 /**
  * GENERAL NOTES:
@@ -25,6 +25,15 @@ import { LLMApiFamily, LLMErrorMsgRegExPattern, LLMModelSet } from "./llm-types"
  *    'maxCompletionsTokens' is actually less than listed value of 8192
  */
 
+
+// Enum for model provider types
+export enum ModelProviderType {
+  N_A = "n/a",
+  OPENAI = "OpenAI",
+  AZURE = "Azure",
+  VERTEXAI = "VertexAI",
+  BEDROCK = "Bedrock",
+}
 
 /**
  * Enum to define the LLM model family.
@@ -76,14 +85,29 @@ export enum ModelKey {
 }
 
 /**
+ * Map of model families to their corresponding provider types
+ */
+export const modelFamilyToProviderMap = new Map<ModelFamily, ModelProviderType>([
+  [ModelFamily.OPENAI_MODELS, ModelProviderType.OPENAI],
+  [ModelFamily.AZURE_OPENAI_MODELS, ModelProviderType.AZURE],
+  [ModelFamily.VERTEXAI_GEMINI_MODELS, ModelProviderType.VERTEXAI],
+  [ModelFamily.BEDROCK_TITAN_MODELS, ModelProviderType.BEDROCK],
+  [ModelFamily.BEDROCK_CLAUDE_MODELS, ModelProviderType.BEDROCK],
+  [ModelFamily.BEDROCK_LLAMA_MODELS, ModelProviderType.BEDROCK],
+  [ModelFamily.BEDROCK_MISTRAL_MODELS, ModelProviderType.BEDROCK],
+  [ModelFamily.BEDROCK_NOVA_MODELS, ModelProviderType.BEDROCK],
+  [ModelFamily.BEDROCK_DEEPSEEK_MODELS, ModelProviderType.BEDROCK],
+]);
+
+/**
  * Type for model provider to set of model keys mappings.
  */
-export type ModelProviderMappings = Readonly<Record<ModelFamily, LLMModelSet>>
+export type ModelFamilyToModelKeyMappings = Readonly<Record<ModelFamily, LLMModelSet>>
 
 /**
  * Constants for the LLM model mappings for each provider.
  */
-export const modelProviderMappings: ModelProviderMappings = {
+export const modelFamilyToModelKeyMappings: ModelFamilyToModelKeyMappings = {
   [ModelFamily.OPENAI_MODELS]: {
     embeddings: ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL,
     primaryCompletion:  ModelKey.GPT_COMPLETIONS_GPT4_O,
@@ -133,13 +157,13 @@ export const modelProviderMappings: ModelProviderMappings = {
  * Set of LLM error message patterns
  */
 export const llmAPIErrorPatterns: Readonly<Record<string, readonly LLMErrorMsgRegExPattern[]>> = {
-  [LLMApiFamily.OPENAI]: [
+  [ModelProviderType.OPENAI]: [
     // 1. "This model's maximum context length is 8191 tokens, however you requested 10346 tokens (10346 in your prompt; 5 for the completion). Please reduce your prompt; or completion length.",
     { pattern: /max.*?(\d+) tokens.*?\(.*?(\d+).*?prompt.*?(\d+).*?completion/, units: "tokens" },
     // 2. "This model's maximum context length is 8192 tokens. However, your messages resulted in 8545 tokens. Please reduce the length of the messages."
     { pattern: /max.*?(\d+) tokens.*?(\d+) /, units: "tokens" },
   ] as const,
-  [LLMApiFamily.BEDROCK]: [
+  [ModelProviderType.BEDROCK]: [
     // 1. "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 8192, request input token count: 9279 "
     { pattern: /ax input tokens.*?(\d+).*?request input token count.*?(\d+)/, units: "tokens" },
     // 2. "ValidationException: Malformed input request: expected maxLength: 50000, actual: 52611, please reformat your input and try again."
@@ -147,6 +171,6 @@ export const llmAPIErrorPatterns: Readonly<Record<string, readonly LLMErrorMsgRe
     // 3. Llama: "ValidationException: This model's maximum context length is 8192 tokens. Please reduce the length of the prompt"
     { pattern: /maximum context length is ?(\d+) tokens/, units: "tokens" },
   ] as const,
-  [LLMApiFamily.VERTEXAI]: [] as const,
+  [ModelProviderType.VERTEXAI]: [] as const,
 } as const;
 

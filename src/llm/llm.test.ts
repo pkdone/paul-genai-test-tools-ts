@@ -1,5 +1,5 @@
 import { llmConfig } from "../config/llm.config";
-import { ModelKey } from "../types/llm-models-metadata";
+import { ModelKey } from "../types/llm-models-types";
 import { JSONLLMModelMetadata } from "../types/llm-types";
 import { LLMMetadataError } from "../types/llm-errors";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
@@ -68,7 +68,7 @@ describe("LLM Models Loader", () => {
           purpose: "embeddings",
           dimensions: 1536,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect((new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toStrictEqual(dummyModels);
@@ -81,14 +81,14 @@ describe("LLM Models Loader", () => {
           purpose: "embeddings",
           dimensions: 1536,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         },
         MODEL_2: {
           modelId: "model-2",
           purpose: "completions",
           maxCompletionTokens: 4096,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect((new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toStrictEqual(dummyModels);
@@ -100,7 +100,7 @@ describe("LLM Models Loader", () => {
           modelId: "dummy-model",
           purpose: "embeddings",
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
@@ -112,7 +112,7 @@ describe("LLM Models Loader", () => {
           modelId: "dummy-model",
           purpose: "completions",
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
@@ -125,7 +125,7 @@ describe("LLM Models Loader", () => {
           purpose: "XXXXXXXXXXXXXXXXXXX",
           dimensions: 1536,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
@@ -138,7 +138,7 @@ describe("LLM Models Loader", () => {
           purpose: "embeddings",
           dimensions: -1234,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
@@ -151,7 +151,7 @@ describe("LLM Models Loader", () => {
           purpose: "embeddings",
           dimensions: 0,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
@@ -164,7 +164,7 @@ describe("LLM Models Loader", () => {
           purpose: "completions",
           maxCompletionTokens: -1234,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
@@ -177,20 +177,20 @@ describe("LLM Models Loader", () => {
           purpose: "embeddings",
           dimensions: 1536,
           maxTotalTokens: -1,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
     });
 
-    test("throws error when apiFamily field has invalid enum value", () => {
+    test("throws error when modelProvider field has invalid enum value", () => {
       const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
         A_DUMMY_MODEL: {
           modelId: "another-dummy-model",
           purpose: "embeddings",
           dimensions: 1536,
           maxTotalTokens: 8191,
-          apiFamily: "XXXXXXXXXXXXXXXXXXX",
+          modelProvider: "XXXXXXXXXXXXXXXXXXX",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
@@ -202,7 +202,7 @@ describe("LLM Models Loader", () => {
           purpose: "embeddings",
           dimensions: 1536,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
@@ -215,7 +215,7 @@ describe("LLM Models Loader", () => {
           purpose: "embeddings",
           dimensions: 1536,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
@@ -228,7 +228,7 @@ describe("LLM Models Loader", () => {
           purpose: "completions",
           maxCompletionTokens: 10000,
           maxTotalTokens: 8191,
-          apiFamily: "OpenAI",
+          modelProvider: "OpenAI",
         }
       } as const;
       expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);

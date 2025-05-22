@@ -1,4 +1,4 @@
-import { ModelFamily } from "./llm-models-metadata";
+import { ModelFamily } from "./llm-models-types";
 import { z } from "zod";
 
 // Base schema for common environment variables
@@ -23,7 +23,7 @@ const azureEnvVarsSchema = baseEnvVarsSchema.extend({
   AZURE_API_COMPLETIONS_MODEL_SECONDARY: z.string(),
 });
 
-const vertexEnvVarsSchema = baseEnvVarsSchema.extend({
+const vertexAIEnvVarsSchema = baseEnvVarsSchema.extend({
   LLM: z.literal(ModelFamily.VERTEXAI_GEMINI_MODELS),
   GCP_API_PROJECTID: z.string(),
   GCP_API_LOCATION: z.string(),
@@ -46,7 +46,7 @@ const bedrockEnvVarsSchema = baseEnvVarsSchema.extend({
 export const envVarsSchema = z.discriminatedUnion("LLM", [
   openAIEnvVarsSchema,
   azureEnvVarsSchema,
-  vertexEnvVarsSchema,
+  vertexAIEnvVarsSchema,
   bedrockEnvVarsSchema,
 ]);
 
@@ -72,7 +72,7 @@ export function isAzureEnv(env: EnvVars): env is z.infer<typeof azureEnvVarsSche
 /**
  * Type guard for VertexAI environment variables
  */
-export function isVertexEnv(env: EnvVars): env is z.infer<typeof vertexEnvVarsSchema> {
+export function isVertexEnv(env: EnvVars): env is z.infer<typeof vertexAIEnvVarsSchema> {
   return env.LLM === ModelFamily.VERTEXAI_GEMINI_MODELS;
 }
 

@@ -1,5 +1,5 @@
 import { llmConfig } from "../../../config/llm.config";
-import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
+import { ModelFamily, ModelKey } from "../../../types/llm-models-types";
 import BaseBedrockLLM from "./base-bedrock-llm";
 
 /**

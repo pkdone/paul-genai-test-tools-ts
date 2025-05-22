@@ -1,14 +1,14 @@
 import { OpenAI, RateLimitError, InternalServerError } from "openai";
 import { APIError } from "openai/error";
 import { LLMPurpose } from "../../../types/llm-types";
-import { ModelKey } from "../../../types/llm-models-metadata";
+import { ModelKey } from "../../../types/llm-models-types";
 import AbstractLLM from "../base/abstract-llm";
 
 /**
  * Abstract class for GPT managed LLM provider services (subclasses might be OpenAI or Azure
  * implementations).
  * 
- * Some of the possible recevable Bedrock exceptions as of April 2025:
+ * Some of the possible receivable OpenAI exceptions as of April 2025:
  * 
  * APIError, BadRequestError, AuthenticationError, RateLimitError, InternalServerError, 
  * PermissionDeniedError, NotFoundError, UnprocessableEntityError

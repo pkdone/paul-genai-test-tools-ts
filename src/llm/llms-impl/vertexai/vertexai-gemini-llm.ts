@@ -3,7 +3,7 @@ import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshol
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import { llmConfig } from "../../../config/llm.config";
-import { ModelFamily, ModelKey } from "../../../types/llm-models-metadata";
+import { ModelFamily, ModelKey } from "../../../types/llm-models-types";
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
@@ -16,7 +16,7 @@ const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.
 /**
  * Class for the GCP Vertex AI Gemini service.
  * 
- * Some of the possible recevable Bedrock exceptions as of April 2025:
+ * Some of the possible receivable Vertex exceptions as of April 2025:
  * 
  * GoogleApiError, ClientError, GoogleAuthError, GoogleGenerativeAIError, IllegalArgumentError
  */

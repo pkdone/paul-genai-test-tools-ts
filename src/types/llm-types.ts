@@ -1,4 +1,4 @@
-import { ModelKey, ModelFamily } from "./llm-models-metadata";
+import { ModelKey, ModelFamily, ModelProviderType } from "./llm-models-types";
 
 /**
  * Interface for LLM implementation provider
@@ -41,16 +41,6 @@ export enum LLMPurpose {
 };
 
 /**
- * Enum to define the LLM API family
- */
-export enum LLMApiFamily {
-  N_A = "n/a",
-  OPENAI = "OpenAI",
-  VERTEXAI = "VertexAI",
-  BEDROCK = "Bedrock",
-};
-
-/**
  * Type to define the main characteristics of the LLM model.
  */
 export interface LLMModelMetadata {
@@ -59,7 +49,7 @@ export interface LLMModelMetadata {
   readonly dimensions?: number;
   readonly maxCompletionTokens?: number;
   readonly maxTotalTokens: number;
-  readonly apiFamily: LLMApiFamily;
+  readonly modelProvider: ModelProviderType;
 }
 
 /**
@@ -71,7 +61,7 @@ export interface JSONLLMModelMetadata extends Record<string, unknown> {
   readonly dimensions?: number;
   readonly maxCompletionTokens?: number;
   readonly maxTotalTokens?: number;
-  readonly apiFamily?: string;
+  readonly modelProvider?: string;
 };
 
 /**

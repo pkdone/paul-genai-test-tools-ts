@@ -1,5 +1,5 @@
 import { llmConfig } from "../config/llm.config";
-import { ModelKey, llmAPIErrorPatterns } from "../types/llm-models-metadata";
+import { ModelKey, llmAPIErrorPatterns } from "../types/llm-models-types";
 import { llmModelsMetadataLoaderSrvc } from "./llm-configurator/llm-models-metadata-loader";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
          LLMResponseStatus, LLMContext} from "../types/llm-types";
@@ -48,7 +48,7 @@ function parseTokenUsageFromLLMError(modelKey: ModelKey, errorMsg: string) {
   let completionTokens = 0;
   let maxTotalTokens = -1;      
   const llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
-  const patternDefinitions = llmAPIErrorPatterns[llmModelsMetadata[modelKey].apiFamily];
+  const patternDefinitions = llmAPIErrorPatterns[llmModelsMetadata[modelKey].modelProvider];
   
   for (const patternDefinition of patternDefinitions) {
     const matches = errorMsg.match(patternDefinition.pattern);
