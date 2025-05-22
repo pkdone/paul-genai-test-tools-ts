@@ -1,6 +1,6 @@
 import { ModelFamily, modelProviderMappings } from "../../types/llm-models-metadata";
-import { LLMConfig, LLMProviderType, BedrockVariantType } from "../../types/llm-config-types";
 import { LLMProviderImpl } from "../../types/llm-types";
+import { EnvVars, isOpenAIEnv, isAzureEnv, isVertexEnv, isBedrockEnv } from "../../types/env-types";
 import OpenAILLM from "../llms-impl/openai/openai-llm";
 import AzureOpenAILLM from "../llms-impl/openai/azure-openai-llm";
 import VertexAIGeminiLLM from "../llms-impl/vertexai/vertexai-gemini-llm";
@@ -11,87 +11,122 @@ import BedrockMistralLLM from "../llms-impl/bedrock/bedrock-mistral-llm";
 import BedrockNovaLLM from "../llms-impl/bedrock/bedrock-nova-llm";
 import BedrockDeepseekLLM from "../llms-impl/bedrock/bedrock-deepseek-llm";
 
+
+/// Enum for LLM provider types
+enum LLMProviderType {
+  OPENAI = 'openai',
+  AZURE = 'azure',
+  VERTEX = 'vertex',
+  BEDROCK = 'bedrock'
+}
+
 // Map of registered providers
-const providerRegistry = new Map<LLMProviderType, (config: LLMConfig) => LLMProviderImpl>();
+const providerRegistry = new Map<LLMProviderType, (env: EnvVars) => LLMProviderImpl>();
 
 /**
  * Register a new LLM provider
  * 
  * @param type Provider type identifier
- * @param factory Function to create the provider instance
+ * @param factory Function to create the provider instance from environment variables
  */
-export function registerProvider(type: LLMProviderType, factory: (config: LLMConfig) => LLMProviderImpl): void {
+function registerProvider(type: LLMProviderType, factory: (env: EnvVars) => LLMProviderImpl): void {
   providerRegistry.set(type, factory);
 }
 
 /**
- * Create an LLM provider instance based on the configuration
+ * Create an LLM provider instance based on environment variables
  * 
- * @param config LLM provider configuration
+ * @param env Environment variables
  * @returns LLM provider implementation instance
  */
-export function createProvider(config: LLMConfig): LLMProviderImpl {
-  const factory = providerRegistry.get(config.llmProviderType);
-  if (!factory) {
-    throw new Error(`No LLM provider registered for type: ${config.llmProviderType}`);
+export function getLLMProvider(env: EnvVars): LLMProviderImpl {
+  const providerType = getProviderTypeFromModelFamily(env.LLM);
+  const factory = providerRegistry.get(providerType);
+  if (!factory) throw new Error(`No LLM provider registered for type: ${providerType}`);
+  return factory(env);
+}
+
+/**
+ * Helper function to determine provider type from model family
+ */
+function getProviderTypeFromModelFamily(modelFamily: ModelFamily): LLMProviderType {
+  switch (modelFamily) {
+    case ModelFamily.OPENAI_MODELS:
+      return LLMProviderType.OPENAI;
+    case ModelFamily.AZURE_OPENAI_MODELS:
+      return LLMProviderType.AZURE;
+    case ModelFamily.VERTEXAI_GEMINI_MODELS:
+      return LLMProviderType.VERTEX;
+    case ModelFamily.BEDROCK_TITAN_MODELS:
+    case ModelFamily.BEDROCK_CLAUDE_MODELS:
+    case ModelFamily.BEDROCK_LLAMA_MODELS:
+    case ModelFamily.BEDROCK_MISTRAL_MODELS:
+    case ModelFamily.BEDROCK_NOVA_MODELS:
+    case ModelFamily.BEDROCK_DEEPSEEK_MODELS:
+      return LLMProviderType.BEDROCK;
+    default: {
+      const exhaustiveCheck: never = modelFamily;
+      throw new Error(`Unknown model family: ${String(exhaustiveCheck)}`);
+    }
   }
-  return factory(config);
 }
 
 // Register all LLM providers
 // Register OpenAI provider
-registerProvider(LLMProviderType.OPENAI, (config) => {
-  if (config.llmProviderType !== LLMProviderType.OPENAI) throw new Error('Invalid config type for OpenAI provider');
+registerProvider(LLMProviderType.OPENAI, (env) => {
+  if (!isOpenAIEnv(env)) throw new Error('Invalid model family for OpenAI provider');
   return new OpenAILLM(
     modelProviderMappings[ModelFamily.OPENAI_MODELS],
-    config.apiKey
+    env.OPENAI_LLM_API_KEY
   );
 });
 
 // Register Azure OpenAI provider
-registerProvider(LLMProviderType.AZURE, (config) => {
-  if (config.llmProviderType !== LLMProviderType.AZURE) throw new Error('Invalid config type for Azure OpenAI provider');
+registerProvider(LLMProviderType.AZURE, (env) => {
+  if (!isAzureEnv(env)) throw new Error('Invalid model family for Azure OpenAI provider');
   return new AzureOpenAILLM(
     modelProviderMappings[ModelFamily.AZURE_OPENAI_MODELS],
-    config.apiKey,
-    config.apiEndpoint,
-    config.embeddingsModel,
-    config.completionsModelPrimary,
-    config.completionsModelSecondary
+    env.AZURE_LLM_API_KEY,
+    env.AZURE_API_ENDPOINT,
+    env.AZURE_API_EMBEDDINGS_MODEL,
+    env.AZURE_API_COMPLETIONS_MODEL_PRIMARY,
+    env.AZURE_API_COMPLETIONS_MODEL_SECONDARY
   );
 });
 
 // Register VertexAI Gemini provider
-registerProvider(LLMProviderType.VERTEX, (config) => {
-  if (config.llmProviderType !== LLMProviderType.VERTEX) throw new Error('Invalid config type for VertexAI Gemini provider');
+registerProvider(LLMProviderType.VERTEX, (env) => {
+  if (!isVertexEnv(env)) throw new Error('Invalid model family for VertexAI Gemini provider');
   return new VertexAIGeminiLLM(
     modelProviderMappings[ModelFamily.VERTEXAI_GEMINI_MODELS],
-    config.projectId,
-    config.location
+    env.GCP_API_PROJECTID,
+    env.GCP_API_LOCATION
   );
 });
 
 // Register Bedrock providers (multiple variants)
-registerProvider(LLMProviderType.BEDROCK, (config) => {
-  if (config.llmProviderType !== LLMProviderType.BEDROCK) throw new Error('Invalid config type for Bedrock provider');
-  
-  switch (config.variant) {
-    case BedrockVariantType.TITAN:
+registerProvider(LLMProviderType.BEDROCK, (env) => {
+  if (!isBedrockEnv(env)) {
+    throw new Error('Invalid model family for Bedrock provider');
+  }
+
+  const bedrockModelFamily = env.LLM;
+  switch (bedrockModelFamily) {
+    case ModelFamily.BEDROCK_TITAN_MODELS:
       return new BedrockTitanLLM(modelProviderMappings[ModelFamily.BEDROCK_TITAN_MODELS]);
-    case BedrockVariantType.CLAUDE:
+    case ModelFamily.BEDROCK_CLAUDE_MODELS:
       return new BedrockClaudeLLM(modelProviderMappings[ModelFamily.BEDROCK_CLAUDE_MODELS]);
-    case BedrockVariantType.LLAMA:
+    case ModelFamily.BEDROCK_LLAMA_MODELS:
       return new BedrockLlamaLLM(modelProviderMappings[ModelFamily.BEDROCK_LLAMA_MODELS]);
-    case BedrockVariantType.MISTRAL:
+    case ModelFamily.BEDROCK_MISTRAL_MODELS:
       return new BedrockMistralLLM(modelProviderMappings[ModelFamily.BEDROCK_MISTRAL_MODELS]);
-    case BedrockVariantType.NOVA:
+    case ModelFamily.BEDROCK_NOVA_MODELS:
       return new BedrockNovaLLM(modelProviderMappings[ModelFamily.BEDROCK_NOVA_MODELS]);
-    case BedrockVariantType.DEEPSEEK:
+    case ModelFamily.BEDROCK_DEEPSEEK_MODELS:
       return new BedrockDeepseekLLM(modelProviderMappings[ModelFamily.BEDROCK_DEEPSEEK_MODELS]);
     default: {
-      // Use a block to allow declaration
-      const exhaustiveCheck: never = config.variant;
-      throw new Error(`Unknown Bedrock variant: ${String(exhaustiveCheck)}`);
+      const exhaustiveCheck: never = bedrockModelFamily;
+      throw new Error(`Unknown Bedrock model family: ${String(exhaustiveCheck)}`);
     }
   }
 }); 

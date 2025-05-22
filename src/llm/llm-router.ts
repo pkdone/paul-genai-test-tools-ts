@@ -22,9 +22,9 @@ class LLMRouter {
   /**
    * Constructor.
    * 
-   * @param llmImpl The initialized LLM provider implementation
+   * @param llm The initialized LLM provider implementation
    */
-  constructor(private readonly llmImpl: LLMProviderImpl) {
+  constructor(private readonly llm: LLMProviderImpl) {
     this.llmStats = new LLMStats();
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
@@ -33,15 +33,15 @@ class LLMRouter {
    * Call close on LLM implementation to release resources.
    */
   async close(): Promise<void> {
-    await this.llmImpl.close();
+    await this.llm.close();
   }
 
   /**
    * Get the description of models the chosen plug-in provides.
    */
   getModelsUsedDescription() {
-    const [ embeddings, primary, secondary ] = this.llmImpl.getModelsNames();
-    return `${this.llmImpl.getModelFamily()} (embeddings: ${embeddings}, completions-primary: ${primary}, completions-secondary: ${secondary})`;
+    const [ embeddings, primary, secondary ] = this.llm.getModelsNames();
+    return `${this.llm.getModelFamily()} (embeddings: ${embeddings}, completions-primary: ${primary}, completions-secondary: ${secondary})`;
   }  
 
 
@@ -49,7 +49,7 @@ class LLMRouter {
    * Get the maximum number of tokens for the given model quality. 
    */
   getEmbeddedModelDimensions(): number | undefined {
-    return this.llmImpl.getEmbeddedModelDimensions();
+    return this.llm.getEmbeddedModelDimensions();
   }
 
   /**
@@ -60,7 +60,7 @@ class LLMRouter {
    */
   async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}): Promise<number[] | null> {
     context.purpose = LLMPurpose.EMBEDDINGS;
-    const llmFunc = this.llmImpl.generateEmbeddings.bind(this.llmImpl);
+    const llmFunc = this.llm.generateEmbeddings.bind(this.llm);
     const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
 
     if (contentResponse !== null && !(Array.isArray(contentResponse) && contentResponse.every(item => typeof item === 'number'))) {
@@ -83,7 +83,7 @@ class LLMRouter {
                           context: LLMContext = {},
                           modelQualityOverride: LLMModelQuality | null = null
                          ): Promise<string | object | null> {                            
-    const availableModelQualities = modelQualityOverride? [modelQualityOverride] : this.llmImpl.getAvailableCompletionModelQualities();
+    const availableModelQualities = modelQualityOverride? [modelQualityOverride] : this.llm.getAvailableCompletionModelQualities();
     const modelQualityCompletionFunctions = this.getModelQualityCompletionFunctions(availableModelQualities);
     context.purpose = LLMPurpose.COMPLETIONS;
     context.modelQuality = availableModelQualities[0];
@@ -191,8 +191,8 @@ class LLMRouter {
     if (availableModelQualities.length <= 0) throw new BadConfigurationLLMError("No LLM implementation completions models provided");
     return availableModelQualities.map(quality => 
       quality === LLMModelQuality.PRIMARY 
-        ? this.llmImpl.executeCompletionPrimary.bind(this.llmImpl)
-        : this.llmImpl.executeCompletionSecondary.bind(this.llmImpl)
+        ? this.llm.executeCompletionPrimary.bind(this.llm)
+        : this.llm.executeCompletionSecondary.bind(this.llm)
     );    
   }
 }
