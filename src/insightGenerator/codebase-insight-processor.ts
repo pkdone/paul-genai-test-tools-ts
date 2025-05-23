@@ -68,7 +68,7 @@ export class CodebaseInsightProcessor {
           question: content.trim()
         });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logErrorMsgAndDetail("Problem loading prompts from input folder", error);
     }
     

@@ -63,7 +63,7 @@ class McpHttpServer {
             } else {
               await transport.handlePostMessage(req, res, parsedData);
             }
-          } catch (parseError) {
+          } catch (parseError: unknown) {
             this.sendHTTPError(res, httpConfig.HTTP_BAD_REQUEST_CODE, "Bad Request: Invalid JSON", "Error parsing JSON:", parseError);
           }
         } else if (!res.writableEnded) {
