@@ -36,8 +36,8 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string) {
-    if (taskType === LLMPurpose.EMBEDDINGS.toString()) {
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
+    if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
         model: this.llmModelsMetadata[modelKey].modelId,
         input: prompt

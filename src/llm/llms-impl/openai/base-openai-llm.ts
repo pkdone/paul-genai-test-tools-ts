@@ -105,7 +105,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   /**
    * Abstract method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected abstract buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
+  protected abstract buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
 
   // Expose private methods for unit testing
   // eslint-disable-next-line @typescript-eslint/member-ordering

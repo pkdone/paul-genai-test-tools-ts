@@ -50,11 +50,11 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: string, modelKey: ModelKey, prompt: string) {
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
     const deployment = this.modelToDeploymentMappings.get(modelKey);
     if (!deployment) throw new BadConfigurationLLMError(`Model key ${modelKey} not found for ${this.constructor.name}`);      
 
-    if (taskType === LLMPurpose.EMBEDDINGS.toString()) {
+    if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
         model: deployment,
         input: prompt
