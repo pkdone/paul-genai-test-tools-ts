@@ -1,5 +1,5 @@
-import { llmConfig } from "../config/llm.config";
-import { ModelKey, llmAPIErrorPatterns } from "../types/llm-models-types";
+import { llmConfig, llmAPIErrorPatterns } from "../config/llm.config";
+import { ModelKey } from "../types/llm-models-types";
 import { llmModelsMetadataLoaderSrvc } from "./llm-configurator/llm-models-metadata-loader";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
          LLMResponseStatus, LLMContext} from "../types/llm-types";
