@@ -91,7 +91,7 @@ export interface LLMResponseTokensUsage {
 /**
  * Type to define the LLM error
  */
-export type LLMGeneratedContent = string | object | number[] | null;
+export type LLMGeneratedContent = string | Record<string, unknown> | number[] | null;
 
 /**
  * Type to define the LLM response

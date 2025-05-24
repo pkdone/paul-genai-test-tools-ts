@@ -191,7 +191,10 @@ class VertexAIGeminiLLM extends AbstractLLM {
       if (!embeddingsProto.structValue?.fields) throw new BadConfigurationLLMError("embeddingsProto.structValue or embeddingsProto.structValue.fields is null or undefined");
       const valuesProto = embeddingsProto.structValue.fields.values;
       if (!valuesProto.listValue?.values) throw new BadConfigurationLLMError("valuesProto.listValue or valuesProto.listValue.values is null or undefined");
-      return valuesProto.listValue.values.map(v => v.numberValue);
+      return valuesProto.listValue.values.map(v => {
+        if (typeof v.numberValue !== 'number') throw new BadResponseContentLLMError('Embedding value is not a number or is missing', v.numberValue);
+        return v.numberValue;
+      });
     });
 
     return embeddings;

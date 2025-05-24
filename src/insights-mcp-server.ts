@@ -20,7 +20,7 @@ async function main() {
   const mcpServer = mcpDataServer.configure();
   const mcpHttpServer = new McpHttpServer(mcpServer, serverConfig.DEFAULT_MCP_HOSTNAME);
   const httpServer = mcpHttpServer.configure();
-  httpServer.listen(serverConfig.DEFAULT_MCP_PORT, () => { console.log("MCP server listening on port 3001"); });
+  httpServer.listen(serverConfig.DEFAULT_MCP_PORT, () => { console.log(`MCP server listening on port ${serverConfig.DEFAULT_MCP_PORT}`); });
   httpServer.on("close", () => {
     mongoDBService.closeAll().catch(console.error);
     console.log(`END: ${new Date().toISOString()}`);
