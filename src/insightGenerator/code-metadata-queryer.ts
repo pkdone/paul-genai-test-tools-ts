@@ -33,7 +33,7 @@ interface SourceFileRecord {
 }
 
 // Interface for the database interaction list
-export interface ProcsAndTriggers {
+interface ProcsAndTriggers {
   procs: {
     total: number;
     low: number;

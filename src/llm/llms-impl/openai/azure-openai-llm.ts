@@ -1,5 +1,5 @@
 import { AzureOpenAI, OpenAI } from "openai";
-import { llmConfig } from "../../../config/llm.config";
+import llmConfig from "../../../config/llm.config";
 import { ModelFamily, ModelKey } from "../../../types/llm-models-types";
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";

@@ -2,7 +2,7 @@ import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshol
          ClientError } from "@google-cloud/vertexai";
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
-import { llmConfig } from "../../../config/llm.config";
+import llmConfig from "../../../config/llm.config";
 import { ModelFamily, ModelKey } from "../../../types/llm-models-types";
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import { getErrorText } from "../../../utils/error-utils";

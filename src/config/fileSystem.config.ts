@@ -3,7 +3,6 @@
  */
 export const fileSystemConfig = {
   OUTPUT_DIR: "output",
-  OUTPUT_SUMMARY_FILE: "report.txt",
   FOLDER_IGNORE_LIST: [
     ".git", 
     "bin", 

@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { llmConfig } from "../config/llm.config";
+import llmConfig from "../config/llm.config";
 
 /**
  * Class for initializing the MongoDB database.

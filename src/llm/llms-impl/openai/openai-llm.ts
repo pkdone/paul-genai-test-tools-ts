@@ -1,5 +1,5 @@
 import { OpenAI } from "openai";
-import { llmConfig } from "../../../config/llm.config";
+import llmConfig from "../../../config/llm.config";
 import { ModelKey, ModelFamily } from "../../../types/llm-models-types";
 import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";

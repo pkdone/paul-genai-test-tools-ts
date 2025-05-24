@@ -1,4 +1,4 @@
-import { llmConfig } from "../config/llm.config";
+import llmConfig from "../config/llm.config";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } from "../types/llm-types";
 import { RetryFunc } from "../types/control-types";

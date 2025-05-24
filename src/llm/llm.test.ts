@@ -1,4 +1,4 @@
-import { llmConfig } from "../config/llm.config";
+import llmConfig from "../config/llm.config";
 import { ModelKey } from "../types/llm-models-types";
 import { JSONLLMModelMetadata } from "../types/llm-types";
 import { LLMMetadataError } from "../types/llm-errors";

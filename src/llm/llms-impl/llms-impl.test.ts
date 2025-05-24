@@ -1,7 +1,7 @@
 import { RateLimitError, InternalServerError, APIError } from "openai";
 import AzureOpenAI from "./openai/azure-openai-llm";
 import { ModelKey, ModelFamily } from "../../types/llm-models-types";
-import { modelFamilyToModelKeyMappings } from "../../config/llm.config";
+import { modelFamilyToModelKeyMappings } from "../llm-configurator/llm-provider-factory";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
 
