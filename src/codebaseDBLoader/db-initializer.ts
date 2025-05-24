@@ -1,6 +1,7 @@
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import llmConfig from "../config/llm.config";
+import databaseConfig from "../config/database.config";
 
 /**
  * Class for initializing the MongoDB database.
@@ -53,8 +54,8 @@ class DBInitializer {
     let unknownErrorOccurred = false;
     const sourcesColctn = db.collection(this.sourceCollectionName);    
     const vectorSearchIndexes = [];
-    vectorSearchIndexes.push(this.createFileContentVectorIndexDefiniton("contentVector"));
-    vectorSearchIndexes.push(this.createFileContentVectorIndexDefiniton("summaryVector"));
+    vectorSearchIndexes.push(this.createFileContentVectorIndexDefiniton(databaseConfig.CONTENT_VECTOR_INDEX));
+    vectorSearchIndexes.push(this.createFileContentVectorIndexDefiniton(databaseConfig.SUMMARY_VECTOR_INDEX));
 
     try {
       await sourcesColctn.createSearchIndexes(vectorSearchIndexes);
@@ -80,8 +81,13 @@ class DBInitializer {
    * field exxtracted from a file.
    */
   private createFileContentVectorIndexDefiniton(fieldToIndex: string) {
+    // Generate index name based on field name
+    const indexName = fieldToIndex === databaseConfig.CONTENT_VECTOR_INDEX 
+      ? databaseConfig.CONTENT_VECTOR_INDEX_NAME 
+      : databaseConfig.SUMMARY_VECTOR_INDEX_NAME;
+    
     return {
-      name: `${fieldToIndex}_vector_index`, // Generate unique name based on the field
+      name: indexName,
       type: "vectorSearch",
       definition: {
         "fields": [

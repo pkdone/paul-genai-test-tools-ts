@@ -72,8 +72,8 @@ class CodeQuestioner {
   private async findJavaCodeFileMatches(queryVector: Double[]) {
     const pipeline = [
       {$vectorSearch: {
-        index: "contentVectorIndex",
-        path: "contentVector",
+        index: databaseConfig.CONTENT_VECTOR_INDEX_NAME,
+        path: databaseConfig.CONTENT_VECTOR_INDEX,
         filter: {
           $and: [
             {projectName: { $eq: this.projectName} },

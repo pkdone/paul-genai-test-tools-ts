@@ -5,7 +5,19 @@ import { z } from "zod";
 const baseEnvVarsSchema = z.object({
   MONGODB_URL: z.string().url(),
   CODEBASE_DIR_PATH: z.string(),
-  IGNORE_ALREADY_PROCESSED_FILES: z.enum(["true", "false"]).optional().default("false").transform((val) => val === "true"),
+  IGNORE_ALREADY_PROCESSED_FILES: z
+    .union([
+      z.enum(["true", "false"]), // Handle strings "true"/"false" (with quotes in .env)
+      z.boolean(),               // Handle native boolean true/false (without quotes in .env)
+      z.literal("TRUE").transform(() => "true"),      // Handle case variations
+      z.literal("FALSE").transform(() => "false"),    // Handle case variations
+    ])
+    .optional()
+    .default("false")
+    .transform((val) => {
+      if (typeof val === "boolean") return val;
+      return val === "true";
+    }),
 });
 
 // Provider-specific schemas

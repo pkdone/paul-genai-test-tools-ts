@@ -7,6 +7,10 @@ import { envVarsSchema, EnvVars } from "../types/env-types";
 
 /**
  * Utility function to load environment variables and validate them.
+ * 
+ * Boolean flags in .env are standardized to accept both unquoted booleans (true/false)
+ * and quoted strings ("true"/"false"), with case-insensitive parsing for improved robustness.
+ * The Zod schema handles transformation to actual boolean values.
  */
 export function loadEnvVars(): EnvVars {
   dotenv.config();
