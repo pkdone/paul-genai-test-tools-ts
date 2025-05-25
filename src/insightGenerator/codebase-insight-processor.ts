@@ -84,7 +84,7 @@ export class CodebaseInsightProcessor {
     for (const filepath of filepaths) {
       const relativeFilepath = filepath.replace(`${srcDirPath}/`, "");    
       const type = getFileSuffix(filepath).toLowerCase();
-      if (fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST.includes(type as typeof fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST[number])) continue; // Skip file if it has binary content
+      if ((fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST as readonly string[]).includes(type)) continue; // Skip file if it has binary content
       const content = await readFile(filepath);
       contentParts.push(`\n\`\`\` ${relativeFilepath}\n${content.trim()}\n\`\`\`\n`);
     }

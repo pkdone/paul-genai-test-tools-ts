@@ -87,7 +87,7 @@ export async function buildDirDescendingListOfFiles(srcDirPath: string) {
         const fullPath = path.join(directory, entry.name);
 
         if (entry.isDirectory()) {
-          if (!fileSystemConfig.FOLDER_IGNORE_LIST.includes(entry.name as typeof fileSystemConfig.FOLDER_IGNORE_LIST[number])) {
+          if (!(fileSystemConfig.FOLDER_IGNORE_LIST as readonly string[]).includes(entry.name)) {          
             queue.push(fullPath);
           }
         } else if (entry.isFile()) {
