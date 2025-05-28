@@ -31,7 +31,8 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   getAvailableCompletionModelQualities(): LLMModelQuality[] {
     const llmQualities: LLMModelQuality[] = [LLMModelQuality.PRIMARY];
-    if (this.modelsKeys.secondaryCompletion !== ModelKey.UNSPECIFIED) llmQualities.push(LLMModelQuality.SECONDARY);
+    const secondaryCompletion = this.modelsKeys.secondaryCompletion;
+    if ((secondaryCompletion) && (secondaryCompletion !== ModelKey.UNSPECIFIED)) llmQualities.push(LLMModelQuality.SECONDARY);
     return llmQualities;
   }
 
@@ -73,9 +74,8 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Execute the LLM function for the secondary completion model.
    */
   async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
-    if (this.modelsKeys.secondaryCompletion === ModelKey.UNSPECIFIED) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
     const secondaryCompletion = this.modelsKeys.secondaryCompletion;
-    if (!secondaryCompletion) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
+    if ((!secondaryCompletion) || (secondaryCompletion === ModelKey.UNSPECIFIED)) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
     return await this.executeLLMImplFunction(secondaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 

@@ -122,6 +122,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
       if ((lowercaseContent.includes("too many input tokens")) ||
           (lowercaseContent.includes("expected maxlength")) ||
           (lowercaseContent.includes("input is too long")) ||
+          (lowercaseContent.includes("input length")) ||
           (lowercaseContent.includes("please reduce the length of the prompt"))) {   // Llama
         return true;
       }

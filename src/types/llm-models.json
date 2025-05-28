@@ -114,8 +114,15 @@
   "AWS_COMPLETIONS_CLAUDE_V37": {
     "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
     "purpose": "completions",
-    "maxCompletionTokens": 4086,
+    "maxCompletionTokens": 64000,
     "maxTotalTokens": 131072,
+    "modelProvider": "Bedrock"
+  },
+  "AWS_COMPLETIONS_CLAUDE_V40": {
+    "modelId": "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "purpose": "completions",
+    "maxCompletionTokens": 64000,
+    "maxTotalTokens": 200000,
     "modelProvider": "Bedrock"
   },
   "AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT": {

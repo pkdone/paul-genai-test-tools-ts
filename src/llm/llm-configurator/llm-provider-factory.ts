@@ -64,8 +64,10 @@ export const modelFamilyToModelKeyMappings: ModelFamilyToModelKeyMappings = {
   },
   [ModelFamily.BEDROCK_CLAUDE_MODELS]: {
     embeddings: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-    primaryCompletion: ModelKey.AWS_COMPLETIONS_CLAUDE_V37,
-    secondaryCompletion: ModelKey.AWS_COMPLETIONS_CLAUDE_V35,
+    primaryCompletion: ModelKey.AWS_COMPLETIONS_CLAUDE_V40, // TODO: keep getting retry errors
+    secondaryCompletion: ModelKey.AWS_COMPLETIONS_CLAUDE_V37,    
+    //primaryCompletion: ModelKey.AWS_COMPLETIONS_CLAUDE_V37,  
+    //secondaryCompletion: ModelKey.AWS_COMPLETIONS_CLAUDE_V35,
   },
   [ModelFamily.BEDROCK_MISTRAL_MODELS]: {
     embeddings: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
