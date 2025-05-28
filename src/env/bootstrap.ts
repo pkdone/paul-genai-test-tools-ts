@@ -1,7 +1,7 @@
 import databaseConfig from "../config/database.config";
 import mongoDBService from "../utils/mongodb-service";
 import LLMRouter from "../llm/llm-router";
-import { getLLMProvider } from "../llm/llm-configurator/llm-provider-factory";
+import { getLLMProvider } from "../llm/llm-service";
 import dotenv from "dotenv";
 import { envVarsSchema, EnvVars } from "../types/env-types";
 

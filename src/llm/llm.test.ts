@@ -1,237 +1,221 @@
 import llmConfig from "../config/llm.config";
 import { ModelKey } from "../types/llm-models-types";
-import { JSONLLMModelMetadata } from "../types/llm-types";
-import { LLMMetadataError } from "../types/llm-errors";
+import { LLMModelMetadata, llmModelMetadataSchema, LLMPurpose } from "../types/llm-types";
+import { ModelProviderType } from "../types/llm-models-types";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
-import { llmModelsMetadataLoaderSrvc, LLMModelsMetadataLoader } from "./llm-configurator/llm-models-metadata-loader";
+import { z } from "zod";
+
+// Simple test metadata for testing
+const testMetadata = {
+  [ModelKey.GPT_COMPLETIONS_GPT4]: {
+    modelId: "gpt-4",
+    purpose: LLMPurpose.COMPLETIONS,
+    maxCompletionTokens: 4096,
+    maxTotalTokens: 8192,
+    modelProvider: ModelProviderType.OPENAI,
+  },
+  [ModelKey.GPT_COMPLETIONS_GPT4_32k]: {
+    modelId: "gpt-4-32k",
+    purpose: LLMPurpose.COMPLETIONS,
+    maxCompletionTokens: 4096,
+    maxTotalTokens: 32768,
+    modelProvider: ModelProviderType.OPENAI,
+  }
+};
 
 describe("LLM Router", () => {
   describe("reducePromptSizeToTokenLimit", () => {
     test("reduces prompt size for small token limit", () => {
       const prompt = "1234 1234 1234 1234"; 
       const promptTokens = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
-      const tokensUage = { promptTokens, completionTokens: 0, maxTotalTokens: 8 };
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage)).toBe("1234 1234 1234 1");
+      const tokensUsage = { promptTokens, completionTokens: 0, maxTotalTokens: 8 };
+      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata)).toBe("1234 1234 1234 1");
     });
 
     test("reduces prompt size for large completion tokens", () => {
       const prompt = "x".repeat(200); 
       const promptTokens = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
-      const tokensUage = { promptTokens, completionTokens: 8192, maxTotalTokens: 8192 };
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage).length).toBe(150);
+      const tokensUsage = { promptTokens, completionTokens: 8192, maxTotalTokens: 8192 };
+      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata).length).toBe(99);
     });
 
     test("reduces prompt size for very large input", () => {
-      const llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
       const prompt = "x".repeat(2000000); 
       const promptTokens = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
       console.log(promptTokens);
-      const tokensUage = { promptTokens, completionTokens: 124, maxTotalTokens: llmModelsMetadata[ModelKey.GPT_COMPLETIONS_GPT4].maxTotalTokens };
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage).length).toBe(22933);
+      const tokensUsage = { promptTokens, completionTokens: 124, maxTotalTokens: 8192 }; // Using default GPT-4 limit
+      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata).length).toBe(22933);
     });
 
     test("handles empty prompt", () => {
       const prompt = "";
-      const tokensUage = { promptTokens: 0, completionTokens: 0, maxTotalTokens: 8 };
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage)).toBe("");
+      const tokensUsage = { promptTokens: 0, completionTokens: 0, maxTotalTokens: 8 };
+      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata)).toBe("");
     });
 
     test("handles prompt with only whitespace", () => {
       const prompt = "   \n\t  ";
-      const tokensUage = { promptTokens: 1, completionTokens: 0, maxTotalTokens: 8 };
-      const result = reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage);
+      const tokensUsage = { promptTokens: 1, completionTokens: 0, maxTotalTokens: 8 };
+      const result = reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata);
       expect(result).toBe(prompt);
     });
 
     test("handles prompt with special characters", () => {
       const prompt = "!@#$%^&*()_+{}|:\"<>?~`-=[]\\;',./";
-      const tokensUage = { promptTokens: 10, completionTokens: 0, maxTotalTokens: 8 };
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage).length).toBeLessThan(prompt.length);
+      const tokensUsage = { promptTokens: 10, completionTokens: 0, maxTotalTokens: 8 };
+      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata).length).toBeLessThan(prompt.length);
     });
 
     test("handles prompt with emojis and unicode", () => {
       const prompt = "Hello 👋 World 🌍 with Unicode 你好";
-      const tokensUage = { promptTokens: 10, completionTokens: 0, maxTotalTokens: 8 };
-      const result = reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUage);
+      const tokensUsage = { promptTokens: 10, completionTokens: 0, maxTotalTokens: 8 };
+      const result = reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata);
       expect(result.length).toBeLessThan(prompt.length);
       expect(result).toContain("Hello");
     });
   });
 });
 
-describe("LLM Models Loader", () => {
-  describe("metadata validation", () => {
-    test("validates correct metadata", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "dummy-model",
-          purpose: "embeddings",
-          dimensions: 1536,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect((new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toStrictEqual(dummyModels);
+describe("LLM Model Metadata Validation", () => {
+  describe("Zod schema validation", () => {
+    test("validates correct embeddings metadata", () => {
+      const metadata: LLMModelMetadata = {
+        modelId: "dummy-model",
+        purpose: LLMPurpose.EMBEDDINGS,
+        dimensions: 1536,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).not.toThrow();
     });
 
-    test("validates multiple models", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        MODEL_1: {
-          modelId: "model-1",
-          purpose: "embeddings",
-          dimensions: 1536,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        },
-        MODEL_2: {
-          modelId: "model-2",
-          purpose: "completions",
-          maxCompletionTokens: 4096,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect((new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toStrictEqual(dummyModels);
+    test("validates correct completions metadata", () => {
+      const metadata: LLMModelMetadata = {
+        modelId: "model-2",
+        purpose: LLMPurpose.COMPLETIONS,
+        maxCompletionTokens: 4096,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).not.toThrow();
     });
 
-    test("throws error when dimensions field is missing", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "dummy-model",
-          purpose: "embeddings",
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+    test("throws error when dimensions field is missing for embeddings", () => {
+      const metadata = {
+        modelId: "dummy-model",
+        purpose: LLMPurpose.EMBEDDINGS,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
-    test("throws error when maxCompletionTokens field is missing", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "dummy-model",
-          purpose: "completions",
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+    test("throws error when maxCompletionTokens field is missing for completions", () => {
+      const metadata = {
+        modelId: "dummy-model",
+        purpose: LLMPurpose.COMPLETIONS,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
     test("throws error when purpose field has invalid enum value", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "dummy-model",
-          purpose: "XXXXXXXXXXXXXXXXXXX",
-          dimensions: 1536,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      const metadata = {
+        modelId: "dummy-model",
+        purpose: "INVALID_PURPOSE",
+        dimensions: 1536,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
     test("throws error when dimensions is negative", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "dummy-model",
-          purpose: "embeddings",
-          dimensions: -1234,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      const metadata = {
+        modelId: "dummy-model",
+        purpose: LLMPurpose.EMBEDDINGS,
+        dimensions: -1234,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
     test("throws error when dimensions is zero", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "dummy-model",
-          purpose: "embeddings",
-          dimensions: 0,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      const metadata = {
+        modelId: "dummy-model",
+        purpose: LLMPurpose.EMBEDDINGS, 
+        dimensions: 0,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
     test("throws error when maxCompletionTokens is negative", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "dummy-model",
-          purpose: "completions",
-          maxCompletionTokens: -1234,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      const metadata = {
+        modelId: "dummy-model",
+        purpose: LLMPurpose.COMPLETIONS,
+        maxCompletionTokens: -1234,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
     test("throws error when maxTotalTokens is negative", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "dummy-model",
-          purpose: "embeddings",
-          dimensions: 1536,
-          maxTotalTokens: -1,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      const metadata = {
+        modelId: "dummy-model",
+        purpose: LLMPurpose.EMBEDDINGS,
+        dimensions: 1536,
+        maxTotalTokens: -1,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
     test("throws error when modelProvider field has invalid enum value", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "another-dummy-model",
-          purpose: "embeddings",
-          dimensions: 1536,
-          maxTotalTokens: 8191,
-          modelProvider: "XXXXXXXXXXXXXXXXXXX",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      const metadata = {
+        modelId: "another-dummy-model",
+        purpose: LLMPurpose.EMBEDDINGS,
+        dimensions: 1536,
+        maxTotalTokens: 8191,
+        modelProvider: "INVALID_PROVIDER",
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
     test("throws error when modelId is missing", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          purpose: "embeddings",
-          dimensions: 1536,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      const metadata = {
+        purpose: LLMPurpose.EMBEDDINGS,
+        dimensions: 1536,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
     test("throws error when modelId is empty string", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "",
-          purpose: "embeddings",
-          dimensions: 1536,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      const metadata = {
+        modelId: "",
+        purpose: LLMPurpose.EMBEDDINGS,
+        dimensions: 1536,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
     test("throws error when maxCompletionTokens exceeds maxTotalTokens", () => {
-      const dummyModels: Readonly<Record<string, JSONLLMModelMetadata>> = {
-        A_DUMMY_MODEL: {
-          modelId: "dummy-model",
-          purpose: "completions",
-          maxCompletionTokens: 10000,
-          maxTotalTokens: 8191,
-          modelProvider: "OpenAI",
-        }
-      } as const;
-      expect(() => (new LLMModelsMetadataLoader(dummyModels)).getModelsMetadata()).toThrow(LLMMetadataError);
+      const metadata = {
+        modelId: "dummy-model",
+        purpose: LLMPurpose.COMPLETIONS,
+        maxCompletionTokens: 10000,
+        maxTotalTokens: 8191,
+        modelProvider: ModelProviderType.OPENAI,
+      };
+      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
   });
 });

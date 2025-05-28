@@ -1,7 +1,7 @@
 import { AzureOpenAI, OpenAI } from "openai";
 import llmConfig from "../../../config/llm.config";
 import { ModelFamily, ModelKey } from "../../../types/llm-models-types";
-import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
+import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 import { BadConfigurationLLMError } from "../../../types/llm-errors";
 
@@ -16,10 +16,17 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Constructor.
    */
-  constructor(modelsKeys: LLMModelSet, readonly apiKey: string, readonly endpoint: string,
-              readonly embeddingsDeployment: string, readonly primaryCompletionsDeployment: string,
-              readonly secondaryCompletionsDeployment: string) {
-    super(modelsKeys);
+  constructor(
+    modelsKeys: LLMModelSet,
+    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    errorPatterns: readonly LLMErrorMsgRegExPattern[],
+    readonly apiKey: string,
+    readonly endpoint: string,
+    readonly embeddingsDeployment: string,
+    readonly primaryCompletionsDeployment: string,
+    readonly secondaryCompletionsDeployment: string
+  ) {
+    super(modelsKeys, modelsMetadata, errorPatterns);
     this.modelToDeploymentMappings = new Map();
     this.modelToDeploymentMappings.set(modelsKeys.embeddings, embeddingsDeployment);
     this.modelToDeploymentMappings.set(modelsKeys.primaryCompletion, primaryCompletionsDeployment);

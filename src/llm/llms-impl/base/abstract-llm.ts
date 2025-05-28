@@ -1,5 +1,5 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMResponseStatus,
-         LLMModelSet, LLMFunctionResponse, LLMModelMetadata } from "../../../types/llm-types";
+         LLMModelSet, LLMFunctionResponse, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm-types";
 import { ModelKey, ModelFamily } from "../../../types/llm-models-types";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
 import { getErrorText } from "../../../utils/error-utils";       
@@ -7,7 +7,6 @@ import { extractTokensAmountFromMetadataDefaultingMissingValues,
          extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
        } from "../../llm-response-tools";
 import { BadConfigurationLLMError } from "../../../types/llm-errors";
-import { llmModelsMetadataLoaderSrvc } from "../../llm-configurator/llm-models-metadata-loader";
 
 /**
  * Abstract class for any LLM provider services - provides outline of abstract methods to be
@@ -17,13 +16,19 @@ abstract class AbstractLLM implements LLMProviderImpl {
   // Fields
   protected readonly llmModelsMetadata: Record<string, LLMModelMetadata>;
   private readonly modelsKeys: LLMModelSet;
+  private readonly errorPatterns: readonly LLMErrorMsgRegExPattern[];
   
   /**
    * Constructor.
    */
-  constructor(modelsKeys: LLMModelSet) {
+  constructor(
+    modelsKeys: LLMModelSet,
+    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    errorPatterns: readonly LLMErrorMsgRegExPattern[]
+  ) {
     this.modelsKeys = modelsKeys;
-    this.llmModelsMetadata = llmModelsMetadataLoaderSrvc.getModelsMetadata();    
+    this.llmModelsMetadata = modelsMetadata;
+    this.errorPatterns = errorPatterns;
   }
 
   /**
@@ -54,6 +59,13 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   getEmbeddedModelDimensions() {
     return this.llmModelsMetadata[this.modelsKeys.embeddings].dimensions;
+  }
+
+  /**
+   * Get the error patterns for this provider.
+   */
+  getErrorPatterns(): readonly LLMErrorMsgRegExPattern[] {
+    return this.errorPatterns;
   }
 
   /**
@@ -105,9 +117,9 @@ abstract class AbstractLLM implements LLMProviderImpl {
       const { isIncompleteResponse, responseContent, tokenUsage } = await this.invokeImplementationSpecificLLM(taskType, modelKey, request);
 
       if (isIncompleteResponse) { // Often occurs if combination of prompt + generated completion execeed the max token limit (e.g. actual internal LLM completion has been executed and the completion has been cut short)
-        return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountFromMetadataDefaultingMissingValues(modelKey, tokenUsage) };
+        return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountFromMetadataDefaultingMissingValues(modelKey, tokenUsage, this.llmModelsMetadata) };
       } else {
-        return postProcessAsJSONIfNeededGeneratingNewResult(skeletonResponse, modelKey, taskType, responseContent, asJson, context);
+        return postProcessAsJSONIfNeededGeneratingNewResult(skeletonResponse, modelKey, taskType, responseContent, asJson, context, this.llmModelsMetadata);
       }
     } catch (error: unknown) { // Explicitly type error as unknown
       // OPTIONAL: this.debugCurrentlyNonCheckedErrorTypes(error, modelKey);
@@ -115,7 +127,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
       if (this.isLLMOverloaded(error)) {
         return { ...skeletonResponse, status: LLMResponseStatus.OVERLOADED };
       } else if (this.isTokenLimitExceeded(error)) { // Often occurs if the prompt on its own execeeds the max token limit (e.g. actual internal LLM completion generation was not even initiated by the LLM)
-        return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountAndLimitFromErrorMsg(modelKey, request, getErrorText(error)) };
+        return { ...skeletonResponse, status: LLMResponseStatus.EXCEEDED, tokensUage: extractTokensAmountAndLimitFromErrorMsg(modelKey, request, getErrorText(error), this.llmModelsMetadata, this.errorPatterns) };
       } else {
         throw error;
       }

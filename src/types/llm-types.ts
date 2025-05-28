@@ -1,4 +1,5 @@
 import { ModelKey, ModelFamily, ModelProviderType } from "./llm-models-types";
+import { z } from "zod";
 
 /**
  * Interface for LLM implementation provider
@@ -138,4 +139,41 @@ export interface LLMErrorMsgRegExPattern {
   readonly pattern: RegExp,
   readonly units: string,
 };
+
+/**
+ * Zod schema for LLMModelMetadata validation
+ */
+export const llmModelMetadataSchema = z.object({
+  modelId: z.string().min(1, "Model ID cannot be empty"),
+  purpose: z.nativeEnum(LLMPurpose),
+  dimensions: z.number().positive().optional(),
+  maxCompletionTokens: z.number().positive().optional(),
+  maxTotalTokens: z.number().positive(),
+  modelProvider: z.nativeEnum(ModelProviderType),
+}).refine((data) => {
+  // Require dimensions for embeddings models
+  if (data.purpose === LLMPurpose.EMBEDDINGS && !data.dimensions) {
+    return false;
+  }
+  // Require maxCompletionTokens for completions models
+  if (data.purpose === LLMPurpose.COMPLETIONS && !data.maxCompletionTokens) {
+    return false;
+  }
+  // Ensure maxCompletionTokens doesn't exceed maxTotalTokens
+  if (data.maxCompletionTokens && data.maxCompletionTokens > data.maxTotalTokens) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Invalid model metadata configuration"
+});
+
+/**
+ * Zod schema for LLMModelSet validation
+ */
+export const llmModelSetSchema = z.object({
+  embeddings: z.nativeEnum(ModelKey),
+  primaryCompletion: z.nativeEnum(ModelKey),
+  secondaryCompletion: z.nativeEnum(ModelKey).optional(),
+});
 

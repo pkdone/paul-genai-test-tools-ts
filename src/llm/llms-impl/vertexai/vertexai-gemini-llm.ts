@@ -4,7 +4,7 @@ import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import llmConfig from "../../../config/llm.config";
 import { ModelFamily, ModelKey } from "../../../types/llm-models-types";
-import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
+import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm-types";
 import { getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
@@ -29,8 +29,14 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Constructor
    */
-  constructor(modelsKeys: LLMModelSet, readonly project: string, readonly location: string) {
-    super(modelsKeys); 
+  constructor(
+    modelsKeys: LLMModelSet,
+    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    errorPatterns: readonly LLMErrorMsgRegExPattern[],
+    readonly project: string,
+    readonly location: string
+  ) {
+    super(modelsKeys, modelsMetadata, errorPatterns); 
     this.vertexAiApiClient = new VertexAI({project, location});
     this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });
     this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;

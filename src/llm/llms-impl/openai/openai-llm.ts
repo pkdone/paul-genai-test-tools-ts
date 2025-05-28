@@ -1,7 +1,7 @@
 import { OpenAI } from "openai";
 import llmConfig from "../../../config/llm.config";
 import { ModelKey, ModelFamily } from "../../../types/llm-models-types";
-import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
+import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm-types";
 import BaseOpenAILLM from "./base-openai-llm";
 
 /**
@@ -14,8 +14,13 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Constructor.
    */
-  constructor(modelsKeys: LLMModelSet, readonly apiKey: string) { 
-    super(modelsKeys);
+  constructor(
+    modelsKeys: LLMModelSet,
+    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    errorPatterns: readonly LLMErrorMsgRegExPattern[],
+    readonly apiKey: string
+  ) { 
+    super(modelsKeys, modelsMetadata, errorPatterns);
     this.client = new OpenAI({ apiKey });
   }
 

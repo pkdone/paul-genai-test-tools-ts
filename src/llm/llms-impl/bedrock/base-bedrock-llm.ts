@@ -1,7 +1,7 @@
 import { BedrockRuntimeClient, InvokeModelCommand, ServiceUnavailableException,
   ThrottlingException, ModelTimeoutException, ValidationException }
 from "@aws-sdk/client-bedrock-runtime";     
-import { LLMModelSet, LLMPurpose } from "../../../types/llm-types";
+import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm-types";
 import { ModelKey } from "../../../types/llm-models-types";
 import llmConfig from "../../../config/llm.config";
 import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
@@ -25,8 +25,12 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Constructor.
    */
-  constructor(modelsKeys: LLMModelSet) {
-    super(modelsKeys);
+  constructor(
+    modelsKeys: LLMModelSet,
+    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    errorPatterns: readonly LLMErrorMsgRegExPattern[]
+  ) {
+    super(modelsKeys, modelsMetadata, errorPatterns);
     this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS } });
     console.log("AWS Bedrock client created");
   }
