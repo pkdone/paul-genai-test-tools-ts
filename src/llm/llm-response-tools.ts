@@ -1,29 +1,10 @@
 import llmConfig from "../config/llm.config";
-import { ModelKey, ModelProviderType } from "../types/llm-models-types";
+import { ModelKey } from "../types/llm-models-types";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
          LLMResponseStatus, LLMContext, LLMModelMetadata, LLMErrorMsgRegExPattern} from "../types/llm-types";
 import { BadResponseContentLLMError } from "../types/llm-errors";
 import { convertTextToJSON } from "../utils/json-tools";
 import { getErrorText } from "../utils/error-utils";
-
-// Legacy error patterns for backward compatibility
-const legacyErrorPatterns: Readonly<Record<string, readonly LLMErrorMsgRegExPattern[]>> = {
-  [ModelProviderType.OPENAI]: [
-    // 1. "This model's maximum context length is 8191 tokens, however you requested 10346 tokens (10346 in your prompt; 5 for the completion). Please reduce your prompt; or completion length.",
-    { pattern: /max.*?(\d+) tokens.*?\(.*?(\d+).*?prompt.*?(\d+).*?completion/, units: "tokens" },
-    // 2. "This model's maximum context length is 8192 tokens. However, your messages resulted in 8545 tokens. Please reduce the length of the messages."
-    { pattern: /max.*?(\d+) tokens.*?(\d+) /, units: "tokens" },
-  ] as const,
-  [ModelProviderType.BEDROCK]: [
-    // 1. "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 8192, request input token count: 9279 "
-    { pattern: /ax input tokens.*?(\d+).*?request input token count.*?(\d+)/, units: "tokens" },
-    // 2. "ValidationException: Malformed input request: expected maxLength: 50000, actual: 52611, please reformat your input and try again."
-    { pattern: /maxLength.*?(\d+).*?actual.*?(\d+)/, units: "chars" },
-    // 3. Llama: "ValidationException: This model's maximum context length is 8192 tokens. Please reduce the length of the prompt"
-    { pattern: /maximum context length is ?(\d+) tokens/, units: "tokens" },
-  ] as const,
-  [ModelProviderType.VERTEXAI]: [] as const,
-} as const;
 
 /**
  * Extract token usage information from LLM response metadata, defaulting missing
@@ -87,28 +68,30 @@ function parseTokenUsageFromLLMError(
 ) {
   let promptTokens = -1;
   let completionTokens = 0;
-  let maxTotalTokens = -1;      
-  
-  // Use provided error patterns or fall back to legacy patterns for backward compatibility
-  const patternDefinitions = errorPatterns ?? legacyErrorPatterns[llmModelsMetadata[modelKey].modelProvider];
-  
-  for (const patternDefinition of patternDefinitions) {
-    const matches = errorMsg.match(patternDefinition.pattern);
+  let maxTotalTokens = -1;
 
-    if (matches && matches.length > 1) {
-      if (patternDefinition.units === "tokens") {
-        maxTotalTokens = parseInt(matches[1], 10);
-        promptTokens = matches.length > 2 ? parseInt(matches[2], 10) : -1;
-        completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
-      } else if (matches.length > 2) {
-        const charsLimit = parseInt(matches[1], 10);
-        const charsPrompt = parseInt(matches[2], 10);
-        maxTotalTokens = llmModelsMetadata[modelKey].maxTotalTokens;
-        const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
-        promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
+  // Use provided error patterns
+  const patternDefinitions = errorPatterns;
+
+  if (patternDefinitions) {
+    for (const patternDefinition of patternDefinitions) {
+      const matches = errorMsg.match(patternDefinition.pattern);
+
+      if (matches && matches.length > 1) {
+        if (patternDefinition.units === "tokens") {
+          maxTotalTokens = parseInt(matches[1], 10);
+          promptTokens = matches.length > 2 ? parseInt(matches[2], 10) : -1;
+          completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
+        } else if (matches.length > 2) {
+          const charsLimit = parseInt(matches[1], 10);
+          const charsPrompt = parseInt(matches[2], 10);
+          maxTotalTokens = llmModelsMetadata[modelKey].maxTotalTokens;
+          const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
+          promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
+        }
+
+        break;
       }
-
-      break;
     }
   }
 

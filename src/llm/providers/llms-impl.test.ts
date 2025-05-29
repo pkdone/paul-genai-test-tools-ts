@@ -1,5 +1,7 @@
 import { ModelKey, ModelProviderType, ModelFamily } from "../../types/llm-models-types";
 import { azureOpenAIProviderManifest } from "./openai/azure-openai/azure-openai.manifest";
+import { bedrockClaudeProviderManifest } from "./bedrock/bedrock-claude/bedrock-claude.manifest";
+import { bedrockLlamaProviderManifest } from "./bedrock/bedrock-llama/bedrock-llama.manifest";
 import { LLMPurpose, LLMModelMetadata } from "../../types/llm-types";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
@@ -115,29 +117,27 @@ describe("Token extraction from error messages", () => {
   describe("BedrockClaude", () => {
     test("extracts tokens from error message with max input tokens", () => {
       const errorMsg = "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 1048576, request input token count: 1049999 ";
-      // This test uses Azure OpenAI error patterns which don't match Bedrock error format, so it falls back to default behavior
-      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_CLAUDE_V35, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, azureOpenAIProviderManifest.errorPatterns))
+      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_CLAUDE_V35, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, bedrockClaudeProviderManifest.errorPatterns))
        .toStrictEqual({
           "completionTokens": 0,
-          "promptTokens": 200001,
-          "maxTotalTokens": 200000
+          "promptTokens": 1049999,
+          "maxTotalTokens": 1048576
        });
     });
 
     test("extracts tokens from error message with maxLength", () => {
       const errorMsg = "ValidationException: Malformed input request: expected maxLength: 2097152, actual: 2300000, please reformat your input and try again.";
-      // This test uses Azure OpenAI error patterns which don't match Bedrock error format, so it falls back to default behavior
-      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_CLAUDE_V35, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, azureOpenAIProviderManifest.errorPatterns))
+      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_CLAUDE_V35, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, bedrockClaudeProviderManifest.errorPatterns))
        .toStrictEqual({
           "completionTokens": 0,
-          "promptTokens": 200001,
+          "promptTokens": 219346,
           "maxTotalTokens": 200000
        });
     });
 
     test("extracts tokens from generic too long error", () => {
       const errorMsg = "Input is too long for requested model.";
-      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_CLAUDE_V35, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, azureOpenAIProviderManifest.errorPatterns))
+      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_CLAUDE_V35, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, bedrockClaudeProviderManifest.errorPatterns))
        .toStrictEqual({
           "completionTokens": 0,
           "promptTokens": 200001,
@@ -149,7 +149,7 @@ describe("Token extraction from error messages", () => {
   describe("BedrockLlama", () => {
     test("extracts tokens from error message for 70B model", () => {
       const errorMsg = "ValidationException: This model's maximum context length is 8192 tokens. Please reduce the length of the prompt.";
-      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, azureOpenAIProviderManifest.errorPatterns))
+      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, bedrockLlamaProviderManifest.errorPatterns))
        .toStrictEqual({
          "completionTokens": 0,
          "promptTokens": 8193,
@@ -159,7 +159,7 @@ describe("Token extraction from error messages", () => {
 
     test("extracts tokens from error message for 405B model", () => {
       const errorMsg = "ValidationException: This model's maximum context length is 128000 tokens. Please reduce the length of the prompt.";
-      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, azureOpenAIProviderManifest.errorPatterns))
+      expect(extractTokensAmountAndLimitFromErrorMsg(ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, "dummy prompt", errorMsg, testModelsMetadata as Record<string, LLMModelMetadata>, bedrockLlamaProviderManifest.errorPatterns))
        .toStrictEqual({
          "completionTokens": 0,
          "promptTokens": 128001,
