@@ -34,7 +34,7 @@ export async function bootstrap() {
  */
 export function bootstrapJustLLM() {
   const env = loadEnvVars();
-  const llm = getLLMProvider(env);
-  const llmRouter = new LLMRouter(llm);  
+  const { llmProvider, modelsMetadata } = getLLMProvider(env);
+  const llmRouter = new LLMRouter(llmProvider, modelsMetadata);
   return { env, llmRouter };
 }

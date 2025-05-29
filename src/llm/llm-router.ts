@@ -1,6 +1,7 @@
 import llmConfig from "../config/llm.config";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
-         LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse } from "../types/llm-types";
+         LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse,
+         LLMModelMetadata } from "../types/llm-types";
 import { RetryFunc } from "../types/control-types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors";
 import { withRetry } from "../utils/control-utils";
@@ -18,14 +19,17 @@ import LLMStats from "./llm-stats";
 class LLMRouter {
   // Private fields
   private readonly llmStats: LLMStats;
+  private readonly modelsMetadata: Record<string, LLMModelMetadata>;
 
   /**
    * Constructor.
    * 
    * @param llm The initialized LLM provider implementation
+   * @param modelsMetadata Metadata for the LLM models
    */
-  constructor(private readonly llm: LLMProviderImpl) {
+  constructor(private readonly llm: LLMProviderImpl, modelsMetadata: Record<string, LLMModelMetadata>) {
     this.llmStats = new LLMStats();
+    this.modelsMetadata = modelsMetadata;
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
 
@@ -144,7 +148,7 @@ class LLMRouter {
 
             if (!canSwitchModel) {
               if (!llmResponse.tokensUage) throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present", llmResponse);
-              currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.modelKey, llmResponse.tokensUage);
+              currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.modelKey, llmResponse.tokensUage, this.modelsMetadata);
               this.llmStats.recordCrop();
               continue;
             }

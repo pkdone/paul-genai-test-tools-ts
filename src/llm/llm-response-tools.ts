@@ -13,13 +13,8 @@ import { getErrorText } from "../utils/error-utils";
 export function extractTokensAmountFromMetadataDefaultingMissingValues(
   modelKey: ModelKey, 
   tokenUsage: LLMResponseTokensUsage,
-  modelsMetadata?: Record<string, LLMModelMetadata>
+  modelsMetadata: Record<string, LLMModelMetadata>
 ) {
-  // For backward compatibility, if no metadata provided, we can't default missing values
-  if (!modelsMetadata) {
-    throw new Error("Model metadata is required for extractTokensAmountFromMetadataDefaultingMissingValues");
-  }
-  
   let { promptTokens, completionTokens, maxTotalTokens } = tokenUsage;
   if (completionTokens < 0) completionTokens = 0;
   if (maxTotalTokens < 0) maxTotalTokens = modelsMetadata[modelKey].maxTotalTokens;
@@ -35,14 +30,9 @@ export function extractTokensAmountAndLimitFromErrorMsg(
   modelKey: ModelKey, 
   prompt: string, 
   errorMsg: string,
-  modelsMetadata?: Record<string, LLMModelMetadata>,
+  modelsMetadata: Record<string, LLMModelMetadata>,
   errorPatterns?: readonly LLMErrorMsgRegExPattern[]
 ) {
-  // For backward compatibility, if no metadata provided, we can't extract token amounts
-  if (!modelsMetadata) {
-    throw new Error("Model metadata is required for extractTokensAmountAndLimitFromErrorMsg");
-  }
-  
   // eslint-disable-next-line prefer-const
   let { maxTotalTokens, promptTokens, completionTokens } = parseTokenUsageFromLLMError(modelKey, errorMsg, modelsMetadata, errorPatterns);
   const publishedMaxTotalTokens  = modelsMetadata[modelKey].maxTotalTokens;
@@ -109,13 +99,8 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
   responseContent: LLMGeneratedContent, 
   asJson: boolean, 
   context: LLMContext,
-  modelsMetadata?: Record<string, LLMModelMetadata>
+  modelsMetadata: Record<string, LLMModelMetadata>
 ) {
-  // For backward compatibility, if no metadata provided, we can't get model ID for logging
-  if (!modelsMetadata) {
-    throw new Error("Model metadata is required for postProcessAsJSONIfNeededGeneratingNewResult");
-  }
-
   if (taskType === LLMPurpose.COMPLETIONS) {
     try {
       if (typeof responseContent !== "string") throw new BadResponseContentLLMError("Generated content is not a string", responseContent);
@@ -138,16 +123,9 @@ export function reducePromptSizeToTokenLimit(
   prompt: string, 
   modelKey: ModelKey, 
   tokensUage: LLMResponseTokensUsage,
-  modelsMetadata?: Record<string, LLMModelMetadata>
+  modelsMetadata: Record<string, LLMModelMetadata>
 ) {
-  // Special case: if prompt is only whitespace, return it unchanged
-  if (prompt.trim() === "") return prompt;
-  
-  // For backward compatibility, if no metadata provided, we can't reduce prompt size
-  if (!modelsMetadata) {
-    throw new Error("Model metadata is required for reducePromptSizeToTokenLimit");
-  }
-  
+  if (prompt.trim() === "") return prompt;  
   const { promptTokens, completionTokens, maxTotalTokens } = tokensUage;
   const maxCompletionTokensLimit = modelsMetadata[modelKey].maxCompletionTokens; // will be undefined if for embeddings
   let reductionRatio = 1;
