@@ -1,5 +1,5 @@
 import { ModelKey, ModelProviderType, ModelFamily } from "../../types/llm-models-types";
-import { azureOpenAIProviderManifest } from "./openai/azure-openai/azure-openai.provider";
+import { azureOpenAIProviderManifest } from "./openai/azure-openai/azure-openai.manifest";
 import { LLMPurpose, LLMModelMetadata } from "../../types/llm-types";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";

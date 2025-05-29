@@ -1,6 +1,6 @@
 import { LLMProviderManifest } from "../../llm-provider-manifest.types";
 import { ModelFamily, ModelProviderType, ModelKey } from "../../../../types/llm-models-types";
-import VertexAIGeminiLLM from "./vertexai-gemini-llm";
+import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
 
 export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
