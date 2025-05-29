@@ -12,23 +12,23 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
     embeddings: {
       key: ModelKey.GCP_EMBEDDINGS_TEXT_005,
       id: "text-embedding-005",
+      purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 768,
       maxTotalTokens: 2048,
-      purpose: LLMPurpose.EMBEDDINGS,
     },
     primaryCompletion: {
       key: ModelKey.GCP_COMPLETIONS_GEMINI_PRO25,
       id: "gemini-2.5-pro-preview-05-06",
+      purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 65535,
       maxTotalTokens: 1048576,
-      purpose: LLMPurpose.COMPLETIONS,
     },
     secondaryCompletion: {
       key: ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20,
       id: "gemini-2.0-flash-001",
+      purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 1048576,
-      purpose: LLMPurpose.COMPLETIONS,
     },
   },
   errorPatterns: [] as const, // VertexAI has no specific error patterns defined

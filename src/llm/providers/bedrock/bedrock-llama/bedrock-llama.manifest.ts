@@ -10,25 +10,24 @@ export const bedrockLlamaProviderManifest: LLMProviderManifest = {
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {
-      key: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-      id: "amazon.titan-embed-text-v1",
-      dimensions: 1024,
-      maxTotalTokens: 8192,
+      key: ModelKey.UNSPECIFIED, // Llama does not have embeddings models
+      id: "meta.llama3-70b-instruct-v1:0", // Placeholder, not actually used
       purpose: LLMPurpose.EMBEDDINGS,
+      maxTotalTokens: 0, // Placeholder
     },
     primaryCompletion: {
-      key: ModelKey.AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT,
-      id: "us.meta.llama3-3-70b-instruct-v1:0",
-      maxCompletionTokens: 8192,
-      maxTotalTokens: 128000,
-      purpose: LLMPurpose.COMPLETIONS,
-    },
-    secondaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT,
       id: "meta.llama3-70b-instruct-v1:0",
+      purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 8192,
+    },
+    secondaryCompletion: {
+      key: ModelKey.AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT,
+      id: "meta.llama3-8b-instruct-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
+      maxCompletionTokens: 8192,
+      maxTotalTokens: 8192,
     },
   },
   errorPatterns: [

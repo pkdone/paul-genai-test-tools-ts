@@ -10,25 +10,24 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {
-      key: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-      id: "amazon.titan-embed-text-v1",
-      dimensions: 1024,
-      maxTotalTokens: 8192,
+      key: ModelKey.UNSPECIFIED, // Claude does not have embeddings models
+      id: "anthropic.claude-v2", // Placeholder, not actually used
       purpose: LLMPurpose.EMBEDDINGS,
+      maxTotalTokens: 0, // Placeholder
     },
     primaryCompletion: {
-      key: ModelKey.AWS_COMPLETIONS_CLAUDE_V40,
-      id: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0",
-      maxCompletionTokens: 64000,
-      maxTotalTokens: 200000,
+      key: ModelKey.AWS_COMPLETIONS_CLAUDE_V37,
+      id: "anthropic.claude-3-opus-20240229-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
+      maxCompletionTokens: 4088,
+      maxTotalTokens: 132000, 
     },
     secondaryCompletion: {
-      key: ModelKey.AWS_COMPLETIONS_CLAUDE_V37,
-      id: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
-      maxCompletionTokens: 64000,
-      maxTotalTokens: 131072,
+      key: ModelKey.AWS_COMPLETIONS_CLAUDE_V40,
+      id: "anthropic.claude-3-5-sonnet-20240620-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
+      maxCompletionTokens: 4088,
+      maxTotalTokens: 200000,
     },
   },
   errorPatterns: [

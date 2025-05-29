@@ -12,23 +12,23 @@ export const openAIProviderManifest: LLMProviderManifest = {
     embeddings: {
       key: ModelKey.GPT_EMBEDDINGS_TEXT_3SMALL,
       id: "text-embedding-3-small",
+      purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8191,
-      purpose: LLMPurpose.EMBEDDINGS,
     },
     primaryCompletion: {
       key: ModelKey.GPT_COMPLETIONS_GPT4_O,
       id: "gpt-4o",
-      maxCompletionTokens: 16384,
-      maxTotalTokens: 128000,
       purpose: LLMPurpose.COMPLETIONS,
+      maxCompletionTokens: 4096,
+      maxTotalTokens: 128000,
     },
     secondaryCompletion: {
       key: ModelKey.GPT_COMPLETIONS_GPT4_TURBO,
       id: "gpt-4-turbo",
+      purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
       maxTotalTokens: 128000,
-      purpose: LLMPurpose.COMPLETIONS,
     },
   },
   errorPatterns: [

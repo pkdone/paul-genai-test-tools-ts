@@ -1,5 +1,5 @@
 import { ModelFamily, ModelProviderType } from "../types/llm-models-types";
-import { LLMProviderImpl, LLMModelSet, LLMModelMetadata, llmModelMetadataSchema, llmModelSetSchema, LLMPurpose } from "../types/llm-types";
+import { LLMProviderImpl, LLMModelSet, LLMModelMetadata, llmModelMetadataSchema, llmModelSetSchema } from "../types/llm-types";
 import { EnvVars } from "../types/env-types";
 import { BadConfigurationLLMError } from "../types/llm-errors";
 import { allProviderManifests } from "./providers";
@@ -20,23 +20,12 @@ class LLMService {
    * Get an LLM provider instance for the given model family and environment
    */
   getLlmProviderInstance(modelFamily: ModelFamily, env: EnvVars): LLMProviderImpl {
-    // 1. Look up the provider manifest
     const manifest = this.providerRegistry.get(modelFamily);
-    if (!manifest) {
-      throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
-    }
-
-    // 2. Validate required environment variables
+    if (!manifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
     this.validateEnvironmentVariables(manifest, env);
-
-    // 3. Construct LLMModelSet and LLMModelMetadata
     const modelSet = this.constructModelSet(manifest);
     const modelsMetadata = this.constructModelsMetadata(manifest);
-
-    // 4. Validate the constructed model metadata
     this.validateModelMetadata(modelsMetadata);
-
-    // 5. Call the factory function to create the provider instance
     return manifest.factory(env, modelSet, modelsMetadata, manifest.errorPatterns);
   }
 
@@ -75,7 +64,6 @@ class LLMService {
       modelSet.secondaryCompletion = manifest.models.secondaryCompletion.key;
     }
 
-    // Validate the model set
     const validationResult = llmModelSetSchema.safeParse(modelSet);
     if (!validationResult.success) {
       throw new BadConfigurationLLMError(
@@ -91,26 +79,17 @@ class LLMService {
    */
   private constructModelsMetadata(manifest: LLMProviderManifest): Record<string, LLMModelMetadata> {
     const metadata: Record<string, LLMModelMetadata> = {};
-
-    // Add embeddings model metadata
     metadata[manifest.models.embeddings.key] = this.convertModelInfoToMetadata(
       manifest.models.embeddings,
-      LLMPurpose.EMBEDDINGS,
       manifest.modelProviderType
     );
-
-    // Add primary completion model metadata
     metadata[manifest.models.primaryCompletion.key] = this.convertModelInfoToMetadata(
       manifest.models.primaryCompletion,
-      LLMPurpose.COMPLETIONS,
       manifest.modelProviderType
     );
-
-    // Add secondary completion model metadata if present
     if (manifest.models.secondaryCompletion) {
       metadata[manifest.models.secondaryCompletion.key] = this.convertModelInfoToMetadata(
         manifest.models.secondaryCompletion,
-        LLMPurpose.COMPLETIONS,
         manifest.modelProviderType
       );
     }
@@ -123,12 +102,11 @@ class LLMService {
    */
   private convertModelInfoToMetadata(
     modelInfo: LLMProviderModelInfo,
-    purpose: LLMPurpose,
     modelProvider: ModelProviderType
   ): LLMModelMetadata {
     return {
       id: modelInfo.id,
-      purpose,
+      purpose: modelInfo.purpose,
       dimensions: modelInfo.dimensions,
       maxCompletionTokens: modelInfo.maxCompletionTokens,
       maxTotalTokens: modelInfo.maxTotalTokens,

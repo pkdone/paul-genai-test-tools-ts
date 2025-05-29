@@ -10,18 +10,17 @@ export const bedrockMistralProviderManifest: LLMProviderManifest = {
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {
-      key: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-      id: "amazon.titan-embed-text-v1",
-      dimensions: 1024,
-      maxTotalTokens: 8192,
+      key: ModelKey.UNSPECIFIED, // Mistral does not have embeddings models
+      id: "mistral.mistral-large-2402-v1:0", // Placeholder, not actually used
       purpose: LLMPurpose.EMBEDDINGS,
+      maxTotalTokens: 0, // Placeholder
     },
     primaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE2,
-      id: "mistral.mistral-large-2407-v1:0",
-      maxCompletionTokens: 8192,
-      maxTotalTokens: 131072,
+      id: "mistral.mistral-large-2402-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
+      maxCompletionTokens: 32000,
+      maxTotalTokens: 32000,
     },
     secondaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE,

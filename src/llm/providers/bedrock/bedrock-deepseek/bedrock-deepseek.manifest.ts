@@ -10,18 +10,17 @@ export const bedrockDeepseekProviderManifest: LLMProviderManifest = {
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {
-      key: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-      id: "amazon.titan-embed-text-v1",
-      dimensions: 1024,
-      maxTotalTokens: 8192,
+      key: ModelKey.UNSPECIFIED, // Deepseek does not have embeddings models
+      id: "deepseek.coder-v2-lite-instruct", // Placeholder, not actually used
       purpose: LLMPurpose.EMBEDDINGS,
+      maxTotalTokens: 0, // Placeholder
     },
     primaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_DEEPSEEKE_R1,
-      id: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.deepseek.r1-v1:0",
-      maxCompletionTokens: 32768,
-      maxTotalTokens: 128000,
+      id: "deepseek.coder-v2-lite-instruct",
       purpose: LLMPurpose.COMPLETIONS,
+      maxCompletionTokens: 16384,
+      maxTotalTokens: 128000,
     },
   },
   errorPatterns: [
