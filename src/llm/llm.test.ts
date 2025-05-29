@@ -1,7 +1,6 @@
 import llmConfig from "../config/llm.config";
 import { ModelKey } from "../types/llm-models-types";
 import { LLMModelMetadata, llmModelMetadataSchema, LLMPurpose } from "../types/llm-types";
-import { ModelProviderType } from "../types/llm-models-types";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { z } from "zod";
 
@@ -12,14 +11,12 @@ const testMetadata = {
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
-    modelProvider: ModelProviderType.OPENAI,
   },
   [ModelKey.GPT_COMPLETIONS_GPT4_32k]: {
     id: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 32768,
-    modelProvider: ModelProviderType.OPENAI,
   }
 };
 
@@ -84,7 +81,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).not.toThrow();
     });
@@ -95,7 +91,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).not.toThrow();
     });
@@ -105,7 +100,6 @@ describe("LLM Model Metadata Validation", () => {
         modelId: "dummy-model",
         purpose: LLMPurpose.EMBEDDINGS,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
@@ -115,7 +109,6 @@ describe("LLM Model Metadata Validation", () => {
         modelId: "dummy-model",
         purpose: LLMPurpose.COMPLETIONS,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
@@ -126,7 +119,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: "INVALID_PURPOSE",
         dimensions: 1536,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
@@ -137,7 +129,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: -1234,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
@@ -148,7 +139,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: LLMPurpose.EMBEDDINGS, 
         dimensions: 0,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
@@ -159,7 +149,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: -1234,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
@@ -170,18 +159,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: -1,
-        modelProvider: ModelProviderType.OPENAI,
-      };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
-    });
-
-    test("throws error when modelProvider field has invalid enum value", () => {
-      const metadata = {
-        modelId: "another-dummy-model",
-        purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191,
-        modelProvider: "INVALID_PROVIDER",
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
@@ -191,7 +168,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
@@ -202,7 +178,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
@@ -213,7 +188,6 @@ describe("LLM Model Metadata Validation", () => {
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 10000,
         maxTotalTokens: 8191,
-        modelProvider: ModelProviderType.OPENAI,
       };
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });

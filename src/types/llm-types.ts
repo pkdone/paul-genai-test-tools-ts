@@ -1,4 +1,4 @@
-import { ModelKey, ModelFamily, ModelProviderType } from "./llm-models-types";
+import { ModelKey, ModelFamily } from "./llm-models-types";
 import { z } from "zod";
 
 /**
@@ -50,7 +50,6 @@ export interface LLMModelMetadata {
   readonly dimensions?: number;
   readonly maxCompletionTokens?: number;
   readonly maxTotalTokens: number;
-  readonly modelProvider: ModelProviderType;
 }
 
 /**
@@ -137,7 +136,6 @@ export const llmModelMetadataSchema = z.object({
   dimensions: z.number().positive().optional(),
   maxCompletionTokens: z.number().positive().optional(),
   maxTotalTokens: z.number().positive(),
-  modelProvider: z.nativeEnum(ModelProviderType),
 }).refine((data) => {
   // Require dimensions for embeddings models
   if (data.purpose === LLMPurpose.EMBEDDINGS && !data.dimensions) {

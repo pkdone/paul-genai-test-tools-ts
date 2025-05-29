@@ -1,4 +1,4 @@
-import { ModelKey, ModelProviderType, ModelFamily } from "../../types/llm-models-types";
+import { ModelKey, ModelFamily } from "../../types/llm-models-types";
 import { azureOpenAIProviderManifest } from "./openai/azure-openai/azure-openai.manifest";
 import { bedrockClaudeProviderManifest } from "./bedrock/bedrock-claude/bedrock-claude.manifest";
 import { bedrockLlamaProviderManifest } from "./bedrock/bedrock-llama/bedrock-llama.manifest";
@@ -32,14 +32,12 @@ const testModelsMetadata: Partial<Record<ModelKey, LLMModelMetadata>> = {
     purpose: LLMPurpose.EMBEDDINGS,
     dimensions: azureOpenAIProviderManifest.models.embeddings.dimensions,
     maxTotalTokens: azureOpenAIProviderManifest.models.embeddings.maxTotalTokens,
-    modelProvider: azureOpenAIProviderManifest.modelProviderType
   },
   [azureOpenAIProviderManifest.models.primaryCompletion.key]: {
     modelId: azureOpenAIProviderManifest.models.primaryCompletion.id,
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxCompletionTokens,
     maxTotalTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxTotalTokens,
-    modelProvider: azureOpenAIProviderManifest.modelProviderType
   },
   // Add common test models that are used in the tests
   [ModelKey.GPT_COMPLETIONS_GPT4]: {
@@ -47,35 +45,30 @@ const testModelsMetadata: Partial<Record<ModelKey, LLMModelMetadata>> = {
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
-    modelProvider: ModelProviderType.OPENAI,
   },
   [ModelKey.GPT_COMPLETIONS_GPT4_32k]: {
     id: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 32768,
-    modelProvider: ModelProviderType.OPENAI,
   },
   [ModelKey.AWS_COMPLETIONS_CLAUDE_V35]: {
     id: "anthropic.claude-3-5-sonnet-20240620-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4088,
     maxTotalTokens: 200000,
-    modelProvider: ModelProviderType.BEDROCK,
   },
   [ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT]: {
     id: "meta.llama3-70b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
-    modelProvider: ModelProviderType.BEDROCK,
   },
   [ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT]: {
     id: "meta.llama3-1-405b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 128000,
-    modelProvider: ModelProviderType.BEDROCK,
   }
 };
 
@@ -87,7 +80,6 @@ if (azureOpenAIProviderManifest.models.secondaryCompletion) {
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: secondaryModel.maxCompletionTokens ?? 4096,
     maxTotalTokens: secondaryModel.maxTotalTokens,
-    modelProvider: azureOpenAIProviderManifest.modelProviderType
   };
 }
 

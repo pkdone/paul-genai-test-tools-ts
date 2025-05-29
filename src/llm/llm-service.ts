@@ -1,4 +1,4 @@
-import { ModelFamily, ModelProviderType } from "../types/llm-models-types";
+import { ModelFamily } from "../types/llm-models-types";
 import { LLMProviderImpl, LLMModelSet, LLMModelMetadata, llmModelMetadataSchema, llmModelSetSchema } from "../types/llm-types";
 import { EnvVars } from "../types/env-types";
 import { BadConfigurationLLMError } from "../types/llm-errors";
@@ -82,16 +82,13 @@ class LLMService {
     const metadata: Record<string, LLMModelMetadata> = {};
     metadata[manifest.models.embeddings.key] = this.convertModelInfoToMetadata(
       manifest.models.embeddings,
-      manifest.modelProviderType
     );
     metadata[manifest.models.primaryCompletion.key] = this.convertModelInfoToMetadata(
       manifest.models.primaryCompletion,
-      manifest.modelProviderType
     );
     if (manifest.models.secondaryCompletion) {
       metadata[manifest.models.secondaryCompletion.key] = this.convertModelInfoToMetadata(
         manifest.models.secondaryCompletion,
-        manifest.modelProviderType
       );
     }
 
@@ -103,7 +100,6 @@ class LLMService {
    */
   private convertModelInfoToMetadata(
     modelInfo: LLMProviderModelInfo,
-    modelProvider: ModelProviderType
   ): LLMModelMetadata {
     return {
       id: modelInfo.id,
@@ -111,7 +107,6 @@ class LLMService {
       dimensions: modelInfo.dimensions,
       maxCompletionTokens: modelInfo.maxCompletionTokens,
       maxTotalTokens: modelInfo.maxTotalTokens,
-      modelProvider,
     };
   }
 
