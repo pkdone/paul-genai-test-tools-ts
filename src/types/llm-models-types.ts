@@ -22,12 +22,6 @@
  *  - AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT & AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT: Not clear if
  *    'maxCompletionsTokens' is actually less than listed value of 8192
  */
-import { LLMModelSet } from "./llm-types";
-
-/**
- * Type for model provider to set of model keys mappings.
- */
-export type ModelFamilyToModelKeyMappings = Readonly<Record<ModelFamily, LLMModelSet>>;
 
 /**
  * Enum for model provider types
