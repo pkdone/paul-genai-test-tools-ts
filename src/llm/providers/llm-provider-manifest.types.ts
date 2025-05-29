@@ -1,5 +1,5 @@
 import { ModelFamily, ModelProviderType, ModelKey } from "../../types/llm-models-types";
-import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../types/llm-types";
+import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMPurpose } from "../../types/llm-types";
 import { EnvVars } from "../../types/env-types";
 
 /**
@@ -10,6 +10,8 @@ export interface LLMProviderModelInfo {
   key: ModelKey;
   /** The actual model ID/name used by the provider API */
   id: string;
+  /** Whether this is an embedding or completion model */
+  purpose: LLMPurpose;
   /** Number of dimensions for embedding models */
   dimensions?: number;
   /** Maximum completion tokens for completion models */

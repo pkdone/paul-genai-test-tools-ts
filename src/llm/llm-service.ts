@@ -127,7 +127,7 @@ class LLMService {
     modelProvider: ModelProviderType
   ): LLMModelMetadata {
     return {
-      modelId: modelInfo.id,
+      id: modelInfo.id,
       purpose,
       dimensions: modelInfo.dimensions,
       maxCompletionTokens: modelInfo.maxCompletionTokens,

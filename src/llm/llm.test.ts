@@ -8,14 +8,14 @@ import { z } from "zod";
 // Simple test metadata for testing
 const testMetadata = {
   [ModelKey.GPT_COMPLETIONS_GPT4]: {
-    modelId: "gpt-4",
+    id: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
     modelProvider: ModelProviderType.OPENAI,
   },
   [ModelKey.GPT_COMPLETIONS_GPT4_32k]: {
-    modelId: "gpt-4-32k",
+    id: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 32768,
@@ -80,7 +80,7 @@ describe("LLM Model Metadata Validation", () => {
   describe("Zod schema validation", () => {
     test("validates correct embeddings metadata", () => {
       const metadata: LLMModelMetadata = {
-        modelId: "dummy-model",
+        id: "dummy-model",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: 8191,
@@ -91,7 +91,7 @@ describe("LLM Model Metadata Validation", () => {
 
     test("validates correct completions metadata", () => {
       const metadata: LLMModelMetadata = {
-        modelId: "model-2",
+        id: "model-2",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
         maxTotalTokens: 8191,

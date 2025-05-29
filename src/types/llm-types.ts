@@ -45,26 +45,13 @@ export enum LLMPurpose {
  * Type to define the main characteristics of the LLM model.
  */
 export interface LLMModelMetadata {
-  readonly modelId: string;
+  readonly id: string;
   readonly purpose: LLMPurpose;
   readonly dimensions?: number;
   readonly maxCompletionTokens?: number;
   readonly maxTotalTokens: number;
   readonly modelProvider: ModelProviderType;
 }
-
-/**
- * Intermediate type to use when moving JSON data to final strongly typed LLMModelMetadata type
- */
-// TODO: remove?
-export interface JSONLLMModelMetadata extends Record<string, unknown> {
-  readonly modelId?: string;
-  readonly purpose?: string;
-  readonly dimensions?: number;
-  readonly maxCompletionTokens?: number;
-  readonly maxTotalTokens?: number;
-  readonly modelProvider?: string;
-};
 
 /**
  * Type to define the context object that is passed to and from the LLM provider
@@ -145,7 +132,7 @@ export interface LLMErrorMsgRegExPattern {
  * Zod schema for LLMModelMetadata validation
  */
 export const llmModelMetadataSchema = z.object({
-  modelId: z.string().min(1, "Model ID cannot be empty"),
+  id: z.string().min(1, "Model ID cannot be empty"),
   purpose: z.nativeEnum(LLMPurpose),
   dimensions: z.number().positive().optional(),
   maxCompletionTokens: z.number().positive().optional(),
