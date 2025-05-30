@@ -11,20 +11,20 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       key: ModelKey.UNSPECIFIED, // Nova does not have embeddings models
-      id: "ai21.j2-grande-instruct", // Placeholder, not actually used
+      urn: "ai21.j2-grande-instruct", // Placeholder, not actually used
       purpose: LLMPurpose.EMBEDDINGS,
       maxTotalTokens: 0, // Placeholder
     },
     primaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_NOVA_PRO_V1,
-      id: "ai21.j2-grande-instruct",
+      urn: "ai21.j2-grande-instruct",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8191,
       maxTotalTokens: 8192,
     },
     secondaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_NOVA_LITE_V1,
-      id: "ai21.j2-mid",
+      urn: "ai21.j2-mid",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8191,
       maxTotalTokens: 8192,

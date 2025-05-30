@@ -11,20 +11,20 @@ export const bedrockMistralProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       key: ModelKey.UNSPECIFIED, // Mistral does not have embeddings models
-      id: "mistral.mistral-large-2402-v1:0", // Placeholder, not actually used
+      urn: "mistral.mistral-large-2402-v1:0", // Placeholder, not actually used
       purpose: LLMPurpose.EMBEDDINGS,
       maxTotalTokens: 0, // Placeholder
     },
     primaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE2,
-      id: "mistral.mistral-large-2402-v1:0",
+      urn: "mistral.mistral-large-2402-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 32000,
       maxTotalTokens: 32000,
     },
     secondaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_MISTRAL_LARGE,
-      id: "mistral.mistral-large-2402-v1:0",
+      urn: "mistral.mistral-large-2402-v1:0",
       maxCompletionTokens: 8192,
       maxTotalTokens: 32768,
       purpose: LLMPurpose.COMPLETIONS,

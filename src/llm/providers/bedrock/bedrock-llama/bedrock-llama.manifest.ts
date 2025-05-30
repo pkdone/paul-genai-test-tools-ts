@@ -11,20 +11,20 @@ export const bedrockLlamaProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       key: ModelKey.UNSPECIFIED, // Llama does not have embeddings models
-      id: "meta.llama3-70b-instruct-v1:0", // Placeholder, not actually used
+      urn: "meta.llama3-70b-instruct-v1:0", // Placeholder, not actually used
       purpose: LLMPurpose.EMBEDDINGS,
       maxTotalTokens: 0, // Placeholder
     },
     primaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT,
-      id: "meta.llama3-70b-instruct-v1:0",
+      urn: "meta.llama3-70b-instruct-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 8192,
     },
     secondaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT,
-      id: "meta.llama3-8b-instruct-v1:0",
+      urn: "meta.llama3-8b-instruct-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 8192,

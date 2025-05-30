@@ -11,21 +11,21 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       key: ModelKey.GCP_EMBEDDINGS_TEXT_005,
-      id: "text-embedding-005",
+      urn: "text-embedding-005",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 768,
       maxTotalTokens: 2048,
     },
     primaryCompletion: {
       key: ModelKey.GCP_COMPLETIONS_GEMINI_PRO25,
-      id: "gemini-2.5-pro-preview-05-06",
+      urn: "gemini-2.5-pro-preview-05-06",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 65535,
       maxTotalTokens: 1048576,
     },
     secondaryCompletion: {
       key: ModelKey.GCP_COMPLETIONS_GEMINI_FLASH20,
-      id: "gemini-2.0-flash-001",
+      urn: "gemini-2.0-flash-001",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 1048576,

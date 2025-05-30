@@ -11,14 +11,14 @@ export const bedrockTitanProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       key: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
-      id: "amazon.titan-embed-text-v1",
+      urn: "amazon.titan-embed-text-v1",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_TITAN_EXPRESS_V1,
-      id: "amazon.titan-text-express-v1",
+      urn: "amazon.titan-text-express-v1",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8000,
       maxTotalTokens: 8000,

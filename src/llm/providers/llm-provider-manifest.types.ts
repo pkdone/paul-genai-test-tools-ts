@@ -9,7 +9,7 @@ export interface LLMProviderModelInfo {
   /** The ModelKey identifier for this model */
   key: ModelKey;
   /** The actual model ID/name used by the provider API */
-  id: string;
+  urn: string;
   /** Whether this is an embedding or completion model */
   purpose: LLMPurpose;
   /** Number of dimensions for embedding models */

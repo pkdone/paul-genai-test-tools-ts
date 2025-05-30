@@ -28,13 +28,13 @@ const testModelSet = {
 
 const testModelsMetadata: Partial<Record<ModelKey, LLMModelMetadata>> = {
   [azureOpenAIProviderManifest.models.embeddings.key]: {
-    modelId: azureOpenAIProviderManifest.models.embeddings.id,
+    modelId: azureOpenAIProviderManifest.models.embeddings.urn,
     purpose: LLMPurpose.EMBEDDINGS,
     dimensions: azureOpenAIProviderManifest.models.embeddings.dimensions,
     maxTotalTokens: azureOpenAIProviderManifest.models.embeddings.maxTotalTokens,
   },
   [azureOpenAIProviderManifest.models.primaryCompletion.key]: {
-    modelId: azureOpenAIProviderManifest.models.primaryCompletion.id,
+    modelId: azureOpenAIProviderManifest.models.primaryCompletion.urn,
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxCompletionTokens,
     maxTotalTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxTotalTokens,
@@ -76,7 +76,7 @@ const testModelsMetadata: Partial<Record<ModelKey, LLMModelMetadata>> = {
 if (azureOpenAIProviderManifest.models.secondaryCompletion) {
   const secondaryModel = azureOpenAIProviderManifest.models.secondaryCompletion;
   testModelsMetadata[secondaryModel.key] = {
-    id: secondaryModel.id,
+    id: secondaryModel.urn,
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: secondaryModel.maxCompletionTokens ?? 4096,
     maxTotalTokens: secondaryModel.maxTotalTokens,

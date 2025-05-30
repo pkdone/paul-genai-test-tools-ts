@@ -17,21 +17,21 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       key: ModelKey.GPT_EMBEDDINGS_ADA002,
-      id: "text-embedding-ada-002",
+      urn: "text-embedding-ada-002",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8191,
     },
     primaryCompletion: {
       key: ModelKey.GPT_COMPLETIONS_GPT4_O,
-      id: "gpt-4o",
+      urn: "gpt-4o",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {
       key: ModelKey.GPT_COMPLETIONS_GPT4_TURBO,
-      id: "gpt-4-turbo",
+      urn: "gpt-4-turbo",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
       maxTotalTokens: 128000,

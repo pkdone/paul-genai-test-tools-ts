@@ -11,13 +11,13 @@ export const bedrockDeepseekProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       key: ModelKey.UNSPECIFIED, // Deepseek does not have embeddings models
-      id: "deepseek.coder-v2-lite-instruct", // Placeholder, not actually used
+      urn: "deepseek.coder-v2-lite-instruct", // Placeholder, not actually used
       purpose: LLMPurpose.EMBEDDINGS,
       maxTotalTokens: 0, // Placeholder
     },
     primaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_DEEPSEEKE_R1,
-      id: "deepseek.coder-v2-lite-instruct",
+      urn: "deepseek.coder-v2-lite-instruct",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 16384,
       maxTotalTokens: 128000,

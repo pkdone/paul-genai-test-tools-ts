@@ -11,20 +11,20 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       key: ModelKey.UNSPECIFIED, // Claude does not have embeddings models
-      id: "anthropic.claude-v2", // Placeholder, not actually used
+      urn: "anthropic.claude-v2", // Placeholder, not actually used
       purpose: LLMPurpose.EMBEDDINGS,
       maxTotalTokens: 0, // Placeholder
     },
     primaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_CLAUDE_V37,
-      id: "anthropic.claude-3-opus-20240229-v1:0",
+      urn: "anthropic.claude-3-opus-20240229-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4088,
       maxTotalTokens: 132000, 
     },
     secondaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_CLAUDE_V40,
-      id: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+      urn: "anthropic.claude-3-5-sonnet-20240620-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4088,
       maxTotalTokens: 200000,
