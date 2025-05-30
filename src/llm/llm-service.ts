@@ -49,64 +49,85 @@ class LLMService {
   /**
    * Auto-discover and load all provider manifests from the providers directory
    */
-  private async initializeRegistry(): Promise<void> {
+  private async initializeRegistry(): Promise<void> {    
     const providersRootPath = path.join(__dirname, fileSystemConfig.PROVIDERS_FOLDER_NAME);
     
     try {
-      const providerGroupDirs = await readDirContents(providersRootPath);
-
-      for (const groupDir of providerGroupDirs) {
-        if (groupDir.isDirectory()) {
-          const groupPath = path.join(providersRootPath, groupDir.name);
-
-          try {
-            const providerImplDirs = await readDirContents(groupPath);
-
-            for (const implDir of providerImplDirs) {
-              if (implDir.isDirectory()) {
-                const implPath = path.join(groupPath, implDir.name);
-
-                try {
-                  const filesInImplDir = await readDirContents(implPath);
-                  const llmManifestFile = filesInImplDir
-                    .filter(file => file.isFile())
-                    .find(file => file.name.endsWith(fileSystemConfig.MANIFEST_FILE_SUFFIX));
-
-                  if (llmManifestFile) {
-                    const llmManifestPath = path.join(implPath, llmManifestFile.name);
-                    const module: unknown = await import(llmManifestPath);
-                    const llmManifestKey = module && typeof module === 'object' 
-                      ? Object.keys(module).find(key => key.endsWith(fileSystemConfig.PROVIDER_MANIFEST_KEY))
-                      : undefined;
-
-                    if (llmManifestKey && module && typeof module === 'object' && llmManifestKey in module) {
-                      const manifestValue = (module as Record<string, unknown>)[llmManifestKey];
-
-                      if (this.isLlmValidManifest(manifestValue)) {
-                        const llmManifest = manifestValue;
-                        this.providerRegistry.set(llmManifest.modelFamily, llmManifest);
-                        console.log(`Registered LLM provider: ${llmManifest.providerName}`);
-                      } else {
-                        console.warn(`Manifest ${llmManifestPath} is not a valid LLMProviderManifest.`);
-                      }
-                    } else {
-                      console.warn(`Could not find an exported manifest in ${llmManifestPath}`);
-                    }
-                  }
-                } catch (error: unknown) {
-                  logErrorMsgAndDetail(`Failed to load manifest from ${implPath}`, error);
-                }
-              }
-            }
-          } catch (error: unknown) {
-            logErrorMsgAndDetail(`Failed to read provider group directory ${groupPath}`, error);
-          }
-        }
-      }
-
+      await this.loadProviderManifests(providersRootPath);      
       if (this.providerRegistry.size === 0) console.warn("LLMService: No LLM provider manifests were loaded. Check paths and manifest exports in 'src/llm/providers/*/*/*.manifest.ts'.");
     } catch (error: unknown) {
       logErrorMsgAndDetail(`Failed to read providers root directory ${providersRootPath}`, error);
+    }
+  }
+  
+  /**
+   * Load provider manifests from the given directory path
+   */
+  private async loadProviderManifests(rootPath: string): Promise<void> {
+    const providerGroupDirs = await readDirContents(rootPath);
+    
+    for (const groupDir of providerGroupDirs) {
+      if (!groupDir.isDirectory()) continue;
+      const groupPath = path.join(rootPath, groupDir.name);
+      await this.loadProviderGroups(groupPath);
+    }
+  }
+  
+  /**
+   * Load provider implementations from a provider group directory
+   */
+  private async loadProviderGroups(groupPath: string): Promise<void> {
+    try {
+      const providerImplDirs = await readDirContents(groupPath);
+      
+      for (const implDir of providerImplDirs) {
+        if (!implDir.isDirectory()) continue;        
+        const implPath = path.join(groupPath, implDir.name);
+        await this.loadProviderImpl(implPath);
+      }
+    } catch (error: unknown) {
+      logErrorMsgAndDetail(`Failed to read provider group directory ${groupPath}`, error);
+    }
+  }
+  
+  /**
+   * Load a specific provider implementation manifest
+   */
+  private async loadProviderImpl(implPath: string): Promise<void> {
+    try {
+      const filesInImplDir = await readDirContents(implPath);
+      const llmManifestFile = filesInImplDir
+        .filter(file => file.isFile())
+        .find(file => file.name.endsWith(fileSystemConfig.MANIFEST_FILE_SUFFIX));        
+      if (!llmManifestFile) return;      
+      const llmManifestPath = path.join(implPath, llmManifestFile.name);
+      await this.importAndRegisterManifest(llmManifestPath);
+    } catch (error: unknown) {
+      logErrorMsgAndDetail(`Failed to load manifest from ${implPath}`, error);
+    }
+  }
+  
+  /**
+   * Import and register a manifest from the given path
+   */
+  private async importAndRegisterManifest(manifestPath: string): Promise<void> {
+    const module: unknown = await import(manifestPath);    
+    if (!module || typeof module !== 'object') return;
+    const llmManifestKey = Object.keys(module).find(key => 
+      key.endsWith(fileSystemConfig.PROVIDER_MANIFEST_KEY));
+      
+    if (!llmManifestKey || !(llmManifestKey in module)) {
+      console.warn(`Could not find an exported manifest in ${manifestPath}`);
+      return;
+    }
+    
+    const manifestValue = (module as Record<string, unknown>)[llmManifestKey];
+    
+    if (this.isLlmValidManifest(manifestValue)) {
+      this.providerRegistry.set(manifestValue.modelFamily, manifestValue);
+      console.log(`Registered LLM provider: ${manifestValue.providerName}`);
+    } else {
+      console.warn(`Manifest ${manifestPath} is not a valid LLMProviderManifest.`);
     }
   }
 
