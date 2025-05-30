@@ -101,3 +101,19 @@ aws bedrock list-inference-profiles
 From this output, use the URL defined for the `inferenceProfileArn` parameter.
 
 In the AWS Console, select the Bedrock Configuration | Model Access option and enable access for the models requried.
+
+## Process for Adding LLM Providers
+
+After this refactoring, adding a new LLM provider involves:
+
+1. **Define Enums** (if new family/keys):
+   - Modify `src/types/llm-models-types.ts`
+
+2. **Define Environment Variables**:
+   - Modify `src/types/env-types.ts` (if needed)
+   - Update `.env` and `EXAMPLE.env`
+
+3. **Create Provider Implementation & Manifest**:
+   - Create directory: `src/llm/providers/<group_name>/<provider_name>/`
+   - Create implementation: `<provider_name>-llm.ts`
+   - Create manifest: `<provider_name>.manifest.ts` (auto-discovered)
