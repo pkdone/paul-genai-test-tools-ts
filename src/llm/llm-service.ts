@@ -1,5 +1,5 @@
 import { ModelFamily } from "../types/llm-models-types";
-import { LLMProviderImpl, LLMModelSet, LLMModelMetadata, llmModelMetadataSchema, llmModelSetSchema } from "../types/llm-types";
+import { LLMProviderImpl, LLMModelSet, LLMModelMetadata } from "../types/llm-types";
 import { EnvVars } from "../types/env-types";
 import { BadConfigurationLLMError } from "../types/llm-errors";
 import { allProviderManifests } from "./providers";
@@ -25,7 +25,6 @@ class LLMService {
     this.validateEnvironmentVariables(manifest, env);
     const modelSet = this.constructModelSet(manifest);
     const modelsMetadata = this.constructModelsMetadata(manifest);
-    this.validateModelMetadata(modelsMetadata);
     const llmProvider = manifest.factory(env, modelSet, modelsMetadata, manifest.errorPatterns);
     return { llmProvider, modelsMetadata };
   }
@@ -65,13 +64,6 @@ class LLMService {
       modelSet.secondaryCompletion = manifest.models.secondaryCompletion.key;
     }
 
-    const validationResult = llmModelSetSchema.safeParse(modelSet);
-    if (!validationResult.success) {
-      throw new BadConfigurationLLMError(
-        `Invalid model set for provider '${manifest.providerName}': ${validationResult.error.message}`
-      );
-    }
-
     return modelSet;
   }
 
@@ -108,20 +100,6 @@ class LLMService {
       maxCompletionTokens: modelInfo.maxCompletionTokens,
       maxTotalTokens: modelInfo.maxTotalTokens,
     };
-  }
-
-  /**
-   * Validate model metadata using Zod schemas
-   */
-  private validateModelMetadata(modelsMetadata: Record<string, LLMModelMetadata>): void {
-    for (const [modelKey, metadata] of Object.entries(modelsMetadata)) {
-      const validationResult = llmModelMetadataSchema.safeParse(metadata);
-      if (!validationResult.success) {
-        throw new BadConfigurationLLMError(
-          `Invalid model metadata for model '${modelKey}': ${validationResult.error.message}`
-        );
-      }
-    }
   }
 }
 

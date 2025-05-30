@@ -154,12 +154,3 @@ export const llmModelMetadataSchema = z.object({
   message: "Invalid model metadata configuration"
 });
 
-/**
- * Zod schema for LLMModelSet validation
- */
-export const llmModelSetSchema = z.object({
-  embeddings: z.nativeEnum(ModelKey),
-  primaryCompletion: z.nativeEnum(ModelKey),
-  secondaryCompletion: z.nativeEnum(ModelKey).optional(),
-});
-
