@@ -27,6 +27,9 @@ export const fileSystemConfig = {
   JAVA_FILE_TYPE: "java",
   SRC_FOLDER_NAME: "/src/",
   DIST_FOLDER_NAME: "/dist/",
+  MANIFEST_FILE_SUFFIX: ".manifest.js",
+  PROVIDER_MANIFEST_KEY: "ProviderManifest",
+  PROVIDERS_FOLDER_NAME: "providers"
 } as const;
 
 export default fileSystemConfig; 
