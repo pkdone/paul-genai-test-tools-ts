@@ -32,6 +32,13 @@ abstract class AbstractLLM implements LLMProviderImpl {
   }
 
   /**
+   * Get the models metadata in a readonly format to prevent modifications by the caller.
+   */
+  getModelsMetadata(): Readonly<Record<string, LLMModelMetadata>> {
+    return Object.freeze({ ...this.llmModelsMetadata });
+  }
+
+  /**
    * Get the model key for the embeddings model.
    */
   getAvailableCompletionModelQualities(): LLMModelQuality[] {

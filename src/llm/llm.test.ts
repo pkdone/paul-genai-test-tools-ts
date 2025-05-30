@@ -1,8 +1,34 @@
 import llmConfig from "../config/llm.config";
 import { ModelKey } from "../types/llm-models-types";
-import { LLMModelMetadata, llmModelMetadataSchema, LLMPurpose } from "../types/llm-types";
+import { LLMModelMetadata, LLMPurpose } from "../types/llm-types";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { z } from "zod";
+
+// Zod schema for LLMModelMetadata validation
+export const llmModelMetadataSchema = z.object({
+  key: z.nativeEnum(ModelKey),
+  urn: z.string().min(1, "Model ID cannot be empty"),
+  purpose: z.nativeEnum(LLMPurpose),
+  dimensions: z.number().positive().optional(),
+  maxCompletionTokens: z.number().positive().optional(),
+  maxTotalTokens: z.number().positive(),
+}).refine((data) => {
+  // Require dimensions for embeddings models
+  if (data.purpose === LLMPurpose.EMBEDDINGS && !data.dimensions) {
+    return false;
+  }
+  // Require maxCompletionTokens for completions models
+  if (data.purpose === LLMPurpose.COMPLETIONS && !data.maxCompletionTokens) {
+    return false;
+  }
+  // Ensure maxCompletionTokens doesn't exceed maxTotalTokens
+  if (data.maxCompletionTokens && data.maxCompletionTokens > data.maxTotalTokens) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Invalid model metadata configuration"
+});
 
 // Simple test metadata for testing
 const testMetadata = {

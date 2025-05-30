@@ -19,14 +19,14 @@ class LLMService {
   /**
    * Get an LLM provider instance for the given model family and environment
    */
-  getLlmProviderInstance(modelFamily: ModelFamily, env: EnvVars): { llmProvider: LLMProviderImpl, modelsMetadata: Record<string, LLMModelMetadata> } {
+  getLlmProviderInstance(modelFamily: ModelFamily, env: EnvVars): LLMProviderImpl {
     const manifest = this.providerRegistry.get(modelFamily);
     if (!manifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
     this.validateEnvironmentVariables(manifest, env);
     const modelSet = this.constructModelSet(manifest);
     const modelsMetadata = this.constructModelsMetadata(manifest);
     const llmProvider = manifest.factory(env, modelSet, modelsMetadata, manifest.errorPatterns);
-    return { llmProvider, modelsMetadata };
+    return llmProvider;
   }
 
   /**
@@ -89,6 +89,6 @@ export const llmService = new LLMService();
 /**
  * Get an LLM provider instance (convenience function)
  */
-export function getLLMProvider(env: EnvVars): { llmProvider: LLMProviderImpl, modelsMetadata: Record<string, LLMModelMetadata> } {
+export function getLLMProvider(env: EnvVars): LLMProviderImpl {
   return llmService.getLlmProviderInstance(env.LLM, env);
 } 

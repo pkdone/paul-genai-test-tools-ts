@@ -25,11 +25,10 @@ class LLMRouter {
    * Constructor.
    * 
    * @param llm The initialized LLM provider implementation
-   * @param modelsMetadata Metadata for the LLM models
    */
-  constructor(private readonly llm: LLMProviderImpl, modelsMetadata: Record<string, LLMModelMetadata>) {
+  constructor(private readonly llm: LLMProviderImpl) {
     this.llmStats = new LLMStats();
-    this.modelsMetadata = modelsMetadata;
+    this.modelsMetadata = llm.getModelsMetadata();
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
 
