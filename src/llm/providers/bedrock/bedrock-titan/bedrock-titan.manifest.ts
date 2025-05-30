@@ -2,6 +2,7 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import { ModelFamily, ModelProviderType, ModelKey } from "../../../../types/llm-models-types";
 import BedrockTitanLLM from "./bedrock-titan-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
+import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 
 export const bedrockTitanProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Titan",
@@ -24,14 +25,7 @@ export const bedrockTitanProviderManifest: LLMProviderManifest = {
       maxTotalTokens: 8000,
     },
   },
-  errorPatterns: [
-    // 1. "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 8192, request input token count: 9279 "
-    { pattern: /ax input tokens.*?(\d+).*?request input token count.*?(\d+)/, units: "tokens" },
-    // 2. "ValidationException: Malformed input request: expected maxLength: 50000, actual: 52611, please reformat your input and try again."
-    { pattern: /maxLength.*?(\d+).*?actual.*?(\d+)/, units: "chars" },
-    // 3. Llama: "ValidationException: This model's maximum context length is 8192 tokens. Please reduce the length of the prompt"
-    { pattern: /maximum context length is ?(\d+) tokens/, units: "tokens" },
-  ] as const,
+  errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
   factory: (_envConfig, modelSet, modelsMetadata, errorPatterns) => {
     return new BedrockTitanLLM(modelSet, modelsMetadata, errorPatterns);
   },

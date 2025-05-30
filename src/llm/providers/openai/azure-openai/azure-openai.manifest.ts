@@ -2,6 +2,7 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import { ModelFamily, ModelProviderType, ModelKey } from "../../../../types/llm-models-types";
 import AzureOpenAILLM from "./azure-openai-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
+import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
 
 export const azureOpenAIProviderManifest: LLMProviderManifest = {
   providerName: "Azure OpenAI",
@@ -37,11 +38,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
       maxTotalTokens: 128000,
     },
   },
-  errorPatterns: [
-    // Same as OpenAI patterns since Azure uses OpenAI models
-    { pattern: /max.*?(\d+) tokens.*?\(.*?(\d+).*?prompt.*?(\d+).*?completion/, units: "tokens" },
-    { pattern: /max.*?(\d+) tokens.*?(\d+) /, units: "tokens" },
-  ] as const,
+  errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
   factory: (envConfig, modelSet, modelsMetadata, errorPatterns) => {
     const env = envConfig as {
       AZURE_LLM_API_KEY: string;
