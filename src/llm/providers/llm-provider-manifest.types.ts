@@ -1,24 +1,6 @@
 import { ModelFamily, ModelProviderType, ModelKey } from "../../types/llm-models-types";
-import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMPurpose } from "../../types/llm-types";
+import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../types/llm-types";
 import { EnvVars } from "../../types/env-types";
-
-/**
- * Information about a specific model used by a provider
- */
-export interface LLMProviderModelInfo {
-  /** The ModelKey identifier for this model */
-  key: ModelKey;
-  /** The actual model ID/name used by the provider API */
-  urn: string;
-  /** Whether this is an embedding or completion model */
-  purpose: LLMPurpose;
-  /** Number of dimensions for embedding models */
-  dimensions?: number;
-  /** Maximum completion tokens for completion models */
-  maxCompletionTokens?: number;
-  /** Maximum total tokens (prompt + completion) */
-  maxTotalTokens: number;
-}
 
 /**
  * Complete manifest defining a provider's configuration
@@ -34,9 +16,9 @@ export interface LLMProviderManifest {
   envVarNames: string[];
   /** Model configurations for this provider */
   models: {
-    embeddings: LLMProviderModelInfo;
-    primaryCompletion: LLMProviderModelInfo;
-    secondaryCompletion?: LLMProviderModelInfo;
+    embeddings: LLMModelMetadata;
+    primaryCompletion: LLMModelMetadata;
+    secondaryCompletion?: LLMModelMetadata;
   };
   /** Provider-specific error patterns for token limits/overload */
   errorPatterns: readonly LLMErrorMsgRegExPattern[];

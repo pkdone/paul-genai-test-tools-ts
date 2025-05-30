@@ -45,10 +45,17 @@ export enum LLMPurpose {
  * Type to define the main characteristics of the LLM model.
  */
 export interface LLMModelMetadata {
+  /** The ModelKey identifier for this model */
+  readonly key: ModelKey;
+  /** The actual model ID/name used by the provider API */
   readonly urn: string;
+  /** Whether this is an embedding or completion model */
   readonly purpose: LLMPurpose;
+  /** Number of dimensions for embedding models */
   readonly dimensions?: number;
+  /** Maximum completion tokens for completion models */
   readonly maxCompletionTokens?: number;
+  /** Maximum total tokens (prompt + completion) */
   readonly maxTotalTokens: number;
 }
 
@@ -131,6 +138,7 @@ export interface LLMErrorMsgRegExPattern {
  * Zod schema for LLMModelMetadata validation
  */
 export const llmModelMetadataSchema = z.object({
+  key: z.nativeEnum(ModelKey),
   urn: z.string().min(1, "Model ID cannot be empty"),
   purpose: z.nativeEnum(LLMPurpose),
   dimensions: z.number().positive().optional(),

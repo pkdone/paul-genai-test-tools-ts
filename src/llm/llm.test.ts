@@ -7,12 +7,14 @@ import { z } from "zod";
 // Simple test metadata for testing
 const testMetadata = {
   [ModelKey.GPT_COMPLETIONS_GPT4]: {
+    key: ModelKey.GPT_COMPLETIONS_GPT4,
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   [ModelKey.GPT_COMPLETIONS_GPT4_32k]: {
+    key: ModelKey.GPT_COMPLETIONS_GPT4_32k,
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
@@ -77,6 +79,7 @@ describe("LLM Model Metadata Validation", () => {
   describe("Zod schema validation", () => {
     test("validates correct embeddings metadata", () => {
       const metadata: LLMModelMetadata = {
+        key: ModelKey.GPT_EMBEDDINGS_ADA002,
         urn: "dummy-model",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
@@ -87,6 +90,7 @@ describe("LLM Model Metadata Validation", () => {
 
     test("validates correct completions metadata", () => {
       const metadata: LLMModelMetadata = {
+        key: ModelKey.GPT_COMPLETIONS_GPT4,
         urn: "model-2",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
@@ -97,7 +101,8 @@ describe("LLM Model Metadata Validation", () => {
 
     test("throws error when dimensions field is missing for embeddings", () => {
       const metadata = {
-        modelId: "dummy-model",
+        key: ModelKey.GPT_EMBEDDINGS_ADA002,
+        urn: "dummy-model",
         purpose: LLMPurpose.EMBEDDINGS,
         maxTotalTokens: 8191,
       };
@@ -106,7 +111,8 @@ describe("LLM Model Metadata Validation", () => {
 
     test("throws error when maxCompletionTokens field is missing for completions", () => {
       const metadata = {
-        modelId: "dummy-model",
+        key: ModelKey.GPT_COMPLETIONS_GPT4,
+        urn: "dummy-model",
         purpose: LLMPurpose.COMPLETIONS,
         maxTotalTokens: 8191,
       };
@@ -115,7 +121,8 @@ describe("LLM Model Metadata Validation", () => {
 
     test("throws error when purpose field has invalid enum value", () => {
       const metadata = {
-        modelId: "dummy-model",
+        key: ModelKey.GPT_EMBEDDINGS_ADA002,
+        urn: "dummy-model",
         purpose: "INVALID_PURPOSE",
         dimensions: 1536,
         maxTotalTokens: 8191,
@@ -125,7 +132,8 @@ describe("LLM Model Metadata Validation", () => {
 
     test("throws error when dimensions is negative", () => {
       const metadata = {
-        modelId: "dummy-model",
+        key: ModelKey.GPT_EMBEDDINGS_ADA002,
+        urn: "dummy-model",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: -1234,
         maxTotalTokens: 8191,
@@ -135,7 +143,8 @@ describe("LLM Model Metadata Validation", () => {
 
     test("throws error when dimensions is zero", () => {
       const metadata = {
-        modelId: "dummy-model",
+        key: ModelKey.GPT_EMBEDDINGS_ADA002,
+        urn: "dummy-model",
         purpose: LLMPurpose.EMBEDDINGS, 
         dimensions: 0,
         maxTotalTokens: 8191,
@@ -145,7 +154,8 @@ describe("LLM Model Metadata Validation", () => {
 
     test("throws error when maxCompletionTokens is negative", () => {
       const metadata = {
-        modelId: "dummy-model",
+        key: ModelKey.GPT_COMPLETIONS_GPT4,
+        urn: "dummy-model",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: -1234,
         maxTotalTokens: 8191,
@@ -155,7 +165,8 @@ describe("LLM Model Metadata Validation", () => {
 
     test("throws error when maxTotalTokens is negative", () => {
       const metadata = {
-        modelId: "dummy-model",
+        key: ModelKey.GPT_EMBEDDINGS_ADA002,
+        urn: "dummy-model",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: -1,
@@ -163,8 +174,9 @@ describe("LLM Model Metadata Validation", () => {
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
-    test("throws error when modelId is missing", () => {
+    test("throws error when urn is missing", () => {
       const metadata = {
+        key: ModelKey.GPT_EMBEDDINGS_ADA002,
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: 8191,
@@ -172,9 +184,10 @@ describe("LLM Model Metadata Validation", () => {
       expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
     });
 
-    test("throws error when modelId is empty string", () => {
+    test("throws error when urn is empty string", () => {
       const metadata = {
-        modelId: "",
+        key: ModelKey.GPT_EMBEDDINGS_ADA002,
+        urn: "",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: 8191,
@@ -184,7 +197,8 @@ describe("LLM Model Metadata Validation", () => {
 
     test("throws error when maxCompletionTokens exceeds maxTotalTokens", () => {
       const metadata = {
-        modelId: "dummy-model",
+        key: ModelKey.GPT_COMPLETIONS_GPT4,
+        urn: "dummy-model",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 10000,
         maxTotalTokens: 8191,

@@ -28,43 +28,50 @@ const testModelSet = {
 
 const testModelsMetadata: Partial<Record<ModelKey, LLMModelMetadata>> = {
   [azureOpenAIProviderManifest.models.embeddings.key]: {
-    modelId: azureOpenAIProviderManifest.models.embeddings.urn,
+    key: azureOpenAIProviderManifest.models.embeddings.key,
+    urn: azureOpenAIProviderManifest.models.embeddings.urn,
     purpose: LLMPurpose.EMBEDDINGS,
     dimensions: azureOpenAIProviderManifest.models.embeddings.dimensions,
     maxTotalTokens: azureOpenAIProviderManifest.models.embeddings.maxTotalTokens,
   },
   [azureOpenAIProviderManifest.models.primaryCompletion.key]: {
-    modelId: azureOpenAIProviderManifest.models.primaryCompletion.urn,
+    key: azureOpenAIProviderManifest.models.primaryCompletion.key,
+    urn: azureOpenAIProviderManifest.models.primaryCompletion.urn,
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxCompletionTokens,
     maxTotalTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxTotalTokens,
   },
   // Add common test models that are used in the tests
   [ModelKey.GPT_COMPLETIONS_GPT4]: {
+    key: ModelKey.GPT_COMPLETIONS_GPT4,
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   [ModelKey.GPT_COMPLETIONS_GPT4_32k]: {
+    key: ModelKey.GPT_COMPLETIONS_GPT4_32k,
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 32768,
   },
   [ModelKey.AWS_COMPLETIONS_CLAUDE_V35]: {
+    key: ModelKey.AWS_COMPLETIONS_CLAUDE_V35,
     urn: "anthropic.claude-3-5-sonnet-20240620-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4088,
     maxTotalTokens: 200000,
   },
   [ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT]: {
+    key: ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT,
     urn: "meta.llama3-70b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   [ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT]: {
+    key: ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,
     urn: "meta.llama3-1-405b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
@@ -76,6 +83,7 @@ const testModelsMetadata: Partial<Record<ModelKey, LLMModelMetadata>> = {
 if (azureOpenAIProviderManifest.models.secondaryCompletion) {
   const secondaryModel = azureOpenAIProviderManifest.models.secondaryCompletion;
   testModelsMetadata[secondaryModel.key] = {
+    key: secondaryModel.key,
     urn: secondaryModel.urn,
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: secondaryModel.maxCompletionTokens ?? 4096,

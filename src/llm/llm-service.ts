@@ -3,7 +3,7 @@ import { LLMProviderImpl, LLMModelSet, LLMModelMetadata } from "../types/llm-typ
 import { EnvVars } from "../types/env-types";
 import { BadConfigurationLLMError } from "../types/llm-errors";
 import { allProviderManifests } from "./providers";
-import { LLMProviderManifest, LLMProviderModelInfo } from "./providers/llm-provider-manifest.types";
+import { LLMProviderManifest } from "./providers/llm-provider-manifest.types";
 
 /**
  * Service for managing LLM providers using a registry-based approach
@@ -72,34 +72,14 @@ class LLMService {
    */
   private constructModelsMetadata(manifest: LLMProviderManifest): Record<string, LLMModelMetadata> {
     const metadata: Record<string, LLMModelMetadata> = {};
-    metadata[manifest.models.embeddings.key] = this.convertModelInfoToMetadata(
-      manifest.models.embeddings,
-    );
-    metadata[manifest.models.primaryCompletion.key] = this.convertModelInfoToMetadata(
-      manifest.models.primaryCompletion,
-    );
+    metadata[manifest.models.embeddings.key] = manifest.models.embeddings;
+    metadata[manifest.models.primaryCompletion.key] = manifest.models.primaryCompletion;
+    
     if (manifest.models.secondaryCompletion) {
-      metadata[manifest.models.secondaryCompletion.key] = this.convertModelInfoToMetadata(
-        manifest.models.secondaryCompletion,
-      );
+      metadata[manifest.models.secondaryCompletion.key] = manifest.models.secondaryCompletion;
     }
 
     return metadata;
-  }
-
-  /**
-   * Convert LLMProviderModelInfo to LLMModelMetadata
-   */
-  private convertModelInfoToMetadata(
-    modelInfo: LLMProviderModelInfo,
-  ): LLMModelMetadata {
-    return {
-      urn: modelInfo.urn,
-      purpose: modelInfo.purpose,
-      dimensions: modelInfo.dimensions,
-      maxCompletionTokens: modelInfo.maxCompletionTokens,
-      maxTotalTokens: modelInfo.maxTotalTokens,
-    };
   }
 }
 
