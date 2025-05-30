@@ -19,13 +19,13 @@ class LLMService {
   /**
    * Get an LLM provider instance for the given model family and environment
    */
-  getLlmProviderInstance(modelFamily: ModelFamily, env: EnvVars): LLMProviderImpl {
-    const manifest = this.providerRegistry.get(modelFamily);
-    if (!manifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
-    this.validateEnvironmentVariables(manifest, env);
-    const modelSet = this.constructModelSet(manifest);
-    const modelsMetadata = this.constructModelsMetadata(manifest);
-    const llmProvider = manifest.factory(env, modelSet, modelsMetadata, manifest.errorPatterns);
+  getLlmProviderInstance(modelFamily: ModelFamily, env: EnvVars) {
+    const llmManifest = this.providerRegistry.get(modelFamily);
+    if (!llmManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
+    this.validateEnvironmentVariables(llmManifest, env);
+    const modelSet = this.constructModelSet(llmManifest);
+    const modelsMetadata = this.constructModelsMetadata(llmManifest);
+    const llmProvider = llmManifest.factory(env, modelSet, modelsMetadata, llmManifest.errorPatterns);
     return llmProvider;
   }
 
@@ -41,7 +41,7 @@ class LLMService {
   /**
    * Validate that all required environment variables are present
    */
-  private validateEnvironmentVariables(manifest: LLMProviderManifest, env: EnvVars): void {
+  private validateEnvironmentVariables(manifest: LLMProviderManifest, env: EnvVars) {
     for (const envVarName of manifest.envVarNames) {
       if (!(envVarName in env) || !env[envVarName as keyof EnvVars]) {
         throw new BadConfigurationLLMError(
@@ -54,7 +54,7 @@ class LLMService {
   /**
    * Construct LLMModelSet from manifest
    */
-  private constructModelSet(manifest: LLMProviderManifest): LLMModelSet {
+  private constructModelSet(manifest: LLMProviderManifest) {
     const modelSet: LLMModelSet = {
       embeddings: manifest.models.embeddings.key,
       primaryCompletion: manifest.models.primaryCompletion.key,
@@ -70,7 +70,7 @@ class LLMService {
   /**
    * Construct LLMModelMetadata record from manifest
    */
-  private constructModelsMetadata(manifest: LLMProviderManifest): Record<string, LLMModelMetadata> {
+  private constructModelsMetadata(manifest: LLMProviderManifest) {
     const metadata: Record<string, LLMModelMetadata> = {};
     metadata[manifest.models.embeddings.key] = manifest.models.embeddings;
     metadata[manifest.models.primaryCompletion.key] = manifest.models.primaryCompletion;
