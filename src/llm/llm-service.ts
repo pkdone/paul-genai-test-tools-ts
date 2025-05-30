@@ -102,7 +102,7 @@ class LLMService {
     modelInfo: LLMProviderModelInfo,
   ): LLMModelMetadata {
     return {
-      id: modelInfo.urn,
+      urn: modelInfo.urn,
       purpose: modelInfo.purpose,
       dimensions: modelInfo.dimensions,
       maxCompletionTokens: modelInfo.maxCompletionTokens,

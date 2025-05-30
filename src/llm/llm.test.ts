@@ -7,13 +7,13 @@ import { z } from "zod";
 // Simple test metadata for testing
 const testMetadata = {
   [ModelKey.GPT_COMPLETIONS_GPT4]: {
-    id: "gpt-4",
+    urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   [ModelKey.GPT_COMPLETIONS_GPT4_32k]: {
-    id: "gpt-4-32k",
+    urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 32768,
@@ -77,7 +77,7 @@ describe("LLM Model Metadata Validation", () => {
   describe("Zod schema validation", () => {
     test("validates correct embeddings metadata", () => {
       const metadata: LLMModelMetadata = {
-        id: "dummy-model",
+        urn: "dummy-model",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: 8191,
@@ -87,7 +87,7 @@ describe("LLM Model Metadata Validation", () => {
 
     test("validates correct completions metadata", () => {
       const metadata: LLMModelMetadata = {
-        id: "model-2",
+        urn: "model-2",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
         maxTotalTokens: 8191,

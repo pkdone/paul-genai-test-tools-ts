@@ -44,13 +44,13 @@ class OpenAILLM extends BaseOpenAILLM {
   protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
-        model: this.llmModelsMetadata[modelKey].id,
+        model: this.llmModelsMetadata[modelKey].urn,
         input: prompt
       };
       return params;  
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
-        model: this.llmModelsMetadata[modelKey].id,
+        model: this.llmModelsMetadata[modelKey].urn,
         temperature: llmConfig.ZERO_TEMP,
         messages: [{ role: "user", content: prompt } ],
         max_completion_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,

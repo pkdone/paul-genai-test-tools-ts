@@ -41,31 +41,31 @@ const testModelsMetadata: Partial<Record<ModelKey, LLMModelMetadata>> = {
   },
   // Add common test models that are used in the tests
   [ModelKey.GPT_COMPLETIONS_GPT4]: {
-    id: "gpt-4",
+    urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   [ModelKey.GPT_COMPLETIONS_GPT4_32k]: {
-    id: "gpt-4-32k",
+    urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 32768,
   },
   [ModelKey.AWS_COMPLETIONS_CLAUDE_V35]: {
-    id: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    urn: "anthropic.claude-3-5-sonnet-20240620-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4088,
     maxTotalTokens: 200000,
   },
   [ModelKey.AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT]: {
-    id: "meta.llama3-70b-instruct-v1:0",
+    urn: "meta.llama3-70b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   [ModelKey.AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT]: {
-    id: "meta.llama3-1-405b-instruct-v1:0",
+    urn: "meta.llama3-1-405b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 128000,
@@ -76,7 +76,7 @@ const testModelsMetadata: Partial<Record<ModelKey, LLMModelMetadata>> = {
 if (azureOpenAIProviderManifest.models.secondaryCompletion) {
   const secondaryModel = azureOpenAIProviderManifest.models.secondaryCompletion;
   testModelsMetadata[secondaryModel.key] = {
-    id: secondaryModel.urn,
+    urn: secondaryModel.urn,
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: secondaryModel.maxCompletionTokens ?? 4096,
     maxTotalTokens: secondaryModel.maxTotalTokens,

@@ -150,7 +150,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
   private buildFullEmebddingsLLMParameters(modelKey: ModelKey, prompt: string) {
-    const model = this.llmModelsMetadata[modelKey].id;
+    const model = this.llmModelsMetadata[modelKey].urn;
     const endpoint = `${this.apiEndpointPrefix}${model}`;
     const instance = helpers.toValue({ content: prompt, task_type: llmConfig.GCP_API_EMBEDDINGS_TASK_TYPE });
     if (!instance) throw new BadConfigurationLLMError("Failed to convert prompt to IValue");
@@ -163,7 +163,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    */
   private buildFullCompletionLLMParameters(modelKey: ModelKey) {
     const modelParams = { 
-      model: this.llmModelsMetadata[modelKey].id,
+      model: this.llmModelsMetadata[modelKey].urn,
       generationConfig: { 
         candidateCount: 1,
         topP: llmConfig.TOP_P_LOWEST,

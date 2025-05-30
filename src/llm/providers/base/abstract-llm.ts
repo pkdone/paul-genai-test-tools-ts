@@ -46,10 +46,10 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   getModelsNames(): string[] {
     return [
-      this.llmModelsMetadata[this.modelsKeys.embeddings].id,
-      this.llmModelsMetadata[this.modelsKeys.primaryCompletion].id,
+      this.llmModelsMetadata[this.modelsKeys.embeddings].urn,
+      this.llmModelsMetadata[this.modelsKeys.primaryCompletion].urn,
       this.modelsKeys.secondaryCompletion
-        ? this.llmModelsMetadata[this.modelsKeys.secondaryCompletion].id
+        ? this.llmModelsMetadata[this.modelsKeys.secondaryCompletion].urn
         : "n/a"
     ];
   }  
@@ -103,7 +103,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   protected debugCurrentlyNonCheckedErrorTypes(error: unknown, modelKey: ModelKey) {
     if (error instanceof Error) {
-      console.log(`${error.constructor.name}: ${getErrorText(error)} - LLM: ${this.llmModelsMetadata[modelKey].id}`);
+      console.log(`${error.constructor.name}: ${getErrorText(error)} - LLM: ${this.llmModelsMetadata[modelKey].urn}`);
     }
   }
 

@@ -107,7 +107,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
       const generatedContent = asJson ? convertTextToJSON(responseContent) : responseContent;
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: generatedContent };
     } catch (error: unknown) {
-      console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${modelsMetadata[modelKey].id})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);
+      console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${modelsMetadata[modelKey].urn})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);
       context.jsonParseError = getErrorText(error);
       return { ...skeletonResult, status: LLMResponseStatus.OVERLOADED };
     }
