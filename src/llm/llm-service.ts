@@ -85,7 +85,7 @@ class LLMService {
                       if (this.isLlmValidManifest(manifestValue)) {
                         const llmManifest = manifestValue;
                         this.providerRegistry.set(llmManifest.modelFamily, llmManifest);
-                        console.log(`Registered LLM provider manifest: ${llmManifest.providerName}`);
+                        console.log(`Registered LLM provider: ${llmManifest.providerName}`);
                       } else {
                         console.warn(`Manifest ${llmManifestPath} is not a valid LLMProviderManifest.`);
                       }
