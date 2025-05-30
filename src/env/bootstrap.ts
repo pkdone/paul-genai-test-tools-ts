@@ -23,7 +23,7 @@ export function loadEnvVars(): EnvVars {
  * variables for wider use.
  */
 export async function bootstrap() {
-  const { env, llmRouter } = bootstrapJustLLM();
+  const { env, llmRouter } = await bootstrapJustLLM();
   const mongoClient = await mongoDBService.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
   return { env, mongoClient, llmRouter };
 }
@@ -32,9 +32,9 @@ export async function bootstrap() {
  * Function to bootstrap the LLM router with the specified model family and configuration based in 
  * environment variable (also returning the list of environemnt variables for wider use.
  */
-export function bootstrapJustLLM() {
+export async function bootstrapJustLLM() {
   const env = loadEnvVars();
-  const llmProvider = getLLMProvider(env);
+  const llmProvider = await getLLMProvider(env);
   const llmRouter = new LLMRouter(llmProvider);
   return { env, llmRouter };
 }

@@ -1,3 +1,9 @@
+/**
+ * @deprecated This file is no longer used by LLMService which now auto-discovers provider manifests.
+ * This manual registration approach has been replaced by automatic manifest discovery.
+ * This file can be removed in a future version once all dependencies are updated.
+ */
+
 import { LLMProviderManifest } from "./llm-provider.types";
 import { openAIProviderManifest } from "./openai/openai/openai.manifest";
 import { azureOpenAIProviderManifest } from "./openai/azure-openai/azure-openai.manifest";
@@ -11,8 +17,9 @@ import { bedrockDeepseekProviderManifest } from "./bedrock/bedrock-deepseek/bedr
 
 /**
  * Array of all available provider manifests
+ * @deprecated Use LLMService.create() which auto-discovers manifests instead
  */
-export const allProviderManifests: LLMProviderManifest[] = [
+export const XXallProviderManifests: LLMProviderManifest[] = [
   openAIProviderManifest,
   azureOpenAIProviderManifest,
   vertexAIGeminiProviderManifest,

@@ -8,7 +8,7 @@ import { CodebaseInsightProcessor } from "./insightGenerator/codebase-insight-pr
  */
 async function main() {
   console.log(`START: ${new Date().toISOString()}`);
-  const { env, llmRouter } = bootstrapJustLLM();   
+  const { env, llmRouter } = await bootstrapJustLLM();   
   const srcDirPath = env.CODEBASE_DIR_PATH.replace(/\/$/, "");
   const srcFilepaths = await buildDirDescendingListOfFiles(srcDirPath);
   llmRouter.displayLLMStatusSummary();
