@@ -3,7 +3,7 @@ import { LLMProviderImpl, LLMModelSet, LLMModelMetadata } from "../types/llm-typ
 import { EnvVars } from "../types/env-types";
 import { BadConfigurationLLMError } from "../types/llm-errors";
 import { allProviderManifests } from "./providers";
-import { LLMProviderManifest } from "./providers/llm-provider-manifest.types";
+import { LLMProviderManifest } from "./providers/llm-provider.types";
 
 /**
  * Service for managing LLM providers using a registry-based approach

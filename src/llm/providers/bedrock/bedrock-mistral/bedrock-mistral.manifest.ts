@@ -1,4 +1,4 @@
-import { LLMProviderManifest } from "../../llm-provider-manifest.types";
+import { LLMProviderManifest } from "../../llm-provider.types";
 import { ModelFamily, ModelProviderType, ModelKey } from "../../../../types/llm-models-types";
 import BedrockMistralLLM from "./bedrock-mistral-llm";
 import { LLMPurpose } from "../../../../types/llm-types";

@@ -1,4 +1,4 @@
-import { LLMProviderManifest } from "./llm-provider-manifest.types";
+import { LLMProviderManifest } from "./llm-provider.types";
 import { openAIProviderManifest } from "./openai/openai/openai.manifest";
 import { azureOpenAIProviderManifest } from "./openai/azure-openai/azure-openai.manifest";
 import { vertexAIGeminiProviderManifest } from "./vertexai/vertex-ai-gemini/vertex-ai-gemini.manifest";

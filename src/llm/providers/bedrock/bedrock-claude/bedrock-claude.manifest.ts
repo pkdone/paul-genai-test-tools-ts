@@ -1,4 +1,4 @@
-import { LLMProviderManifest } from "../../llm-provider-manifest.types";
+import { LLMProviderManifest } from "../../llm-provider.types";
 import { ModelFamily, ModelProviderType, ModelKey } from "../../../../types/llm-models-types";
 import BedrockClaudeLLM from "./bedrock-claude-llm";
 import { LLMPurpose } from "../../../../types/llm-types";

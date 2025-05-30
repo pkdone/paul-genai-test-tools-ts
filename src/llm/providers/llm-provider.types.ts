@@ -1,5 +1,5 @@
 import { ModelFamily, ModelProviderType, ModelKey } from "../../types/llm-models-types";
-import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../types/llm-types";
+import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm-types";
 import { EnvVars } from "../../types/env-types";
 
 /**
@@ -29,4 +29,14 @@ export interface LLMProviderManifest {
     modelsMetadata: Record<ModelKey, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) => LLMProviderImpl;
-} 
+}
+
+/**
+ * Type to define the summary of the processed LLM implementation's response.
+ */
+export interface LLMImplSpecificResponseSummary {
+  isIncompleteResponse: boolean;
+  responseContent: LLMGeneratedContent;
+  tokenUsage: LLMResponseTokensUsage;
+}
+ 

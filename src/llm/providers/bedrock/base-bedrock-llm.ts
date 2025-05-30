@@ -4,7 +4,7 @@ from "@aws-sdk/client-bedrock-runtime";
 import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm-types";
 import { ModelKey } from "../../../types/llm-models-types";
 import llmConfig from "../../../config/llm.config";
-import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
 import { logErrorMsgAndDetail, getErrorText } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
 

@@ -1,7 +1,7 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMResponseStatus,
          LLMModelSet, LLMFunctionResponse, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm-types";
 import { ModelKey, ModelFamily } from "../../../types/llm-models-types";
-import { LLMImplSpecificResponseSummary } from "../llm-impl-types";
+import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
 import { getErrorText } from "../../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
