@@ -37,12 +37,12 @@ class LLMService {
    */
   getLlmProviderInstance(modelFamily: ModelFamily, env: EnvVars): LLMProviderImpl {
     if (!this.isInitialized) throw new Error("LLMService is not initialized. Call LLMService.create() first.");
-    const llmManifest = this.providerRegistry.get(modelFamily);
-    if (!llmManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
-    this.validateEnvironmentVariables(llmManifest, env);
-    const modelSet = this.constructModelSet(llmManifest);
-    const modelsMetadata = this.constructModelsMetadata(llmManifest);
-    const llmProvider = llmManifest.factory(env, modelSet, modelsMetadata, llmManifest.errorPatterns);
+    const llmProviderManifest = this.providerRegistry.get(modelFamily);
+    if (!llmProviderManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
+    this.validateEnvironmentVariables(llmProviderManifest, env);
+    const modelSet = this.constructModelSet(llmProviderManifest);
+    const modelsMetadata = this.constructModelsMetadata(llmProviderManifest);
+    const llmProvider = llmProviderManifest.factory(env, modelSet, modelsMetadata, llmProviderManifest.errorPatterns);
     return llmProvider;
   }
 
@@ -96,12 +96,12 @@ class LLMService {
   private async loadProviderImpl(implPath: string): Promise<void> {
     try {
       const filesInImplDir = await readDirContents(implPath);
-      const llmManifestFile = filesInImplDir
+      const llmProviderManifestFile = filesInImplDir
         .filter(file => file.isFile())
         .find(file => file.name.endsWith(fileSystemConfig.MANIFEST_FILE_SUFFIX));        
-      if (!llmManifestFile) return;      
-      const llmManifestPath = path.join(implPath, llmManifestFile.name);
-      await this.importAndRegisterManifest(llmManifestPath);
+      if (!llmProviderManifestFile) return;      
+      const llmProviderManifestPath = path.join(implPath, llmProviderManifestFile.name);
+      await this.importAndRegisterManifest(llmProviderManifestPath);
     } catch (error: unknown) {
       logErrorMsgAndDetail(`Failed to load manifest from ${implPath}`, error);
     }
@@ -113,15 +113,15 @@ class LLMService {
   private async importAndRegisterManifest(manifestPath: string): Promise<void> {
     const module: unknown = await import(manifestPath);    
     if (!module || typeof module !== 'object') return;
-    const llmManifestKey = Object.keys(module).find(key => 
+    const llmProviderManifestKey = Object.keys(module).find(key => 
       key.endsWith(fileSystemConfig.PROVIDER_MANIFEST_KEY));
       
-    if (!llmManifestKey || !(llmManifestKey in module)) {
+    if (!llmProviderManifestKey || !(llmProviderManifestKey in module)) {
       console.warn(`Could not find an exported manifest in ${manifestPath}`);
       return;
     }
     
-    const manifestValue = (module as Record<string, unknown>)[llmManifestKey];
+    const manifestValue = (module as Record<string, unknown>)[llmProviderManifestKey];
     
     if (this.isLlmValidManifest(manifestValue)) {
       this.providerRegistry.set(manifestValue.modelFamily, manifestValue);
@@ -145,11 +145,11 @@ class LLMService {
   /**
    * Validate that all required environment variables are present
    */
-  private validateEnvironmentVariables(llmManifest: LLMProviderManifest, env: EnvVars): void {
-    for (const envVarName of llmManifest.envVarNames) {
+  private validateEnvironmentVariables(llmProviderManifest: LLMProviderManifest, env: EnvVars): void {
+    for (const envVarName of llmProviderManifest.envVarNames) {
       if (!(envVarName in env) || !env[envVarName as keyof EnvVars]) {
         throw new BadConfigurationLLMError(
-          `Required environment variable '${envVarName}' is missing for provider '${llmManifest.providerName}'`
+          `Required environment variable '${envVarName}' is missing for provider '${llmProviderManifest.providerName}'`
         );
       }
     }
@@ -158,14 +158,14 @@ class LLMService {
   /**
    * Construct LLMModelSet from manifest
    */
-  private constructModelSet(llmManifest: LLMProviderManifest): LLMModelSet {
+  private constructModelSet(llmProviderManifest: LLMProviderManifest): LLMModelSet {
     const modelSet: LLMModelSet = {
-      embeddings: llmManifest.models.embeddings.key,
-      primaryCompletion: llmManifest.models.primaryCompletion.key,
+      embeddings: llmProviderManifest.models.embeddings.key,
+      primaryCompletion: llmProviderManifest.models.primaryCompletion.key,
     };
 
-    if (llmManifest.models.secondaryCompletion) {
-      modelSet.secondaryCompletion = llmManifest.models.secondaryCompletion.key;
+    if (llmProviderManifest.models.secondaryCompletion) {
+      modelSet.secondaryCompletion = llmProviderManifest.models.secondaryCompletion.key;
     }
 
     return modelSet;
@@ -174,22 +174,17 @@ class LLMService {
   /**
    * Construct LLMModelMetadata record from manifest
    */
-  private constructModelsMetadata(llmManifest: LLMProviderManifest): Record<string, LLMModelMetadata> {
+  private constructModelsMetadata(llmProviderManifest: LLMProviderManifest): Record<string, LLMModelMetadata> {
     const metadata: Record<string, LLMModelMetadata> = {};
-    metadata[llmManifest.models.embeddings.key] = llmManifest.models.embeddings;
-    metadata[llmManifest.models.primaryCompletion.key] = llmManifest.models.primaryCompletion;
+    metadata[llmProviderManifest.models.embeddings.key] = llmProviderManifest.models.embeddings;
+    metadata[llmProviderManifest.models.primaryCompletion.key] = llmProviderManifest.models.primaryCompletion;
     
-    if (llmManifest.models.secondaryCompletion) {
-      metadata[llmManifest.models.secondaryCompletion.key] = llmManifest.models.secondaryCompletion;
+    if (llmProviderManifest.models.secondaryCompletion) {
+      metadata[llmProviderManifest.models.secondaryCompletion.key] = llmProviderManifest.models.secondaryCompletion;
     }
 
     return metadata;
   }
-}
-
-// Export a factory function instead of a direct instance
-export async function createLlmService(): Promise<LLMService> {
-  return LLMService.create();
 }
 
 /**

@@ -102,6 +102,7 @@ From this output, use the URL defined for the `inferenceProfileArn` parameter.
 
 In the AWS Console, select the Bedrock Configuration | Model Access option and enable access for the models requried.
 
+
 ## Process for Adding LLM Providers
 
 After this refactoring, adding a new LLM provider involves:

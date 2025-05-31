@@ -11,10 +11,11 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {
-      key: ModelKey.UNSPECIFIED, // Claude does not have embeddings models
-      urn: "anthropic.claude-v2", // Placeholder, not actually used
+      key: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
+      urn: "amazon.titan-embed-text-v1",
       purpose: LLMPurpose.EMBEDDINGS,
-      maxTotalTokens: 0, // Placeholder
+      dimensions: 1536,
+      maxTotalTokens: 8192,
     },
     primaryCompletion: {
       key: ModelKey.AWS_COMPLETIONS_CLAUDE_V37,
