@@ -2,6 +2,10 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 
+// Environment variable name constants
+const GCP_API_PROJECTID_KEY = "GCP_API_PROJECTID";
+const GCP_API_LOCATION_KEY = "GCP_API_LOCATION";
+
 // Exported model key constants
 export const GCP_EMBEDDINGS_TEXT_005 = "GCP_EMBEDDINGS_TEXT_005";
 export const GCP_COMPLETIONS_GEMINI_PRO25 = "GCP_COMPLETIONS_GEMINI_PRO25";
@@ -10,7 +14,7 @@ export const GCP_COMPLETIONS_GEMINI_FLASH20 = "GCP_COMPLETIONS_GEMINI_FLASH20";
 export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   providerName: "VertexAI Gemini",
   modelFamily: "VertexAIGemini",
-  envVarNames: ["GCP_API_PROJECTID", "GCP_API_LOCATION"],
+  envVarNames: [GCP_API_PROJECTID_KEY, GCP_API_LOCATION_KEY],
   models: {
     embeddings: {
       key: GCP_EMBEDDINGS_TEXT_005,
@@ -37,15 +41,15 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   errorPatterns: [] as const, // VertexAI has no specific error patterns defined
   factory: (envConfig, modelSet, modelsMetadata, errorPatterns) => {
     const env = envConfig as {
-      GCP_API_PROJECTID: string;
-      GCP_API_LOCATION: string;
+      [GCP_API_PROJECTID_KEY]: string;
+      [GCP_API_LOCATION_KEY]: string;
     };
     return new VertexAIGeminiLLM(
       modelSet,
       modelsMetadata,
       errorPatterns,
-      env.GCP_API_PROJECTID,
-      env.GCP_API_LOCATION
+      env[GCP_API_PROJECTID_KEY],
+      env[GCP_API_LOCATION_KEY]
     );
   },
 }; 
