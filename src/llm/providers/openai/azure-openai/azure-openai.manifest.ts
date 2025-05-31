@@ -1,5 +1,4 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
-import { ModelProviderType } from "../../llm-provider.types";
 import AzureOpenAILLM from "./azure-openai-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
@@ -14,7 +13,6 @@ export const GPT_COMPLETIONS_GPT4_TURBO = "GPT_COMPLETIONS_GPT4_TURBO";
 export const azureOpenAIProviderManifest: LLMProviderManifest = {
   providerName: "Azure OpenAI",
   modelFamily: "AzureOpenAI",
-  modelProviderType: ModelProviderType.AZURE,
   envVarNames: [
     "AZURE_LLM_API_KEY",
     "AZURE_API_ENDPOINT",

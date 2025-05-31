@@ -1,5 +1,4 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
-import { ModelProviderType } from "../../llm-provider.types";
 import BedrockNovaLLM from "./bedrock-nova-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
@@ -12,7 +11,6 @@ export const AWS_COMPLETIONS_NOVA_LITE_V1 = "AWS_COMPLETIONS_NOVA_LITE_V1";
 export const bedrockNovaProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Nova",
   modelFamily: "BedrockNova",
-  modelProviderType: ModelProviderType.BEDROCK,
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {

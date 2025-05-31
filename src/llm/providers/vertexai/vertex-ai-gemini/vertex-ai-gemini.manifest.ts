@@ -1,5 +1,4 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
-import { ModelProviderType } from "../../llm-provider.types";
 import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
 
@@ -11,7 +10,6 @@ export const GCP_COMPLETIONS_GEMINI_FLASH20 = "GCP_COMPLETIONS_GEMINI_FLASH20";
 export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   providerName: "VertexAI Gemini",
   modelFamily: "VertexAIGemini",
-  modelProviderType: ModelProviderType.VERTEXAI,
   envVarNames: ["GCP_API_PROJECTID", "GCP_API_LOCATION"],
   models: {
     embeddings: {

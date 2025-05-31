@@ -1,5 +1,4 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
-import { ModelProviderType } from "../../llm-provider.types";
 import OpenAILLM from "./openai-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
@@ -12,7 +11,6 @@ export const GPT_COMPLETIONS_GPT4_TURBO = "GPT_COMPLETIONS_GPT4_TURBO";
 export const openAIProviderManifest: LLMProviderManifest = {
   providerName: "OpenAI GPT",
   modelFamily: "OpenAI",
-  modelProviderType: ModelProviderType.OPENAI,
   envVarNames: ["OPENAI_LLM_API_KEY"],
   models: {
     embeddings: {

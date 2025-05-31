@@ -34,14 +34,19 @@ export interface LLMModelSet {
  * Enum to define the LLM task type
  */
 export enum LLMPurpose { 
-  N_A = "n/a",
   EMBEDDINGS = "embeddings",
   COMPLETIONS = "completions",
 };
 
 /**
  * Type to define the main characteristics of the LLM model.
- */
+ * 
+ * Notes:
+ *  - For Completionss LLMs, the total allowed tokens is the sum of the prompt tokens and the
+ *    completions tokens.
+ *  - For Embeddings LLMs, the total allowed tokens is the amount of prompt tokens only (the
+ *    response is a fixed size array of numbers).
+ */ 
 export interface LLMModelMetadata {
   /** The string identifier for this model - changed from ModelKey enum to string */
   readonly key: string;

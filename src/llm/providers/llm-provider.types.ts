@@ -2,27 +2,6 @@ import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern
 import { EnvVars } from "../../types/env-types";
 
 /**
- * GENERAL NOTES:
- *  - For Completionss LLMs, the total allowed tokens is the sum of the prompt tokens and the
- *    completions tokens.
- *
- *  - For Embeddings LLMs, the total allowed tokens is the amount of prompt tokens only (the
- *    response is a fixed size array of numbers).
- *
- */ 
-
-/**
- * Enum for model provider types - used for coarse-grained platform categorization
- */
-export enum ModelProviderType {
-  N_A = "n/a",
-  OPENAI = "OpenAI",
-  AZURE = "Azure",
-  VERTEXAI = "VertexAI",
-  BEDROCK = "Bedrock"
-}
-
-/**
  * Complete manifest defining a provider's configuration
  */
 export interface LLMProviderManifest {
@@ -30,8 +9,6 @@ export interface LLMProviderManifest {
   providerName: string;
   /** Unique identifier for the provider/family - changed to string to decouple from ModelFamily enum */
   modelFamily: string;
-  /** The generic type of the provider */
-  modelProviderType: ModelProviderType;
   /** Array of environment variable names required by this provider */
   envVarNames: string[];
   /** Model configurations for this provider */
