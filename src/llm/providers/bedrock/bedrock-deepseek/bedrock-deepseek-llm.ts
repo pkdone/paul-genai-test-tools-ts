@@ -43,15 +43,20 @@ class BedrockDeepseekLLM extends BaseBedrockLLM {
   }
 }
 
-// Type definitions for the Deepseek specific completions LLM response usage.
+/**
+ * Type definitions for the Deepseek specific completions LLM response usage.
+ */
 interface DeepseekCompletionLLMSpecificResponse {
-  choices?: {
+  choices?: [{
     message?: {
       content?: string;
       reasoning_content?: string;
     };
     stop_reason?: string;
-  }[];
+  }];
+  usage?: {
+    inputTokens?: number;
+    outputTokens?: number;
+  }
 }
-
 export default BedrockDeepseekLLM;

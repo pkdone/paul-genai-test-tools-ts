@@ -33,24 +33,24 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Get the models metadata in a readonly format to prevent modifications by the caller.
    */
-  getModelsMetadata(): Readonly<Record<string, LLMModelMetadata>> {
+  getModelsMetadata() {
     return Object.freeze({ ...this.llmModelsMetadata });
   }
 
   /**
    * Get the model key for the embeddings model.
    */
-  getAvailableCompletionModelQualities(): LLMModelQuality[] {
+  getAvailableCompletionModelQualities() {
     const llmQualities: LLMModelQuality[] = [LLMModelQuality.PRIMARY];
     const secondaryCompletion = this.modelsKeys.secondaryCompletion;
-    if ((secondaryCompletion) && (secondaryCompletion !== "UNSPECIFIED")) llmQualities.push(LLMModelQuality.SECONDARY);
+    if (secondaryCompletion) llmQualities.push(LLMModelQuality.SECONDARY);
     return llmQualities;
   }
 
   /**
    * Get the model key for the embeddings model.
    */
-  getModelsNames(): string[] {
+  getModelsNames() {
     return [
       this.llmModelsMetadata[this.modelsKeys.embeddings].urn,
       this.llmModelsMetadata[this.modelsKeys.primaryCompletion].urn,
@@ -93,7 +93,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     const secondaryCompletion = this.modelsKeys.secondaryCompletion;
-    if ((!secondaryCompletion) || (secondaryCompletion === "UNSPECIFIED")) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
+    if (!secondaryCompletion) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
     return await this.executeLLMImplFunction(secondaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 

@@ -4,7 +4,7 @@ from "@aws-sdk/client-bedrock-runtime";
 import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm.types";
 import llmConfig from "../../../config/llm.config";
 import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
-import { getErrorText } from "../../../utils/error-utils";
+import { getErrorText, logErrorMsgAndDetail } from "../../../utils/error-utils";
 import AbstractLLM from "../base/abstract-llm";
 
 /**
@@ -19,7 +19,7 @@ import AbstractLLM from "../base/abstract-llm";
  */
 abstract class BaseBedrockLLM extends AbstractLLM {
   // Private fields
-  private readonly bedrockRuntimeClient: BedrockRuntimeClient;
+  private readonly client: BedrockRuntimeClient;
 
   /**
    * Constructor.
@@ -30,20 +30,36 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) {
     super(modelsKeys, modelsMetadata, errorPatterns);
-    // TODO: fix tis hardcoded region setting
-    this.bedrockRuntimeClient = new BedrockRuntimeClient({ region: "us-east-1" });
+    this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS } });  
   }
+
+  /**
+   * Call close on underlying LLM client library to release resources.
+   */ 
+  // eslint-disable-next-line @typescript-eslint/require-await
+  override async close() {
+    try {
+      this.client.destroy();
+    } catch (error: unknown) {
+      logErrorMsgAndDetail("Error when calling destroy on AWSBedrock LLM", error);
+    }
+  }  
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {
-    const params = this.buildFullLLMParameters(taskType, modelKey, prompt);    
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string) {
+    // Invoke LLM
+    const fullParameters = this.buildFullLLMParameters(taskType, modelKey, prompt);
+    const command = new InvokeModelCommand(fullParameters);
+    const rawResponse = await this.client.send(command);
+    const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(llmConfig.LLM_UTF8_ENCODING)) as Record<string, unknown>;
 
+    // Capture response content, finish reason and token usage 
     if (taskType === LLMPurpose.EMBEDDINGS) {
-      return this.invokeImplementationSpecificEmbeddingsLLM(params);
+      return this.extractEmbeddingModelSpecificResponse(llmResponse);
     } else {
-      return this.invokeImplementationSpecificCompletionLLM(params);
+      return this.extractCompletionModelSpecificResponse(llmResponse);
     }
   }
 
@@ -72,10 +88,26 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   }
 
   /**
-   * See if an error object indicates a network issue or throttling event.
+   * Extract the relevant information from the LLM specific response.
    */
-  protected isLLMOverloaded(error: unknown) {
-    return ((error instanceof ServiceUnavailableException) || (error instanceof ThrottlingException) || (error instanceof ModelTimeoutException));
+  protected extractEmbeddingModelSpecificResponse(llmResponse: TitanEmbeddingsLLMSpecificResponse) {
+    const responseContent = llmResponse.embedding ?? [];
+    const isIncompleteResponse = (!responseContent);  // If no content assume prompt maxed out total tokens available
+    const promptTokens = llmResponse.inputTextTokenCount ?? -1;
+    const completionTokens = llmResponse.results?.[0]?.tokenCount ?? -1;
+    const maxTotalTokens = -1;
+    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
+    return { isIncompleteResponse, responseContent, tokenUsage };
+  }
+  
+  /**
+   * See if the contents of the responses indicate inability to fully process request due to 
+   * overloading.
+   */
+  protected isLLMOverloaded(error: unknown) { 
+    return ((error instanceof ThrottlingException) || 
+            (error instanceof ModelTimeoutException)  ||
+            (error instanceof ServiceUnavailableException));
   }
 
   /**
@@ -83,62 +115,18 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    */
   protected isTokenLimitExceeded(error: unknown) {
     if (error instanceof ValidationException) {
-      const errorMsgLowercase = getErrorText(error).toLowerCase();
-      return errorMsgLowercase.includes("too many input tokens") || 
-             errorMsgLowercase.includes("too long") ||
-             errorMsgLowercase.includes("maximum context length") ||
-             errorMsgLowercase.includes("maxlength") ||
-             errorMsgLowercase.includes("limit");
+      const lowercaseContent = getErrorText(error).toLowerCase();    
+
+      if ((lowercaseContent.includes("too many input tokens")) ||
+          (lowercaseContent.includes("expected maxlength")) ||
+          (lowercaseContent.includes("input is too long")) ||
+          (lowercaseContent.includes("input length")) ||
+          (lowercaseContent.includes("please reduce the length of the prompt"))) {   // Llama
+        return true;
+      }
     }
 
     return false;
-  }
-
-  /**
-   * Invoke the actual LLM's embedding API directly.
-   */ 
-  private async invokeImplementationSpecificEmbeddingsLLM(fullLLMParams: {
-    modelId: string;
-    contentType: string;
-    accept: string;
-    body: string;
-  }): Promise<LLMImplSpecificResponseSummary> {
-    // Invoke LLM
-    const command = new InvokeModelCommand(fullLLMParams);
-    const llmResponse = await this.bedrockRuntimeClient.send(command);
-    const responseBodyText = new TextDecoder().decode(llmResponse.body);
-    const responseContent = JSON.parse(responseBodyText) as TitanEmbeddingsLLMSpecificResponse;
-
-    // Capture response content
-    const responseEmbedding = responseContent.embedding ?? [];
-
-    // Capture finish reason
-    const isIncompleteResponse = (responseEmbedding.length === 0);
-
-    // Capture token usage 
-    const promptTokens = responseContent.inputTextTokenCount ?? -1;
-    const completionTokens = -1;
-    const maxTotalTokens = -1;
-    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
-    return { isIncompleteResponse, responseContent: responseEmbedding, tokenUsage };
-  }
-
-  /**
-   * Invoke the actual LLM's completion API directly.
-   */ 
-  private async invokeImplementationSpecificCompletionLLM(fullLLMParams: {
-    modelId: string;
-    contentType: string;
-    accept: string;
-    body: string;
-  }): Promise<LLMImplSpecificResponseSummary> {
-    // Invoke LLM
-    const command = new InvokeModelCommand(fullLLMParams);
-    const llmResponse = await this.bedrockRuntimeClient.send(command);
-    const responseBodyText = new TextDecoder().decode(llmResponse.body);
-    const responseBodyJSONObj = JSON.parse(responseBodyText) as unknown;
-
-    return this.extractCompletionModelSpecificResponse(responseBodyJSONObj);
   }
 
   /**
@@ -153,7 +141,9 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   protected abstract extractCompletionModelSpecificResponse(llmResponse: unknown): LLMImplSpecificResponseSummary;
 }
 
-// Type definitions for the Titan specific embeddings LLM response usage.
+/**
+ * Type definitions for the Titan specific embeddings LLM response usage.
+ */
 interface TitanEmbeddingsLLMSpecificResponse {
   embedding?: number[]; 
   inputTextTokenCount?: number;

@@ -39,7 +39,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
       key: GPT_COMPLETIONS_GPT4_O,
       urn: "gpt-4o",
       purpose: LLMPurpose.COMPLETIONS,
-      maxCompletionTokens: 4096,
+      maxCompletionTokens: 16384,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {

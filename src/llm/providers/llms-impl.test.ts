@@ -6,7 +6,7 @@ import { extractTokensAmountFromMetadataDefaultingMissingValues,
          extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
 import { AWS_COMPLETIONS_CLAUDE_V35 } from "../providers/bedrock/bedrock-claude/bedrock-claude.manifest";
 import { GPT_COMPLETIONS_GPT4, GPT_COMPLETIONS_GPT4_32k } from "../providers/openai/azure-openai/azure-openai.manifest";
-import { AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT } from "../providers/bedrock/bedrock-llama/bedrock-llama.manifest";
+import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT } from "../providers/bedrock/bedrock-llama/bedrock-llama.manifest";
 
 // Mock complete environment for testing
 const mockEnv = {
@@ -65,15 +65,15 @@ const testModelsMetadata: Record<string, LLMModelMetadata> = {
     maxCompletionTokens: 4088,
     maxTotalTokens: 200000,
   },
-  [AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT]: {
-    key: AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT,
+  [AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT]: {
+    key: AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,
     urn: "meta.llama3-70b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
-  [AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT]: {
-    key: AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,
+  [AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT]: {
+    key: AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT,
     urn: "meta.llama3-1-405b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,

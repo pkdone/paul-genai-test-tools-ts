@@ -18,10 +18,15 @@ class BedrockMistralLLM extends BaseBedrockLLM {
    */
   protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
     return JSON.stringify({
-      prompt: `<s>[INST] ${prompt} [/INST]`,
-      max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        }
+      ],
       temperature: llmConfig.ZERO_TEMP,
       top_p: llmConfig.TOP_P_LOWEST,
+      max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
     });
   }
 
@@ -29,22 +34,34 @@ class BedrockMistralLLM extends BaseBedrockLLM {
    * Extract the relevant information from the completion LLM specific response.
    */
   protected extractCompletionModelSpecificResponse(llmResponse: MistralCompletionLLMSpecificResponse) {
-    const responseContent = llmResponse.outputs?.[0]?.text ?? "";
-    const finishReason = llmResponse.outputs?.[0]?.stop_reason ?? "";
+    const firstResponse = llmResponse.choices[0];
+    const responseContent = firstResponse.message?.content ?? null;
+    const finishReason = firstResponse.stop_reason ?? firstResponse.finish_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = ((finishReasonLowercase === "length")
-      || !responseContent);  // No content - assume prompt maxed out total tokens available
-    const tokenUsage = { promptTokens: -1, completionTokens: -1, maxTotalTokens: -1 };
+    const isIncompleteResponse = (finishReasonLowercase === "length") || (!responseContent);
+    const promptTokens = llmResponse.usage?.prompt_tokens ?? -1;
+    const completionTokens = llmResponse.usage?.completion_tokens ?? -1;
+    const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
+    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
 }
 
-// Type definitions for the Mistral specific completions LLM response usage.
+/**
+ * Type definitions for the Mistral specific completions LLM response usage.
+ */
 interface MistralCompletionLLMSpecificResponse {
-  outputs?: {
-    text?: string;
+  choices: [{
+    message?: {
+      content: string;
+    };
     stop_reason?: string;
-  }[];
+    finish_reason?: string;
+  }];
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+  }
 }
 
 export default BedrockMistralLLM;

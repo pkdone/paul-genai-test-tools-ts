@@ -35,7 +35,7 @@ class LLMRouter {
   /**
    * Call close on LLM implementation to release resources.
    */
-  async close(): Promise<void> {
+  async close() {
     await this.llm.close();
   }
 
@@ -51,7 +51,7 @@ class LLMRouter {
   /**
    * Get the maximum number of tokens for the given model quality. 
    */
-  getEmbeddedModelDimensions(): number | undefined {
+  getEmbeddedModelDimensions() {
     return this.llm.getEmbeddedModelDimensions();
   }
 
@@ -61,7 +61,7 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}): Promise<number[] | null> {
+  async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}) {
     context.purpose = LLMPurpose.EMBEDDINGS;
     const llmFunc = this.llm.generateEmbeddings.bind(this.llm);
     const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
@@ -85,7 +85,7 @@ class LLMRouter {
   async executeCompletion(resourceName: string, prompt: string, asJson = false,
                           context: LLMContext = {},
                           modelQualityOverride: LLMModelQuality | null = null
-                         ): Promise<string | object | null> {                            
+                         ) {                            
     const availableModelQualities = modelQualityOverride? [modelQualityOverride] : this.llm.getAvailableCompletionModelQualities();
     const modelQualityCompletionFunctions = this.getModelQualityCompletionFunctions(availableModelQualities);
     context.purpose = LLMPurpose.COMPLETIONS;
@@ -120,7 +120,7 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[], asJson = false): Promise<LLMGeneratedContent> {
+  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[], asJson = false) {
     let result: LLMGeneratedContent | null = null;
     let currentPrompt = prompt;
     let llmFuncIndex = 0;

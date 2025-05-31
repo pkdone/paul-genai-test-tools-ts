@@ -5,12 +5,12 @@ import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 
 // Exported model key constants
 export const AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1";
-export const AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT";
-export const AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT";
-export const AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT";
+export const AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT";
+export const AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT";
+export const AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT"
 
 /**
- * AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT & AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT: Not clear if
+ * AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT & AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT: Not clear if
  * 'maxCompletionsTokens' is actually less than listed value of 8192
  */
 
@@ -27,18 +27,18 @@ export const bedrockLlamaProviderManifest: LLMProviderManifest = {
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      key: AWS_COMPLETIONS_LLAMA_V3_70B_INSTRUCT,
-      urn: "meta.llama3-70b-instruct-v1:0",
+      key: AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT,
+      urn: "us.meta.llama3-3-70b-instruct-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
-      maxTotalTokens: 8192,
+      maxTotalTokens: 128000,
     },
     secondaryCompletion: {
-      key: AWS_COMPLETIONS_LLAMA_V3_8B_INSTRUCT,
-      urn: "meta.llama3-8b-instruct-v1:0",
+      key: AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT,
+      urn: "us.meta.llama3-2-90b-instruct-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
-      maxCompletionTokens: 8192,
-      maxTotalTokens: 8192,
+      maxCompletionTokens: 4096,
+      maxTotalTokens: 128000,
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,

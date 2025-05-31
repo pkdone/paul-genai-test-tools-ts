@@ -47,8 +47,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   getModelFamily(): string {
     return "VertexAIGemini";
   }    
-
-  /**
+/**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
   protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string) {
@@ -62,7 +61,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Invoke the actuall LLM's embedding API directly.
    */ 
-  protected async invokeImplementationSpecificEmbeddingsLLM(modelKey: string, prompt: string) {
+  protected async invokeImplementationSpecificEmbeddingsLLM(modelKey: string, prompt: string) {  
     // Invoke LLM
     const fullParameters = this.buildFullEmebddingsLLMParameters(modelKey, prompt);
     const llmResponses = await this.embeddingsApiClient.predict(fullParameters);

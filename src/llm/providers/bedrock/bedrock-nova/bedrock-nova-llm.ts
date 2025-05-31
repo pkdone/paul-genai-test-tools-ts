@@ -17,37 +17,58 @@ class BedrockNovaLLM extends BaseBedrockLLM {
    */
   protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
     return JSON.stringify({
-      prompt: prompt,
-      maxTokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
-      temperature: llmConfig.ZERO_TEMP,
-      topP: llmConfig.TOP_P_LOWEST,
-    });
-  }
+      inferenceConfig: {
+        max_new_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
+        temperature: llmConfig.ZERO_TEMP,
+        top_p: llmConfig.TOP_P_LOWEST,
+        top_k: llmConfig.TOP_K_LOWEST,
+      },      
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              text: prompt,
+            },
+          ],
+        },
+      ],
+    });  }
 
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
   protected extractCompletionModelSpecificResponse(llmResponse: NovaCompletionLLMSpecificResponse) {
-    const responseContent = llmResponse.completions?.[0]?.data?.text ?? "";
-    const finishReason = llmResponse.completions?.[0]?.finishReason?.reason ?? "";
+    const responseContent = llmResponse.output.message?.content?.[0]?.text ?? null;
+    const finishReason = llmResponse.stopReason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = ((finishReasonLowercase === "length")
-      || !responseContent);  // No content - assume prompt maxed out total tokens available
-    const tokenUsage = { promptTokens: -1, completionTokens: -1, maxTotalTokens: -1 };
+    const isIncompleteResponse = (finishReasonLowercase === "max_tokens") || (!responseContent);
+    const promptTokens = llmResponse.usage?.inputTokens ?? -1;
+    const completionTokens = llmResponse.usage?.outputTokens ?? -1;
+    const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
+    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
 }
 
-// Type definitions for the Nova specific completions LLM response usage.
+/**
+ * Type definitions for the Nova specific completions LLM response usage.
+ */
 interface NovaCompletionLLMSpecificResponse {
-  completions?: {
-    data?: {
-      text?: string;
+  output: {
+    message?: {
+      content?: [
+        {
+          text: string;
+        }
+      ];
     };
-    finishReason?: {
-      reason?: string;
-    };
-  }[];
+  };
+  stopReason?: string;
+  usage?: {
+    inputTokens?: number;
+    outputTokens?: number;
+  }
 }
 
 export default BedrockNovaLLM;
