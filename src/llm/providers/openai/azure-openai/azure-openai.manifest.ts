@@ -52,7 +52,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
-  factory: (envConfig, modelSet, modelsMetadata, errorPatterns) => {
+  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
     const env = envConfig as {
       [AZURE_LLM_API_KEY_KEY]: string;
       [AZURE_API_ENDPOINT_KEY]: string;
@@ -61,7 +61,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
       [AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY]: string;
     };
     return new AzureOpenAILLM(
-      modelSet,
+      modelsInternallKeySet,
       modelsMetadata,
       errorPatterns,
       env[AZURE_LLM_API_KEY_KEY],

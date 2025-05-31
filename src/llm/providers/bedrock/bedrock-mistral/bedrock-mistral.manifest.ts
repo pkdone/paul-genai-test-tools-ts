@@ -37,7 +37,7 @@ export const bedrockMistralProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
-  factory: (_envConfig, modelSet, modelsMetadata, errorPatterns) => {
-    return new BedrockMistralLLM(modelSet, modelsMetadata, errorPatterns);
+  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
+    return new BedrockMistralLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);
   },
 }; 

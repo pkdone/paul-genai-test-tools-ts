@@ -40,13 +40,13 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: [] as const, // VertexAI has no specific error patterns defined
-  factory: (envConfig, modelSet, modelsMetadata, errorPatterns) => {
+  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
     const env = envConfig as {
       [GCP_API_PROJECTID_KEY]: string;
       [GCP_API_LOCATION_KEY]: string;
     };
     return new VertexAIGeminiLLM(
-      modelSet,
+      modelsInternallKeySet,
       modelsMetadata,
       errorPatterns,
       env[GCP_API_PROJECTID_KEY],

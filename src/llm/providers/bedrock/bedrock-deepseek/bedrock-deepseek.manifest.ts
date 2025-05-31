@@ -29,7 +29,7 @@ export const bedrockDeepseekProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
-  factory: (_envConfig, modelSet, modelsMetadata, errorPatterns) => {
-    return new BedrockDeepseekLLM(modelSet, modelsMetadata, errorPatterns);
+  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
+    return new BedrockDeepseekLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);
   },
 }; 

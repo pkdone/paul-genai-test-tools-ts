@@ -22,7 +22,7 @@ export interface LLMProviderManifest {
   /** Factory function to create an instance of the provider's LLMProviderImpl */
   factory: (
     envConfig: Pick<EnvVars, keyof EnvVars>,
-    modelSet: LLMModelInternalKeysSet,
+    modelsInternallKeySet: LLMModelInternalKeysSet,
     modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) => LLMProviderImpl;

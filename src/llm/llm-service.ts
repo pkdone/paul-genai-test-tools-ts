@@ -1,6 +1,6 @@
 import path from 'path';
 import { fileSystemConfig } from "../config/fileSystem.config";
-import { LLMProviderImpl, LLMModelInternalKeysSet, LLMModelMetadata } from "../types/llm.types";
+import { LLMProviderImpl, LLMModelInternalKeysSet as LLMModelsInternalKeysSet, LLMModelMetadata } from "../types/llm.types";
 import { EnvVars } from "../types/env.types";
 import { BadConfigurationLLMError } from "../types/llm-errors.types";
 import { LLMProviderManifest } from "./providers/llm-provider.types";
@@ -39,9 +39,9 @@ class LLMService {
     const llmProviderManifest = this.providerRegistry.get(modelFamily);
     if (!llmProviderManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
     this.validateEnvironmentVariables(llmProviderManifest, env);
-    const modelSet = this.constructModelSet(llmProviderManifest);
+    const modelsInternallKeySet = this.constructModelsInternalKeysSet(llmProviderManifest);
     const modelsMetadata = this.constructModelsMetadata(llmProviderManifest);
-    const llmProvider = llmProviderManifest.factory(env, modelSet, modelsMetadata, llmProviderManifest.errorPatterns);
+    const llmProvider = llmProviderManifest.factory(env, modelsInternallKeySet, modelsMetadata, llmProviderManifest.errorPatterns);
     return llmProvider;
   }
 
@@ -157,17 +157,17 @@ class LLMService {
   /**
    * Construct LLMModelSet from manifest
    */
-  private constructModelSet(llmProviderManifest: LLMProviderManifest): LLMModelInternalKeysSet {
-    const modelSet: LLMModelInternalKeysSet = {
+  private constructModelsInternalKeysSet(llmProviderManifest: LLMProviderManifest): LLMModelsInternalKeysSet {
+    const modelsInternallKeySet: LLMModelsInternalKeysSet = {
       embeddingsInternalKey: llmProviderManifest.models.embeddings.internalKey,
       primaryCompletionInternalKey: llmProviderManifest.models.primaryCompletion.internalKey,
     };
 
     if (llmProviderManifest.models.secondaryCompletion) {
-      modelSet.secondaryCompletionInternalKey = llmProviderManifest.models.secondaryCompletion.internalKey;
+      modelsInternallKeySet.secondaryCompletionInternalKey = llmProviderManifest.models.secondaryCompletion.internalKey;
     }
 
-    return modelSet;
+    return modelsInternallKeySet;
   }
 
   /**
