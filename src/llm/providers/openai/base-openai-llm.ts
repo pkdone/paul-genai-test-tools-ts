@@ -1,5 +1,5 @@
 import { OpenAI } from "openai";
-import { LLMPurpose } from "../../../types/llm-types";
+import { LLMPurpose } from "../../../types/llm.types";
 import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
 import AbstractLLM from "../base/abstract-llm";
 

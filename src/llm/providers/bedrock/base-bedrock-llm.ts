@@ -1,7 +1,7 @@
 import { BedrockRuntimeClient, InvokeModelCommand, ServiceUnavailableException,
   ThrottlingException, ModelTimeoutException, ValidationException }
 from "@aws-sdk/client-bedrock-runtime";     
-import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm-types";
+import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm.types";
 import llmConfig from "../../../config/llm.config";
 import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
 import { getErrorText } from "../../../utils/error-utils";

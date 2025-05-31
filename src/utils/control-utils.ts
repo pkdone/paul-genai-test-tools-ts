@@ -1,5 +1,5 @@
 import { PromiseFunction, RetryFunc, CheckResultFunc, LogRetryEventFunc }
-       from "../types/control-types";
+       from "../types/control.types";
 
 /**
  * Executes a given array of task promise functions in batches, limiting the number of concurrent 

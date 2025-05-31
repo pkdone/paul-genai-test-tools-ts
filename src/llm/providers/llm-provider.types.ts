@@ -1,5 +1,5 @@
-import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm-types";
-import { EnvVars } from "../../types/env-types";
+import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm.types";
+import { EnvVars } from "../../types/env.types";
 
 /**
  * Complete manifest defining a provider's configuration

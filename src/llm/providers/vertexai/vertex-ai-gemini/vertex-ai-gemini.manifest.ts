@@ -1,6 +1,6 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
 import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
-import { LLMPurpose } from "../../../../types/llm-types";
+import { LLMPurpose } from "../../../../types/llm.types";
 
 // Exported model key constants
 export const GCP_EMBEDDINGS_TEXT_005 = "GCP_EMBEDDINGS_TEXT_005";

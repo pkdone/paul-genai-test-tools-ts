@@ -1,8 +1,8 @@
 import path from 'path';
 import { fileSystemConfig } from "../config/fileSystem.config";
-import { LLMProviderImpl, LLMModelSet, LLMModelMetadata } from "../types/llm-types";
-import { EnvVars } from "../types/env-types";
-import { BadConfigurationLLMError } from "../types/llm-errors";
+import { LLMProviderImpl, LLMModelSet, LLMModelMetadata } from "../types/llm.types";
+import { EnvVars } from "../types/env.types";
+import { BadConfigurationLLMError } from "../types/llm-errors.types";
 import { LLMProviderManifest } from "./providers/llm-provider.types";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { readDirContents } from "../utils/fs-utils";

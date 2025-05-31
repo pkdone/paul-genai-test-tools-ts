@@ -1,9 +1,9 @@
 import llmConfig from "../config/llm.config";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse,
-         LLMModelMetadata } from "../types/llm-types";
-import { RetryFunc } from "../types/control-types";
-import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors";
+         LLMModelMetadata } from "../types/llm.types";
+import { RetryFunc } from "../types/control.types";
+import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { withRetry } from "../utils/control-utils";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { log, logErrWithContext, logWithContext } from "./llm-router-logging";

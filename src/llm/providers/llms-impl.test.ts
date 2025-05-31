@@ -1,7 +1,7 @@
 import { azureOpenAIProviderManifest } from "./openai/azure-openai/azure-openai.manifest";
 import { bedrockClaudeProviderManifest } from "./bedrock/bedrock-claude/bedrock-claude.manifest";
 import { bedrockLlamaProviderManifest } from "./bedrock/bedrock-llama/bedrock-llama.manifest";
-import { LLMPurpose, LLMModelMetadata } from "../../types/llm-types";
+import { LLMPurpose, LLMModelMetadata } from "../../types/llm.types";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
 import { AWS_COMPLETIONS_CLAUDE_V35 } from "../providers/bedrock/bedrock-claude/bedrock-claude.manifest";

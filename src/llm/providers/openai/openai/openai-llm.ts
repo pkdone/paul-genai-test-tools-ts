@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
 import llmConfig from "../../../../config/llm.config";
-import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm-types";
+import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 
 /**

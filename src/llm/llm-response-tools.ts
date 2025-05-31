@@ -1,7 +1,7 @@
 import llmConfig from "../config/llm.config";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
-         LLMResponseStatus, LLMContext, LLMModelMetadata, LLMErrorMsgRegExPattern} from "../types/llm-types";
-import { BadResponseContentLLMError } from "../types/llm-errors";
+         LLMResponseStatus, LLMContext, LLMModelMetadata, LLMErrorMsgRegExPattern} from "../types/llm.types";
+import { BadResponseContentLLMError } from "../types/llm-errors.types";
 import { convertTextToJSON } from "../utils/json-tools";
 import { getErrorText } from "../utils/error-utils";
 

@@ -1,6 +1,6 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
 import AzureOpenAILLM from "./azure-openai-llm";
-import { LLMPurpose } from "../../../../types/llm-types";
+import { LLMPurpose } from "../../../../types/llm.types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
 
 // Exported model key constants

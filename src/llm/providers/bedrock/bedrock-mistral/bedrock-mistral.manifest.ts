@@ -1,6 +1,6 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
 import BedrockMistralLLM from "./bedrock-mistral-llm";
-import { LLMPurpose } from "../../../../types/llm-types";
+import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 
 // Exported model key constants

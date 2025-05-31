@@ -1,6 +1,6 @@
 import promptsConfig from "./config/prompts.config";
 import { readFile } from "./utils/fs-utils";
-import { LLMModelQuality } from "./types/llm-types";
+import { LLMModelQuality } from "./types/llm.types";
 import { bootstrapJustLLM } from "./env/bootstrap";
 
 /**

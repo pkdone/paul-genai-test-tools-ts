@@ -1,8 +1,8 @@
 import { AzureOpenAI, OpenAI } from "openai";
 import llmConfig from "../../../../config/llm.config";
-import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm-types";
+import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
-import { BadConfigurationLLMError } from "../../../../types/llm-errors";
+import { BadConfigurationLLMError } from "../../../../types/llm-errors.types";
 
 /**
  * Class for Azure's own managed version of the OpenAI service.

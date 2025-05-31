@@ -1,4 +1,4 @@
-import { LLMModelMetadata, LLMPurpose } from "../types/llm-types";
+import { LLMModelMetadata, LLMPurpose } from "../types/llm.types";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { z } from "zod";
 

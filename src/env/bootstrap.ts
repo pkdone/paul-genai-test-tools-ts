@@ -3,7 +3,7 @@ import mongoDBService from "../utils/mongodb-service";
 import LLMRouter from "../llm/llm-router";
 import { getLLMProvider } from "../llm/llm-service";
 import dotenv from "dotenv";
-import { envVarsSchema, EnvVars } from "../types/env-types";
+import { envVarsSchema, EnvVars } from "../types/env.types";
 
 /**
  * Utility function to load environment variables and validate them.

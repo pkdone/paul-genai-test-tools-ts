@@ -3,11 +3,11 @@ import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshol
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import llmConfig from "../../../../config/llm.config";
-import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm-types";
+import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import { getErrorText } from "../../../../utils/error-utils";
 import AbstractLLM from "../../base/abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
-       from "../../../../types/llm-errors";
+       from "../../../../types/llm-errors.types";
 const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT,
                                            FinishReason.RECITATION, FinishReason.SAFETY,
                                            FinishReason.SPII];
