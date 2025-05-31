@@ -11,11 +11,13 @@ export const AWS_COMPLETIONS_CLAUDE_V37 = "AWS_COMPLETIONS_CLAUDE_V37";
 export const AWS_COMPLETIONS_CLAUDE_V40 = "AWS_COMPLETIONS_CLAUDE_V40";
 
 /**
- *  AWS_COMPLETIONS_CLAUDE_V35: According to Anthropic site, the 'maxCompletionsTokens' should be
- *  8192 but Bedrock seems to cut this short to usually 4095 or 4096 but have seen 4090 reported for
- *  some LLM responses, so using a few tokens buffer to come up with a limit of 4088
+ * AWS_COMPLETIONS_CLAUDE_V35: According to Anthropic site, the 'maxCompletionsTokens' should be
+ * 8192 but Bedrock seems to cut this short to usually 4095 or 4096 but have seen 4090 reported for
+ * some LLM responses, so using a few tokens buffer to come up with a limit of 4088
  *
- *  AWS_COMPLETIONS_CLAUDE_V37: Bedrock seems to be limiting the max model tokens to 132k and
+ * AWS_COMPLETIONS_CLAUDE_V40: Bedrock seems to be limiting the max model response tokens to around
+ * 39k when it should be 65536, and when its over this amount an "overloaded" response is always 
+ * returned.
  */
 
 export const bedrockClaudeProviderManifest: LLMProviderManifest = {
@@ -34,14 +36,14 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
       internalKey: AWS_COMPLETIONS_CLAUDE_V37,
       urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
-      maxCompletionTokens: 64000,
-      maxTotalTokens: 131072,
+      maxCompletionTokens: 65536,
+      maxTotalTokens: 200000,
     },
     secondaryCompletion: {
       internalKey: AWS_COMPLETIONS_CLAUDE_V40,
       urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
-      maxCompletionTokens: 64000,
+      maxCompletionTokens: 39200,
       maxTotalTokens: 200000,
     },
   },

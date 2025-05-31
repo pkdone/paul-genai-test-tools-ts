@@ -36,7 +36,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
       temperature: llmConfig.ZERO_TEMP,
       top_p: llmConfig.TOP_P_LOWEST,
       top_k: llmConfig.TOP_K_LOWEST,
-      max_tokens: this.llmModelsMetadata[modelInternalKey].maxTotalTokens,    
+      max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,    
     });
   }
 
