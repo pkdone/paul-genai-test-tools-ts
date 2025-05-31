@@ -1,5 +1,6 @@
 import llmConfig from "../../../../config/llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
+import { BEDROCK_NOVA } from "./bedrock-nova.manifest";
 
 /** 
  * Class for the AWS Bedrock Nova LLMs.
@@ -9,7 +10,7 @@ class BedrockNovaLLM extends BaseBedrockLLM {
    * Get the model family this LLM implementation belongs to.
    */
   getModelFamily(): string {
-    return "BedrockNova";
+    return BEDROCK_NOVA;
   }    
     
   /**

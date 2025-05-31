@@ -1,5 +1,6 @@
 import llmConfig from "../../../../config/llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
+import { BEDROCK_CLAUDE } from "./bedrock-claude.manifest";
 
 /** 
  * Class for the AWS Bedrock [Anthropic] Claude LLMs.
@@ -9,8 +10,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
    * Get the model family this LLM implementation belongs to.
    */
   getModelFamily(): string {
-    // TODO: Make common constant
-    return "BedrockClaude";
+    return BEDROCK_CLAUDE;
   }    
     
   /**

@@ -1,5 +1,6 @@
 import llmConfig from "../../../../config/llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
+import { BEDROCK_TITAN } from "./bedrock-titan.manifest";
 
 /**
  * Class for the AWS Bedrock Titan LLMs.
@@ -9,7 +10,7 @@ class BedrockTitanLLM extends BaseBedrockLLM {
    * Get the model family this LLM implementation belongs to.
    */
   getModelFamily(): string {
-    return "BedrockTitan";
+    return BEDROCK_TITAN;
   }    
     
   /**

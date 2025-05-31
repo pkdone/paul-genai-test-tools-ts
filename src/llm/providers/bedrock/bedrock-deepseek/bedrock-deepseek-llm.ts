@@ -1,5 +1,6 @@
 import llmConfig from "../../../../config/llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
+import { BEDROCK_DEEPSEEK } from "./bedrock-deepseek.manifest";
 
 /** 
  * Class for the AWS Bedrock [Anthropic] Claude LLMs.
@@ -9,7 +10,7 @@ class BedrockDeepseekLLM extends BaseBedrockLLM {
    * Get the model family this LLM implementation belongs to.
    */
   getModelFamily(): string {
-    return "BedrockDeepseek";
+    return BEDROCK_DEEPSEEK;
   }    
     
   /**

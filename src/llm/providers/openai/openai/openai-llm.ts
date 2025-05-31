@@ -2,6 +2,7 @@ import { OpenAI } from "openai";
 import llmConfig from "../../../../config/llm.config";
 import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
+import { OPENAI } from "./openai.manifest";
 
 /**
  * Class for the public OpenAI service.
@@ -27,7 +28,7 @@ class OpenAILLM extends BaseOpenAILLM {
    * Get the model family this LLM implementation belongs to.
    */
   getModelFamily(): string {
-    return "OpenAI";
+    return OPENAI;
   }
 
   /**

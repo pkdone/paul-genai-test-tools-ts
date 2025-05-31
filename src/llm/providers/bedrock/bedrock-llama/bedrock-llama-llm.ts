@@ -1,6 +1,6 @@
 import llmConfig from "../../../../config/llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
-import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT } from "./bedrock-llama.manifest";
+import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, BEDROCK_LLAMA } from "./bedrock-llama.manifest";
 
 /** 
  * Class for the AWS Bedrock Llama LLMs.
@@ -11,7 +11,7 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
    * Get the model family this LLM implementation belongs to.
    */
   getModelFamily(): string {
-    return "BedrockLlama";
+    return BEDROCK_LLAMA;
   }    
     
   /**

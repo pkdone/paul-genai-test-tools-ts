@@ -1,5 +1,6 @@
 import llmConfig from "../../../../config/llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
+import { BEDROCK_MISTRAL } from "./bedrock-mistral.manifest";
 
 /** 
  * Class for the AWS Bedrock Mistral LLMs.
@@ -10,7 +11,7 @@ class BedrockMistralLLM extends BaseBedrockLLM {
    * Get the model family this LLM implementation belongs to.
    */
   getModelFamily(): string {
-    return "BedrockMistral";
+    return BEDROCK_MISTRAL;
   }        
 
   /**

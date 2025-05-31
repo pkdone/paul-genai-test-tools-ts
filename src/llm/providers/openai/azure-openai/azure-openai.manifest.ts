@@ -10,7 +10,8 @@ const AZURE_API_EMBEDDINGS_MODEL_KEY = "AZURE_API_EMBEDDINGS_MODEL";
 const AZURE_API_COMPLETIONS_MODEL_PRIMARY_KEY = "AZURE_API_COMPLETIONS_MODEL_PRIMARY";
 const AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY = "AZURE_API_COMPLETIONS_MODEL_SECONDARY";
 
-// Exported model key constants
+// Exported constants
+export const AZURE_OPENAI = "AzureOpenAI";
 export const GPT_EMBEDDINGS_ADA002 = "GPT_EMBEDDINGS_ADA002";
 export const GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4";
 export const GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k";
@@ -19,7 +20,7 @@ export const GPT_COMPLETIONS_GPT4_TURBO = "GPT_COMPLETIONS_GPT4_TURBO";
 
 export const azureOpenAIProviderManifest: LLMProviderManifest = {
   providerName: "Azure OpenAI",
-  modelFamily: "AzureOpenAI",
+  modelFamily: AZURE_OPENAI,
   envVarNames: [
     AZURE_LLM_API_KEY_KEY,
     AZURE_API_ENDPOINT_KEY,

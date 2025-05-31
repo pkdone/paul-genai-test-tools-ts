@@ -3,13 +3,14 @@ import BedrockDeepseekLLM from "./bedrock-deepseek-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 
-// Exported model key constants
+// Exported constants
+export const BEDROCK_DEEPSEEK = "BedrockDeepseek";
 export const AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1";
 export const AWS_COMPLETIONS_DEEPSEEKE_R1 = "AWS_COMPLETIONS_DEEPSEEKE_R1";
 
 export const bedrockDeepseekProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Deepseek",
-  modelFamily: "BedrockDeepseek",
+  modelFamily: BEDROCK_DEEPSEEK,
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {

@@ -3,13 +3,14 @@ import BedrockTitanLLM from "./bedrock-titan-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 
-// Exported model key constants
+// Exported constants
+export const BEDROCK_TITAN = "BedrockTitan";
 export const AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1";
 export const AWS_COMPLETIONS_TITAN_EXPRESS_V1 = "AWS_COMPLETIONS_TITAN_EXPRESS_V1";
 
 export const bedrockTitanProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Titan",
-  modelFamily: "BedrockTitan",
+  modelFamily: BEDROCK_TITAN,
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {

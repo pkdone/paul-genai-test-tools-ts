@@ -3,7 +3,8 @@ import BedrockLlamaLLM from "./bedrock-llama-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 
-// Exported model key constants
+// Exported constants 
+export const BEDROCK_LLAMA = "BedrockLlama";
 export const AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1";
 export const AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT";
 export const AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT";
@@ -16,7 +17,7 @@ export const AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V3
 
 export const bedrockLlamaProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Llama",
-  modelFamily: "BedrockLlama",
+  modelFamily: BEDROCK_LLAMA,
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {

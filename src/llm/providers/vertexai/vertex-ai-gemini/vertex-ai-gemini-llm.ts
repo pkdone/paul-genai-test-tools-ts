@@ -8,6 +8,7 @@ import { getErrorText } from "../../../../utils/error-utils";
 import AbstractLLM from "../../base/abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
        from "../../../../types/llm-errors.types";
+import { VERTEX_GEMINI } from "./vertex-ai-gemini.manifest";
 const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT,
                                            FinishReason.RECITATION, FinishReason.SAFETY,
                                            FinishReason.SPII];
@@ -45,7 +46,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Get the model family this LLM implementation belongs to.
    */
   getModelFamily(): string {
-    return "VertexAIGemini";
+    return VERTEX_GEMINI;
   }    
 /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.

@@ -3,6 +3,7 @@ import llmConfig from "../../../../config/llm.config";
 import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { BadConfigurationLLMError } from "../../../../types/llm-errors.types";
+import { AZURE_OPENAI } from "./azure-openai.manifest";
 
 /**
  * Class for Azure's own managed version of the OpenAI service.
@@ -43,7 +44,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
    * Get the model family this LLM implementation belongs to.
    */
   getModelFamily(): string {
-    return "AzureOpenAI";
+    return AZURE_OPENAI;
   }
 
  /**

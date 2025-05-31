@@ -6,14 +6,15 @@ import { LLMPurpose } from "../../../../types/llm.types";
 const GCP_API_PROJECTID_KEY = "GCP_API_PROJECTID";
 const GCP_API_LOCATION_KEY = "GCP_API_LOCATION";
 
-// Exported model key constants
+// Exported constants
+export const VERTEX_GEMINI = "VertexAIGemini";
 export const GCP_EMBEDDINGS_TEXT_005 = "GCP_EMBEDDINGS_TEXT_005";
 export const GCP_COMPLETIONS_GEMINI_PRO25 = "GCP_COMPLETIONS_GEMINI_PRO25";
 export const GCP_COMPLETIONS_GEMINI_FLASH20 = "GCP_COMPLETIONS_GEMINI_FLASH20";
 
 export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   providerName: "VertexAI Gemini",
-  modelFamily: "VertexAIGemini",
+  modelFamily: VERTEX_GEMINI,
   envVarNames: [GCP_API_PROJECTID_KEY, GCP_API_LOCATION_KEY],
   models: {
     embeddings: {
