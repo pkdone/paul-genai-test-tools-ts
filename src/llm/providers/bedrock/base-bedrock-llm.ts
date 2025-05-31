@@ -30,6 +30,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) {
     super(modelsKeys, modelsMetadata, errorPatterns);
+    // TODO: fix tis hardcoded region setting
     this.bedrockRuntimeClient = new BedrockRuntimeClient({ region: "us-east-1" });
   }
 

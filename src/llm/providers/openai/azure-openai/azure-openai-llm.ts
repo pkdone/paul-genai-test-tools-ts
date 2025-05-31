@@ -35,7 +35,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
       this.modelToDeploymentMappings.set(secondaryCompletion, secondaryCompletionsDeployment);
     }
 
-    const apiVersion = llmConfig.AZURE_API_VERION;
+    const apiVersion = llmConfig.AZURE_API_VERSION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
 
