@@ -1,4 +1,3 @@
-import { ModelFamily } from "./llm-models-types";
 import { z } from "zod";
 
 // Base schema for common environment variables
@@ -18,8 +17,8 @@ const baseEnvVarsSchema = z.object({
       if (typeof val === "boolean") return val;
       return val === "true";
     }),
-  // LLM provider selection
-  LLM: z.nativeEnum(ModelFamily),
+  // LLM provider selection 
+  LLM: z.string(),
   // All possible LLM provider environment variables (optional)
   OPENAI_LLM_API_KEY: z.string().optional(),
   AZURE_LLM_API_KEY: z.string().optional(),

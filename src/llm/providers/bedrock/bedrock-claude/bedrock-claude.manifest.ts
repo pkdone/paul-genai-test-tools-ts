@@ -1,31 +1,45 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
-import { ModelFamily, ModelProviderType, ModelKey } from "../../../../types/llm-models-types";
+import { ModelProviderType } from "../../llm-provider.types";
 import BedrockClaudeLLM from "./bedrock-claude-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 
+// Exported model key constants
+export const AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1";
+export const AWS_COMPLETIONS_CLAUDE_V35 = "AWS_COMPLETIONS_CLAUDE_V35";
+export const AWS_COMPLETIONS_CLAUDE_V37 = "AWS_COMPLETIONS_CLAUDE_V37";
+export const AWS_COMPLETIONS_CLAUDE_V40 = "AWS_COMPLETIONS_CLAUDE_V40";
+
+/**
+ *  AWS_COMPLETIONS_CLAUDE_V35: According to Anthropic site, the 'maxCompletionsTokens' should be
+ *  8192 but Bedrock seems to cut this short to usually 4095 or 4096 but have seen 4090 reported for
+ *  some LLM responses, so using a few tokens buffer to come up with a limit of 4088
+ *
+ *  AWS_COMPLETIONS_CLAUDE_V37: Bedrock seems to be limiting the max model tokens to 132k and
+ */
+
 export const bedrockClaudeProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Claude",
-  modelFamily: ModelFamily.BEDROCK_CLAUDE_MODELS,
+  modelFamily: "BedrockClaude",
   modelProviderType: ModelProviderType.BEDROCK,
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {
-      key: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
+      key: AWS_EMBEDDINGS_TITAN_V1,
       urn: "amazon.titan-embed-text-v1",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      key: ModelKey.AWS_COMPLETIONS_CLAUDE_V37,
+      key: AWS_COMPLETIONS_CLAUDE_V37,
       urn: "anthropic.claude-3-opus-20240229-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4088,
       maxTotalTokens: 132000, 
     },
     secondaryCompletion: {
-      key: ModelKey.AWS_COMPLETIONS_CLAUDE_V40,
+      key: AWS_COMPLETIONS_CLAUDE_V40,
       urn: "anthropic.claude-3-5-sonnet-20240620-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4088,

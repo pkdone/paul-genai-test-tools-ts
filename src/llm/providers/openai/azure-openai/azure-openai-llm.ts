@@ -1,6 +1,5 @@
 import { AzureOpenAI, OpenAI } from "openai";
 import llmConfig from "../../../../config/llm.config";
-import { ModelFamily, ModelKey } from "../../../../types/llm-models-types";
 import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm-types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { BadConfigurationLLMError } from "../../../../types/llm-errors";
@@ -18,21 +17,21 @@ class AzureOpenAILLM extends BaseOpenAILLM {
    */
   constructor(
     modelsKeys: LLMModelSet,
-    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly apiKey: string,
     readonly endpoint: string,
     readonly embeddingsDeployment: string,
     readonly primaryCompletionsDeployment: string,
     readonly secondaryCompletionsDeployment: string
-  ) {
+  ) { 
     super(modelsKeys, modelsMetadata, errorPatterns);
     this.modelToDeploymentMappings = new Map();
     this.modelToDeploymentMappings.set(modelsKeys.embeddings, embeddingsDeployment);
     this.modelToDeploymentMappings.set(modelsKeys.primaryCompletion, primaryCompletionsDeployment);
     const secondaryCompletion = modelsKeys.secondaryCompletion;
 
-    if ((secondaryCompletion) && (secondaryCompletion !== ModelKey.UNSPECIFIED)) {
+    if ((secondaryCompletion) && (secondaryCompletion !== "UNSPECIFIED")) {
       this.modelToDeploymentMappings.set(secondaryCompletion, secondaryCompletionsDeployment);
     }
 
@@ -43,9 +42,9 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
-  getModelFamily(): ModelFamily {
-    return ModelFamily.AZURE_OPENAI_MODELS;
-  }    
+  getModelFamily(): string {
+    return "AzureOpenAI";
+  }
 
   /**
    * Abstract method to get the client object for the specific LLM provider.
@@ -57,7 +56,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
     const deployment = this.modelToDeploymentMappings.get(modelKey);
     if (!deployment) throw new BadConfigurationLLMError(`Model key ${modelKey} not found for ${this.constructor.name}`);      
 

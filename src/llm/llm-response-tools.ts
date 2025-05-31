@@ -1,5 +1,4 @@
 import llmConfig from "../config/llm.config";
-import { ModelKey } from "../types/llm-models-types";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
          LLMResponseStatus, LLMContext, LLMModelMetadata, LLMErrorMsgRegExPattern} from "../types/llm-types";
 import { BadResponseContentLLMError } from "../types/llm-errors";
@@ -11,7 +10,7 @@ import { getErrorText } from "../utils/error-utils";
  * values.
  */
 export function extractTokensAmountFromMetadataDefaultingMissingValues(
-  modelKey: ModelKey, 
+  modelKey: string, 
   tokenUsage: LLMResponseTokensUsage,
   modelsMetadata: Record<string, LLMModelMetadata>
 ) {
@@ -27,7 +26,7 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(
  * for all prompt/completions/maxTokens if not found in the error message.
  */
 export function extractTokensAmountAndLimitFromErrorMsg(
-  modelKey: ModelKey, 
+  modelKey: string, 
   prompt: string, 
   errorMsg: string,
   modelsMetadata: Record<string, LLMModelMetadata>,
@@ -51,7 +50,7 @@ export function extractTokensAmountAndLimitFromErrorMsg(
  * Extract token usage information from LLM error message.
  */
 function parseTokenUsageFromLLMError(
-  modelKey: ModelKey, 
+  modelKey: string, 
   errorMsg: string,
   llmModelsMetadata: Record<string, LLMModelMetadata>,
   errorPatterns?: readonly LLMErrorMsgRegExPattern[]
@@ -94,7 +93,7 @@ function parseTokenUsageFromLLMError(
  */
 export function postProcessAsJSONIfNeededGeneratingNewResult(
   skeletonResult: LLMFunctionResponse, 
-  modelKey: ModelKey, 
+  modelKey: string, 
   taskType: LLMPurpose, 
   responseContent: LLMGeneratedContent, 
   asJson: boolean, 
@@ -121,7 +120,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
  */
 export function reducePromptSizeToTokenLimit(
   prompt: string, 
-  modelKey: ModelKey, 
+  modelKey: string, 
   tokensUage: LLMResponseTokensUsage,
   modelsMetadata: Record<string, LLMModelMetadata>
 ) {

@@ -1,5 +1,3 @@
-import { ModelKey, ModelFamily } from "./llm-models-types";
-
 /**
  * Interface for LLM implementation provider
  */
@@ -10,7 +8,7 @@ export interface LLMProviderImpl {
   getModelsNames(): string[],
   getAvailableCompletionModelQualities(): LLMModelQuality[],
   getEmbeddedModelDimensions(): number | undefined,
-  getModelFamily(): ModelFamily,
+  getModelFamily(): string,
   getModelsMetadata(): Readonly<Record<string, LLMModelMetadata>>,
   close(): Promise<void>,
 };
@@ -27,9 +25,9 @@ export enum LLMModelQuality {
  * Types to define the status types statistics
  */
 export interface LLMModelSet {
-  embeddings: ModelKey,
-  primaryCompletion: ModelKey,
-  secondaryCompletion?: ModelKey,
+  embeddings: string,
+  primaryCompletion: string,
+  secondaryCompletion?: string,
 }
 
 /**
@@ -45,8 +43,8 @@ export enum LLMPurpose {
  * Type to define the main characteristics of the LLM model.
  */
 export interface LLMModelMetadata {
-  /** The ModelKey identifier for this model */
-  readonly key: ModelKey;
+  /** The string identifier for this model - changed from ModelKey enum to string */
+  readonly key: string;
   /** The actual model ID/name used by the provider API */
   readonly urn: string;
   /** Whether this is an embedding or completion model */
@@ -94,7 +92,7 @@ export type LLMGeneratedContent = string | Record<string, unknown> | number[] | 
 export interface LLMFunctionResponse {
   readonly status: LLMResponseStatus,
   readonly request: string,
-  readonly modelKey: ModelKey,
+  readonly modelKey: string,
   readonly context: LLMContext,
   readonly generated?: LLMGeneratedContent,
   readonly tokensUage?: LLMResponseTokensUsage,

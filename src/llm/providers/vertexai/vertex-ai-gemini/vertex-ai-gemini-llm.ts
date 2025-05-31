@@ -3,7 +3,6 @@ import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshol
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import llmConfig from "../../../../config/llm.config";
-import { ModelFamily, ModelKey } from "../../../../types/llm-models-types";
 import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm-types";
 import { getErrorText } from "../../../../utils/error-utils";
 import AbstractLLM from "../../base/abstract-llm";
@@ -31,7 +30,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    */
   constructor(
     modelsKeys: LLMModelSet,
-    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly project: string,
     readonly location: string
@@ -45,14 +44,14 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
-  getModelFamily(): ModelFamily {
-    return ModelFamily.VERTEXAI_GEMINI_MODELS;
+  getModelFamily(): string {
+    return "VertexAIGemini";
   }    
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string) {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       return await this.invokeImplementationSpecificEmbeddingsLLM(modelKey, prompt);
     } else {
@@ -63,7 +62,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Invoke the actuall LLM's embedding API directly.
    */ 
-  protected async invokeImplementationSpecificEmbeddingsLLM(modelKey: ModelKey, prompt: string) {  
+  protected async invokeImplementationSpecificEmbeddingsLLM(modelKey: string, prompt: string) {
     // Invoke LLM
     const fullParameters = this.buildFullEmebddingsLLMParameters(modelKey, prompt);
     const llmResponses = await this.embeddingsApiClient.predict(fullParameters);
@@ -85,7 +84,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Invoke the actuall LLM's completion API directly.
    */ 
-  protected async invokeImplementationSpecificCompletionLLM(modelKey: ModelKey, prompt: string) {
+  protected async invokeImplementationSpecificCompletionLLM(modelKey: string, prompt: string) {
     // Invoke LLM
     const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(modelKey);
     const llm = this.vertexAiApiClient.getGenerativeModel(modelParams, requestOptions);
@@ -149,7 +148,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullEmebddingsLLMParameters(modelKey: ModelKey, prompt: string) {
+  private buildFullEmebddingsLLMParameters(modelKey: string, prompt: string) {
     const model = this.llmModelsMetadata[modelKey].urn;
     const endpoint = `${this.apiEndpointPrefix}${model}`;
     const instance = helpers.toValue({ content: prompt, task_type: llmConfig.GCP_API_EMBEDDINGS_TASK_TYPE });
@@ -161,7 +160,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullCompletionLLMParameters(modelKey: ModelKey) {
+  private buildFullCompletionLLMParameters(modelKey: string) {
     const modelParams = { 
       model: this.llmModelsMetadata[modelKey].urn,
       generationConfig: { 

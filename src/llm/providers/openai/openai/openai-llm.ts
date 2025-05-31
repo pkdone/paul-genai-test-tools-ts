@@ -1,6 +1,5 @@
 import { OpenAI } from "openai";
 import llmConfig from "../../../../config/llm.config";
-import { ModelKey, ModelFamily } from "../../../../types/llm-models-types";
 import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm-types";
 import BaseOpenAILLM from "../base-openai-llm";
 
@@ -16,7 +15,7 @@ class OpenAILLM extends BaseOpenAILLM {
    */
   constructor(
     modelsKeys: LLMModelSet,
-    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly apiKey: string
   ) { 
@@ -27,8 +26,8 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
-  getModelFamily(): ModelFamily {
-    return ModelFamily.OPENAI_MODELS;
+  getModelFamily(): string {
+    return "OpenAI";
   }
 
   /**
@@ -41,7 +40,7 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
         model: this.llmModelsMetadata[modelKey].urn,

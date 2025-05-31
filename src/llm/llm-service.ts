@@ -1,6 +1,5 @@
 import path from 'path';
 import { fileSystemConfig } from "../config/fileSystem.config";
-import { ModelFamily } from "../types/llm-models-types";
 import { LLMProviderImpl, LLMModelSet, LLMModelMetadata } from "../types/llm-types";
 import { EnvVars } from "../types/env-types";
 import { BadConfigurationLLMError } from "../types/llm-errors";
@@ -12,7 +11,7 @@ import { readDirContents } from "../utils/fs-utils";
  * Service for managing LLM providers using auto-discovery of manifests
  */
 class LLMService {
-  private readonly providerRegistry: Map<ModelFamily, LLMProviderManifest>;
+  private readonly providerRegistry: Map<string, LLMProviderManifest>;
   private isInitialized = false;
 
   /**
@@ -35,7 +34,7 @@ class LLMService {
   /**
    * Get an LLM provider instance for the given model family and environment
    */
-  getLlmProviderInstance(modelFamily: ModelFamily, env: EnvVars): LLMProviderImpl {
+  getLlmProviderInstance(modelFamily: string, env: EnvVars): LLMProviderImpl {
     if (!this.isInitialized) throw new Error("LLMService is not initialized. Call LLMService.create() first.");
     const llmProviderManifest = this.providerRegistry.get(modelFamily);
     if (!llmProviderManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);

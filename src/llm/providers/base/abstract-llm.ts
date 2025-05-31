@@ -1,6 +1,5 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMResponseStatus,
          LLMModelSet, LLMFunctionResponse, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm-types";
-import { ModelKey, ModelFamily } from "../../../types/llm-models-types";
 import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
 import { getErrorText } from "../../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
@@ -23,7 +22,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   constructor(
     modelsKeys: LLMModelSet,
-    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) {
     this.modelsKeys = modelsKeys;
@@ -44,7 +43,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   getAvailableCompletionModelQualities(): LLMModelQuality[] {
     const llmQualities: LLMModelQuality[] = [LLMModelQuality.PRIMARY];
     const secondaryCompletion = this.modelsKeys.secondaryCompletion;
-    if ((secondaryCompletion) && (secondaryCompletion !== ModelKey.UNSPECIFIED)) llmQualities.push(LLMModelQuality.SECONDARY);
+    if ((secondaryCompletion) && (secondaryCompletion !== "UNSPECIFIED")) llmQualities.push(LLMModelQuality.SECONDARY);
     return llmQualities;
   }
 
@@ -94,7 +93,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
     const secondaryCompletion = this.modelsKeys.secondaryCompletion;
-    if ((!secondaryCompletion) || (secondaryCompletion === ModelKey.UNSPECIFIED)) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
+    if ((!secondaryCompletion) || (secondaryCompletion === "UNSPECIFIED")) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
     return await this.executeLLMImplFunction(secondaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
@@ -108,7 +107,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Used for debugging purposes - prints the error type and message to the console.
    */
-  protected debugCurrentlyNonCheckedErrorTypes(error: unknown, modelKey: ModelKey) {
+  protected debugCurrentlyNonCheckedErrorTypes(error: unknown, modelKey: string) {
     if (error instanceof Error) {
       console.log(`${error.constructor.name}: ${getErrorText(error)} - LLM: ${this.llmModelsMetadata[modelKey].urn}`);
     }
@@ -117,7 +116,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Executes the LLM function for the given model key and task type.
    */
-  private async executeLLMImplFunction(modelKey: ModelKey, taskType: LLMPurpose, request: string, asJson: boolean, context: LLMContext): Promise<LLMFunctionResponse> { 
+  private async executeLLMImplFunction(modelKey: string, taskType: LLMPurpose, request: string, asJson: boolean, context: LLMContext): Promise<LLMFunctionResponse> { 
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, modelKey };
 
     try {
@@ -144,12 +143,12 @@ abstract class AbstractLLM implements LLMProviderImpl {
   /**
    * Get the model family for this LLM provider.
    */
-  abstract getModelFamily(): ModelFamily;
+  abstract getModelFamily(): string;
 
   /**
    * Invoke the implementation-specific LLM function.
    */
-  protected abstract invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): Promise<LLMImplSpecificResponseSummary>;
+  protected abstract invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string): Promise<LLMImplSpecificResponseSummary>;
 
   /**
    * Is the LLM overloaded?

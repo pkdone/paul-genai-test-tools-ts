@@ -1,12 +1,19 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
-import { ModelFamily, ModelProviderType, ModelKey } from "../../../../types/llm-models-types";
+import { ModelProviderType } from "../../llm-provider.types";
 import AzureOpenAILLM from "./azure-openai-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
 
+// Exported model key constants
+export const GPT_EMBEDDINGS_ADA002 = "GPT_EMBEDDINGS_ADA002";
+export const GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4";
+export const GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k";
+export const GPT_COMPLETIONS_GPT4_O = "GPT_COMPLETIONS_GPT4_O";
+export const GPT_COMPLETIONS_GPT4_TURBO = "GPT_COMPLETIONS_GPT4_TURBO";
+
 export const azureOpenAIProviderManifest: LLMProviderManifest = {
   providerName: "Azure OpenAI",
-  modelFamily: ModelFamily.AZURE_OPENAI_MODELS,
+  modelFamily: "AzureOpenAI",
   modelProviderType: ModelProviderType.AZURE,
   envVarNames: [
     "AZURE_LLM_API_KEY",
@@ -17,21 +24,21 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
   ],
   models: {
     embeddings: {
-      key: ModelKey.GPT_EMBEDDINGS_ADA002,
+      key: GPT_EMBEDDINGS_ADA002,
       urn: "text-embedding-ada-002",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8191,
     },
     primaryCompletion: {
-      key: ModelKey.GPT_COMPLETIONS_GPT4_O,
+      key: GPT_COMPLETIONS_GPT4_O,
       urn: "gpt-4o",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {
-      key: ModelKey.GPT_COMPLETIONS_GPT4_TURBO,
+      key: GPT_COMPLETIONS_GPT4_TURBO,
       urn: "gpt-4-turbo",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,

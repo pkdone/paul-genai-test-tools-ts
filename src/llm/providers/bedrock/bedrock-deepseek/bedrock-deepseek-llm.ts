@@ -1,5 +1,4 @@
 import llmConfig from "../../../../config/llm.config";
-import { ModelFamily, ModelKey } from "../../../../types/llm-models-types";
 import BaseBedrockLLM from "../base-bedrock-llm";
 
 /** 
@@ -9,14 +8,14 @@ class BedrockDeepseekLLM extends BaseBedrockLLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
-  getModelFamily(): ModelFamily {
-    return ModelFamily.BEDROCK_DEEPSEEK_MODELS;
+  getModelFamily(): string {
+    return "BedrockDeepseek";
   }    
     
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
     return JSON.stringify({
       messages: [
         {
@@ -46,17 +45,13 @@ class BedrockDeepseekLLM extends BaseBedrockLLM {
 
 // Type definitions for the Deepseek specific completions LLM response usage.
 interface DeepseekCompletionLLMSpecificResponse {
-  choices?: [{
+  choices?: {
     message?: {
       content?: string;
       reasoning_content?: string;
     };
     stop_reason?: string;
-  }];
-  usage?: {
-    inputTokens?: number;
-    outputTokens?: number;
-  }
+  }[];
 }
 
 export default BedrockDeepseekLLM;

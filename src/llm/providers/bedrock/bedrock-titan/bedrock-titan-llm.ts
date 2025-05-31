@@ -1,5 +1,4 @@
 import llmConfig from "../../../../config/llm.config";
-import { ModelFamily, ModelKey } from "../../../../types/llm-models-types";
 import BaseBedrockLLM from "../base-bedrock-llm";
 
 /**
@@ -9,14 +8,14 @@ class BedrockTitanLLM extends BaseBedrockLLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
-  getModelFamily(): ModelFamily {
-    return ModelFamily.BEDROCK_TITAN_MODELS;
+  getModelFamily(): string {
+    return "BedrockTitan";
   }    
     
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
     return JSON.stringify({
       inputText: prompt,
       textGenerationConfig: {
@@ -48,12 +47,12 @@ class BedrockTitanLLM extends BaseBedrockLLM {
  * Type definitions for the Titan specific completions LLM response usage.
  */
 interface TitanCompletionLLMSpecificResponse {
+  inputTextTokenCount?: number;
   results?: {
+    tokenCount?: number;
     outputText?: string;
     completionReason?: string;
-    tokenCount?: number;
   }[];
-  inputTextTokenCount?: number;
 }
 
 export default BedrockTitanLLM;

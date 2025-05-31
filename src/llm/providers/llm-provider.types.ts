@@ -1,6 +1,26 @@
-import { ModelFamily, ModelProviderType, ModelKey } from "../../types/llm-models-types";
 import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm-types";
 import { EnvVars } from "../../types/env-types";
+
+/**
+ * GENERAL NOTES:
+ *  - For Completionss LLMs, the total allowed tokens is the sum of the prompt tokens and the
+ *    completions tokens.
+ *
+ *  - For Embeddings LLMs, the total allowed tokens is the amount of prompt tokens only (the
+ *    response is a fixed size array of numbers).
+ *
+ */ 
+
+/**
+ * Enum for model provider types - used for coarse-grained platform categorization
+ */
+export enum ModelProviderType {
+  N_A = "n/a",
+  OPENAI = "OpenAI",
+  AZURE = "Azure",
+  VERTEXAI = "VertexAI",
+  BEDROCK = "Bedrock"
+}
 
 /**
  * Complete manifest defining a provider's configuration
@@ -8,8 +28,8 @@ import { EnvVars } from "../../types/env-types";
 export interface LLMProviderManifest {
   /** User-friendly name for the provider */
   providerName: string;
-  /** Unique identifier for the provider/family */
-  modelFamily: ModelFamily;
+  /** Unique identifier for the provider/family - changed to string to decouple from ModelFamily enum */
+  modelFamily: string;
   /** The generic type of the provider */
   modelProviderType: ModelProviderType;
   /** Array of environment variable names required by this provider */
@@ -26,7 +46,7 @@ export interface LLMProviderManifest {
   factory: (
     envConfig: Pick<EnvVars, keyof EnvVars>,
     modelSet: LLMModelSet,
-    modelsMetadata: Record<ModelKey, LLMModelMetadata>,
+    modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) => LLMProviderImpl;
 }
@@ -39,4 +59,3 @@ export interface LLMImplSpecificResponseSummary {
   responseContent: LLMGeneratedContent;
   tokenUsage: LLMResponseTokensUsage;
 }
- 

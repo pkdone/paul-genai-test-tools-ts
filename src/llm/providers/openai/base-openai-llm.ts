@@ -1,117 +1,108 @@
-import { OpenAI, RateLimitError, InternalServerError } from "openai";
-import { APIError } from "openai/error";
+import { OpenAI } from "openai";
 import { LLMPurpose } from "../../../types/llm-types";
-import { ModelKey } from "../../../types/llm-models-types";
+import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
 import AbstractLLM from "../base/abstract-llm";
 
 /**
- * Abstract class for GPT managed LLM provider services (subclasses might be OpenAI or Azure
- * implementations).
- * 
- * Some of the possible receivable OpenAI exceptions as of April 2025:
- * 
- * APIError, BadRequestError, AuthenticationError, RateLimitError, InternalServerError, 
- * PermissionDeniedError, NotFoundError, UnprocessableEntityError
+ * Abstract base class for all OpenAI-based LLM providers.
  */
 abstract class BaseOpenAILLM extends AbstractLLM {
+
   /**
-   * 
-   * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
+   * Execute the prompt against the LLM and return the relevant summary of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: ModelKey, prompt: string) {
-    const params = this.buildFullLLMParameters(taskType, modelKey, prompt);    
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string): Promise<LLMImplSpecificResponseSummary> {    
+    const fullParameters = this.buildFullLLMParameters(taskType, modelKey, prompt);
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
-      return this.invokeImplementationSpecificEmbeddingsLLM(params as OpenAI.EmbeddingCreateParams);
+      return this.invokeEmbeddingsLLM(fullParameters as OpenAI.EmbeddingCreateParams);
     } else {
-      return this.invokeImplementationSpecificCompletionLLM(params as OpenAI.ChatCompletionCreateParams);
+      return this.invokeCompletionLLM(fullParameters as OpenAI.Chat.ChatCompletionCreateParams);
     }
   }
 
   /**
-   * Invoke the actuall LLM's embedding API directly.
-   */ 
-  protected async invokeImplementationSpecificEmbeddingsLLM(params: OpenAI.EmbeddingCreateParams) {
-    // Invoke LLM
-    const llmResponses = await this.getClient().embeddings.create(params);
-    const llmResponse = llmResponses.data[0];
-
-    // Capture response content
-    const responseContent = llmResponse.embedding;
-    
-    // Capture finish reason
-    const isIncompleteResponse = (!responseContent);
-
-    // Capture token usage 
-    const promptTokens = llmResponses.usage.prompt_tokens;
-    const completionTokens = -1;
-    const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
-    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
-    return { isIncompleteResponse, responseContent, tokenUsage };
-  }
-
-  /**
-   * Invoke the actuall LLM's completion API directly.
-   */ 
-  protected async invokeImplementationSpecificCompletionLLM(params: OpenAI.ChatCompletionCreateParams) {
-    // Invoke LLM
-    const llmResponses = (await this.getClient().chat.completions.create(params)) as OpenAI.ChatCompletion;
-    const llmResponse = llmResponses.choices[0];
-
-    // Capture response content
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    const responseContent = llmResponse?.message?.content; // Using extra condition checking in case Open AI types say these should exists, but they don't happen to at runtime
-
-    // Capture finish reason
-    const finishReason = llmResponse.finish_reason;
-    const isIncompleteResponse = (finishReason === "length") || (!responseContent);
-
-    // Capture token usage 
-    const promptTokens = llmResponses.usage?.prompt_tokens ?? -1;
-    const completionTokens = llmResponses.usage?.completion_tokens ?? -1;
-    const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
-    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
-    return { isIncompleteResponse, responseContent, tokenUsage };
-  }
-
-  /**
-   * See if an error object indicates a network issue or throttling event.
+   * Check if an error indicates the LLM is overloaded.
    */
-  protected isLLMOverloaded(error: unknown) {
-    if ((error instanceof APIError) && (error.code === "insufficient_quota")) {
-      return false;
+  protected isLLMOverloaded(error: unknown): boolean {
+    if (error instanceof Error) {
+      const message = error.message.toLowerCase();
+      return message.includes("rate limit") || 
+             message.includes("too many requests") ||
+             message.includes("429") ||
+             message.includes("503");
     }
-
-    return ((error instanceof RateLimitError) || (error instanceof InternalServerError));
-  }
-
-  /**
-   * Check to see if error code indicates potential token limit has been exceeded.
-   */
-  protected isTokenLimitExceeded(error: unknown) {
-    if (error instanceof APIError) {
-      return error.code === "context_length_exceeded" ||
-             error.type === "invalid_request_error";
-    }
-
     return false;
   }
 
   /**
-   * Abstract method to get the client object for the specific LLM provider.
+   * Check if an error indicates token limit has been exceeded.
+   */
+  protected isTokenLimitExceeded(error: unknown): boolean {
+    if (error instanceof Error) {
+      const message = error.message.toLowerCase();
+      return message.includes("maximum context length") ||
+             message.includes("token limit") ||
+             message.includes("too long");
+    }
+    return false;
+  }
+
+  /**
+   * Invoke embeddings LLM with the given parameters.
+   */
+  private async invokeEmbeddingsLLM(params: OpenAI.EmbeddingCreateParams): Promise<LLMImplSpecificResponseSummary> {
+    const client = this.getClient();
+    const llmResponse = await client.embeddings.create(params);
+
+    // Extract response content
+    const responseContent = llmResponse.data[0].embedding;
+
+    // Capture finish reason
+    const isIncompleteResponse = responseContent.length === 0;
+
+    // Capture token usage
+    const promptTokens = llmResponse.usage.prompt_tokens;
+    const completionTokens = -1;
+    const maxTotalTokens = -1;
+    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
+
+    return { isIncompleteResponse, responseContent, tokenUsage };
+  }
+
+  /**
+   * Invoke completion LLM with the given parameters.
+   */
+  private async invokeCompletionLLM(params: OpenAI.Chat.ChatCompletionCreateParams): Promise<LLMImplSpecificResponseSummary> {
+    const client = this.getClient();
+    const llmResponse = await client.chat.completions.create(params) as OpenAI.Chat.ChatCompletion;
+
+    // Extract response content
+    const responseContent = llmResponse.choices[0].message.content ?? "";
+
+    // Capture finish reason
+    const finishReason = llmResponse.choices[0].finish_reason;
+    const isIncompleteResponse = finishReason === "length" || !responseContent;
+
+    // Capture token usage
+    const promptTokens = llmResponse.usage?.prompt_tokens ?? -1;
+    const completionTokens = llmResponse.usage?.completion_tokens ?? -1;
+    const maxTotalTokens = -1;
+    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
+
+    return { isIncompleteResponse, responseContent, tokenUsage };
+  }
+
+  /**
+   * Abstract method to get the OpenAI client instance.
    */
   protected abstract getClient(): OpenAI;
-  
-  /**
-   * Abstract method to assemble the OpenAI API parameters structure for the given model and prompt.
-   */
-  protected abstract buildFullLLMParameters(taskType: LLMPurpose, modelKey: ModelKey, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
 
-  // Expose private methods for unit testing
-  // eslint-disable-next-line @typescript-eslint/member-ordering
-  TEST_isLLMOverloaded = this.isLLMOverloaded.bind(this);
-  // eslint-disable-next-line @typescript-eslint/member-ordering
-  TEST_isTokenLimitExceeded = this.isTokenLimitExceeded.bind(this);  
+  /**
+   * Abstract method to build LLM parameters for the specific provider.
+   */
+  protected abstract buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string): 
+    OpenAI.EmbeddingCreateParams | OpenAI.Chat.ChatCompletionCreateParams;
 }
 
 export default BaseOpenAILLM;

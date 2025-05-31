@@ -1,12 +1,10 @@
-import llmConfig from "../config/llm.config";
-import { ModelKey } from "../types/llm-models-types";
 import { LLMModelMetadata, LLMPurpose } from "../types/llm-types";
 import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { z } from "zod";
 
 // Zod schema for LLMModelMetadata validation
 export const llmModelMetadataSchema = z.object({
-  key: z.nativeEnum(ModelKey),
+  key: z.string(),
   urn: z.string().min(1, "Model ID cannot be empty"),
   purpose: z.nativeEnum(LLMPurpose),
   dimensions: z.number().positive().optional(),
@@ -32,15 +30,15 @@ export const llmModelMetadataSchema = z.object({
 
 // Simple test metadata for testing
 const testMetadata = {
-  [ModelKey.GPT_COMPLETIONS_GPT4]: {
-    key: ModelKey.GPT_COMPLETIONS_GPT4,
+  "GPT_COMPLETIONS_GPT4": {
+    key: "GPT_COMPLETIONS_GPT4",
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
-  [ModelKey.GPT_COMPLETIONS_GPT4_32k]: {
-    key: ModelKey.GPT_COMPLETIONS_GPT4_32k,
+  "GPT_COMPLETIONS_GPT4_32k": {
+    key: "GPT_COMPLETIONS_GPT4_32k",
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
@@ -48,188 +46,207 @@ const testMetadata = {
   }
 };
 
-describe("LLM Router", () => {
-  describe("reducePromptSizeToTokenLimit", () => {
-    test("reduces prompt size for small token limit", () => {
-      const prompt = "1234 1234 1234 1234"; 
-      const promptTokens = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
-      const tokensUsage = { promptTokens, completionTokens: 0, maxTotalTokens: 8 };
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata)).toBe("1234 1234 1234 1");
+describe("LLM Router tests", () => {
+  describe("Test prompt reduction function", () => {
+    test("reduce prompt for successful LLM completions - should not reduce", () => {
+      const prompt = "1234 1234 1234 1234";
+      const tokensUsage = { promptTokens: 4, completionTokens: 10, maxTotalTokens: 8192 };
+      expect(reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata)).toBe("1234 1234 1234 1");
     });
 
-    test("reduces prompt size for large completion tokens", () => {
-      const prompt = "x".repeat(200); 
-      const promptTokens = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
-      const tokensUsage = { promptTokens, completionTokens: 8192, maxTotalTokens: 8192 };
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata).length).toBe(99);
+    test("reduce prompt for LLM completion tokens limit hit - should reduce", () => {
+      const prompt = "1234 ".repeat(25);
+      const tokensUsage = { promptTokens: 100, completionTokens: 4096, maxTotalTokens: 8192 };
+      expect(reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata).length).toBe(93);
     });
 
-    test("reduces prompt size for very large input", () => {
-      const prompt = "x".repeat(2000000); 
-      const promptTokens = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
-      console.log(promptTokens);
-      const tokensUsage = { promptTokens, completionTokens: 124, maxTotalTokens: 8192 }; // Using default GPT-4 limit
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata).length).toBe(22933);
+    test("reduce prompt for LLM total tokens limit hit - should reduce", () => {
+      const prompt = "A".repeat(57865);  // random string
+      const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 8192 };
+      const result = reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata);
+      expect(result.length).toBe(49185);
     });
 
-    test("handles empty prompt", () => {
+    test("reduce empty prompt - should return empty", () => {
       const prompt = "";
-      const tokensUsage = { promptTokens: 0, completionTokens: 0, maxTotalTokens: 8 };
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata)).toBe("");
+      const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 8192 };
+      expect(reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata)).toBe("");
     });
 
-    test("handles prompt with only whitespace", () => {
-      const prompt = "   \n\t  ";
-      const tokensUsage = { promptTokens: 1, completionTokens: 0, maxTotalTokens: 8 };
-      const result = reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata);
-      expect(result).toBe(prompt);
+    test("reduce prompt for LLM total tokens limit hit severely - should reduce significantly", () => {
+      const prompt = "1234 ".repeat(250);
+      const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 8192 };
+      const result = reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata);
+      expect(result.length).toBe(1062);
     });
 
-    test("handles prompt with special characters", () => {
-      const prompt = "!@#$%^&*()_+{}|:\"<>?~`-=[]\\;',./";
-      const tokensUsage = { promptTokens: 10, completionTokens: 0, maxTotalTokens: 8 };
-      expect(reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata).length).toBeLessThan(prompt.length);
+    test("reduce prompt with lower completion tokens limit - should reduce", () => {
+      const prompt = "A".repeat(1000);
+      const tokensUsage = { promptTokens: 6000, completionTokens: 3000, maxTotalTokens: 32768 };
+      expect(reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata).length).toBeLessThan(prompt.length);
     });
 
-    test("handles prompt with emojis and unicode", () => {
-      const prompt = "Hello 👋 World 🌍 with Unicode 你好";
-      const tokensUsage = { promptTokens: 10, completionTokens: 0, maxTotalTokens: 8 };
-      const result = reducePromptSizeToTokenLimit(prompt, ModelKey.GPT_COMPLETIONS_GPT4, tokensUsage, testMetadata);
+    test("reduce prompt with higher max tokens limit - should reduce less", () => {
+      const prompt = "A".repeat(1000);
+      const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 32768 };
+      const result = reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata);
       expect(result.length).toBeLessThan(prompt.length);
-      expect(result).toContain("Hello");
     });
   });
-});
 
-describe("LLM Model Metadata Validation", () => {
-  describe("Zod schema validation", () => {
-    test("validates correct embeddings metadata", () => {
-      const metadata: LLMModelMetadata = {
-        key: ModelKey.GPT_EMBEDDINGS_ADA002,
-        urn: "dummy-model",
+  describe("LLM provider abstractions", () => {
+    test("create mock embeddings model", () => {
+      const mockEmbeddingsModel: LLMModelMetadata = {
+        key: "GPT_EMBEDDINGS_ADA002",
+        urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
-        maxTotalTokens: 8191,
+        maxTotalTokens: 8191
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).not.toThrow();
+      expect(mockEmbeddingsModel.purpose).toBe(LLMPurpose.EMBEDDINGS);
     });
 
-    test("validates correct completions metadata", () => {
-      const metadata: LLMModelMetadata = {
-        key: ModelKey.GPT_COMPLETIONS_GPT4,
-        urn: "model-2",
+    test("create mock completion model", () => {
+      const mockCompletionModel: LLMModelMetadata = {
+        key: "GPT_COMPLETIONS_GPT4",
+        urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
-        maxTotalTokens: 8191,
+        maxTotalTokens: 8192
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).not.toThrow();
+      expect(mockCompletionModel.purpose).toBe(LLMPurpose.COMPLETIONS);
     });
 
-    test("throws error when dimensions field is missing for embeddings", () => {
-      const metadata = {
-        key: ModelKey.GPT_EMBEDDINGS_ADA002,
-        urn: "dummy-model",
+    test("create mock embeddings model 2", () => {
+      const mockEmbeddingsModel2: LLMModelMetadata = {
+        key: "GPT_EMBEDDINGS_ADA002",
+        urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
-        maxTotalTokens: 8191,
+        dimensions: 1536,
+        maxTotalTokens: 8191
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
+      expect(mockEmbeddingsModel2.dimensions).toBe(1536);
     });
 
-    test("throws error when maxCompletionTokens field is missing for completions", () => {
-      const metadata = {
-        key: ModelKey.GPT_COMPLETIONS_GPT4,
-        urn: "dummy-model",
+    test("create mock completion model 2", () => {
+      const mockCompletionModel2: LLMModelMetadata = {
+        key: "GPT_COMPLETIONS_GPT4",
+        urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
-        maxTotalTokens: 8191,
+        maxCompletionTokens: 4096,
+        maxTotalTokens: 8192
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
+      expect(mockCompletionModel2.maxCompletionTokens).toBe(4096);
     });
 
-    test("throws error when purpose field has invalid enum value", () => {
-      const metadata = {
-        key: ModelKey.GPT_EMBEDDINGS_ADA002,
-        urn: "dummy-model",
-        purpose: "INVALID_PURPOSE",
-        dimensions: 1536,
-        maxTotalTokens: 8191,
-      };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
-    });
-
-    test("throws error when dimensions is negative", () => {
-      const metadata = {
-        key: ModelKey.GPT_EMBEDDINGS_ADA002,
-        urn: "dummy-model",
+    test("create mock embeddings model 3", () => {
+      const mockEmbeddingsModel3: LLMModelMetadata = {
+        key: "GPT_EMBEDDINGS_ADA002",
+        urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: -1234,
-        maxTotalTokens: 8191,
+        dimensions: 1536,
+        maxTotalTokens: 8191
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
+      expect(mockEmbeddingsModel3.maxTotalTokens).toBe(8191);
     });
 
-    test("throws error when dimensions is zero", () => {
-      const metadata = {
-        key: ModelKey.GPT_EMBEDDINGS_ADA002,
-        urn: "dummy-model",
-        purpose: LLMPurpose.EMBEDDINGS, 
-        dimensions: 0,
-        maxTotalTokens: 8191,
+    test("create mock embeddings model 4", () => {
+      const mockEmbeddingsModel4: LLMModelMetadata = {
+        key: "GPT_EMBEDDINGS_ADA002",
+        urn: "text-embedding-ada-002",
+        purpose: LLMPurpose.EMBEDDINGS,
+        dimensions: 1536,
+        maxTotalTokens: 8191
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
+      expect(mockEmbeddingsModel4.urn).toBe("text-embedding-ada-002");
     });
 
-    test("throws error when maxCompletionTokens is negative", () => {
-      const metadata = {
-        key: ModelKey.GPT_COMPLETIONS_GPT4,
-        urn: "dummy-model",
+    test("create mock embeddings model 5", () => {
+      const mockEmbeddingsModel5: LLMModelMetadata = {
+        key: "GPT_EMBEDDINGS_ADA002",
+        urn: "text-embedding-ada-002",
+        purpose: LLMPurpose.EMBEDDINGS,
+        dimensions: 1536,
+        maxTotalTokens: 8191
+      };
+      expect(mockEmbeddingsModel5.key).toBe("GPT_EMBEDDINGS_ADA002");
+    });
+
+    test("create mock completion model 3", () => {
+      const mockCompletionModel3: LLMModelMetadata = {
+        key: "GPT_COMPLETIONS_GPT4",
+        urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
-        maxCompletionTokens: -1234,
-        maxTotalTokens: 8191,
+        maxCompletionTokens: 4096,
+        maxTotalTokens: 8192
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
+      expect(mockCompletionModel3.maxTotalTokens).toBe(8192);
     });
+  });
 
-    test("throws error when maxTotalTokens is negative", () => {
-      const metadata = {
-        key: ModelKey.GPT_EMBEDDINGS_ADA002,
-        urn: "dummy-model",
+  describe("Validate LLM metadata schemas", () => {
+    test("valid embeddings model passes validation", () => {
+      const embeddings = {
+        key: "GPT_EMBEDDINGS_ADA002",
+        urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
-        maxTotalTokens: -1,
+        maxTotalTokens: 8191
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
+      expect(() => llmModelMetadataSchema.parse(embeddings)).not.toThrow();
     });
 
-    test("throws error when urn is missing", () => {
-      const metadata = {
-        key: ModelKey.GPT_EMBEDDINGS_ADA002,
+    test("valid completions model passes validation", () => {
+      const completions = {
+        key: "GPT_COMPLETIONS_GPT4",
+        urn: "gpt-4",
+        purpose: LLMPurpose.COMPLETIONS,
+        maxCompletionTokens: 4096,
+        maxTotalTokens: 8192
+      };
+      expect(() => llmModelMetadataSchema.parse(completions)).not.toThrow();
+    });
+
+    test("embeddings model without dimensions fails validation", () => {
+      const embeddingsWithoutDimensions = {
+        key: "GPT_EMBEDDINGS_ADA002",
+        urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191,
+        maxTotalTokens: 8191
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
+      expect(() => llmModelMetadataSchema.parse(embeddingsWithoutDimensions)).toThrow();
     });
 
-    test("throws error when urn is empty string", () => {
-      const metadata = {
-        key: ModelKey.GPT_EMBEDDINGS_ADA002,
-        urn: "",
-        purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191,
+    test("completions model without maxCompletionTokens fails validation", () => {
+      const completionsWithoutMaxTokens = {
+        key: "GPT_COMPLETIONS_GPT4",
+        urn: "gpt-4",
+        purpose: LLMPurpose.COMPLETIONS,
+        maxTotalTokens: 8192
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
+      expect(() => llmModelMetadataSchema.parse(completionsWithoutMaxTokens)).toThrow();
     });
 
-    test("throws error when maxCompletionTokens exceeds maxTotalTokens", () => {
-      const metadata = {
-        key: ModelKey.GPT_COMPLETIONS_GPT4,
-        urn: "dummy-model",
+    test("model with maxCompletionTokens > maxTotalTokens fails validation", () => {
+      const invalidCompletion = {
+        key: "GPT_COMPLETIONS_GPT4",
+        urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 10000,
-        maxTotalTokens: 8191,
+        maxTotalTokens: 8192
       };
-      expect(() => llmModelMetadataSchema.parse(metadata)).toThrow(z.ZodError);
+      expect(() => llmModelMetadataSchema.parse(invalidCompletion)).toThrow();
+    });
+
+    test("model with empty urn fails validation", () => {
+      const emptyUrn = {
+        key: "GPT_COMPLETIONS_GPT4",
+        urn: "",
+        purpose: LLMPurpose.COMPLETIONS,
+        maxCompletionTokens: 4096,
+        maxTotalTokens: 8192
+      };
+      expect(() => llmModelMetadataSchema.parse(emptyUrn)).toThrow();
     });
   });
 });

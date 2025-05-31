@@ -1,5 +1,4 @@
 import llmConfig from "../../../../config/llm.config";
-import { ModelFamily, ModelKey } from "../../../../types/llm-models-types";
 import BaseBedrockLLM from "../base-bedrock-llm";
 
 /** 
@@ -10,24 +9,19 @@ class BedrockMistralLLM extends BaseBedrockLLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
-  getModelFamily(): ModelFamily {
-    return ModelFamily.BEDROCK_MISTRAL_MODELS;
+  getModelFamily(): string {
+    return "BedrockMistral";
   }        
 
   /**
    * Assemble the Bedrock parameters for Mistral completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: ModelKey, prompt: string) {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
     return JSON.stringify({
-      messages: [
-        {
-          role: "user",
-          content: prompt,
-        }
-      ],
+      prompt: `<s>[INST] ${prompt} [/INST]`,
+      max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       temperature: llmConfig.ZERO_TEMP,
       top_p: llmConfig.TOP_P_LOWEST,
-      max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
     });
   }
 
@@ -35,32 +29,22 @@ class BedrockMistralLLM extends BaseBedrockLLM {
    * Extract the relevant information from the completion LLM specific response.
    */
   protected extractCompletionModelSpecificResponse(llmResponse: MistralCompletionLLMSpecificResponse) {
-    const firstResponse = llmResponse.choices[0];
-    const responseContent = firstResponse.message?.content ?? null;
-    const finishReason = firstResponse.stop_reason ?? firstResponse.finish_reason ?? "";
+    const responseContent = llmResponse.outputs?.[0]?.text ?? "";
+    const finishReason = llmResponse.outputs?.[0]?.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = (finishReasonLowercase === "length") || (!responseContent);
-    const promptTokens = llmResponse.usage?.prompt_tokens ?? -1;
-    const completionTokens = llmResponse.usage?.completion_tokens ?? -1;
-    const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
-    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
+    const isIncompleteResponse = ((finishReasonLowercase === "length")
+      || !responseContent);  // No content - assume prompt maxed out total tokens available
+    const tokenUsage = { promptTokens: -1, completionTokens: -1, maxTotalTokens: -1 };
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
 }
 
 // Type definitions for the Mistral specific completions LLM response usage.
 interface MistralCompletionLLMSpecificResponse {
-  choices: [{
-    message?: {
-      content: string;
-    };
+  outputs?: {
+    text?: string;
     stop_reason?: string;
-    finish_reason?: string;
-  }];
-  usage?: {
-    prompt_tokens?: number;
-    completion_tokens?: number;
-  }
+  }[];
 }
 
 export default BedrockMistralLLM;

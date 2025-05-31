@@ -105,16 +105,11 @@ In the AWS Console, select the Bedrock Configuration | Model Access option and e
 
 ## Process for Adding LLM Providers
 
-After this refactoring, adding a new LLM provider involves:
-
-1. **Define Enums** (if new family/keys):
-   - Modify `src/types/llm-models-types.ts`
-
-2. **Define Environment Variables**:
-   - Modify `src/types/env-types.ts` (if needed)
-   - Update `.env` and `EXAMPLE.env`
-
-3. **Create Provider Implementation & Manifest**:
+1. **Create Provider Implementation & Manifest**:
    - Create directory: `src/llm/providers/<group_name>/<provider_name>/`
-   - Create implementation: `<provider_name>-llm.ts`
-   - Create manifest: `<provider_name>.manifest.ts` (auto-discovered)
+   - Create implementation: `<provider_name>-llm.ts` 
+   - Create manifest: `<provider_name>.manifest.ts` (auto-discovered by LLM service)
+
+2. **Define Environment Variables** (if needed):
+   - Modify `src/types/env-types.ts` only if the new provider requires new environment variables
+   - Update `.env` and `EXAMPLE.env` with actual and example values

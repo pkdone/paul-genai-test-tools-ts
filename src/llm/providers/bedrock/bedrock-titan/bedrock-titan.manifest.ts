@@ -1,24 +1,28 @@
 import { LLMProviderManifest } from "../../llm-provider.types";
-import { ModelFamily, ModelProviderType, ModelKey } from "../../../../types/llm-models-types";
+import { ModelProviderType } from "../../llm-provider.types";
 import BedrockTitanLLM from "./bedrock-titan-llm";
 import { LLMPurpose } from "../../../../types/llm-types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 
+// Exported model key constants
+export const AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1";
+export const AWS_COMPLETIONS_TITAN_EXPRESS_V1 = "AWS_COMPLETIONS_TITAN_EXPRESS_V1";
+
 export const bedrockTitanProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Titan",
-  modelFamily: ModelFamily.BEDROCK_TITAN_MODELS,
+  modelFamily: "BedrockTitan",
   modelProviderType: ModelProviderType.BEDROCK,
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {
-      key: ModelKey.AWS_EMBEDDINGS_TITAN_V1,
+      key: AWS_EMBEDDINGS_TITAN_V1,
       urn: "amazon.titan-embed-text-v1",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      key: ModelKey.AWS_COMPLETIONS_TITAN_EXPRESS_V1,
+      key: AWS_COMPLETIONS_TITAN_EXPRESS_V1,
       urn: "amazon.titan-text-express-v1",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8000,
