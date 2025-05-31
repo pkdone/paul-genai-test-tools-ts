@@ -40,8 +40,8 @@ export const openAIProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
-  factory: (envConfig, modelSet, modelsMetadata, errorPatterns) => {
+  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
     const env = envConfig as { [OPENAI_LLM_API_KEY_KEY]: string };
-    return new OpenAILLM(modelSet, modelsMetadata, errorPatterns, env[OPENAI_LLM_API_KEY_KEY]);
+    return new OpenAILLM(modelsInternallKeySet, modelsMetadata, errorPatterns, env[OPENAI_LLM_API_KEY_KEY]);
   },
 }; 
