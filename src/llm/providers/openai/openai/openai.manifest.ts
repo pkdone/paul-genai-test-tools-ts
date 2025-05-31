@@ -18,21 +18,21 @@ export const openAIProviderManifest: LLMProviderManifest = {
   envVarNames: [OPENAI_LLM_API_KEY_KEY],
   models: {
     embeddings: {
-      key: GPT_EMBEDDINGS_TEXT_3SMALL,
+      internalKey: GPT_EMBEDDINGS_TEXT_3SMALL,
       urn: "text-embedding-3-small",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8191,
     },
     primaryCompletion: {
-      key: GPT_COMPLETIONS_GPT4_O,
+      internalKey: GPT_COMPLETIONS_GPT4_O,
       urn: "gpt-4o",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 16384,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {
-      key: GPT_COMPLETIONS_GPT4_TURBO,
+      internalKey: GPT_COMPLETIONS_GPT4_TURBO,
       urn: "gpt-4-turbo",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,

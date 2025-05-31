@@ -17,7 +17,7 @@ class BedrockMistralLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Mistral completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(modelInternalKey: string, prompt: string) {
     return JSON.stringify({
       messages: [
         {
@@ -27,7 +27,7 @@ class BedrockMistralLLM extends BaseBedrockLLM {
       ],
       temperature: llmConfig.ZERO_TEMP,
       top_p: llmConfig.TOP_P_LOWEST,
-      max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
+      max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
     });
   }
 

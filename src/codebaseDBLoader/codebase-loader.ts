@@ -157,9 +157,13 @@ class CodebaseToDBLoader {
    * Helper function to get the summary template prompt file name based on the file type.
    */
   private getSummaryPromptTemplateFileName(type: string): string | undefined {
-    return Object.hasOwn(promptsConfig.FILE_SUMMARY_PROMPTS, type)
-      ? promptsConfig.FILE_SUMMARY_PROMPTS[type as keyof typeof promptsConfig.FILE_SUMMARY_PROMPTS]
-      : undefined;
+    // Check if the type exists as a key in the FILE_SUMMARY_PROMPTS
+    if (Object.hasOwn(promptsConfig.FILE_SUMMARY_PROMPTS, type)) {
+      // Use type assertion only after confirming the key exists
+      return promptsConfig.FILE_SUMMARY_PROMPTS[type as keyof typeof promptsConfig.FILE_SUMMARY_PROMPTS];
+    }
+    
+    return undefined;
   }
 }
 

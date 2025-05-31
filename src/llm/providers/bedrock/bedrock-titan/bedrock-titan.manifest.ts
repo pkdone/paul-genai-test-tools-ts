@@ -14,14 +14,14 @@ export const bedrockTitanProviderManifest: LLMProviderManifest = {
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {
-      key: AWS_EMBEDDINGS_TITAN_V1,
+      internalKey: AWS_EMBEDDINGS_TITAN_V1,
       urn: "amazon.titan-embed-text-v1",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      key: AWS_COMPLETIONS_TITAN_EXPRESS_V1,
+      internalKey: AWS_COMPLETIONS_TITAN_EXPRESS_V1,
       urn: "amazon.titan-text-express-v1",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8191,

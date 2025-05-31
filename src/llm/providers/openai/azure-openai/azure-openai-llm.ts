@@ -1,9 +1,12 @@
 import { AzureOpenAI, OpenAI } from "openai";
 import llmConfig from "../../../../config/llm.config";
-import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
+import { LLMModelInternalKeysSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { BadConfigurationLLMError } from "../../../../types/llm-errors.types";
 import { AZURE_OPENAI } from "./azure-openai.manifest";
+
+// Constants
+const AZURE_API_VERSION = "2025-01-01-preview";
 
 /**
  * Class for Azure's own managed version of the OpenAI service.
@@ -17,7 +20,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(
-    modelsKeys: LLMModelSet,
+    modelsKeys: LLMModelInternalKeysSet,
     modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly apiKey: string,
@@ -28,15 +31,15 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   ) { 
     super(modelsKeys, modelsMetadata, errorPatterns);
     this.modelToDeploymentMappings = new Map();
-    this.modelToDeploymentMappings.set(modelsKeys.embeddings, embeddingsDeployment);
-    this.modelToDeploymentMappings.set(modelsKeys.primaryCompletion, primaryCompletionsDeployment);
-    const secondaryCompletion = modelsKeys.secondaryCompletion;
+    this.modelToDeploymentMappings.set(modelsKeys.embeddingsInternalKey, embeddingsDeployment);
+    this.modelToDeploymentMappings.set(modelsKeys.primaryCompletionInternalKey, primaryCompletionsDeployment);
+    const secondaryCompletion = modelsKeys.secondaryCompletionInternalKey;
 
     if ((secondaryCompletion) && (secondaryCompletion !== "UNSPECIFIED")) {
       this.modelToDeploymentMappings.set(secondaryCompletion, secondaryCompletionsDeployment);
     }
 
-    const apiVersion = llmConfig.AZURE_API_VERSION;
+    const apiVersion = AZURE_API_VERSION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
 
@@ -57,9 +60,9 @@ class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
-    const deployment = this.modelToDeploymentMappings.get(modelKey);
-    if (!deployment) throw new BadConfigurationLLMError(`Model key ${modelKey} not found for ${this.constructor.name}`);      
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelInternalKey: string, prompt: string) {
+    const deployment = this.modelToDeploymentMappings.get(modelInternalKey);
+    if (!deployment) throw new BadConfigurationLLMError(`Model key ${modelInternalKey} not found for ${this.constructor.name}`);      
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {

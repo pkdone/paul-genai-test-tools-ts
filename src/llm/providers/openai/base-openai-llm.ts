@@ -11,8 +11,8 @@ abstract class BaseOpenAILLM extends AbstractLLM {
    * 
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string) {
-    const params = this.buildFullLLMParameters(taskType, modelKey, prompt);    
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelInternalKey: string, prompt: string) {
+    const params = this.buildFullLLMParameters(taskType, modelInternalKey, prompt);    
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
       return this.invokeImplementationSpecificEmbeddingsLLM(params as OpenAI.EmbeddingCreateParams);
@@ -98,7 +98,7 @@ abstract class BaseOpenAILLM extends AbstractLLM {
   /**
    * Abstract method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected abstract buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
+  protected abstract buildFullLLMParameters(taskType: LLMPurpose, modelInternalKey: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
 }
 
 export default BaseOpenAILLM;

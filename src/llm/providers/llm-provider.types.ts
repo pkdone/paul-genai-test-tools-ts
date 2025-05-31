@@ -1,4 +1,4 @@
-import { LLMModelSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm.types";
+import { LLMModelInternalKeysSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm.types";
 import { EnvVars } from "../../types/env.types";
 
 /**
@@ -22,7 +22,7 @@ export interface LLMProviderManifest {
   /** Factory function to create an instance of the provider's LLMProviderImpl */
   factory: (
     envConfig: Pick<EnvVars, keyof EnvVars>,
-    modelSet: LLMModelSet,
+    modelSet: LLMModelInternalKeysSet,
     modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) => LLMProviderImpl;

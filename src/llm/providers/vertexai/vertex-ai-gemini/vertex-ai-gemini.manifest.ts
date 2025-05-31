@@ -18,21 +18,21 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   envVarNames: [GCP_API_PROJECTID_KEY, GCP_API_LOCATION_KEY],
   models: {
     embeddings: {
-      key: GCP_EMBEDDINGS_TEXT_005,
+      internalKey: GCP_EMBEDDINGS_TEXT_005,
       urn: "text-embedding-005",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 768,
       maxTotalTokens: 2048,
     },
     primaryCompletion: {
-      key: GCP_COMPLETIONS_GEMINI_PRO25,
+      internalKey: GCP_COMPLETIONS_GEMINI_PRO25,
       urn: "gemini-2.5-pro-preview-05-06",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 65535,
       maxTotalTokens: 1048576,
     },
     secondaryCompletion: {
-      key: GCP_COMPLETIONS_GEMINI_FLASH20,
+      internalKey: GCP_COMPLETIONS_GEMINI_FLASH20,
       urn: "gemini-2.0-flash-001",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,

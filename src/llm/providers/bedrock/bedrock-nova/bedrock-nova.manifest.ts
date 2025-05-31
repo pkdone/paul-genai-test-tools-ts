@@ -15,21 +15,21 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
   envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
   models: {
     embeddings: {
-      key: AWS_EMBEDDINGS_TITAN_V1,
+      internalKey: AWS_EMBEDDINGS_TITAN_V1,
       urn: "amazon.titan-embed-text-v1",
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      key: AWS_COMPLETIONS_NOVA_PRO_V1,
+      internalKey: AWS_COMPLETIONS_NOVA_PRO_V1,
       urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.amazon.nova-pro-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 5000,
       maxTotalTokens: 300000,
     },
     secondaryCompletion: {
-      key: AWS_COMPLETIONS_NOVA_LITE_V1,
+      internalKey: AWS_COMPLETIONS_NOVA_LITE_V1,
       urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.amazon.nova-lite-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 5000,

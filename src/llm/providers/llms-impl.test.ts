@@ -1,7 +1,7 @@
 import { azureOpenAIProviderManifest } from "./openai/azure-openai/azure-openai.manifest";
 import { bedrockClaudeProviderManifest } from "./bedrock/bedrock-claude/bedrock-claude.manifest";
 import { bedrockLlamaProviderManifest } from "./bedrock/bedrock-llama/bedrock-llama.manifest";
-import { LLMPurpose, LLMModelMetadata } from "../../types/llm.types";
+import { LLMPurpose, LLMModelMetadata, LLMModelInternalKeysSet } from "../../types/llm.types";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
 import { AWS_COMPLETIONS_CLAUDE_V35 } from "../providers/bedrock/bedrock-claude/bedrock-claude.manifest";
@@ -22,22 +22,22 @@ const mockEnv = {
 };
 
 // Create test instance using provider manifest
-const testModelSet = {
-  embeddings: azureOpenAIProviderManifest.models.embeddings.key,
-  primaryCompletion: azureOpenAIProviderManifest.models.primaryCompletion.key,
-  secondaryCompletion: azureOpenAIProviderManifest.models.secondaryCompletion?.key
+const testModelKeysSet: LLMModelInternalKeysSet = {
+  embeddingsInternalKey: azureOpenAIProviderManifest.models.embeddings.internalKey,
+  primaryCompletionInternalKey: azureOpenAIProviderManifest.models.primaryCompletion.internalKey,
+  secondaryCompletionInternalKey: azureOpenAIProviderManifest.models.secondaryCompletion?.internalKey
 };
 
 const testModelsMetadata: Record<string, LLMModelMetadata> = {
-  [azureOpenAIProviderManifest.models.embeddings.key]: {
-    key: azureOpenAIProviderManifest.models.embeddings.key,
+  [azureOpenAIProviderManifest.models.embeddings.internalKey]: {
+    internalKey: azureOpenAIProviderManifest.models.embeddings.internalKey,
     urn: azureOpenAIProviderManifest.models.embeddings.urn,
     purpose: LLMPurpose.EMBEDDINGS,
     dimensions: azureOpenAIProviderManifest.models.embeddings.dimensions,
     maxTotalTokens: azureOpenAIProviderManifest.models.embeddings.maxTotalTokens,
   },
-  [azureOpenAIProviderManifest.models.primaryCompletion.key]: {
-    key: azureOpenAIProviderManifest.models.primaryCompletion.key,
+  [azureOpenAIProviderManifest.models.primaryCompletion.internalKey]: {
+    internalKey: azureOpenAIProviderManifest.models.primaryCompletion.internalKey,
     urn: azureOpenAIProviderManifest.models.primaryCompletion.urn,
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxCompletionTokens,
@@ -45,42 +45,42 @@ const testModelsMetadata: Record<string, LLMModelMetadata> = {
   },
   // Add common test models that are used in the tests
   [GPT_COMPLETIONS_GPT4]: {
-    key: GPT_COMPLETIONS_GPT4,
+    internalKey: GPT_COMPLETIONS_GPT4,
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   [GPT_COMPLETIONS_GPT4_32k]: {
-    key: GPT_COMPLETIONS_GPT4_32k,
+    internalKey: GPT_COMPLETIONS_GPT4_32k,
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 32768,
   },
   [AWS_COMPLETIONS_CLAUDE_V35]: {
-    key: AWS_COMPLETIONS_CLAUDE_V35,
+    internalKey: AWS_COMPLETIONS_CLAUDE_V35,
     urn: "anthropic.claude-3-5-sonnet-20240620-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4088,
     maxTotalTokens: 200000,
   },
   [AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT]: {
-    key: AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT,
+    internalKey: AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT,
     urn: "us.meta.llama3-3-70b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 8192,
     maxTotalTokens: 128000,
   },
   [AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT]: {
-    key: AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,
+    internalKey: AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,
     urn: "meta.llama3-1-405b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 128000,
   },
   [AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT]: {
-    key: AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT,
+    internalKey: AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT,
     urn: "meta.llama3-1-405b-instruct-v1:0",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
@@ -91,8 +91,8 @@ const testModelsMetadata: Record<string, LLMModelMetadata> = {
 // Add secondary completion if it exists
 if (azureOpenAIProviderManifest.models.secondaryCompletion) {
   const secondaryModel = azureOpenAIProviderManifest.models.secondaryCompletion;
-  testModelsMetadata[secondaryModel.key] = {
-    key: secondaryModel.key,
+  testModelsMetadata[secondaryModel.internalKey] = {
+    internalKey: secondaryModel.internalKey,
     urn: secondaryModel.urn,
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: secondaryModel.maxCompletionTokens ?? 4096,
@@ -241,32 +241,32 @@ describe("Token extraction from metadata", () => {
 describe("OpenAI implementation", () => {
   describe("model management", () => {
     test("counts available models", () => {
-      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
+      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelKeysSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
       expect(Object.keys(llm.getModelsNames()).length).toBe(3);
     });
   });
 
   describe("error handling", () => {
     test("detects rate limit error", () => {
-      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
+      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelKeysSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
       // Use interface method instead of internal test method
       expect(llm.getModelFamily()).toBe("AzureOpenAI");
     }); 
 
     test("detects internal server error", () => {
-      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
+      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelKeysSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
       // Use interface method instead of internal test method
       expect(llm.getModelFamily()).toBe("AzureOpenAI");
     }); 
 
     test("detects token limit exceeded with code", () => {
-      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
+      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelKeysSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
       // Use interface method instead of internal test method
       expect(llm.getModelFamily()).toBe("AzureOpenAI");
     }); 
 
     test("detects token limit exceeded with type", () => {
-      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
+      const llm = azureOpenAIProviderManifest.factory(mockEnv, testModelKeysSet, testModelsMetadata, azureOpenAIProviderManifest.errorPatterns);
       // Use interface method instead of internal test method
       expect(llm.getModelFamily()).toBe("AzureOpenAI");
     }); 

@@ -3,8 +3,8 @@ import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
 import { z } from "zod";
 
 // Zod schema for LLMModelMetadata validation
-export const llmModelMetadataSchema = z.object({
-  key: z.string(),
+const llmModelMetadataSchema = z.object({
+  internalKey: z.string(),
   urn: z.string().min(1, "Model ID cannot be empty"),
   purpose: z.nativeEnum(LLMPurpose),
   dimensions: z.number().positive().optional(),
@@ -31,14 +31,14 @@ export const llmModelMetadataSchema = z.object({
 // Simple test metadata for testing
 const testMetadata = {
   "GPT_COMPLETIONS_GPT4": {
-    key: "GPT_COMPLETIONS_GPT4",
+    internalKey: "GPT_COMPLETIONS_GPT4",
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   "GPT_COMPLETIONS_GPT4_32k": {
-    key: "GPT_COMPLETIONS_GPT4_32k",
+    internalKey: "GPT_COMPLETIONS_GPT4_32k",
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
@@ -97,7 +97,7 @@ describe("LLM Router tests", () => {
   describe("LLM provider abstractions", () => {
     test("create mock embeddings model", () => {
       const mockEmbeddingsModel: LLMModelMetadata = {
-        key: "GPT_EMBEDDINGS_ADA002",
+        internalKey: "GPT_EMBEDDINGS_ADA002",
         urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
@@ -108,7 +108,7 @@ describe("LLM Router tests", () => {
 
     test("create mock completion model", () => {
       const mockCompletionModel: LLMModelMetadata = {
-        key: "GPT_COMPLETIONS_GPT4",
+        internalKey: "GPT_COMPLETIONS_GPT4",
         urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
@@ -119,7 +119,7 @@ describe("LLM Router tests", () => {
 
     test("create mock embeddings model 2", () => {
       const mockEmbeddingsModel2: LLMModelMetadata = {
-        key: "GPT_EMBEDDINGS_ADA002",
+        internalKey: "GPT_EMBEDDINGS_ADA002",
         urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
@@ -130,7 +130,7 @@ describe("LLM Router tests", () => {
 
     test("create mock completion model 2", () => {
       const mockCompletionModel2: LLMModelMetadata = {
-        key: "GPT_COMPLETIONS_GPT4",
+        internalKey: "GPT_COMPLETIONS_GPT4",
         urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
@@ -141,7 +141,7 @@ describe("LLM Router tests", () => {
 
     test("create mock embeddings model 3", () => {
       const mockEmbeddingsModel3: LLMModelMetadata = {
-        key: "GPT_EMBEDDINGS_ADA002",
+        internalKey: "GPT_EMBEDDINGS_ADA002",
         urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
@@ -152,7 +152,7 @@ describe("LLM Router tests", () => {
 
     test("create mock embeddings model 4", () => {
       const mockEmbeddingsModel4: LLMModelMetadata = {
-        key: "GPT_EMBEDDINGS_ADA002",
+        internalKey: "GPT_EMBEDDINGS_ADA002",
         urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
@@ -163,18 +163,18 @@ describe("LLM Router tests", () => {
 
     test("create mock embeddings model 5", () => {
       const mockEmbeddingsModel5: LLMModelMetadata = {
-        key: "GPT_EMBEDDINGS_ADA002",
+        internalKey: "GPT_EMBEDDINGS_ADA002",
         urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: 8191
       };
-      expect(mockEmbeddingsModel5.key).toBe("GPT_EMBEDDINGS_ADA002");
+      expect(mockEmbeddingsModel5.internalKey).toBe("GPT_EMBEDDINGS_ADA002");
     });
 
     test("create mock completion model 3", () => {
       const mockCompletionModel3: LLMModelMetadata = {
-        key: "GPT_COMPLETIONS_GPT4",
+        internalKey: "GPT_COMPLETIONS_GPT4",
         urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
@@ -187,7 +187,7 @@ describe("LLM Router tests", () => {
   describe("Validate LLM metadata schemas", () => {
     test("valid embeddings model passes validation", () => {
       const embeddings = {
-        key: "GPT_EMBEDDINGS_ADA002",
+        internalKey: "GPT_EMBEDDINGS_ADA002",
         urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
@@ -198,7 +198,7 @@ describe("LLM Router tests", () => {
 
     test("valid completions model passes validation", () => {
       const completions = {
-        key: "GPT_COMPLETIONS_GPT4",
+        internalKey: "GPT_COMPLETIONS_GPT4",
         urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
@@ -209,7 +209,7 @@ describe("LLM Router tests", () => {
 
     test("embeddings model without dimensions fails validation", () => {
       const embeddingsWithoutDimensions = {
-        key: "GPT_EMBEDDINGS_ADA002",
+        internalKey: "GPT_EMBEDDINGS_ADA002",
         urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         maxTotalTokens: 8191
@@ -219,7 +219,7 @@ describe("LLM Router tests", () => {
 
     test("completions model without maxCompletionTokens fails validation", () => {
       const completionsWithoutMaxTokens = {
-        key: "GPT_COMPLETIONS_GPT4",
+        internalKey: "GPT_COMPLETIONS_GPT4",
         urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
         maxTotalTokens: 8192
@@ -229,7 +229,7 @@ describe("LLM Router tests", () => {
 
     test("model with maxCompletionTokens > maxTotalTokens fails validation", () => {
       const invalidCompletion = {
-        key: "GPT_COMPLETIONS_GPT4",
+        internalKey: "GPT_COMPLETIONS_GPT4",
         urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 10000,
@@ -240,7 +240,7 @@ describe("LLM Router tests", () => {
 
     test("model with empty urn fails validation", () => {
       const emptyUrn = {
-        key: "GPT_COMPLETIONS_GPT4",
+        internalKey: "GPT_COMPLETIONS_GPT4",
         urn: "",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,

@@ -16,13 +16,13 @@ class BedrockTitanLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(modelInternalKey: string, prompt: string) {
     return JSON.stringify({
       inputText: prompt,
       textGenerationConfig: {
         temperature: llmConfig.ZERO_TEMP,
         topP: llmConfig.TOP_P_VLOW,
-        maxTokenCount: this.llmModelsMetadata[modelKey].maxCompletionTokens,
+        maxTokenCount: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
       },
     });
   }

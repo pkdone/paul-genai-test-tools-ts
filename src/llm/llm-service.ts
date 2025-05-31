@@ -1,6 +1,6 @@
 import path from 'path';
 import { fileSystemConfig } from "../config/fileSystem.config";
-import { LLMProviderImpl, LLMModelSet, LLMModelMetadata } from "../types/llm.types";
+import { LLMProviderImpl, LLMModelInternalKeysSet, LLMModelMetadata } from "../types/llm.types";
 import { EnvVars } from "../types/env.types";
 import { BadConfigurationLLMError } from "../types/llm-errors.types";
 import { LLMProviderManifest } from "./providers/llm-provider.types";
@@ -157,14 +157,14 @@ class LLMService {
   /**
    * Construct LLMModelSet from manifest
    */
-  private constructModelSet(llmProviderManifest: LLMProviderManifest): LLMModelSet {
-    const modelSet: LLMModelSet = {
-      embeddings: llmProviderManifest.models.embeddings.key,
-      primaryCompletion: llmProviderManifest.models.primaryCompletion.key,
+  private constructModelSet(llmProviderManifest: LLMProviderManifest): LLMModelInternalKeysSet {
+    const modelSet: LLMModelInternalKeysSet = {
+      embeddingsInternalKey: llmProviderManifest.models.embeddings.internalKey,
+      primaryCompletionInternalKey: llmProviderManifest.models.primaryCompletion.internalKey,
     };
 
     if (llmProviderManifest.models.secondaryCompletion) {
-      modelSet.secondaryCompletion = llmProviderManifest.models.secondaryCompletion.key;
+      modelSet.secondaryCompletionInternalKey = llmProviderManifest.models.secondaryCompletion.internalKey;
     }
 
     return modelSet;
@@ -175,11 +175,11 @@ class LLMService {
    */
   private constructModelsMetadata(llmProviderManifest: LLMProviderManifest): Record<string, LLMModelMetadata> {
     const metadata: Record<string, LLMModelMetadata> = {};
-    metadata[llmProviderManifest.models.embeddings.key] = llmProviderManifest.models.embeddings;
-    metadata[llmProviderManifest.models.primaryCompletion.key] = llmProviderManifest.models.primaryCompletion;
+    metadata[llmProviderManifest.models.embeddings.internalKey] = llmProviderManifest.models.embeddings;
+    metadata[llmProviderManifest.models.primaryCompletion.internalKey] = llmProviderManifest.models.primaryCompletion;
     
     if (llmProviderManifest.models.secondaryCompletion) {
-      metadata[llmProviderManifest.models.secondaryCompletion.key] = llmProviderManifest.models.secondaryCompletion;
+      metadata[llmProviderManifest.models.secondaryCompletion.internalKey] = llmProviderManifest.models.secondaryCompletion;
     }
 
     return metadata;

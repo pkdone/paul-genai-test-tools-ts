@@ -147,7 +147,7 @@ class LLMRouter {
 
             if (!canSwitchModel) {
               if (!llmResponse.tokensUage) throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present", llmResponse);
-              currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.modelKey, llmResponse.tokensUage, this.modelsMetadata);
+              currentPrompt = reducePromptSizeToTokenLimit(currentPrompt, llmResponse.modelInternalKey, llmResponse.tokensUage, this.modelsMetadata);
               this.llmStats.recordCrop();
               continue;
             }

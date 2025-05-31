@@ -24,10 +24,10 @@ export enum LLMModelQuality {
 /**
  * Types to define the status types statistics
  */
-export interface LLMModelSet {
-  embeddings: string,
-  primaryCompletion: string,
-  secondaryCompletion?: string,
+export interface LLMModelInternalKeysSet {
+  embeddingsInternalKey: string,
+  primaryCompletionInternalKey: string,
+  secondaryCompletionInternalKey?: string,
 }
 
 /**
@@ -49,7 +49,7 @@ export enum LLMPurpose {
  */ 
 export interface LLMModelMetadata {
   /** The string identifier for this model - changed from ModelKey enum to string */
-  readonly key: string;
+  readonly internalKey: string;
   /** The actual model ID/name used by the provider API */
   readonly urn: string;
   /** Whether this is an embedding or completion model */
@@ -97,7 +97,7 @@ export type LLMGeneratedContent = string | Record<string, unknown> | number[] | 
 export interface LLMFunctionResponse {
   readonly status: LLMResponseStatus,
   readonly request: string,
-  readonly modelKey: string,
+  readonly modelInternalKey: string,
   readonly context: LLMContext,
   readonly generated?: LLMGeneratedContent,
   readonly tokensUage?: LLMResponseTokensUsage,

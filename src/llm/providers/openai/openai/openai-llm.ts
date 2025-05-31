@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
 import llmConfig from "../../../../config/llm.config";
-import { LLMModelSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
+import { LLMModelInternalKeysSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { OPENAI } from "./openai.manifest";
 
@@ -15,7 +15,7 @@ class OpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(
-    modelsKeys: LLMModelSet,
+    modelsKeys: LLMModelInternalKeysSet,
     modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly apiKey: string
@@ -41,19 +41,19 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelInternalKey: string, prompt: string) {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
-        model: this.llmModelsMetadata[modelKey].urn,
+        model: this.llmModelsMetadata[modelInternalKey].urn,
         input: prompt
       };
       return params;  
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
-        model: this.llmModelsMetadata[modelKey].urn,
+        model: this.llmModelsMetadata[modelInternalKey].urn,
         temperature: llmConfig.ZERO_TEMP,
         messages: [{ role: "user", content: prompt } ],
-        max_completion_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
+        max_completion_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
       };        
       return params;
     } 
