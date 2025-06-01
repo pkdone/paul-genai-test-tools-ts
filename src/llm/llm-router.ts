@@ -6,8 +6,8 @@ import { RetryFunc } from "../types/control.types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { withRetry } from "../utils/control-utils";
 import { reducePromptSizeToTokenLimit } from "./response-processing/llm-response-tools";
-import { log, logErrWithContext, logWithContext } from "./llm-router-logging";
-import LLMStats from "./llm-stats";
+import { log, logErrWithContext, logWithContext } from "./router-logging/llm-router-logging";
+import LLMStats from "./router-logging/llm-stats";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
