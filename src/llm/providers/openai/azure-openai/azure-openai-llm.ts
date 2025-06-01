@@ -75,6 +75,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
         model: deployment,
         temperature: llmConfig.ZERO_TEMP,
         messages: [{ role: "user", content: prompt } ],
+        max_completion_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
       };        
       return params;
     } 

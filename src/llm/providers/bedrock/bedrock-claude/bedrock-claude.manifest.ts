@@ -16,8 +16,7 @@ export const AWS_COMPLETIONS_CLAUDE_V40 = "AWS_COMPLETIONS_CLAUDE_V40";
  * some LLM responses, so using a few tokens buffer to come up with a limit of 4088
  *
  * AWS_COMPLETIONS_CLAUDE_V40: Bedrock seems to be limiting the max model response tokens to around
- * 39k when it should be 65536, and when its over this amount an "overloaded" response is always 
- * returned.
+ * 39k when it should be 64k, and when its over 39k an "overloaded" response is always returned.
  */
 
 export const bedrockClaudeProviderManifest: LLMProviderManifest = {
@@ -33,17 +32,17 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
+      internalKey: AWS_COMPLETIONS_CLAUDE_V40,
+      urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0",
+      purpose: LLMPurpose.COMPLETIONS,
+      maxCompletionTokens: 32768,  // Should be 64k but errors if larger than around 39200
+      maxTotalTokens: 200000,
+    },
+    secondaryCompletion: {
       internalKey: AWS_COMPLETIONS_CLAUDE_V37,
       urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 65536,
-      maxTotalTokens: 200000,
-    },
-    secondaryCompletion: {
-      internalKey: AWS_COMPLETIONS_CLAUDE_V40,
-      urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0",
-      purpose: LLMPurpose.COMPLETIONS,
-      maxCompletionTokens: 39200,
       maxTotalTokens: 200000,
     },
   },
