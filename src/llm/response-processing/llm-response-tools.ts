@@ -49,8 +49,6 @@ export function extractTokensAmountAndLimitFromErrorMsg(
   return { promptTokens, completionTokens, maxTotalTokens };
 }    
 
-// All token error parsing functionality moved to llm-error-pattern-parser.ts
-
 /** 
  * Post-process the LLM response, converting it to JSON if necessary, and build the
  * response metadaat object.
