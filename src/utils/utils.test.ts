@@ -5,17 +5,19 @@ import { getErrorText, getErrorStack } from "./error-utils";
 import { convertTextToJSON } from "./json-tools";
 
 describe("File system utilities", () => {
-  test("getFileSuffix normal", () => {
-    expect(getFileSuffix("myfile.txt")).toBe("txt");
-  });
+  // Test data for getFileSuffix function
+  const fileSuffixTestData = [
+    { input: "myfile.txt", expected: "txt", description: "normal file with extension" },
+    { input: "myfile.", expected: "", description: "file with trailing dot" },
+    { input: "myfile", expected: "", description: "file without extension" },
+  ];
 
-  test("getFileSuffix no sufix", () => {
-    expect(getFileSuffix("myfile.")).toBe("");
-  });
-
-  test("getFileSuffix just dot", () => {
-    expect(getFileSuffix("myfile")).toBe("");
-  });
+  test.each(fileSuffixTestData)(
+    "getFileSuffix $description",
+    ({ input, expected }) => {
+      expect(getFileSuffix(input)).toBe(expected);
+    }
+  );
 });
 
 describe("Text utilities", () => {
@@ -56,23 +58,36 @@ describe("Text utilities", () => {
 
 describe("Error utilities", () => {
   describe("getErrorText", () => {
-    test("with Error object", () => {
-      const error = new Error("Test error");
-      expect(getErrorText(error)).toBe("Error. Test error");
-    });
+    // Test data for getErrorText function
+    const errorTextTestData = [
+      {
+        input: new Error("Test error"),
+        expected: "Error. Test error",
+        description: "Error object"
+      },
+      {
+        input: { message: "Custom error" },
+        expected: "<unknown-type>. Custom error",
+        description: "object containing message"
+      },
+      {
+        input: "string error",
+        expected: "<unknown-type>. \"string error\"",
+        description: "primitive value"
+      },
+      {
+        input: null,
+        expected: "<unknown-type>. No error message available",
+        description: "null value"
+      }
+    ];
 
-    test("with object containing message", () => {
-      const error = { message: "Custom error" };
-      expect(getErrorText(error)).toBe("<unknown-type>. Custom error");
-    });
-
-    test("with primitive value", () => {
-      expect(getErrorText("string error")).toBe("<unknown-type>. \"string error\"");
-    });
-
-    test("with null", () => {
-      expect(getErrorText(null)).toBe("<unknown-type>. No error message available");
-    });
+    test.each(errorTextTestData)(
+      "with $description",
+      ({ input, expected }) => {
+        expect(getErrorText(input)).toBe(expected);
+      }
+    );
   });
 
   describe("getErrorStack", () => {
@@ -91,23 +106,32 @@ describe("Error utilities", () => {
 
 describe("JSON utilities", () => {
   describe("convertTextToJSON", () => {
-    test("with valid JSON", () => {
-      const text = "Some text before {\"key\": \"value\"} some text after";
-      const result = convertTextToJSON(text);
-      expect(result).toEqual({ key: "value" });
-    });
+    // Test data for convertTextToJSON function
+    const validJsonTestData = [
+      {
+        input: "Some text before {\"key\": \"value\"} some text after",
+        expected: { key: "value" },
+        description: "valid JSON"
+      },
+      {
+        input: "Prefix {\"outer\": {\"inner\": 123}} suffix",
+        expected: { outer: { inner: 123 } },
+        description: "nested JSON"
+      },
+      {
+        input: "{\"key\": \"value\u0000with\u0007control\u001Fchars\"}",
+        expected: { key: "value with control chars" },
+        description: "control characters"
+      }
+    ];
 
-    test("with nested JSON", () => {
-      const text = "Prefix {\"outer\": {\"inner\": 123}} suffix";
-      const result = convertTextToJSON(text);
-      expect(result).toEqual({ outer: { inner: 123 } });
-    });
-
-    test("with control characters", () => {
-      const text = "{\"key\": \"value\u0000with\u0007control\u001Fchars\"}";
-      const result = convertTextToJSON(text);
-      expect(result).toEqual({ key: "value with control chars" });
-    });
+    test.each(validJsonTestData)(
+      "with $description",
+      ({ input, expected }) => {
+        const result = convertTextToJSON(input);
+        expect(result).toEqual(expected);
+      }
+    );
 
     test("throws on invalid JSON", () => {
       const text = "No JSON here";

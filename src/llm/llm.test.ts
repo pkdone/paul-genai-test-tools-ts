@@ -30,158 +30,199 @@ const llmModelMetadataSchema = z.object({
 
 describe("LLM Router tests", () => {
   describe("LLM provider abstractions", () => {
-    test("create mock embeddings model", () => {
-      const mockEmbeddingsModel: LLMModelMetadata = {
-        internalKey: "GPT_EMBEDDINGS_ADA002",
-        urn: "text-embedding-ada-002",
-        purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191
-      };
-      expect(mockEmbeddingsModel.purpose).toBe(LLMPurpose.EMBEDDINGS);
-    });
+    // Test data for mock model creation
+    const mockModelsTestData = [
+      {
+        description: "embeddings model with purpose check",
+        model: {
+          internalKey: "GPT_EMBEDDINGS_ADA002",
+          urn: "text-embedding-ada-002",
+          purpose: LLMPurpose.EMBEDDINGS,
+          dimensions: 1536,
+          maxTotalTokens: 8191
+        },
+        property: "purpose",
+        expectedValue: LLMPurpose.EMBEDDINGS
+      },
+      {
+        description: "completion model with purpose check",
+        model: {
+          internalKey: "GPT_COMPLETIONS_GPT4",
+          urn: "gpt-4",
+          purpose: LLMPurpose.COMPLETIONS,
+          maxCompletionTokens: 4096,
+          maxTotalTokens: 8192
+        },
+        property: "purpose",
+        expectedValue: LLMPurpose.COMPLETIONS
+      },
+      {
+        description: "embeddings model with dimensions check",
+        model: {
+          internalKey: "GPT_EMBEDDINGS_ADA002",
+          urn: "text-embedding-ada-002",
+          purpose: LLMPurpose.EMBEDDINGS,
+          dimensions: 1536,
+          maxTotalTokens: 8191
+        },
+        property: "dimensions",
+        expectedValue: 1536
+      },
+      {
+        description: "completion model with maxCompletionTokens check",
+        model: {
+          internalKey: "GPT_COMPLETIONS_GPT4",
+          urn: "gpt-4",
+          purpose: LLMPurpose.COMPLETIONS,
+          maxCompletionTokens: 4096,
+          maxTotalTokens: 8192
+        },
+        property: "maxCompletionTokens",
+        expectedValue: 4096
+      },
+      {
+        description: "embeddings model with maxTotalTokens check",
+        model: {
+          internalKey: "GPT_EMBEDDINGS_ADA002",
+          urn: "text-embedding-ada-002",
+          purpose: LLMPurpose.EMBEDDINGS,
+          dimensions: 1536,
+          maxTotalTokens: 8191
+        },
+        property: "maxTotalTokens",
+        expectedValue: 8191
+      },
+      {
+        description: "embeddings model with urn check",
+        model: {
+          internalKey: "GPT_EMBEDDINGS_ADA002",
+          urn: "text-embedding-ada-002",
+          purpose: LLMPurpose.EMBEDDINGS,
+          dimensions: 1536,
+          maxTotalTokens: 8191
+        },
+        property: "urn",
+        expectedValue: "text-embedding-ada-002"
+      },
+      {
+        description: "embeddings model with internalKey check",
+        model: {
+          internalKey: "GPT_EMBEDDINGS_ADA002",
+          urn: "text-embedding-ada-002",
+          purpose: LLMPurpose.EMBEDDINGS,
+          dimensions: 1536,
+          maxTotalTokens: 8191
+        },
+        property: "internalKey",
+        expectedValue: "GPT_EMBEDDINGS_ADA002"
+      },
+      {
+        description: "completion model with maxTotalTokens check",
+        model: {
+          internalKey: "GPT_COMPLETIONS_GPT4",
+          urn: "gpt-4",
+          purpose: LLMPurpose.COMPLETIONS,
+          maxCompletionTokens: 4096,
+          maxTotalTokens: 8192
+        },
+        property: "maxTotalTokens",
+        expectedValue: 8192
+      }
+    ];
 
-    test("create mock completion model", () => {
-      const mockCompletionModel: LLMModelMetadata = {
-        internalKey: "GPT_COMPLETIONS_GPT4",
-        urn: "gpt-4",
-        purpose: LLMPurpose.COMPLETIONS,
-        maxCompletionTokens: 4096,
-        maxTotalTokens: 8192
-      };
-      expect(mockCompletionModel.purpose).toBe(LLMPurpose.COMPLETIONS);
-    });
-
-    test("create mock embeddings model 2", () => {
-      const mockEmbeddingsModel2: LLMModelMetadata = {
-        internalKey: "GPT_EMBEDDINGS_ADA002",
-        urn: "text-embedding-ada-002",
-        purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191
-      };
-      expect(mockEmbeddingsModel2.dimensions).toBe(1536);
-    });
-
-    test("create mock completion model 2", () => {
-      const mockCompletionModel2: LLMModelMetadata = {
-        internalKey: "GPT_COMPLETIONS_GPT4",
-        urn: "gpt-4",
-        purpose: LLMPurpose.COMPLETIONS,
-        maxCompletionTokens: 4096,
-        maxTotalTokens: 8192
-      };
-      expect(mockCompletionModel2.maxCompletionTokens).toBe(4096);
-    });
-
-    test("create mock embeddings model 3", () => {
-      const mockEmbeddingsModel3: LLMModelMetadata = {
-        internalKey: "GPT_EMBEDDINGS_ADA002",
-        urn: "text-embedding-ada-002",
-        purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191
-      };
-      expect(mockEmbeddingsModel3.maxTotalTokens).toBe(8191);
-    });
-
-    test("create mock embeddings model 4", () => {
-      const mockEmbeddingsModel4: LLMModelMetadata = {
-        internalKey: "GPT_EMBEDDINGS_ADA002",
-        urn: "text-embedding-ada-002",
-        purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191
-      };
-      expect(mockEmbeddingsModel4.urn).toBe("text-embedding-ada-002");
-    });
-
-    test("create mock embeddings model 5", () => {
-      const mockEmbeddingsModel5: LLMModelMetadata = {
-        internalKey: "GPT_EMBEDDINGS_ADA002",
-        urn: "text-embedding-ada-002",
-        purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191
-      };
-      expect(mockEmbeddingsModel5.internalKey).toBe("GPT_EMBEDDINGS_ADA002");
-    });
-
-    test("create mock completion model 3", () => {
-      const mockCompletionModel3: LLMModelMetadata = {
-        internalKey: "GPT_COMPLETIONS_GPT4",
-        urn: "gpt-4",
-        purpose: LLMPurpose.COMPLETIONS,
-        maxCompletionTokens: 4096,
-        maxTotalTokens: 8192
-      };
-      expect(mockCompletionModel3.maxTotalTokens).toBe(8192);
-    });
+    test.each(mockModelsTestData)(
+      "create mock $description",
+      ({ model, property, expectedValue }) => {
+        const mockModel: LLMModelMetadata = model;
+        expect(mockModel[property as keyof LLMModelMetadata]).toBe(expectedValue);
+      }
+    );
   });
 
   describe("Validate LLM metadata schemas", () => {
-    test("valid embeddings model passes validation", () => {
-      const embeddings = {
-        internalKey: "GPT_EMBEDDINGS_ADA002",
-        urn: "text-embedding-ada-002",
-        purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191
-      };
-      expect(() => llmModelMetadataSchema.parse(embeddings)).not.toThrow();
-    });
+    // Test data for schema validation
+    const validModelsTestData = [
+      {
+        description: "valid embeddings model",
+        model: {
+          internalKey: "GPT_EMBEDDINGS_ADA002",
+          urn: "text-embedding-ada-002",
+          purpose: LLMPurpose.EMBEDDINGS,
+          dimensions: 1536,
+          maxTotalTokens: 8191
+        },
+        shouldPass: true
+      },
+      {
+        description: "valid completions model",
+        model: {
+          internalKey: "GPT_COMPLETIONS_GPT4",
+          urn: "gpt-4",
+          purpose: LLMPurpose.COMPLETIONS,
+          maxCompletionTokens: 4096,
+          maxTotalTokens: 8192
+        },
+        shouldPass: true
+      }
+    ];
 
-    test("valid completions model passes validation", () => {
-      const completions = {
-        internalKey: "GPT_COMPLETIONS_GPT4",
-        urn: "gpt-4",
-        purpose: LLMPurpose.COMPLETIONS,
-        maxCompletionTokens: 4096,
-        maxTotalTokens: 8192
-      };
-      expect(() => llmModelMetadataSchema.parse(completions)).not.toThrow();
-    });
+    const invalidModelsTestData = [
+      {
+        description: "embeddings model without dimensions",
+        model: {
+          internalKey: "GPT_EMBEDDINGS_ADA002",
+          urn: "text-embedding-ada-002",
+          purpose: LLMPurpose.EMBEDDINGS,
+          maxTotalTokens: 8191
+        },
+        shouldPass: false
+      },
+      {
+        description: "completions model without maxCompletionTokens",
+        model: {
+          internalKey: "GPT_COMPLETIONS_GPT4",
+          urn: "gpt-4",
+          purpose: LLMPurpose.COMPLETIONS,
+          maxTotalTokens: 8192
+        },
+        shouldPass: false
+      },
+      {
+        description: "model with maxCompletionTokens > maxTotalTokens",
+        model: {
+          internalKey: "GPT_COMPLETIONS_GPT4",
+          urn: "gpt-4",
+          purpose: LLMPurpose.COMPLETIONS,
+          maxCompletionTokens: 10000,
+          maxTotalTokens: 8192
+        },
+        shouldPass: false
+      },
+      {
+        description: "model with empty urn",
+        model: {
+          internalKey: "GPT_COMPLETIONS_GPT4",
+          urn: "",
+          purpose: LLMPurpose.COMPLETIONS,
+          maxCompletionTokens: 4096,
+          maxTotalTokens: 8192
+        },
+        shouldPass: false
+      }
+    ];
 
-    test("embeddings model without dimensions fails validation", () => {
-      const embeddingsWithoutDimensions = {
-        internalKey: "GPT_EMBEDDINGS_ADA002",
-        urn: "text-embedding-ada-002",
-        purpose: LLMPurpose.EMBEDDINGS,
-        maxTotalTokens: 8191
-      };
-      expect(() => llmModelMetadataSchema.parse(embeddingsWithoutDimensions)).toThrow();
-    });
+    test.each(validModelsTestData)(
+      "$description passes validation",
+      ({ model }) => {
+        expect(() => llmModelMetadataSchema.parse(model)).not.toThrow();
+      }
+    );
 
-    test("completions model without maxCompletionTokens fails validation", () => {
-      const completionsWithoutMaxTokens = {
-        internalKey: "GPT_COMPLETIONS_GPT4",
-        urn: "gpt-4",
-        purpose: LLMPurpose.COMPLETIONS,
-        maxTotalTokens: 8192
-      };
-      expect(() => llmModelMetadataSchema.parse(completionsWithoutMaxTokens)).toThrow();
-    });
-
-    test("model with maxCompletionTokens > maxTotalTokens fails validation", () => {
-      const invalidCompletion = {
-        internalKey: "GPT_COMPLETIONS_GPT4",
-        urn: "gpt-4",
-        purpose: LLMPurpose.COMPLETIONS,
-        maxCompletionTokens: 10000,
-        maxTotalTokens: 8192
-      };
-      expect(() => llmModelMetadataSchema.parse(invalidCompletion)).toThrow();
-    });
-
-    test("model with empty urn fails validation", () => {
-      const emptyUrn = {
-        internalKey: "GPT_COMPLETIONS_GPT4",
-        urn: "",
-        purpose: LLMPurpose.COMPLETIONS,
-        maxCompletionTokens: 4096,
-        maxTotalTokens: 8192
-      };
-      expect(() => llmModelMetadataSchema.parse(emptyUrn)).toThrow();
-    });
+    test.each(invalidModelsTestData)(
+      "$description fails validation",
+      ({ model }) => {
+        expect(() => llmModelMetadataSchema.parse(model)).toThrow();
+      }
+    );
   });
 });
