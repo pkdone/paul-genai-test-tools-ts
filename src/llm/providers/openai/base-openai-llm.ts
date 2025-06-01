@@ -1,7 +1,7 @@
 import { OpenAI, RateLimitError, InternalServerError } from "openai";
 import { APIError } from "openai/error"
 import { LLMPurpose } from "../../../types/llm.types";
-import AbstractLLM from "../base/abstract-llm";
+import AbstractLLM from "../abstract-llm";
 
 /**
  * Abstract base class for all OpenAI-based LLM providers.
