@@ -1,13 +1,13 @@
 import InsightsDataServer from "./insights-data-server";
 import mongoDBService from "../utils/mongodb-service";
 import databaseConfig from "../config/database.config";
-import { loadEnvVars } from "../env/bootstrap";
+import { loadBaseEnvVarsOnly } from "../env/bootstrap";
 import { getProjectNameFromPath } from "../utils/path-utils";
 
 describe("AnalysisDataServer", () => {
   it("should return an array of objects where each object has keys 'name' and 'description'", async () => {
     try {
-      const env = await loadEnvVars();
+      const env = loadBaseEnvVarsOnly();
       const srcDirPath = env.CODEBASE_DIR_PATH;
       const projectName = getProjectNameFromPath(srcDirPath);     
       const mongoClient = await mongoDBService.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);

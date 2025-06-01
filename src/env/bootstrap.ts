@@ -7,6 +7,16 @@ import { z } from "zod";
 import { baseEnvVarsSchema, EnvVars } from "../types/env.types";
 
 /**
+ * Utility function to load only base environment variables and validate them.
+ */
+export function loadBaseEnvVarsOnly(): z.infer<typeof baseEnvVarsSchema> {
+  dotenv.config();
+  const rawEnv = process.env;
+  const parsedEnv = baseEnvVarsSchema.parse(rawEnv);
+  return parsedEnv;
+}
+
+/**
  * Utility function to load environment variables and validate them.
  */
 export async function loadEnvVars(): Promise<EnvVars> {
