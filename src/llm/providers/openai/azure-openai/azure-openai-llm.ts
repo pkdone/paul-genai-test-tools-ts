@@ -35,7 +35,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
     this.modelToDeploymentMappings.set(modelsKeys.primaryCompletionInternalKey, primaryCompletionsDeployment);
     const secondaryCompletion = modelsKeys.secondaryCompletionInternalKey;
 
-    if ((secondaryCompletion) && (secondaryCompletion !== "UNSPECIFIED")) {
+    if (secondaryCompletion) {
       this.modelToDeploymentMappings.set(secondaryCompletion, secondaryCompletionsDeployment);
     }
 

@@ -56,7 +56,7 @@ export class CodebaseInsightProcessor {
     const prompts: FileRequirementPrompt[] = [];
     
     try {
-      if (!fs.existsSync(inputDir)) fs.mkdirSync(inputDir, { recursive: true });
+      await fs.promises.mkdir(inputDir, { recursive: true });
       const files = await readDirContents(inputDir);
       const promptFiles = files.filter(file => promptsConfig.REQS_FILE_REGEX.exec(file.name) !== null);
       

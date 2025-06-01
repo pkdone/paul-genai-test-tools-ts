@@ -70,7 +70,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
       env[AZURE_API_ENDPOINT_KEY],
       env[AZURE_API_EMBEDDINGS_MODEL_KEY],
       env[AZURE_API_COMPLETIONS_MODEL_PRIMARY_KEY],
-      env[AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY] ?? "UNSPECIFIED"
+      env[AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY] ?? "",
     );
   },
 }; 
