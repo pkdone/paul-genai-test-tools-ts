@@ -49,7 +49,7 @@ export function extractTokensAmountAndLimitFromErrorMsg(
 /**
  * Extract token usage information from LLM error message.
  */
-function parseTokenUsageFromLLMError(
+export function parseTokenUsageFromLLMError(
   modelInternalKey: string, 
   errorMsg: string,
   llmModelsMetadata: Record<string, LLMModelMetadata>,
@@ -68,15 +68,33 @@ function parseTokenUsageFromLLMError(
 
       if (matches && matches.length > 1) {
         if (patternDefinition.units === "tokens") {
-          maxTotalTokens = parseInt(matches[1], 10);
-          promptTokens = matches.length > 2 ? parseInt(matches[2], 10) : -1;
-          completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
+          if (patternDefinition.isMaxFirst) {
+            // First capture group is maxTotalTokens (traditional case)
+            maxTotalTokens = parseInt(matches[1], 10);
+            promptTokens = matches.length > 2 ? parseInt(matches[2], 10) : -1;
+            completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
+          } else {
+            // First capture group is promptTokens, second is maxTotalTokens (new case)
+            promptTokens = parseInt(matches[1], 10);
+            maxTotalTokens = matches.length > 2 ? parseInt(matches[2], 10) : llmModelsMetadata[modelInternalKey].maxTotalTokens;
+            completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
+          }
         } else if (matches.length > 2) {
-          const charsLimit = parseInt(matches[1], 10);
-          const charsPrompt = parseInt(matches[2], 10);
-          maxTotalTokens = llmModelsMetadata[modelInternalKey].maxTotalTokens;
-          const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
-          promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
+          if (patternDefinition.isMaxFirst) {
+            // First capture group is charsLimit, second is charsPrompt (traditional case)
+            const charsLimit = parseInt(matches[1], 10);
+            const charsPrompt = parseInt(matches[2], 10);
+            maxTotalTokens = llmModelsMetadata[modelInternalKey].maxTotalTokens;
+            const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
+            promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
+          } else {
+            // First capture group is charsPrompt, second is charsLimit (new case)
+            const charsPrompt = parseInt(matches[1], 10);
+            const charsLimit = parseInt(matches[2], 10);
+            maxTotalTokens = llmModelsMetadata[modelInternalKey].maxTotalTokens;
+            const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
+            promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
+          }
         }
 
         break;

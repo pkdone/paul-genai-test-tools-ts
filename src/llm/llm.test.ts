@@ -1,5 +1,8 @@
+// filepath: /home/pdone/Projects/paul-genai-test-tools-ts/src/llm/llm.test.ts
 import { LLMModelMetadata, LLMPurpose } from "../types/llm.types";
-import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
+import { parseTokenUsageFromLLMError, reducePromptSizeToTokenLimit } from "./llm-response-tools";
+import { BEDROCK_COMMON_ERROR_PATTERNS } from "./providers/bedrock/bedrock-error-patterns";
+import { OPENAI_COMMON_ERROR_PATTERNS } from "./providers/openai/openai-error-patterns";
 import { z } from "zod";
 
 // Zod schema for LLMModelMetadata validation
@@ -247,6 +250,111 @@ describe("LLM Router tests", () => {
         maxTotalTokens: 8192
       };
       expect(() => llmModelMetadataSchema.parse(emptyUrn)).toThrow();
+    });
+  });
+
+  describe("Test parseTokenUsageFromLLMError function", () => {
+    // Bedrock error patterns
+    describe("Bedrock error patterns", () => {
+      test("should extract tokens from 'too many input tokens' error message", () => {
+        const errorMsg = "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 8192, request input token count: 9279";
+        const result = parseTokenUsageFromLLMError("GPT_COMPLETIONS_GPT4", errorMsg, testMetadata, BEDROCK_COMMON_ERROR_PATTERNS);
+        
+        expect(result.maxTotalTokens).toBe(8192);
+        expect(result.promptTokens).toBe(9279);
+        expect(result.completionTokens).toBe(0);
+      });
+      
+      test("should extract chars from 'malformed input request' error message", () => {
+        const errorMsg = "ValidationException: Malformed input request: expected maxLength: 50000, actual: 52611, please reformat your input and try again.";
+        const result = parseTokenUsageFromLLMError("GPT_COMPLETIONS_GPT4", errorMsg, testMetadata, BEDROCK_COMMON_ERROR_PATTERNS);
+        
+        // For char-based errors, it should derive prompt tokens based on the ratio and model max
+        expect(result.maxTotalTokens).toBe(8192);
+        expect(result.promptTokens).toBeGreaterThan(8192); // Should be calculated based on char ratio
+        expect(result.completionTokens).toBe(0);
+      });
+      
+      test("should extract tokens from 'maximum context length' error message", () => {
+        const errorMsg = "ValidationException: This model's maximum context length is 8192 tokens. Please reduce the length of the prompt";
+        const result = parseTokenUsageFromLLMError("GPT_COMPLETIONS_GPT4", errorMsg, testMetadata, BEDROCK_COMMON_ERROR_PATTERNS);
+        
+        expect(result.maxTotalTokens).toBe(8192);
+        expect(result.promptTokens).toBe(-1); // Not provided in this error pattern
+        expect(result.completionTokens).toBe(0);
+      });
+      
+      test("should extract tokens from 'prompt contains tokens' error message with reversed order", () => {
+        const errorMsg = "ValidationException. Prompt contains 235396 tokens and 0 draft tokens, too large for model with 131072 maximum context length";
+        const result = parseTokenUsageFromLLMError("GPT_COMPLETIONS_GPT4", errorMsg, testMetadata, BEDROCK_COMMON_ERROR_PATTERNS);
+        
+        expect(result.maxTotalTokens).toBe(131072);
+        expect(result.promptTokens).toBe(235396);
+        expect(result.completionTokens).toBe(0);
+      });
+    });
+
+    // OpenAI error patterns
+    describe("OpenAI error patterns", () => {
+      test("should extract tokens from 'maximum context length with prompt and completion breakdown' error message", () => {
+        const errorMsg = "This model's maximum context length is 8191 tokens, however you requested 10346 tokens (10346 in your prompt; 5 for the completion). Please reduce your prompt; or completion length.";
+        const result = parseTokenUsageFromLLMError("GPT_COMPLETIONS_GPT4", errorMsg, testMetadata, OPENAI_COMMON_ERROR_PATTERNS);
+        
+        expect(result.maxTotalTokens).toBe(8191);
+        expect(result.promptTokens).toBe(10346);
+        expect(result.completionTokens).toBe(5);
+      });
+      
+      test("should extract tokens from 'maximum context length with messages resulted' error message", () => {
+        const errorMsg = "This model's maximum context length is 8192 tokens. However, your messages resulted in 8545 tokens. Please reduce the length of the messages.";
+        const result = parseTokenUsageFromLLMError("GPT_COMPLETIONS_GPT4", errorMsg, testMetadata, OPENAI_COMMON_ERROR_PATTERNS);
+        
+        expect(result.maxTotalTokens).toBe(8192);
+        expect(result.promptTokens).toBe(8545);
+        expect(result.completionTokens).toBe(0);
+      });
+    });
+
+    // Edge cases and fallbacks
+    describe("Edge cases and fallbacks", () => {
+      test("should return default values when no error patterns match", () => {
+        const errorMsg = "Unknown error with no recognizable token pattern";
+        const result = parseTokenUsageFromLLMError("GPT_COMPLETIONS_GPT4", errorMsg, testMetadata, BEDROCK_COMMON_ERROR_PATTERNS);
+        
+        expect(result.maxTotalTokens).toBe(-1);
+        expect(result.promptTokens).toBe(-1);
+        expect(result.completionTokens).toBe(0);
+      });
+      
+      test("should return default values when no error patterns are provided", () => {
+        const errorMsg = "ValidationException: This model's maximum context length is 8192 tokens.";
+        const result = parseTokenUsageFromLLMError("GPT_COMPLETIONS_GPT4", errorMsg, testMetadata);
+        
+        expect(result.maxTotalTokens).toBe(-1);
+        expect(result.promptTokens).toBe(-1);
+        expect(result.completionTokens).toBe(0);
+      });
+      
+      test("should handle error message with only maxTotalTokens available", () => {
+        const errorMsg = "Maximum context length is 8192 tokens.";
+        // Using a custom pattern that only extracts maxTotalTokens
+        const customPattern = [{ 
+          pattern: /Maximum context length is (\d+) tokens/, 
+          units: "tokens", 
+          isMaxFirst: true 
+        }];
+        
+        const result = parseTokenUsageFromLLMError(
+          "GPT_COMPLETIONS_GPT4", 
+          errorMsg, 
+          testMetadata, 
+          customPattern
+        );
+        
+        expect(result.maxTotalTokens).toBe(8192);
+        expect(result.promptTokens).toBe(-1); // Not provided in this pattern
+        expect(result.completionTokens).toBe(0);
+      });
     });
   });
 });

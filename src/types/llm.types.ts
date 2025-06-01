@@ -135,4 +135,5 @@ export interface LLMStatsCategoriesSummary {
 export interface LLMErrorMsgRegExPattern {
   readonly pattern: RegExp,
   readonly units: string,
+  readonly isMaxFirst: boolean,
 };
