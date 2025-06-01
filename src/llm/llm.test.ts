@@ -1,6 +1,7 @@
 // filepath: /home/pdone/Projects/paul-genai-test-tools-ts/src/llm/llm.test.ts
 import { LLMModelMetadata, LLMPurpose } from "../types/llm.types";
-import { parseTokenUsageFromLLMError, reducePromptSizeToTokenLimit } from "./llm-response-tools";
+import { reducePromptSizeToTokenLimit } from "./response-processing/llm-response-tools";
+import { parseTokenUsageFromLLMError } from "./response-processing/llm-error-pattern-parser";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "./providers/bedrock/bedrock-error-patterns";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "./providers/openai/openai-error-patterns";
 import { z } from "zod";

@@ -4,7 +4,7 @@ import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
 import { getErrorText } from "../../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
-       } from "../../llm-response-tools";
+       } from "../../response-processing/llm-response-tools";
 import { BadConfigurationLLMError } from "../../../types/llm-errors.types";
 
 /**

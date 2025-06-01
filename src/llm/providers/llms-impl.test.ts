@@ -3,7 +3,7 @@ import { bedrockClaudeProviderManifest } from "./bedrock/bedrock-claude/bedrock-
 import { bedrockLlamaProviderManifest } from "./bedrock/bedrock-llama/bedrock-llama.manifest";
 import { LLMPurpose, LLMModelMetadata, LLMModelInternalKeysSet } from "../../types/llm.types";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
-         extractTokensAmountAndLimitFromErrorMsg }  from "../llm-response-tools";
+         extractTokensAmountAndLimitFromErrorMsg }  from "../response-processing/llm-response-tools";
 import { AWS_COMPLETIONS_CLAUDE_V35 } from "../providers/bedrock/bedrock-claude/bedrock-claude.manifest";
 import { GPT_COMPLETIONS_GPT4, GPT_COMPLETIONS_GPT4_32k } from "../providers/openai/azure-openai/azure-openai.manifest";
 import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT } from "../providers/bedrock/bedrock-llama/bedrock-llama.manifest";

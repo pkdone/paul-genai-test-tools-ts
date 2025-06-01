@@ -1,9 +1,10 @@
-import llmConfig from "../config/llm.config";
+import llmConfig from "../../config/llm.config";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
-         LLMResponseStatus, LLMContext, LLMModelMetadata, LLMErrorMsgRegExPattern} from "../types/llm.types";
-import { BadResponseContentLLMError } from "../types/llm-errors.types";
-import { convertTextToJSON } from "../utils/json-tools";
-import { getErrorText } from "../utils/error-utils";
+         LLMResponseStatus, LLMContext, LLMModelMetadata, LLMErrorMsgRegExPattern} from "../../types/llm.types";
+import { BadResponseContentLLMError } from "../../types/llm-errors.types";
+import { convertTextToJSON } from "../../utils/json-tools";
+import { getErrorText } from "../../utils/error-utils";
+import { parseTokenUsageFromLLMError } from "./llm-error-pattern-parser";
 
 /**
  * Extract token usage information from LLM response metadata, defaulting missing
@@ -13,7 +14,7 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(
   modelInternalKey: string, 
   tokenUsage: LLMResponseTokensUsage,
   modelsMetadata: Record<string, LLMModelMetadata>
-) {
+) : LLMResponseTokensUsage {
   let { promptTokens, completionTokens, maxTotalTokens } = tokenUsage;
   if (completionTokens < 0) completionTokens = 0;
   if (maxTotalTokens < 0) maxTotalTokens = modelsMetadata[modelInternalKey].maxTotalTokens;
@@ -31,10 +32,12 @@ export function extractTokensAmountAndLimitFromErrorMsg(
   errorMsg: string,
   modelsMetadata: Record<string, LLMModelMetadata>,
   errorPatterns?: readonly LLMErrorMsgRegExPattern[]
-) {
-  // eslint-disable-next-line prefer-const
-  let { maxTotalTokens, promptTokens, completionTokens } = parseTokenUsageFromLLMError(modelInternalKey, errorMsg, modelsMetadata, errorPatterns);
-  const publishedMaxTotalTokens  = modelsMetadata[modelInternalKey].maxTotalTokens;
+) : LLMResponseTokensUsage {
+  const { maxTotalTokens: parsedMaxTokens, promptTokens: parsedPromptTokens, completionTokens } = 
+    parseTokenUsageFromLLMError(modelInternalKey, errorMsg, modelsMetadata, errorPatterns);  
+  const publishedMaxTotalTokens = modelsMetadata[modelInternalKey].maxTotalTokens;
+  let maxTotalTokens = parsedMaxTokens;
+  let promptTokens = parsedPromptTokens;
 
   if (promptTokens < 0) { 
     const assumedMaxTotalTokens = (maxTotalTokens > 0) ? maxTotalTokens : publishedMaxTotalTokens;
@@ -46,64 +49,7 @@ export function extractTokensAmountAndLimitFromErrorMsg(
   return { promptTokens, completionTokens, maxTotalTokens };
 }    
 
-/**
- * Extract token usage information from LLM error message.
- */
-export function parseTokenUsageFromLLMError(
-  modelInternalKey: string, 
-  errorMsg: string,
-  llmModelsMetadata: Record<string, LLMModelMetadata>,
-  errorPatterns?: readonly LLMErrorMsgRegExPattern[]
-) {
-  let promptTokens = -1;
-  let completionTokens = 0;
-  let maxTotalTokens = -1;
-
-  // Use provided error patterns
-  const patternDefinitions = errorPatterns;
-
-  if (patternDefinitions) {
-    for (const patternDefinition of patternDefinitions) {
-      const matches = errorMsg.match(patternDefinition.pattern);
-
-      if (matches && matches.length > 1) {
-        if (patternDefinition.units === "tokens") {
-          if (patternDefinition.isMaxFirst) {
-            // First capture group is maxTotalTokens (traditional case)
-            maxTotalTokens = parseInt(matches[1], 10);
-            promptTokens = matches.length > 2 ? parseInt(matches[2], 10) : -1;
-            completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
-          } else {
-            // First capture group is promptTokens, second is maxTotalTokens (new case)
-            promptTokens = parseInt(matches[1], 10);
-            maxTotalTokens = matches.length > 2 ? parseInt(matches[2], 10) : llmModelsMetadata[modelInternalKey].maxTotalTokens;
-            completionTokens = matches.length > 3 ? parseInt(matches[3], 10) : 0;
-          }
-        } else if (matches.length > 2) {
-          if (patternDefinition.isMaxFirst) {
-            // First capture group is charsLimit, second is charsPrompt (traditional case)
-            const charsLimit = parseInt(matches[1], 10);
-            const charsPrompt = parseInt(matches[2], 10);
-            maxTotalTokens = llmModelsMetadata[modelInternalKey].maxTotalTokens;
-            const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
-            promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
-          } else {
-            // First capture group is charsPrompt, second is charsLimit (new case)
-            const charsPrompt = parseInt(matches[1], 10);
-            const charsLimit = parseInt(matches[2], 10);
-            maxTotalTokens = llmModelsMetadata[modelInternalKey].maxTotalTokens;
-            const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
-            promptTokens = Math.max(promptTokensDerived, maxTotalTokens + 1);
-          }
-        }
-
-        break;
-      }
-    }
-  }
-
-  return { maxTotalTokens, promptTokens, completionTokens };
-}
+// All token error parsing functionality moved to llm-error-pattern-parser.ts
 
 /** 
  * Post-process the LLM response, converting it to JSON if necessary, and build the
