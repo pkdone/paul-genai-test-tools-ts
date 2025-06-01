@@ -1,7 +1,9 @@
+import { z } from "zod";
 import { LLMProviderManifest } from "../../llm-provider.types";
 import OpenAILLM from "./openai-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
+import { BaseEnvVars } from "../../../../types/env.types";
 
 // Environment variable name constants
 const OPENAI_LLM_API_KEY_KEY = "OPENAI_LLM_API_KEY";
@@ -15,7 +17,9 @@ export const GPT_COMPLETIONS_GPT4_TURBO = "GPT_COMPLETIONS_GPT4_TURBO";
 export const openAIProviderManifest: LLMProviderManifest = {
   providerName: "OpenAI GPT",
   modelFamily: OPENAI,
-  envVarNames: [OPENAI_LLM_API_KEY_KEY],
+  envSchema: z.object({
+    [OPENAI_LLM_API_KEY_KEY]: z.string().min(1),
+  }),
   models: {
     embeddings: {
       internalKey: GPT_EMBEDDINGS_TEXT_3SMALL,
@@ -41,7 +45,7 @@ export const openAIProviderManifest: LLMProviderManifest = {
   },
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
   factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
-    const env = envConfig as { [OPENAI_LLM_API_KEY_KEY]: string };
+    const env = envConfig as BaseEnvVars & { [OPENAI_LLM_API_KEY_KEY]: string };
     return new OpenAILLM(modelsInternallKeySet, modelsMetadata, errorPatterns, env[OPENAI_LLM_API_KEY_KEY]);
   },
 }; 

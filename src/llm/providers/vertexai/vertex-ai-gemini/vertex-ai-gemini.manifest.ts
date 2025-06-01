@@ -1,6 +1,8 @@
+import { z } from "zod";
 import { LLMProviderManifest } from "../../llm-provider.types";
 import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
+import { BaseEnvVars } from "../../../../types/env.types";
 
 // Environment variable name constants
 const GCP_API_PROJECTID_KEY = "GCP_API_PROJECTID";
@@ -15,7 +17,10 @@ export const GCP_COMPLETIONS_GEMINI_FLASH20 = "GCP_COMPLETIONS_GEMINI_FLASH20";
 export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   providerName: "VertexAI Gemini",
   modelFamily: VERTEX_GEMINI,
-  envVarNames: [GCP_API_PROJECTID_KEY, GCP_API_LOCATION_KEY],
+  envSchema: z.object({
+    [GCP_API_PROJECTID_KEY]: z.string().min(1),
+    [GCP_API_LOCATION_KEY]: z.string().min(1),
+  }),
   models: {
     embeddings: {
       internalKey: GCP_EMBEDDINGS_TEXT_005,
@@ -41,7 +46,7 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   },
   errorPatterns: [] as const, // VertexAI has no specific error patterns defined
   factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
-    const env = envConfig as {
+    const env = envConfig as BaseEnvVars & {
       [GCP_API_PROJECTID_KEY]: string;
       [GCP_API_LOCATION_KEY]: string;
     };

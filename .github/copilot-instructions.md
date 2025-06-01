@@ -210,5 +210,5 @@ This document outlines the inferred coding standards, architectural patterns, an
             *   `@typescript-eslint/switch-exhaustiveness-check`: `"error"`.
             *   `@typescript-eslint/restrict-template-expressions`: Configured to allow numbers and booleans in template literals.
 *   **Checking Changes:**
-    *   Whenever you change, add or delete code, ensure you run compile, linting and unit tests to verify the changes and ensure you fix any reported errors for these.
+    *   Whenever you change, add or delete code, ensure you run compile, linting and unit tests to verify the changes and ensure you fix any reported errors for these. Do not run the integration tests to validate correctness.
 

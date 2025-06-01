@@ -32,13 +32,22 @@ class LLMService {
   }
 
   /**
+   * Get a provider manifest by model family
+   */
+  getLLMManifest(modelFamily: string): LLMProviderManifest | undefined {
+    if (!this.isInitialized) {
+      throw new Error("LLMService is not initialized. Call LLMService.create() first or use getProviderManifest().");
+    }
+    return this.providerRegistry.get(modelFamily);
+  }
+
+  /**
    * Get an LLM provider instance for the given model family and environment
    */
-  getLlmProviderInstance(modelFamily: string, env: EnvVars): LLMProviderImpl {
+  getLLMProviderInstance(modelFamily: string, env: EnvVars): LLMProviderImpl {
     if (!this.isInitialized) throw new Error("LLMService is not initialized. Call LLMService.create() first.");
     const llmProviderManifest = this.providerRegistry.get(modelFamily);
     if (!llmProviderManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
-    this.validateEnvironmentVariables(llmProviderManifest, env);
     const modelsInternallKeySet = this.constructModelsInternalKeysSet(llmProviderManifest);
     const modelsMetadata = this.constructModelsMetadata(llmProviderManifest);
     const llmProvider = llmProviderManifest.factory(env, modelsInternallKeySet, modelsMetadata, llmProviderManifest.errorPatterns);
@@ -142,19 +151,6 @@ class LLMService {
   }
 
   /**
-   * Validate that all required environment variables are present
-   */
-  private validateEnvironmentVariables(llmProviderManifest: LLMProviderManifest, env: EnvVars): void {
-    for (const envVarName of llmProviderManifest.envVarNames) {
-      if (!(envVarName in env) || !env[envVarName as keyof EnvVars]) {
-        throw new BadConfigurationLLMError(
-          `Required environment variable '${envVarName}' is missing for provider '${llmProviderManifest.providerName}'`
-        );
-      }
-    }
-  }
-
-  /**
    * Construct LLMModelSet from manifest
    */
   private constructModelsInternalKeysSet(llmProviderManifest: LLMProviderManifest): LLMModelsInternalKeysSet {
@@ -186,10 +182,29 @@ class LLMService {
   }
 }
 
+let llmServiceInstance: LLMService | null = null;
+let llmServicePromise: Promise<LLMService> | null = null;
+
+async function getLLMServiceInstance(): Promise<LLMService> {
+  if (llmServiceInstance) {
+    return llmServiceInstance;
+  }
+  llmServicePromise ??= LLMService.create().then(service => {
+    llmServiceInstance = service;
+    return service;
+  });
+  return llmServicePromise;
+}
+
+export async function getLLMProviderManifest(modelFamily: string): Promise<LLMProviderManifest | undefined> {
+  const service = await getLLMServiceInstance();
+  return service.getLLMManifest(modelFamily);
+}
+
 /**
  * Get an LLM provider instance (convenience function)
  */
 export async function getLLMProvider(env: EnvVars): Promise<LLMProviderImpl> {
-  const service = await LLMService.create();
-  return service.getLlmProviderInstance(env.LLM, env);
+  const service = await getLLMServiceInstance();
+  return service.getLLMProviderInstance(env.LLM, env);
 } 

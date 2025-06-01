@@ -1,7 +1,9 @@
+import { z } from "zod";
 import { LLMProviderManifest } from "../../llm-provider.types";
 import AzureOpenAILLM from "./azure-openai-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
+import { BaseEnvVars } from "../../../../types/env.types";
 
 // Environment variable name constants
 const AZURE_LLM_API_KEY_KEY = "AZURE_LLM_API_KEY";
@@ -21,13 +23,13 @@ export const GPT_COMPLETIONS_GPT4_TURBO = "GPT_COMPLETIONS_GPT4_TURBO";
 export const azureOpenAIProviderManifest: LLMProviderManifest = {
   providerName: "Azure OpenAI",
   modelFamily: AZURE_OPENAI,
-  envVarNames: [
-    AZURE_LLM_API_KEY_KEY,
-    AZURE_API_ENDPOINT_KEY,
-    AZURE_API_EMBEDDINGS_MODEL_KEY,
-    AZURE_API_COMPLETIONS_MODEL_PRIMARY_KEY,
-    AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY
-  ],
+  envSchema: z.object({
+    [AZURE_LLM_API_KEY_KEY]: z.string().min(1),
+    [AZURE_API_ENDPOINT_KEY]: z.string().url(),
+    [AZURE_API_EMBEDDINGS_MODEL_KEY]: z.string().min(1),
+    [AZURE_API_COMPLETIONS_MODEL_PRIMARY_KEY]: z.string().min(1),
+    [AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY]: z.string().min(1).optional(),
+  }),
   models: {
     embeddings: {
       internalKey: GPT_EMBEDDINGS_ADA002,
@@ -53,12 +55,12 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
   },
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
   factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
-    const env = envConfig as {
+    const env = envConfig as BaseEnvVars & {
       [AZURE_LLM_API_KEY_KEY]: string;
       [AZURE_API_ENDPOINT_KEY]: string;
       [AZURE_API_EMBEDDINGS_MODEL_KEY]: string;
       [AZURE_API_COMPLETIONS_MODEL_PRIMARY_KEY]: string;
-      [AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY]: string;
+      [AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY]?: string;
     };
     return new AzureOpenAILLM(
       modelsInternallKeySet,
@@ -68,7 +70,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
       env[AZURE_API_ENDPOINT_KEY],
       env[AZURE_API_EMBEDDINGS_MODEL_KEY],
       env[AZURE_API_COMPLETIONS_MODEL_PRIMARY_KEY],
-      env[AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY]
+      env[AZURE_API_COMPLETIONS_MODEL_SECONDARY_KEY] ?? "UNSPECIFIED"
     );
   },
 }; 

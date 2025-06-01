@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { LLMModelInternalKeysSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm.types";
 import { EnvVars } from "../../types/env.types";
 
@@ -9,8 +10,8 @@ export interface LLMProviderManifest {
   providerName: string;
   /** Unique identifier for the provider/family - changed to string to decouple from ModelFamily enum */
   modelFamily: string;
-  /** Array of environment variable names required by this provider */
-  envVarNames: string[];
+  /** Zod schema for provider-specific environment variables */
+  envSchema: z.ZodObject<z.ZodRawShape>;
   /** Model configurations for this provider */
   models: {
     embeddings: LLMModelMetadata;
@@ -21,7 +22,7 @@ export interface LLMProviderManifest {
   errorPatterns: readonly LLMErrorMsgRegExPattern[];
   /** Factory function to create an instance of the provider's LLMProviderImpl */
   factory: (
-    envConfig: Pick<EnvVars, keyof EnvVars>,
+    envConfig: EnvVars,
     modelsInternallKeySet: LLMModelInternalKeysSet,
     modelsMetadata: Record<string, LLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[]

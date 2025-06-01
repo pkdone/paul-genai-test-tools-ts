@@ -1,9 +1,11 @@
 import { z } from "zod";
 
-// Base schema for common environment variables
-const baseEnvVarsSchema = z.object({
+/**
+ * Base schema for common environment variables
+ */
+export const baseEnvVarsSchema = z.object({
   MONGODB_URL: z.string().url(),
-  CODEBASE_DIR_PATH: z.string(),
+  CODEBASE_DIR_PATH: z.string().min(1, "CODEBASE_DIR_PATH cannot be empty"),
   IGNORE_ALREADY_PROCESSED_FILES: z
     .union([
       z.enum(["true", "false"]), // Handle strings "true"/"false" (with quotes in .env)
@@ -17,25 +19,11 @@ const baseEnvVarsSchema = z.object({
       if (typeof val === "boolean") return val;
       return val === "true";
     }),
-  // LLM provider selection 
-  LLM: z.string(),
-  // All possible LLM provider environment variables (optional)
-  OPENAI_LLM_API_KEY: z.string().optional(),
-  AZURE_LLM_API_KEY: z.string().optional(),
-  AZURE_API_ENDPOINT: z.string().optional(),
-  AZURE_API_EMBEDDINGS_MODEL: z.string().optional(),
-  AZURE_API_COMPLETIONS_MODEL_PRIMARY: z.string().optional(),
-  AZURE_API_COMPLETIONS_MODEL_SECONDARY: z.string().optional(),
-  GCP_API_PROJECTID: z.string().optional(),
-  GCP_API_LOCATION: z.string().optional(),
+  LLM: z.string().min(1, "LLM provider selection cannot be empty"),
 });
 
-/**
- * Zod schema for environment variables using the new generic approach
- */
-export const envVarsSchema = baseEnvVarsSchema;
+export type BaseEnvVars = z.infer<typeof baseEnvVarsSchema>;
 
-/**
- * Interface for application environment variables, inferred from Zod schema
- */
-export type EnvVars = z.infer<typeof envVarsSchema>;
+// This type represents the fully parsed environment variables, including provider-specific ones.
+// The actual shape depends on the dynamically constructed schema in bootstrap.ts.
+export type EnvVars = BaseEnvVars & Record<string, unknown>; // Allows for provider-specific properties after Zod parsing

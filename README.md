@@ -106,10 +106,27 @@ In the AWS Console, select the Bedrock Configuration | Model Access option and e
 ## Process for Adding LLM Providers
 
 1. **Create Provider Implementation & Manifest**:
-   - Create directory: `src/llm/providers/<group_name>/<provider_name>/`
-   - Create implementation: `<provider_name>-llm.ts` 
-   - Create manifest: `<provider_name>.manifest.ts` (auto-discovered by LLM service)
+   - Create a new directory for your provider group if it doesn't exist: `src/llm/providers/<group_name>/`
+   - Inside the group directory, create a directory for your specific provider: `src/llm/providers/<group_name>/<provider_name>/`
+   - Create the provider's core logic file: `<provider_name>-llm.ts`. This class should extend `AbstractLLM` or implement `LLMProviderImpl`.
+   - Create the provider's manifest file: `<provider_name>.manifest.ts`. This file exports a constant (conventionally named `<providerName>ProviderManifest`) of type `LLMProviderManifest`.
+     - **`providerName`**: A user-friendly name (e.g., "My Custom LLM").
+     - **`modelFamily`**: A unique string identifier for this provider family (e.g., "MyCustomLLM"). This value will be used in the `.env` file for the `LLM` variable.
+     - **`envSchema`**: A `z.object({})` Zod schema defining any environment variables specific to this provider. These variables will be automatically validated if the provider is selected. Example:
+       ```typescript
+       envSchema: z.object({
+         MY_PROVIDER_API_KEY: z.string().min(1),
+         MY_PROVIDER_ENDPOINT: z.string().url().optional(),
+       }),
+       ```
+       If your provider doesn't require specific environment variables (e.g., it uses a default SDK credential chain), use `envSchema: z.object({})`.
+     - **`models`**: An object defining the `embeddings`, `primaryCompletion`, and optionally `secondaryCompletion` models, including their `internalKey`, `urn`, `purpose`, and token/dimension details.
+     - **`errorPatterns`**: An array of `LLMErrorMsgRegExPattern` for parsing token limits from error messages.
+     - **`factory`**: A function that takes `(envConfig: EnvVars, modelsInternalKeySet: LLMModelInternalKeysSet, modelsMetadata: Record<string, LLMModelMetadata>, errorPatterns: readonly LLMErrorMsgRegExPattern[])` and returns an instance of your `<provider_name>-llm.ts` class. Access your specific environment variables from `envConfig` (e.g., `envConfig.MY_PROVIDER_API_KEY as string`).
 
-2. **Define Environment Variables** (if needed):
-   - Modify `src/types/env-types.ts` only if the new provider requires new environment variables
-   - Update `.env` and `EXAMPLE.env` with actual and example values
+2. **Update Environment Configuration**:
+   - Add any new environment variables (defined in your manifest's `envSchema`) to your local `.env` file with their actual values.
+   - Add example values for these new variables to the `EXAMPLE.env` file.
+   - Update the comment for the `LLM` variable in both `.env` and `EXAMPLE.env` to include your new `modelFamily` string as an option.
+
+The `llm-service.ts` will automatically discover and register your new provider based on its manifest file. No changes are needed in `src/types/env-types.ts` or `src/llm/llm-service.ts` for adding new providers with their own environment variables.

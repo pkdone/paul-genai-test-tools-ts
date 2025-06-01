@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { LLMProviderManifest } from "../../llm-provider.types";
 import BedrockClaudeLLM from "./bedrock-claude-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
@@ -22,7 +23,7 @@ export const AWS_COMPLETIONS_CLAUDE_V40 = "AWS_COMPLETIONS_CLAUDE_V40";
 export const bedrockClaudeProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Claude",
   modelFamily: BEDROCK_CLAUDE,
-  envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
+  envSchema: z.object({}),
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,

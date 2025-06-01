@@ -2,6 +2,7 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import BedrockMistralLLM from "./bedrock-mistral-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
+import { z } from "zod";
 
 // Exported constants
 export const BEDROCK_MISTRAL = "BedrockMistral";
@@ -12,7 +13,7 @@ export const AWS_COMPLETIONS_MISTRAL_LARGE = "AWS_COMPLETIONS_MISTRAL_LARGE";
 export const bedrockMistralProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Mistral",
   modelFamily: BEDROCK_MISTRAL,
-  envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
+  envSchema: z.object({}),
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,

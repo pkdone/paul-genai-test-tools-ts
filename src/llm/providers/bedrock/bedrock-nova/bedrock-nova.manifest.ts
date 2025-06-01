@@ -2,6 +2,7 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import BedrockNovaLLM from "./bedrock-nova-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
+import { z } from "zod";
 
 // Exported model key constants
 export const BEDROCK_NOVA = "BedrockNova";
@@ -12,7 +13,7 @@ export const AWS_COMPLETIONS_NOVA_LITE_V1 = "AWS_COMPLETIONS_NOVA_LITE_V1";
 export const bedrockNovaProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Nova",
   modelFamily: BEDROCK_NOVA,
-  envVarNames: [], // Bedrock uses AWS credentials from environment or IAM roles
+  envSchema: z.object({}),
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,
