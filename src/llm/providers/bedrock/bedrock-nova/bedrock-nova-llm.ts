@@ -34,7 +34,8 @@ class BedrockNovaLLM extends BaseBedrockLLM {
           ],
         },
       ],
-    });  }
+    }); 
+  }
 
   /**
    * Extract the relevant information from the completion LLM specific response.
