@@ -174,7 +174,7 @@ This document outlines the inferred coding standards, architectural patterns, an
 *   **Testing Philosophy:**
     *   The project employs both **unit tests** and **integration tests**.
     *   **Unit Tests:** Files ending with `.test.ts` (e.g., `src/utils/utils.test.ts`, `src/llm/llm.test.ts`).
-    *   **Integration Tests:** Files ending with `.int.test.ts` (e.g., `src/insightsServer/insights-data.int.test.ts`, `src/promptTemplating/prompt-builder.int.test.ts`). These likely test interactions between modules or with external systems like a database (though mocks might still be used for some external parts).
+    *   **DO NOT EXECUTE: Integration Tests:** Files ending with `.int.test.ts` (e.g., `src/insightsServer/insights-data.int.test.ts`, `src/promptTemplating/prompt-builder.int.test.ts`). These likely test interactions between modules or with external systems like a database (though mocks might still be used for some external parts).
     *   **Testing Framework:** Jest (`jest`, `ts-jest`).
     *   **Test Execution:**
         *   `npm test`: Runs unit tests (ignores `.int.test.ts` files).
@@ -210,5 +210,5 @@ This document outlines the inferred coding standards, architectural patterns, an
             *   `@typescript-eslint/switch-exhaustiveness-check`: `"error"`.
             *   `@typescript-eslint/restrict-template-expressions`: Configured to allow numbers and booleans in template literals.
 *   **Checking Changes:**
-    *   Whenever you change, add or delete code, ensure you run compile, linting and unit tests to verify the changes and ensure you fix any reported errors for these. Do not run the integration tests to validate correctness.
+    *   Whenever you change, add or delete code, ensure you run compile, linting and unit tests to verify the changes and ensure you fix any reported errors for these. DO NOT RUN THE INTEGRATION TESTS.
 
