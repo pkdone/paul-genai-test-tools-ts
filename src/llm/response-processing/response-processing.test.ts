@@ -4,7 +4,6 @@ import { parseTokenUsageFromLLMError } from "./llm-error-pattern-parser";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../providers/bedrock/bedrock-error-patterns";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../providers/openai/openai-error-patterns";
 
-// Simple test metadata for testing
 const testMetadata = {
   "GPT_COMPLETIONS_GPT4": {
     internalKey: "GPT_COMPLETIONS_GPT4",

@@ -186,13 +186,13 @@ let llmServiceInstance: LLMService | null = null;
 let llmServicePromise: Promise<LLMService> | null = null;
 
 async function getLLMServiceInstance(): Promise<LLMService> {
-  if (llmServiceInstance) {
-    return llmServiceInstance;
-  }
+  if (llmServiceInstance) return llmServiceInstance;
+
   llmServicePromise ??= LLMService.create().then(service => {
     llmServiceInstance = service;
     return service;
   });
+
   return llmServicePromise;
 }
 
