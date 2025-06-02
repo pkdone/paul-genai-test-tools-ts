@@ -14,12 +14,18 @@ const mockEnv = {
   CODEBASE_DIR_PATH: "/test/path",
   IGNORE_ALREADY_PROCESSED_FILES: false,
   LLM: "AzureOpenAI",
-  AZURE_LLM_API_KEY: "test-key",
-  AZURE_API_ENDPOINT: "https://test.openai.azure.com/",
-  AZURE_API_EMBEDDINGS_MODEL: "test-embeddings",
-  AZURE_API_COMPLETIONS_MODEL_PRIMARY: "test-primary", 
-  AZURE_API_COMPLETIONS_MODEL_SECONDARY: "test-secondary"
+  AZURE_OPENAI_LLM_API_KEY: "test-key",
+  AZURE_OPENAI_ENDPOINT: "https://test.openai.azure.com/",
+  AZURE_OPENAI_EMBEDDINGS_MODEL_DEPLOYMENT: "test-embeddings",
+  AZURE_OPENAI_COMPLETIONS_MODEL_DEPLOTMENT_PRIMARY: "test-primary", 
+  AZURE_OPENAI_COMPLETIONS_MODEL_DEPLOYMENT_SECONDARY: "test-secondary",
+  AZURE_OPENAI_ADA_EMBEDDINGS_MODEL: "text-embedding-ada-002",
+  AZURE_OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY: "gpt-4o",
+  AZURE_OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY: "gpt-4-turbo",
 };
+
+
+
 
 // Create test instance using provider manifest
 const testModelKeysSet: LLMModelInternalKeysSet = {

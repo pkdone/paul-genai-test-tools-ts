@@ -14,7 +14,7 @@ const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.
                                            FinishReason.SPII];
 
 // Constants
-const GCP_API_EMBEDDINGS_TASK_TYPE = "QUESTION_ANSWERING";
+const VERTEXAI_EMBEDDINGS_TASK_TYPE = "QUESTION_ANSWERING";
 
 
 /**
@@ -155,7 +155,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
   private buildFullEmebddingsLLMParameters(modelInternalKey: string, prompt: string) {
     const model = this.llmModelsMetadata[modelInternalKey].urn;
     const endpoint = `${this.apiEndpointPrefix}${model}`;
-    const instance = helpers.toValue({ content: prompt, task_type: GCP_API_EMBEDDINGS_TASK_TYPE });
+    const instance = helpers.toValue({ content: prompt, task_type: VERTEXAI_EMBEDDINGS_TASK_TYPE });
     if (!instance) throw new BadConfigurationLLMError("Failed to convert prompt to IValue");
     const parameters = helpers.toValue({});
     return { endpoint, instances: [instance], parameters };

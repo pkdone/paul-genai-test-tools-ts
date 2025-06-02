@@ -6,7 +6,7 @@ import { z } from "zod";
 import { getRequiredLLMEnv } from "../../../../utils/llm-env-utils";
 
 // Environment variable name constants
-const BEDROCK_EMBEDDINGS_MODEL_KEY = "BEDROCK_EMBEDDINGS_MODEL";
+const BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY = "BEDROCK_TITAN_EMBEDDINGS_MODEL";
 const BEDROCK_TITAN_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_TITAN_COMPLETIONS_MODEL_PRIMARY";
 
 // Exported constants
@@ -18,13 +18,13 @@ export const bedrockTitanProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Titan",
   modelFamily: BEDROCK_TITAN,
   envSchema: z.object({
-    [BEDROCK_EMBEDDINGS_MODEL_KEY]: z.string().min(1),
+    [BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY]: z.string().min(1),
     [BEDROCK_TITAN_COMPLETIONS_MODEL_PRIMARY_KEY]: z.string().min(1),
   }),
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,
-      urn: getRequiredLLMEnv(BEDROCK_EMBEDDINGS_MODEL_KEY),
+      urn: getRequiredLLMEnv(BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY),
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,

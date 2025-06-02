@@ -6,7 +6,7 @@ import { BadConfigurationLLMError } from "../../../../types/llm-errors.types";
 import { AZURE_OPENAI } from "./azure-openai.manifest";
 
 // Constants
-const AZURE_API_VERSION = "2025-01-01-preview";
+const AZURE_OPENAI_VERSION = "2025-01-01-preview";
 
 /**
  * Class for Azure's own managed version of the OpenAI service.
@@ -39,7 +39,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
       this.modelToDeploymentMappings.set(secondaryCompletion, secondaryCompletionsDeployment);
     }
 
-    const apiVersion = AZURE_API_VERSION;
+    const apiVersion = AZURE_OPENAI_VERSION;
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
 

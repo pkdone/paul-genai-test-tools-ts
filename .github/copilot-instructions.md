@@ -63,7 +63,7 @@ This document outlines the inferred coding standards, architectural patterns, an
 *   **Variables & Parameters:** `camelCase` (e.g., `srcDirPath`, `mongoClient`, `llmRouter`, `projectName`).
 *   **Functions/Methods:** `camelCase` (e.g., `main`, `loadIntoDB`, `getProjectNameFromPath`, `buildSourceFileListSummaryList`).
 *   **Classes/Interfaces/Type Aliases:** `PascalCase` (e.g., `CodebaseToDBLoader`, `DBInitializer`, `LLMRouter`, `EnvVars`, `LLMProviderImpl`).
-*   **Constants:** `UPPER_SNAKE_CASE` for true constants, especially those defined in configuration files or as module-level constants (e.g., `CODEBASE_DB_NAME`, `UTF8_ENCODING`, `AZURE_LLM_API_KEY_KEY`). Environment variable names also follow this convention.
+*   **Constants:** `UPPER_SNAKE_CASE` for true constants, especially those defined in configuration files or as module-level constants (e.g., `CODEBASE_DB_NAME`, `UTF8_ENCODING`, `AZURE_OPENAI_LLM_API_KEY_KEY`). Environment variable names also follow this convention.
 *   **Enums:** Enum names are `PascalCase`, and enum members are `UPPER_SNAKE_CASE` (e.g., `LLMPurpose.EMBEDDINGS`, `LLMResponseStatus.COMPLETED`).
 *   **Files and Directories:**
     *   **TypeScript files (`.ts`):** Generally `kebab-case.ts` (e.g., `capture-sources.ts`, `llm-router.ts`).
