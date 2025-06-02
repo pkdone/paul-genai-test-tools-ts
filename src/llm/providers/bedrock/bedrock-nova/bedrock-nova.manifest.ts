@@ -3,6 +3,12 @@ import BedrockNovaLLM from "./bedrock-nova-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 import { z } from "zod";
+import { getRequiredLLMEnv } from "../../../../utils/llm-env-utils";
+
+// Environment variable name constants
+const BEDROCK_EMBEDDINGS_MODEL_KEY = "BEDROCK_EMBEDDINGS_MODEL";
+const BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY";
+const BEDROCK_NOVA_COMPLETIONS_MODEL_SECONDARY_KEY = "BEDROCK_NOVA_COMPLETIONS_MODEL_SECONDARY";
 
 // Exported model key constants
 export const BEDROCK_NOVA = "BedrockNova";
@@ -13,25 +19,29 @@ export const AWS_COMPLETIONS_NOVA_LITE_V1 = "AWS_COMPLETIONS_NOVA_LITE_V1";
 export const bedrockNovaProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Nova",
   modelFamily: BEDROCK_NOVA,
-  envSchema: z.object({}),
+  envSchema: z.object({
+    [BEDROCK_EMBEDDINGS_MODEL_KEY]: z.string().min(1),
+    [BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY_KEY]: z.string().min(1),
+    [BEDROCK_NOVA_COMPLETIONS_MODEL_SECONDARY_KEY]: z.string().min(1),
+  }),
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,
-      urn: "amazon.titan-embed-text-v1",
+      urn: getRequiredLLMEnv(BEDROCK_EMBEDDINGS_MODEL_KEY),
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
       internalKey: AWS_COMPLETIONS_NOVA_PRO_V1,
-      urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.amazon.nova-pro-v1:0",
+      urn: getRequiredLLMEnv(BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY_KEY),
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 5000,
       maxTotalTokens: 300000,
     },
     secondaryCompletion: {
       internalKey: AWS_COMPLETIONS_NOVA_LITE_V1,
-      urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.amazon.nova-lite-v1:0",
+      urn: getRequiredLLMEnv(BEDROCK_NOVA_COMPLETIONS_MODEL_SECONDARY_KEY),
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 5000,
       maxTotalTokens: 300000,

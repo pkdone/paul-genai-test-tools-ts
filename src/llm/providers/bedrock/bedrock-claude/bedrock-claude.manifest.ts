@@ -3,6 +3,12 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import BedrockClaudeLLM from "./bedrock-claude-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
+import { getRequiredLLMEnv } from "../../../../utils/llm-env-utils";
+
+// Environment variable name constants
+const BEDROCK_EMBEDDINGS_MODEL_KEY = "BEDROCK_EMBEDDINGS_MODEL";
+const BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY";
+const BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY_KEY = "BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY";
 
 // Exported constants
 export const BEDROCK_CLAUDE = "BedrockClaude";
@@ -23,25 +29,29 @@ export const AWS_COMPLETIONS_CLAUDE_V40 = "AWS_COMPLETIONS_CLAUDE_V40";
 export const bedrockClaudeProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Claude",
   modelFamily: BEDROCK_CLAUDE,
-  envSchema: z.object({}),
+  envSchema: z.object({
+    [BEDROCK_EMBEDDINGS_MODEL_KEY]: z.string().min(1),
+    [BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY]: z.string().min(1),
+    [BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY_KEY]: z.string().min(1),
+  }),
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,
-      urn: "amazon.titan-embed-text-v1",
+      urn: getRequiredLLMEnv(BEDROCK_EMBEDDINGS_MODEL_KEY),
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
       internalKey: AWS_COMPLETIONS_CLAUDE_V40,
-      urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0",
+      urn: getRequiredLLMEnv(BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY),
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 32768,  // Should be 64k but errors if larger than around 39200
       maxTotalTokens: 200000,
     },
     secondaryCompletion: {
       internalKey: AWS_COMPLETIONS_CLAUDE_V37,
-      urn: "arn:aws:bedrock:us-west-2:979559056307:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+      urn: getRequiredLLMEnv(BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY_KEY),
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 65536,
       maxTotalTokens: 200000,
