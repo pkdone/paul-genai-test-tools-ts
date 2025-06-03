@@ -3,7 +3,7 @@ import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshol
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import llmConfig from "../../../../config/llm.config";
-import { LLMModelInternalKeysSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
+import { LLMModelInternalKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import { getErrorText } from "../../../../utils/error-utils";
 import AbstractLLM from "../../abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
@@ -35,7 +35,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    */
   constructor(
     modelsKeys: LLMModelInternalKeysSet,
-    modelsMetadata: Record<string, LLMModelMetadata>,
+    modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly project: string,
     readonly location: string

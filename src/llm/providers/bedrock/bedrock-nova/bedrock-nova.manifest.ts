@@ -3,7 +3,6 @@ import BedrockNovaLLM from "./bedrock-nova-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 import { z } from "zod";
-import { getRequiredLLMEnv } from "../../../../utils/llm-env-utils";
 
 // Environment variable name constants
 const BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY = "BEDROCK_TITAN_EMBEDDINGS_MODEL";
@@ -13,8 +12,8 @@ const BEDROCK_NOVA_COMPLETIONS_MODEL_SECONDARY_KEY = "BEDROCK_NOVA_COMPLETIONS_M
 // Exported model key constants
 export const BEDROCK_NOVA = "BedrockNova";
 export const AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1";
-export const AWS_COMPLETIONS_NOVA_PRO_V1 = "AWS_COMPLETIONS_NOVA_PRO_V1";
 export const AWS_COMPLETIONS_NOVA_LITE_V1 = "AWS_COMPLETIONS_NOVA_LITE_V1";
+export const AWS_COMPLETIONS_NOVA_PRO_V1 = "AWS_COMPLETIONS_NOVA_PRO_V1";
 
 export const bedrockNovaProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Nova",
@@ -27,21 +26,33 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,
-      urn: getRequiredLLMEnv(BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
       internalKey: AWS_COMPLETIONS_NOVA_PRO_V1,
-      urn: getRequiredLLMEnv(BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 5000,
       maxTotalTokens: 300000,
     },
     secondaryCompletion: {
       internalKey: AWS_COMPLETIONS_NOVA_LITE_V1,
-      urn: getRequiredLLMEnv(BEDROCK_NOVA_COMPLETIONS_MODEL_SECONDARY_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_NOVA_COMPLETIONS_MODEL_SECONDARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_NOVA_COMPLETIONS_MODEL_SECONDARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 5000,
       maxTotalTokens: 300000,

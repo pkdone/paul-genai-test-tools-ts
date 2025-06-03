@@ -1,6 +1,6 @@
 import path from 'path';
 import { fileSystemConfig } from "../config/fileSystem.config";
-import { LLMProviderImpl, LLMModelInternalKeysSet as LLMModelsInternalKeysSet, LLMModelMetadata } from "../types/llm.types";
+import { LLMProviderImpl, LLMModelInternalKeysSet as LLMModelsInternalKeysSet, LLMModelMetadata, ResolvedLLMModelMetadata } from "../types/llm.types";
 import { EnvVars } from "../types/env.types";
 import { BadConfigurationLLMError } from "../types/llm-errors.types";
 import { LLMProviderManifest } from "./providers/llm-provider.types";
@@ -49,7 +49,7 @@ class LLMService {
     const llmProviderManifest = this.providerRegistry.get(modelFamily);
     if (!llmProviderManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
     const modelsInternallKeySet = this.constructModelsInternalKeysSet(llmProviderManifest);
-    const modelsMetadata = this.constructModelsMetadata(llmProviderManifest);
+    const modelsMetadata = this.constructModelsMetadata(llmProviderManifest, env);
     const llmProvider = llmProviderManifest.factory(env, modelsInternallKeySet, modelsMetadata, llmProviderManifest.errorPatterns);
     return llmProvider;
   }
@@ -169,13 +169,35 @@ class LLMService {
   /**
    * Construct LLMModelMetadata record from manifest
    */
-  private constructModelsMetadata(llmProviderManifest: LLMProviderManifest): Record<string, LLMModelMetadata> {
-    const metadata: Record<string, LLMModelMetadata> = {};
-    metadata[llmProviderManifest.models.embeddings.internalKey] = llmProviderManifest.models.embeddings;
-    metadata[llmProviderManifest.models.primaryCompletion.internalKey] = llmProviderManifest.models.primaryCompletion;
+  private constructModelsMetadata(llmProviderManifest: LLMProviderManifest, env: EnvVars): Record<string, ResolvedLLMModelMetadata> {
+    const metadata: Record<string, ResolvedLLMModelMetadata> = {};
     
+    // Helper function to resolve URN
+    const resolveUrn = (model: LLMModelMetadata): string => {
+      return typeof model.urn === 'function' ? model.urn(env) : model.urn;
+    };
+    
+    // Create resolved metadata for embeddings model
+    const embeddingsModel = llmProviderManifest.models.embeddings;
+    metadata[embeddingsModel.internalKey] = {
+      ...embeddingsModel,
+      urn: resolveUrn(embeddingsModel)
+    };
+    
+    // Create resolved metadata for primary completion model
+    const primaryCompletionModel = llmProviderManifest.models.primaryCompletion;
+    metadata[primaryCompletionModel.internalKey] = {
+      ...primaryCompletionModel,
+      urn: resolveUrn(primaryCompletionModel)
+    };
+    
+    // Create resolved metadata for secondary completion model if it exists
     if (llmProviderManifest.models.secondaryCompletion) {
-      metadata[llmProviderManifest.models.secondaryCompletion.internalKey] = llmProviderManifest.models.secondaryCompletion;
+      const secondaryCompletionModel = llmProviderManifest.models.secondaryCompletion;
+      metadata[secondaryCompletionModel.internalKey] = {
+        ...secondaryCompletionModel,
+        urn: resolveUrn(secondaryCompletionModel)
+      };
     }
 
     return metadata;

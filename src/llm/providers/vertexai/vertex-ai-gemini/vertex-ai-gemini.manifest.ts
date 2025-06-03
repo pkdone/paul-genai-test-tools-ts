@@ -3,7 +3,6 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BaseEnvVars } from "../../../../types/env.types";
-import { getRequiredLLMEnv } from "../../../../utils/llm-env-utils";
 
 // Environment variable name constants
 const VERTEXAI_PROJECTID_KEY = "VERTEXAI_PROJECTID";
@@ -31,21 +30,33 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       internalKey: GCP_EMBEDDINGS_TEXT_005,
-      urn: getRequiredLLMEnv(VERTEXAI_TEXT_EMBEDDINGS_MODEL_KEY),
+      urn: (env) => {
+        const value = env[VERTEXAI_TEXT_EMBEDDINGS_MODEL_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${VERTEXAI_TEXT_EMBEDDINGS_MODEL_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 768,
       maxTotalTokens: 2048,
     },
     primaryCompletion: {
       internalKey: GCP_COMPLETIONS_GEMINI_PRO25,
-      urn: getRequiredLLMEnv(VERTEXAI_GEMINI_COMPLETIONS_MODEL_PRIMARY_KEY),
+      urn: (env) => {
+        const value = env[VERTEXAI_GEMINI_COMPLETIONS_MODEL_PRIMARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${VERTEXAI_GEMINI_COMPLETIONS_MODEL_PRIMARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 65535,
       maxTotalTokens: 1048576,
     },
     secondaryCompletion: {
       internalKey: GCP_COMPLETIONS_GEMINI_FLASH20,
-      urn: getRequiredLLMEnv(VERTEXAI_GEMINI_COMPLETIONS_MODEL_SECONDARY_KEY),
+      urn: (env) => {
+        const value = env[VERTEXAI_GEMINI_COMPLETIONS_MODEL_SECONDARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${VERTEXAI_GEMINI_COMPLETIONS_MODEL_SECONDARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 1048576,

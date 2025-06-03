@@ -4,7 +4,6 @@ import OpenAILLM from "./openai-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
 import { BaseEnvVars } from "../../../../types/env.types";
-import { getRequiredLLMEnv } from "../../../../utils/llm-env-utils";
 
 // Environment variable name constants
 const OPENAI_LLM_API_KEY_KEY = "OPENAI_LLM_API_KEY";
@@ -30,21 +29,33 @@ export const openAIProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       internalKey: GPT_EMBEDDINGS_TEXT_3SMALL,
-      urn: getRequiredLLMEnv(OPENAI_TEXT_EMBEDDINGS_MODEL_KEY),
+      urn: (env) => {
+        const value = env[OPENAI_TEXT_EMBEDDINGS_MODEL_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${OPENAI_TEXT_EMBEDDINGS_MODEL_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8191,
     },
     primaryCompletion: {
       internalKey: GPT_COMPLETIONS_GPT4_O,
-      urn: getRequiredLLMEnv(OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY),
+      urn: (env) => {
+        const value = env[OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 16384,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {
       internalKey: GPT_COMPLETIONS_GPT4_TURBO,
-      urn: getRequiredLLMEnv(OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY),
+      urn: (env) => {
+        const value = env[OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
       maxTotalTokens: 128000,

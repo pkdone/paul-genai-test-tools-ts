@@ -1,5 +1,5 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMResponseStatus,
-         LLMModelInternalKeysSet, LLMFunctionResponse, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../types/llm.types";
+         LLMModelInternalKeysSet, LLMFunctionResponse, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../types/llm.types";
 import { LLMImplSpecificResponseSummary } from "./llm-provider.types";
 import { getErrorText } from "../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
@@ -13,7 +13,7 @@ import { BadConfigurationLLMError } from "../../types/llm-errors.types";
  */
 abstract class AbstractLLM implements LLMProviderImpl {
   // Fields
-  protected readonly llmModelsMetadata: Record<string, LLMModelMetadata>;
+  protected readonly llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>;
   private readonly modelsKeys: LLMModelInternalKeysSet;
   private readonly errorPatterns: readonly LLMErrorMsgRegExPattern[];
   
@@ -22,7 +22,7 @@ abstract class AbstractLLM implements LLMProviderImpl {
    */
   constructor(
     modelsKeys: LLMModelInternalKeysSet,
-    modelsMetadata: Record<string, LLMModelMetadata>,
+    modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) {
     this.modelsKeys = modelsKeys;

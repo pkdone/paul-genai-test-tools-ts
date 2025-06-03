@@ -1,7 +1,7 @@
 import { azureOpenAIProviderManifest } from "./openai/azure-openai/azure-openai.manifest";
 import { bedrockClaudeProviderManifest } from "./bedrock/bedrock-claude/bedrock-claude.manifest";
 import { bedrockLlamaProviderManifest } from "./bedrock/bedrock-llama/bedrock-llama.manifest";
-import { LLMPurpose, LLMModelMetadata, LLMModelInternalKeysSet } from "../../types/llm.types";
+import { LLMPurpose, ResolvedLLMModelMetadata, LLMModelInternalKeysSet } from "../../types/llm.types";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          extractTokensAmountAndLimitFromErrorMsg }  from "../response-processing/llm-response-tools";
 import { AWS_COMPLETIONS_CLAUDE_V35 } from "../providers/bedrock/bedrock-claude/bedrock-claude.manifest";
@@ -24,8 +24,10 @@ const mockEnv = {
   AZURE_OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY: "gpt-4-turbo",
 };
 
-
-
+// Helper function to resolve URN from manifest model
+const resolveUrn = (urn: string | ((env: typeof mockEnv) => string)): string => {
+  return typeof urn === 'function' ? urn(mockEnv) : urn;
+};
 
 // Create test instance using provider manifest
 const testModelKeysSet: LLMModelInternalKeysSet = {
@@ -34,17 +36,17 @@ const testModelKeysSet: LLMModelInternalKeysSet = {
   secondaryCompletionInternalKey: azureOpenAIProviderManifest.models.secondaryCompletion?.internalKey
 };
 
-const testModelsMetadata: Record<string, LLMModelMetadata> = {
+const testModelsMetadata: Record<string, ResolvedLLMModelMetadata> = {
   [azureOpenAIProviderManifest.models.embeddings.internalKey]: {
     internalKey: azureOpenAIProviderManifest.models.embeddings.internalKey,
-    urn: azureOpenAIProviderManifest.models.embeddings.urn,
+    urn: resolveUrn(azureOpenAIProviderManifest.models.embeddings.urn),
     purpose: LLMPurpose.EMBEDDINGS,
     dimensions: azureOpenAIProviderManifest.models.embeddings.dimensions,
     maxTotalTokens: azureOpenAIProviderManifest.models.embeddings.maxTotalTokens,
   },
   [azureOpenAIProviderManifest.models.primaryCompletion.internalKey]: {
     internalKey: azureOpenAIProviderManifest.models.primaryCompletion.internalKey,
-    urn: azureOpenAIProviderManifest.models.primaryCompletion.urn,
+    urn: resolveUrn(azureOpenAIProviderManifest.models.primaryCompletion.urn),
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxCompletionTokens,
     maxTotalTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxTotalTokens,
@@ -99,7 +101,7 @@ if (azureOpenAIProviderManifest.models.secondaryCompletion) {
   const secondaryModel = azureOpenAIProviderManifest.models.secondaryCompletion;
   testModelsMetadata[secondaryModel.internalKey] = {
     internalKey: secondaryModel.internalKey,
-    urn: secondaryModel.urn,
+    urn: resolveUrn(secondaryModel.urn),
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: secondaryModel.maxCompletionTokens ?? 4096,
     maxTotalTokens: secondaryModel.maxTotalTokens,

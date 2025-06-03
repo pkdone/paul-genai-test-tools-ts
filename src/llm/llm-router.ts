@@ -1,7 +1,7 @@
 import llmConfig from "../config/llm.config";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse,
-         LLMModelMetadata } from "../types/llm.types";
+         ResolvedLLMModelMetadata } from "../types/llm.types";
 import { RetryFunc } from "../types/control.types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { withRetry } from "../utils/control-utils";
@@ -19,7 +19,7 @@ import LLMStats from "./router-logging/llm-stats";
 class LLMRouter {
   // Private fields
   private readonly llmStats: LLMStats;
-  private readonly modelsMetadata: Record<string, LLMModelMetadata>;
+  private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
 
   /**
    * Constructor.

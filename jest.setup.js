@@ -1,7 +1,9 @@
-// Jest setup file - sets test environment variables
-// This prevents errors when importing manifest files that call getRequiredLLMEnv()
+// This file sets up Jest environment for testing LLM provider manifests
+// Environment variables are mocked to prevent manifest loading errors during tests
 
-process.env.LLM = "AzureOpenAI";
+// Mock environment variables that might be needed during testing
+process.env.NODE_ENV = 'test';
+process.env.LLM = 'AzureOpenAI';
 process.env.CODEBASE_DIR_PATH = "/test/path";
 process.env.MONGODB_URL = "mongodb://localhost:27017/test";
 process.env.IGNORE_ALREADY_PROCESSED_FILES = "false";
@@ -13,14 +15,14 @@ process.env.OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY = "gpt-4o";
 process.env.OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY = "gpt-4-turbo";
 
 // Azure OpenAI API variables
-process.env.AZURE_OPENAI_LLM_API_KEY = "test-azure-key";
-process.env.AZURE_OPENAI_ENDPOINT = "https://test.openai.azure.com/";
-process.env.AZURE_OPENAI_EMBEDDINGS_MODEL_DEPLOYMENT = "test-embeddings";
-process.env.AZURE_OPENAI_COMPLETIONS_MODEL_DEPLOTMENT_PRIMARY = "test-primary";
-process.env.AZURE_OPENAI_COMPLETIONS_MODEL_DEPLOYMENT_SECONDARY = "test-secondary";
-process.env.AZURE_OPENAI_ADA_EMBEDDINGS_MODEL = "text-embedding-ada-002";
-process.env.AZURE_OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY = "gpt-4o";
-process.env.AZURE_OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY = "gpt-4-turbo";
+process.env.AZURE_OPENAI_LLM_API_KEY = 'test-key';
+process.env.AZURE_OPENAI_ENDPOINT = 'https://test.openai.azure.com/';
+process.env.AZURE_OPENAI_EMBEDDINGS_MODEL_DEPLOYMENT = 'test-embeddings';
+process.env.AZURE_OPENAI_COMPLETIONS_MODEL_DEPLOTMENT_PRIMARY = 'test-primary';
+process.env.AZURE_OPENAI_COMPLETIONS_MODEL_DEPLOYMENT_SECONDARY = 'test-secondary';
+process.env.AZURE_OPENAI_ADA_EMBEDDINGS_MODEL = 'text-embedding-ada-002';
+process.env.AZURE_OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY = 'gpt-4o';
+process.env.AZURE_OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY = 'gpt-4-turbo';
 
 // GCP VertexAI API variables
 process.env.VERTEXAI_PROJECTID = "test-gcp-project";

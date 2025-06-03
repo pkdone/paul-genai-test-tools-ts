@@ -1,6 +1,6 @@
 import llmConfig from "../../config/llm.config";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
-         LLMResponseStatus, LLMContext, LLMModelMetadata, LLMErrorMsgRegExPattern} from "../../types/llm.types";
+         LLMResponseStatus, LLMContext, LLMModelMetadata, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern} from "../../types/llm.types";
 import { BadResponseContentLLMError } from "../../types/llm-errors.types";
 import { convertTextToJSON } from "../../utils/json-tools";
 import { getErrorText } from "../../utils/error-utils";
@@ -13,7 +13,7 @@ import { parseTokenUsageFromLLMError } from "./llm-error-pattern-parser";
 export function extractTokensAmountFromMetadataDefaultingMissingValues(
   modelInternalKey: string, 
   tokenUsage: LLMResponseTokensUsage,
-  modelsMetadata: Record<string, LLMModelMetadata>
+  modelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ) : LLMResponseTokensUsage {
   let { promptTokens, completionTokens, maxTotalTokens } = tokenUsage;
   if (completionTokens < 0) completionTokens = 0;
@@ -60,7 +60,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
   responseContent: LLMGeneratedContent, 
   asJson: boolean, 
   context: LLMContext,
-  modelsMetadata: Record<string, LLMModelMetadata>
+  modelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ) {
   if (taskType === LLMPurpose.COMPLETIONS) {
     try {
@@ -84,7 +84,7 @@ export function reducePromptSizeToTokenLimit(
   prompt: string, 
   modelInternalKey: string, 
   tokensUage: LLMResponseTokensUsage,
-  modelsMetadata: Record<string, LLMModelMetadata>
+  modelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ) {
   if (prompt.trim() === "") return prompt;  
   const { promptTokens, completionTokens, maxTotalTokens } = tokensUage;

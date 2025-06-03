@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
 import llmConfig from "../../../../config/llm.config";
-import { LLMModelInternalKeysSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
+import { LLMModelInternalKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { OPENAI } from "./openai.manifest";
 
@@ -16,7 +16,7 @@ class OpenAILLM extends BaseOpenAILLM {
    */
   constructor(
     modelsKeys: LLMModelInternalKeysSet,
-    modelsMetadata: Record<string, LLMModelMetadata>,
+    modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly apiKey: string
   ) { 

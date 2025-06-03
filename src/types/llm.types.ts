@@ -1,3 +1,5 @@
+import { EnvVars } from "./env.types";
+
 /**
  * Interface for LLM implementation provider
  */
@@ -9,7 +11,7 @@ export interface LLMProviderImpl {
   getAvailableCompletionModelQualities(): LLMModelQuality[],
   getEmbeddedModelDimensions(): number | undefined,
   getModelFamily(): string,
-  getModelsMetadata(): Readonly<Record<string, LLMModelMetadata>>,
+  getModelsMetadata(): Readonly<Record<string, ResolvedLLMModelMetadata>>,
   close(): Promise<void>,
 };
 
@@ -39,19 +41,17 @@ export enum LLMPurpose {
 };
 
 /**
- * Type to define the main characteristics of the LLM model.
+ * Base interface for LLM model metadata containing all common fields.
  * 
  * Notes:
- *  - For Completionss LLMs, the total allowed tokens is the sum of the prompt tokens and the
- *    completions tokens.
+ *  - For Completions LLMs, the total allowed tokens is the sum of the prompt tokens and the
+ *    completion tokens.
  *  - For Embeddings LLMs, the total allowed tokens is the amount of prompt tokens only (the
  *    response is a fixed size array of numbers).
  */ 
-export interface LLMModelMetadata {
+interface BaseLLMModelMetadata {
   /** The string identifier for this model - changed from ModelKey enum to string */
   readonly internalKey: string;
-  /** The actual model ID/name used by the provider API */
-  readonly urn: string;
   /** Whether this is an embedding or completion model */
   readonly purpose: LLMPurpose;
   /** Number of dimensions for embedding models */
@@ -60,6 +60,23 @@ export interface LLMModelMetadata {
   readonly maxCompletionTokens?: number;
   /** Maximum total tokens (prompt + completion) */
   readonly maxTotalTokens: number;
+}
+
+/**
+ * Type to define the main characteristics of the LLM model with flexible URN resolution.
+ */ 
+export interface LLMModelMetadata extends BaseLLMModelMetadata {
+  /** The actual model ID/name used by the provider API - can be string or function that takes EnvVars */
+  readonly urn: string | ((env: EnvVars) => string);
+}
+
+/**
+ * Type to define resolved model metadata where URNs are always strings.
+ * This is used in LLM implementations after environment resolution.
+ */ 
+export interface ResolvedLLMModelMetadata extends BaseLLMModelMetadata {
+  /** The actual model ID/name used by the provider API - always a resolved string */
+  readonly urn: string;
 }
 
 /**

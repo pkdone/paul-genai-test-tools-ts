@@ -3,7 +3,6 @@ import BedrockLlamaLLM from "./bedrock-llama-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 import { z } from "zod";
-import { getRequiredLLMEnv } from "../../../../utils/llm-env-utils";
 
 // Environment variable name constants
 const BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY = "BEDROCK_TITAN_EMBEDDINGS_MODEL";
@@ -13,9 +12,9 @@ const BEDROCK_LLAMA_COMPLETIONS_MODEL_SECONDARY_KEY = "BEDROCK_LLAMA_COMPLETIONS
 // Exported constants 
 export const BEDROCK_LLAMA = "BedrockLlama";
 export const AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1";
-export const AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT";
+export const AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT";
 export const AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT";
-export const AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT"
+export const AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT";
 
 /**
  * AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT & AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT: Not clear if
@@ -33,21 +32,33 @@ export const bedrockLlamaProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,
-      urn: getRequiredLLMEnv(BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
       internalKey: AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT,
-      urn: getRequiredLLMEnv(BEDROCK_LLAMA_COMPLETIONS_MODEL_PRIMARY_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_LLAMA_COMPLETIONS_MODEL_PRIMARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_LLAMA_COMPLETIONS_MODEL_PRIMARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {
       internalKey: AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT,
-      urn: getRequiredLLMEnv(BEDROCK_LLAMA_COMPLETIONS_MODEL_SECONDARY_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_LLAMA_COMPLETIONS_MODEL_SECONDARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_LLAMA_COMPLETIONS_MODEL_SECONDARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
       maxTotalTokens: 128000,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { LLMModelInternalKeysSet, LLMProviderImpl, LLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm.types";
+import { LLMModelInternalKeysSet, LLMProviderImpl, LLMModelMetadata, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm.types";
 import { EnvVars } from "../../types/env.types";
 
 /**
@@ -24,7 +24,7 @@ export interface LLMProviderManifest {
   factory: (
     envConfig: EnvVars,
     modelsInternallKeySet: LLMModelInternalKeysSet,
-    modelsMetadata: Record<string, LLMModelMetadata>,
+    modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) => LLMProviderImpl;
 }

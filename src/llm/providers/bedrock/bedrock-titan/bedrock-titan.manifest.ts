@@ -3,7 +3,6 @@ import BedrockTitanLLM from "./bedrock-titan-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 import { z } from "zod";
-import { getRequiredLLMEnv } from "../../../../utils/llm-env-utils";
 
 // Environment variable name constants
 const BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY = "BEDROCK_TITAN_EMBEDDINGS_MODEL";
@@ -24,14 +23,22 @@ export const bedrockTitanProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,
-      urn: getRequiredLLMEnv(BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
       internalKey: AWS_COMPLETIONS_TITAN_EXPRESS_V1,
-      urn: getRequiredLLMEnv(BEDROCK_TITAN_COMPLETIONS_MODEL_PRIMARY_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_TITAN_COMPLETIONS_MODEL_PRIMARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_TITAN_COMPLETIONS_MODEL_PRIMARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8191,
       maxTotalTokens: 8191,

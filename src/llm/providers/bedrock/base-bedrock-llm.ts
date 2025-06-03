@@ -1,7 +1,7 @@
 import { BedrockRuntimeClient, InvokeModelCommand, ServiceUnavailableException,
   ThrottlingException, ModelTimeoutException, ValidationException }
 from "@aws-sdk/client-bedrock-runtime";     
-import { LLMModelInternalKeysSet, LLMPurpose, LLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm.types";
+import { LLMModelInternalKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm.types";
 import llmConfig from "../../../config/llm.config";
 import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
 import { getErrorText, logErrorMsgAndDetail } from "../../../utils/error-utils";
@@ -26,7 +26,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    */
   constructor(
     modelsKeys: LLMModelInternalKeysSet,
-    modelsMetadata: Record<string, LLMModelMetadata>,
+    modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[]
   ) {
     super(modelsKeys, modelsMetadata, errorPatterns);

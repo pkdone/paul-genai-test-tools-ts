@@ -2,16 +2,6 @@ import dotenv from "dotenv";
 import { getLLMProviderManifest } from "../llm/llm-service";
 import { EnvVars, baseEnvVarsSchema } from "../types/env.types";
 import { z } from "zod";
-import { BadConfigurationLLMError } from "../types/llm-errors.types";
-
-/**
- * Utility function to get required environment variables with proper error handling.
- */
-export function getRequiredLLMEnv(key: string): string {
-  const value = process.env[key];
-  if (!value) throw new BadConfigurationLLMError(`Required environment variable ${key} is not set`);
-  return value;
-}
 
 /**
  * Utility function to load environment variables and validate them.

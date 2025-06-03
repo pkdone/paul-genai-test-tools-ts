@@ -3,7 +3,6 @@ import BedrockMistralLLM from "./bedrock-mistral-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 import { z } from "zod";
-import { getRequiredLLMEnv } from "../../../../utils/llm-env-utils";
 
 // Environment variable name constants
 const BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY = "BEDROCK_TITAN_EMBEDDINGS_MODEL";
@@ -13,8 +12,8 @@ const BEDROCK_MISTRAL_COMPLETIONS_MODEL_SECONDARY_KEY = "BEDROCK_MISTRAL_COMPLET
 // Exported constants
 export const BEDROCK_MISTRAL = "BedrockMistral";
 export const AWS_EMBEDDINGS_TITAN_V1 = "AWS_EMBEDDINGS_TITAN_V1";
-export const AWS_COMPLETIONS_MISTRAL_LARGE2 = "AWS_COMPLETIONS_MISTRAL_LARGE2";
 export const AWS_COMPLETIONS_MISTRAL_LARGE = "AWS_COMPLETIONS_MISTRAL_LARGE";
+export const AWS_COMPLETIONS_MISTRAL_LARGE2 = "AWS_COMPLETIONS_MISTRAL_LARGE2";
 
 export const bedrockMistralProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Mistral",
@@ -27,21 +26,33 @@ export const bedrockMistralProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,
-      urn: getRequiredLLMEnv(BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
       internalKey: AWS_COMPLETIONS_MISTRAL_LARGE2,
-      urn: getRequiredLLMEnv(BEDROCK_MISTRAL_COMPLETIONS_MODEL_PRIMARY_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_MISTRAL_COMPLETIONS_MODEL_PRIMARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_MISTRAL_COMPLETIONS_MODEL_PRIMARY_KEY} is not set`);
+        return value;
+      },
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 131072,
     },
     secondaryCompletion: {
       internalKey: AWS_COMPLETIONS_MISTRAL_LARGE,
-      urn: getRequiredLLMEnv(BEDROCK_MISTRAL_COMPLETIONS_MODEL_SECONDARY_KEY),
+      urn: (env) => {
+        const value = env[BEDROCK_MISTRAL_COMPLETIONS_MODEL_SECONDARY_KEY] as string;
+        if (!value) throw new Error(`Required environment variable ${BEDROCK_MISTRAL_COMPLETIONS_MODEL_SECONDARY_KEY} is not set`);
+        return value;
+      },
       maxCompletionTokens: 8192,
       maxTotalTokens: 32768,
       purpose: LLMPurpose.COMPLETIONS,
