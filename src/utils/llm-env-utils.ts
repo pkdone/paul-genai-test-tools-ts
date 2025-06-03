@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { getLLMProviderManifest } from "../llm/llm-service";
+import { LLMService } from "../llm/llm-service";
 import { EnvVars, baseEnvVarsSchema } from "../types/env.types";
 import { z } from "zod";
 import { BadConfigurationLLMError } from "../types/llm-errors.types";
@@ -10,7 +10,7 @@ import { getErrorStack } from "../utils/error-utils";
  * This function dynamically incorporates the Zod schema for environment variables specific to the
  * selected LLM provider.
  */
-export async function loadEnvIncludingLLMVars(): Promise<EnvVars> {
+export function loadEnvIncludingLLMVars(llmService: LLMService): EnvVars {
   try {
     dotenv.config();
     // Schema to initially parse only the LLM selection variable
@@ -22,9 +22,8 @@ export async function loadEnvIncludingLLMVars(): Promise<EnvVars> {
     if (!selectedLlmContainer.success || !selectedLlmContainer.data.LLM) throw new Error("LLM environment variable is not set or is empty in your .env file.");
     const selectedLlmModelFamily = selectedLlmContainer.data.LLM;
 
-    // Load the manifest for the selected provider - getLLMProviderManifest will internally ensure
-    // the llm-service is initialized
-    const manifest = await getLLMProviderManifest(selectedLlmModelFamily);
+    // Load the manifest for the selected provider using the provided service instance
+    const manifest = llmService.getLLMManifest(selectedLlmModelFamily);
     if (!manifest) throw new Error("No provider manifest found for LLM: '${selectedLlmModelFamily}");
 
     // Merge base schema with provider-specific schema from the manifest - the manifest.envSchema

@@ -1,7 +1,7 @@
 import databaseConfig from "../config/database.config";
 import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
 import LLMRouter from "../llm/llm-router";
-import { getLLMProvider } from "../llm/llm-service";
+import { LLMService } from "../llm/llm-service";
 import dotenv from "dotenv";
 import { z } from "zod";
 import { baseEnvVarsSchema } from "../types/env.types";
@@ -23,10 +23,10 @@ export function loadBaseEnvVarsOnly(): z.infer<typeof baseEnvVarsSchema> {
  * variables for wider use).
  */
 export async function bootstrap() {
-  const { env, llmRouter } = await bootstrapJustLLM()
+  const { env, llmRouter, llmService } = await bootstrapJustLLM()
   const mongoDBClientFactory = new MongoDBClientFactory();
   const mongoClient = await mongoDBClientFactory.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
-  return { env, mongoClient, llmRouter, mongoDBClientFactory };
+  return { env, mongoClient, llmRouter, mongoDBClientFactory, llmService };
 }
 
 /**
@@ -34,8 +34,12 @@ export async function bootstrap() {
  * environment variable (also returning the list of environemnt variables for wider use).
  */
 export async function bootstrapJustLLM() {
-  const env = await loadEnvIncludingLLMVars(); // This now uses the dynamic schema loading
-  const llmProvider = await getLLMProvider(env); // getLLMProvider uses env.LLM to find the provider
+  // Create and initialize LLMService instance
+  const llmService = new LLMService();
+  await llmService.initialize();
+  
+  const env = loadEnvIncludingLLMVars(llmService); // Pass LLMService instance
+  const llmProvider = llmService.getLLMProvider(env); // Use instance method
   const llmRouter = new LLMRouter(llmProvider);
-  return { env, llmRouter };
+  return { env, llmRouter, llmService };
 }

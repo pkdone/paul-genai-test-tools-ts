@@ -10,25 +10,27 @@ import { readDirContents } from "../utils/fs-utils";
 /**
  * Service for managing LLM providers using auto-discovery of manifests
  */
-class LLMService {
+export class LLMService {
   private readonly providerRegistry: Map<string, LLMProviderManifest>;
   private isInitialized = false;
 
   /**
-   * Private constructor for async factory pattern
+   * Constructor for dependency injection pattern
    */
-  private constructor() { 
+  constructor() { 
     this.providerRegistry = new Map();
   }
 
   /**
-   * Create an LLMService instance
+   * Initialize the service (async initialization)
    */
-  static async create(): Promise<LLMService> {
-    const service = new LLMService();
-    await service.initializeRegistry();
-    service.isInitialized = true;
-    return service;
+  async initialize(): Promise<void> {
+    if (this.isInitialized) {
+      console.warn("LLMService is already initialized.");
+      return;
+    }
+    await this.initializeRegistry();
+    this.isInitialized = true;
   }
 
   /**
@@ -36,7 +38,7 @@ class LLMService {
    */
   getLLMManifest(modelFamily: string): LLMProviderManifest | undefined {
     if (!this.isInitialized) {
-      throw new Error("LLMService is not initialized. Call LLMService.create() first or use getProviderManifest().");
+      throw new Error("LLMService is not initialized. Call initialize() first.");
     }
     return this.providerRegistry.get(modelFamily);
   }
@@ -45,13 +47,20 @@ class LLMService {
    * Get an LLM provider instance for the given model family and environment
    */
   getLLMProviderInstance(modelFamily: string, env: EnvVars): LLMProviderImpl {
-    if (!this.isInitialized) throw new Error("LLMService is not initialized. Call LLMService.create() first.");
+    if (!this.isInitialized) throw new Error("LLMService is not initialized. Call initialize() first.");
     const llmProviderManifest = this.providerRegistry.get(modelFamily);
     if (!llmProviderManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
     const modelsInternallKeySet = this.constructModelsInternalKeysSet(llmProviderManifest);
     const modelsMetadata = this.constructModelsMetadata(llmProviderManifest, env);
     const llmProvider = llmProviderManifest.factory(env, modelsInternallKeySet, modelsMetadata, llmProviderManifest.errorPatterns);
     return llmProvider;
+  }
+
+  /**
+   * Get an LLM provider instance using the environment's LLM setting
+   */
+  getLLMProvider(env: EnvVars): LLMProviderImpl {
+    return this.getLLMProviderInstance(env.LLM, env);
   }
 
   /**
@@ -202,31 +211,4 @@ class LLMService {
 
     return metadata;
   }
-}
-
-let llmServiceInstance: LLMService | null = null;
-let llmServicePromise: Promise<LLMService> | null = null;
-
-async function getLLMServiceInstance(): Promise<LLMService> {
-  if (llmServiceInstance) return llmServiceInstance;
-
-  llmServicePromise ??= LLMService.create().then(service => {
-    llmServiceInstance = service;
-    return service;
-  });
-
-  return llmServicePromise;
-}
-
-export async function getLLMProviderManifest(modelFamily: string): Promise<LLMProviderManifest | undefined> {
-  const service = await getLLMServiceInstance();
-  return service.getLLMManifest(modelFamily);
-}
-
-/**
- * Get an LLM provider instance (convenience function)
- */
-export async function getLLMProvider(env: EnvVars): Promise<LLMProviderImpl> {
-  const service = await getLLMServiceInstance();
-  return service.getLLMProviderInstance(env.LLM, env);
 } 

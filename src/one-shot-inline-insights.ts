@@ -20,7 +20,8 @@ async function main() {
   await llmRouter.close();
   console.log(`View generated results in the '${fileSystemConfig.OUTPUT_DIR}' folder`);
   console.log(`END: ${new Date().toISOString()}`);
-  process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
+  // TODO: test not calling process.exit() here
+  //process.exit();  // Force exit because some LLM API libraries may have indefinite backgrounds tasks running  
 }
 
 main().catch(console.error);
