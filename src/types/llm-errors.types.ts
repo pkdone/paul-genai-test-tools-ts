@@ -85,24 +85,6 @@ export class RejectionResponseLLMError extends LLMError {
 }
 
 /**
- * Error class to indicate that a problem with the LLM metdata definition.
- */
-export class LLMMetadataError extends LLMError {
-  /** 
-   * The value defined for the problematic property.
-   */
-  readonly value: string;
-
-  /** 
-   * Constructor.
-   */
-  constructor(message: string, value: unknown = null) {
-    super(LLMMetadataError.name, `${message}: ${stringify(value)}`);
-    this.value = stringify(value);    
-  }
-}
-
-/**
  * Convert a variable to a string.
  */
 function stringify(myvar: unknown) {
