@@ -1,6 +1,6 @@
 import fileSystemConfig from "./config/fileSystem.config";
 import { clearDirectory, buildDirDescendingListOfFiles } from "./utils/fs-utils";
-import { bootstrapJustLLM } from "./env/bootstrap";
+import { bootstrapJustLLM } from "./lifecycle/bootstrap-startup";
 import { CodebaseInsightProcessor } from "./insightGenerator/codebase-insight-processor";
 
 /**

@@ -1,5 +1,5 @@
 import databaseConfig from "../config/database.config";
-import mongoDBService from "../utils/mongodb-service";
+import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
 import LLMRouter from "../llm/llm-router";
 import { getLLMProvider } from "../llm/llm-service";
 import dotenv from "dotenv";
@@ -24,8 +24,9 @@ export function loadBaseEnvVarsOnly(): z.infer<typeof baseEnvVarsSchema> {
  */
 export async function bootstrap() {
   const { env, llmRouter } = await bootstrapJustLLM()
-  const mongoClient = await mongoDBService.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
-  return { env, mongoClient, llmRouter };
+  const mongoDBClientFactory = new MongoDBClientFactory();
+  const mongoClient = await mongoDBClientFactory.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
+  return { env, mongoClient, llmRouter, mongoDBClientFactory };
 }
 
 /**

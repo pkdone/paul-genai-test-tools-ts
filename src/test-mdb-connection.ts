@@ -1,16 +1,21 @@
 import { Db } from "mongodb";
 import databaseConfig from "./config/database.config";
-import mongoDBService from "./utils/mongodb-service";
 import { getProjectNameFromPath } from "./utils/path-utils";
-import { bootstrap } from "./env/bootstrap";
+import { bootstrap } from "./lifecycle/bootstrap-startup";
+import { setupGracefulShutdown } from "./lifecycle/graceful-shutdown";
+import { MongoDBClientFactory } from "./utils/mongodb-client-factory";
 
 /**
  * Main function to run the program.
  */
 async function main() {
+  let mongoDBClientFactory: MongoDBClientFactory | null = null;
+  
   try {
     console.log(`START: ${new Date().toISOString()}`);
-    const { env, mongoClient } = await bootstrap();   
+    const { env, mongoClient, mongoDBClientFactory: factory } = await bootstrap();   
+    mongoDBClientFactory = factory;
+    setupGracefulShutdown(mongoDBClientFactory);    
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
     const db = mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
@@ -19,7 +24,7 @@ async function main() {
     console.log("Result:", JSON.stringify(result, null, 2));
     console.log(`END: ${new Date().toISOString()}`);
   } finally {
-    await mongoDBService.closeAll();
+    if (mongoDBClientFactory) await mongoDBClientFactory.closeAll();
   }
 }
 

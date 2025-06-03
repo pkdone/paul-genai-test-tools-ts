@@ -2,20 +2,21 @@ import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
 import { logErrorMsg, logErrorMsgAndDetail } from "./error-utils";
 
 /**
- * A class that manages multiple MongoDB connections and provides client instances.
+ * A factory class for creating and managing MongoDB client connections.
+ * This replaces the singleton pattern with dependency injection.
  */
-class MongoDBService {
+export class MongoDBClientFactory {
   private readonly clients = new Map<string, MongoClient>();
 
   /**
-   * Connects to a MongoDB instance using the given id and URL. Wraps the MongoClient instance to
-   * intercept close() and remove the client from the the services's list of active clients..
+   * Connects to a MongoDB instance using the given id and URL.
    *
    * @param id The id identifying the connection.
    * @param url The MongoDB connection string.
+   * @param options Optional MongoDB client options.
    * @returns A Promise resolving to the connected MongoClient instance.
    */
-  async connect(id: string, url: string, options?: MongoClientOptions) {
+  async connect(id: string, url: string, options?: MongoClientOptions): Promise<MongoClient> {
     if (this.clients.has(id)) {
       console.warn(`MongoDB client with id '${id}' is already connected.`);
       const client = this.clients.get(id);
@@ -51,16 +52,16 @@ class MongoDBService {
    * @returns The MongoClient instance.
    * @throws MongoError if the client is not connected.
    */
-  getClient(id: string) {
+  getClient(id: string): MongoClient {
     const client = this.clients.get(id);
     if (!client) throw new MongoError(`No active connection found for id '${id}'. Call \`connect(id, url)\` first.`);
     return client;
   }
 
   /**
-   * Closes all MongoDB connections.
+   * Closes all MongoDB connections managed by this factory.
    */
-  async closeAll() {
+  async closeAll(): Promise<void> {
     for (const [id, client] of this.clients.entries()) {
       try {
         await client.close();
@@ -74,12 +75,19 @@ class MongoDBService {
   }
 
   /**
+   * Gets the number of active connections.
+   */
+  getConnectionCount(): number {
+    return this.clients.size;
+  }
+
+  /**
    * Redacts sensitive credentials from a MongoDB connection string.
    *
    * @param url The MongoDB connection string.
    * @returns A redacted connection string.
    */
-  private redactUrl(url: string) {
+  private redactUrl(url: string): string {
     try {
       const parsedUrl = new URL(url);
       if (parsedUrl.username || parsedUrl.password) {
@@ -92,25 +100,4 @@ class MongoDBService {
       return "REDACTED_URL";
     }
   }
-}
-
-// Create a single instance of the service
-const mongoDBService = new MongoDBService();
-// Optional: freeze the instance to prevent modification
-Object.freeze(mongoDBService);
-
-// Ensure proper cleanup on application exit.
-process.on("SIGINT", () => {
-  void (async () => {
-    try {
-      await mongoDBService.closeAll();
-      console.log("MongoDB connections closed. Exiting process.");
-      process.exit(0);
-    } catch (error: unknown) {
-      logErrorMsgAndDetail("Error closing MongoDB connections:", error);
-      process.exit(1);
-    }
-  })();
-});
-
-export default mongoDBService;
+} 
