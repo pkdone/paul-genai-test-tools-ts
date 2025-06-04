@@ -40,6 +40,13 @@ class LLMRouter {
   }
 
   /**
+   * Get the model family of the LLM implementation.
+   */
+  getModelFamily() {
+    return this.llm.getModelFamily();
+  }
+
+  /**
    * Get the description of models the chosen plug-in provides.
    */
   getModelsUsedDescription() {
@@ -103,6 +110,7 @@ class LLMRouter {
    * Print the accumulated statistics of LLM invocation result types.
    */
   displayLLMStatusSummary() {
+    console.log("LLM inovocation event types that will be recorded:");
     console.table(this.llmStats.getStatusTypesStatistics(), ["description", "symbol"]);
   }
 

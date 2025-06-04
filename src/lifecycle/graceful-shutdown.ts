@@ -1,44 +1,38 @@
-import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
 import LLMRouter from "../llm/llm-router";
-import { logErrorMsgAndDetail } from "../utils/error-utils";
+import { VERTEX_GEMINI } from "../llm/providers/vertexai/vertex-ai-gemini/vertex-ai-gemini.manifest";
+import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
 
 /**
- * Sets up graceful shutdown handlers for the application.
- * This replaces the global SIGINT handler that was previously in the MongoDB singleton.
+ * Gracefully shutdown LLM connections and MongoDB connections with provider-specific cleanup handling.
+ * 
+ * @param llmRouter The LLM router instance to close, or undefined if not initialized
+ * @param mongoDBClientFactory The MongoDB client factory to close, or undefined if not initialized
  */
-export function setupGracefulShutdown(
-  mongoDBClientFactory?: MongoDBClientFactory,
-  llmRouter?: LLMRouter
-): void {
-  const handleShutdown = async (signal: string) => {
-    console.log(`\nReceived ${signal}. Starting graceful shutdown...`);
-    
-    try {
-      // Close LLM router first
-      if (llmRouter) {
-        await llmRouter.close();
-        console.log("LLM router closed.");
-      }
-      
-      // Close MongoDB connections
-      if (mongoDBClientFactory) {
-        await mongoDBClientFactory.closeAll();
-        console.log("MongoDB connections closed.");
-      }
-      
-      console.log("Graceful shutdown completed. Exiting process.");
-      process.exit(0);
-    } catch (error: unknown) {
-      logErrorMsgAndDetail("Error during graceful shutdown:", error);
-      process.exit(1);
-    }
-  };
+export async function gracefulShutdown(
+  llmRouter?: LLMRouter, 
+  mongoDBClientFactory?: MongoDBClientFactory
+): Promise<void> {
+  console.log(`END: ${new Date().toISOString()}`);
 
-  // Handle various termination signals
-  process.on("SIGINT", () => {
-    void handleShutdown("SIGINT");
-  });
-  process.on("SIGTERM", () => {
-    void handleShutdown("SIGTERM");
-  });
-} 
+  // Close LLM connections
+  if (llmRouter) {
+    await llmRouter.close();
+    
+    // Only apply Google Cloud specific workaround when using VertexAI
+    if (llmRouter.getModelFamily() === VERTEX_GEMINI) {
+      // Known Google Cloud Node.js client limitation: 
+      // VertexAI SDK doesn't have explicit close() method and HTTP connections may persist
+      // This is documented behavior - see: https://github.com/googleapis/nodejs-pubsub/issues/1190
+      // Use timeout-based cleanup as the recommended workaround
+      setTimeout(() => {
+        console.log('Forced exit because GCP client connections caanot be closed properly');
+        process.exit(0);
+      }, 1000); // 1 second should be enough for any pending operations
+    }
+  }
+  
+  // Close MongoDB connections
+  if (mongoDBClientFactory) {
+    await mongoDBClientFactory.closeAll();
+  }
+}

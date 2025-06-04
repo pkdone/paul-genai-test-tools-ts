@@ -1,30 +1,27 @@
 import { Db } from "mongodb";
 import databaseConfig from "./config/database.config";
 import { getProjectNameFromPath } from "./utils/path-utils";
-import { bootstrap } from "./lifecycle/bootstrap-startup";
-import { setupGracefulShutdown } from "./lifecycle/graceful-shutdown";
+import { bootstrapStartup } from "./lifecycle/bootstrap-startup";
 import { MongoDBClientFactory } from "./utils/mongodb-client-factory";
+import { gracefulShutdown } from "./lifecycle/graceful-shutdown";
 
 /**
  * Main function to run the program.
  */
 async function main() {
-  let mongoDBClientFactory: MongoDBClientFactory | null = null;
+  let mongoDBClientFactory: MongoDBClientFactory | undefined;
   
   try {
-    console.log(`START: ${new Date().toISOString()}`);
-    const { env, mongoClient, mongoDBClientFactory: factory } = await bootstrap();   
+    const { env, mongoClient, mongoDBClientFactory: factory } = await bootstrapStartup();   
     mongoDBClientFactory = factory;
-    setupGracefulShutdown(mongoDBClientFactory);    
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
     const db = mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
     const collName = databaseConfig.SOURCES_COLLCTN_NAME;  
     const result = await collectJavaFilePaths(db, collName, projectName);
     console.log("Result:", JSON.stringify(result, null, 2));
-    console.log(`END: ${new Date().toISOString()}`);
   } finally {
-    if (mongoDBClientFactory) await mongoDBClientFactory.closeAll();
+    await gracefulShutdown(undefined, mongoDBClientFactory);
   }
 }
 

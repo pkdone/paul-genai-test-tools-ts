@@ -43,7 +43,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     } catch (error: unknown) {
       logErrorMsgAndDetail("Error when calling destroy on AWSBedrock LLM", error);
     }
-  }  
+  }
 
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.

@@ -4,7 +4,7 @@ import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import llmConfig from "../../../../config/llm.config";
 import { LLMModelInternalKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
-import { getErrorText } from "../../../../utils/error-utils";
+import { getErrorText, logErrorMsgAndDetail } from "../../../../utils/error-utils";
 import AbstractLLM from "../../abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
        from "../../../../types/llm-errors.types";
@@ -52,7 +52,26 @@ class VertexAIGeminiLLM extends AbstractLLM {
   getModelFamily(): string {
     return VERTEX_GEMINI;
   }    
-/**
+
+  /**
+   * Call close on underlying LLM client libraries to release resources.
+   */ 
+  override async close(): Promise<void> {
+    try {
+      // Close the embeddings API client (PredictionServiceClient)
+      await this.embeddingsApiClient.close();      
+      // Known Google Cloud Node.js client limitation: 
+      // VertexAI SDK doesn't have explicit VertexAI.close() method and HTTP connections may persist
+      // so can't clean up `this.vertexAiApiClient` properly.
+      // This is documented behavior - see: https://github.com/googleapis/nodejs-pubsub/issues/1190
+      // Use timeout-based cleanup as the recommended workaround at the end of the program to allow
+      // the process to terminate.
+    } catch (error: unknown) {
+      logErrorMsgAndDetail("Error when closing Vertex AI Gemini LLM clients", error);
+    }
+  }
+
+  /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
   protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelInternalKey: string, prompt: string) {

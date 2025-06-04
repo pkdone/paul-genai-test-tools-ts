@@ -4,25 +4,19 @@ import serverConfig from "./config/server.config";
 import InsightsDataServer from "./insightsServer/insights-data-server";
 import McpDataServer from "./mcpFramework/mcp-data-server";
 import { getProjectNameFromPath } from "./utils/path-utils";
-import { bootstrap } from "./lifecycle/bootstrap-startup";
-import { setupGracefulShutdown } from "./lifecycle/graceful-shutdown";
+import { bootstrapStartup } from "./lifecycle/bootstrap-startup";
 import { MongoDBClientFactory } from "./utils/mongodb-client-factory";
+import { gracefulShutdown } from "./lifecycle/graceful-shutdown";
 
 /**
  * Main function to run the program.
  */
 async function main() {
-  console.log(`START: ${new Date().toISOString()}`);
-  
-  let mongoDBClientFactory: MongoDBClientFactory | null = null;
+  let mongoDBClientFactory: MongoDBClientFactory | undefined;
   
   try {
-    const { env, mongoClient, mongoDBClientFactory: factory } = await bootstrap();   
+    const { env, mongoClient, mongoDBClientFactory: factory } = await bootstrapStartup();   
     mongoDBClientFactory = factory;
-    
-    // Set up graceful shutdown at the application level
-    setupGracefulShutdown(mongoDBClientFactory);
-    
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
     const analysisDataServer = new InsightsDataServer(mongoClient, databaseConfig.CODEBASE_DB_NAME, projectName);
@@ -36,14 +30,11 @@ async function main() {
     });
     
     httpServer.on("close", () => {
-      if (mongoDBClientFactory) {
-        mongoDBClientFactory.closeAll().catch(console.error);
-      }
-      console.log(`END: ${new Date().toISOString()}`);
+      void gracefulShutdown(undefined, mongoDBClientFactory);
     });    
   } catch (error) {
     console.error("Failed to start server:", error);
-    if (mongoDBClientFactory) await mongoDBClientFactory.closeAll();
+    await gracefulShutdown(undefined, mongoDBClientFactory);
     process.exit(1);
   }
 }

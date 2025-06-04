@@ -22,8 +22,8 @@ export function loadBaseEnvVarsOnly(): z.infer<typeof baseEnvVarsSchema> {
  * family and configuration based in  environment variable (also returning the list of environemnt
  * variables for wider use).
  */
-export async function bootstrap() {
-  const { env, llmRouter, llmService } = await bootstrapJustLLM()
+export async function bootstrapStartup() {  
+  const { env, llmRouter, llmService } = await bootstrapJustLLMStartup()
   const mongoDBClientFactory = new MongoDBClientFactory();
   const mongoClient = await mongoDBClientFactory.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
   return { env, mongoClient, llmRouter, mongoDBClientFactory, llmService };
@@ -33,13 +33,12 @@ export async function bootstrap() {
  * Function to bootstrap the LLM router with the specified model family and configuration based in
  * environment variable (also returning the list of environemnt variables for wider use).
  */
-export async function bootstrapJustLLM() {
-  // Create and initialize LLMService instance
+export async function bootstrapJustLLMStartup() {
+  console.log(`START: ${new Date().toISOString()}`);
   const llmService = new LLMService();
   await llmService.initialize();
-  
-  const env = loadEnvIncludingLLMVars(llmService); // Pass LLMService instance
-  const llmProvider = llmService.getLLMProvider(env); // Use instance method
+  const env = loadEnvIncludingLLMVars(llmService); 
+  const llmProvider = llmService.getLLMProvider(env);
   const llmRouter = new LLMRouter(llmProvider);
   return { env, llmRouter, llmService };
 }
