@@ -39,7 +39,10 @@ class BedrockDeepseekLLM extends BaseBedrockLLM {
     const finishReason = llmResponse.choices?.[0]?.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
     const isIncompleteResponse = (finishReasonLowercase === "length") || (!responseContent);
-    const tokenUsage = { promptTokens: -1, completionTokens: -1, maxTotalTokens: -1 };
+    const promptTokens = llmResponse.usage?.inputTokens ?? -1;
+    const completionTokens = llmResponse.usage?.outputTokens ?? -1;
+    const maxTotalTokens = -1; 
+    const tokenUsage = { promptTokens, completionTokens, maxTotalTokens };
     return { isIncompleteResponse, responseContent, tokenUsage };
   }
 }
