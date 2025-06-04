@@ -38,22 +38,27 @@ export async function readDirContents(dirpath: string) {
 export async function clearDirectory(dirPath: string) {
   try {
     const files = await fs.readdir(dirPath);
-    const jobs = files
+    const removalPromises = files
       .filter(file => file !== ".gitignore")
       .map(async file => {
         const filePath = path.join(dirPath, file);
         try {
           await fs.rm(filePath, { recursive: true, force: true });
         } catch (error: unknown) {
-          logErrorMsgAndDetail(`When clearing a directory, unable to remove the file: ${filePath}`, error);
+          logErrorMsgAndDetail(`When clearing directory '${dirPath}', unable to remove the item: ${filePath}`, error);
         }
-      });    
-    await Promise.all(jobs);
+      });
+    
+    await Promise.allSettled(removalPromises);
   } catch (error: unknown) {
-    logErrorMsgAndDetail(`Unable to recursively clear contents of directory: ${dirPath}`, error);
+    logErrorMsgAndDetail(`Unable to read directory for clearing: ${dirPath}`, error);
   }
 
-  await fs.mkdir(dirPath, { recursive: true });  
+  try {
+    await fs.mkdir(dirPath, { recursive: true });
+  } catch (mkdirError: unknown) {
+    logErrorMsgAndDetail(`Failed to ensure directory exists after clearing: ${dirPath}`, mkdirError);
+  }
 }
 
 /**
