@@ -29,7 +29,8 @@ export const fileSystemConfig = {
   DIST_FOLDER_NAME: "/dist/",
   MANIFEST_FILE_SUFFIX: ".manifest.js",
   PROVIDER_MANIFEST_KEY: "ProviderManifest",
-  PROVIDERS_FOLDER_NAME: "providers"
+  PROVIDERS_FOLDER_NAME: "providers",
+  TRAILING_SLASH_PATTERN: /\/$/,  //Regex pattern to match trailing slash at end of string
 } as const;
 
 export default fileSystemConfig; 

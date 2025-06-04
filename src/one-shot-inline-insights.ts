@@ -14,7 +14,7 @@ async function main() {
   try {
     const { env, llmRouter: router } = await bootstrapJustLLMStartup();   
     llmRouter = router;
-    const srcDirPath = env.CODEBASE_DIR_PATH.replace(/\/$/, "");
+    const srcDirPath = env.CODEBASE_DIR_PATH.replace(fileSystemConfig.TRAILING_SLASH_PATTERN, "");
     const srcFilepaths = await buildDirDescendingListOfFiles(srcDirPath);
     llmRouter.displayLLMStatusSummary();
     const insightProcessor = new CodebaseInsightProcessor();
