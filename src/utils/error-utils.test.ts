@@ -1,0 +1,49 @@
+import { getErrorText, getErrorStack } from "./error-utils";
+
+describe("Error utilities", () => {
+  describe("getErrorText", () => {
+    // Test data for getErrorText function
+    const errorTextTestData = [
+      {
+        input: new Error("Test error"),
+        expected: "Error. Test error",
+        description: "Error object"
+      },
+      {
+        input: { message: "Custom error" },
+        expected: "<unknown-type>. Custom error",
+        description: "object containing message"
+      },
+      {
+        input: "string error",
+        expected: "<unknown-type>. \"string error\"",
+        description: "primitive value"
+      },
+      {
+        input: null,
+        expected: "<unknown-type>. No error message available",
+        description: "null value"
+      }
+    ];
+
+    test.each(errorTextTestData)(
+      "with $description",
+      ({ input, expected }) => {
+        expect(getErrorText(input)).toBe(expected);
+      }
+    );
+  });
+
+  describe("getErrorStack", () => {
+    test("with Error object", () => {
+      const error = new Error("Test error");
+      const stack = getErrorStack(error);
+      expect(stack).toContain("Error: Test error");
+    });
+
+    test("with non-Error object", () => {
+      const stack = getErrorStack("not an error");
+      expect(stack).toContain("Error");
+    });
+  });
+}); 
