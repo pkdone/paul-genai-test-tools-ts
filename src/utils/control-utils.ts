@@ -12,6 +12,7 @@ import { PromiseFunction, RetryFunc, CheckResultFunc, LogRetryEventFunc }
  * @returns A promise that resolves to an array of the results from the input tasks.
  */
 export async function promiseAllThrottled<T>(tasks: PromiseFunction<T>[], maxConcurrency = 100) {
+  if (maxConcurrency <= 0) throw new Error("maxConcurrency must be a positive number.");
   const results: T[] = [];
   const tasksCopy = [...tasks]; // Create a shallow copy
   const totalTasks = tasksCopy.length;
