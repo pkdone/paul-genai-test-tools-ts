@@ -16,11 +16,19 @@ export async function promiseAllThrottled<T>(tasks: PromiseFunction<T>[], maxCon
   const results: T[] = [];
   const tasksCopy = [...tasks]; // Create a shallow copy
   const totalTasks = tasksCopy.length;
+  let processedCount = 0;
 
-  while (tasksCopy.length > 0) { // Ensure loop condition is correct
-    console.log(`Processing next batch of ${Math.min(tasksCopy.length, maxConcurrency)} tasks (already processed: ${totalTasks - tasksCopy.length} of ${totalTasks} tasks)`);
-    const batchPromises = tasksCopy.splice(0, maxConcurrency).map(async f => f()); // Renamed for clarity
+  while (processedCount < tasksCopy.length) {
+    const remainingTasks = tasksCopy.length - processedCount;
+    const batchSize = Math.min(remainingTasks, maxConcurrency);
+    console.log(`Processing next batch of ${batchSize} tasks (already processed: ${processedCount} of ${totalTasks} tasks)`);
+    
+    // Use slice to get the current batch without mutating the array
+    const currentBatch = tasksCopy.slice(processedCount, processedCount + batchSize);
+    const batchPromises = currentBatch.map(async f => f());
+    
     results.push(...await Promise.all(batchPromises));
+    processedCount += batchSize;
   }
   return results;
 }
