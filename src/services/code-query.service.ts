@@ -5,12 +5,21 @@ import CodeQuestioner from "../talkToCodebase/code-questioner";
 import promptsConfig from "../config/prompts.config";
 import LLMRouter from "../llm/llm-router";
 
+/**
+ * Service to query the codebase.
+ */
 export class CodeQueryService {
+  /**
+   * Constructor.
+   */
   constructor(
     private readonly mongoClient: MongoClient,
     private readonly llmRouter: LLMRouter
   ) {}
 
+  /**
+   * Queries the codebase.
+   */
   async queryCodebase(srcDirPath: string): Promise<void> {
     const projectName = getProjectNameFromPath(srcDirPath);     
     console.log(`Performing vector search then invoking LLM for optimal results for project: ${projectName}`);

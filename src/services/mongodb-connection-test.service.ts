@@ -2,7 +2,13 @@ import { MongoClient, Db } from "mongodb";
 import databaseConfig from "../config/database.config";
 import { getProjectNameFromPath } from "../utils/path-utils";
 
+/**
+ * Service to test the MongoDB connection.
+ */
 export class MongoDBConnectionTestService {
+  /**
+   * Constructor.
+   */  
   constructor(
     private readonly mongoClient: MongoClient
   ) {}

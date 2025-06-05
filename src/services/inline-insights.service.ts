@@ -3,11 +3,20 @@ import { clearDirectory, buildDirDescendingListOfFiles } from "../utils/fs-utils
 import { CodebaseInsightProcessor } from "../insightGenerator/codebase-insight-processor";
 import LLMRouter from "../llm/llm-router";
 
+/**
+ * Service to generate inline insights.
+ */
 export class InlineInsightsService {
+  /**
+   * Constructor.
+   */
   constructor(
     private readonly llmRouter: LLMRouter
   ) {}
 
+  /**
+   * Generates inline insights.
+   */
   async generateInlineInsights(srcDirPath: string, llmName: string): Promise<void> {
     const cleanSrcDirPath = srcDirPath.replace(fileSystemConfig.TRAILING_SLASH_PATTERN, "");
     const srcFilepaths = await buildDirDescendingListOfFiles(cleanSrcDirPath);

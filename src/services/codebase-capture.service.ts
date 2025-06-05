@@ -5,12 +5,21 @@ import { getProjectNameFromPath } from "../utils/path-utils";
 import CodebaseToDBLoader from "../codebaseDBLoader/codebase-loader";
 import LLMRouter from "../llm/llm-router";
 
+/**
+ * Service to capture the codebase.
+ */
 export class CodebaseCaptureService {
+  /**
+   * Constructor.
+   */
   constructor(
     private readonly mongoClient: MongoClient,
     private readonly llmRouter: LLMRouter
   ) {}
 
+  /**
+   * Captures the codebase.
+   */
   async captureCodebase(srcDirPath: string, ignoreIfAlreadyCaptured: boolean): Promise<void> {
     const projectName = getProjectNameFromPath(srcDirPath);     
     console.log(`Processing source files for project: ${projectName}`);

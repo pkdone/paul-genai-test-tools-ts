@@ -4,12 +4,21 @@ import SummariesGenerator from "../insightGenerator/summaries-generator";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import LLMRouter from "../llm/llm-router";
 
+/**
+ * Service to generate insights.
+ */
 export class InsightGenerationService {
+  /**
+   * Constructor.
+   */
   constructor(
     private readonly mongoClient: MongoClient,
     private readonly llmRouter: LLMRouter
   ) {}
 
+  /**
+   * Generates insights.
+   */
   async generateInsights(srcDirPath: string): Promise<void> {
     const projectName = getProjectNameFromPath(srcDirPath);     
     console.log(`Generating insights for project: ${projectName}`);

@@ -3,11 +3,20 @@ import { readFile } from "../utils/fs-utils";
 import { LLMModelQuality } from "../types/llm.types";
 import LLMRouter from "../llm/llm-router";
 
+/**
+ * Service to test the LLM functionality.
+ */
 export class LLMTestService {
+  /**
+   * Constructor.
+   */
   constructor(
     private readonly llmRouter: LLMRouter
   ) {}
 
+  /**
+   * Tests the LLM functionality.
+   */
   async testLLMFunctionality(): Promise<void> {
     this.llmRouter.displayLLMStatusSummary();
     const prompt = await readFile(promptsConfig.SAMPLE_PROMPT_FILEPATH);
