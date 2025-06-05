@@ -18,23 +18,17 @@ export function loadBaseEnvVarsOnly(): z.infer<typeof baseEnvVarsSchema> {
 }
 
 /**
- * Function to bootstrap the initiated MongoDB client + the LLM router with the specified model
- * family and configuration based in  environment variable (also returning the list of environemnt
- * variables for wider use).
+ * Bootstrap base environment variables only.
  */
-export async function bootstrapStartup() {  
-  const { env, llmRouter, llmService } = await bootstrapJustLLMStartup()
-  const mongoDBClientFactory = new MongoDBClientFactory();
-  const mongoClient = await mongoDBClientFactory.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
-  return { env, mongoClient, llmRouter, mongoDBClientFactory, llmService };
+export function bootstrapBaseEnv() {
+  const env = loadBaseEnvVarsOnly();
+  return { env };
 }
 
 /**
- * Function to bootstrap the LLM router with the specified model family and configuration based in
- * environment variable (also returning the list of environemnt variables for wider use).
+ * Bootstrap base environment variables and LLM router.
  */
-export async function bootstrapJustLLMStartup() {
-  console.log(`START: ${new Date().toISOString()}`);
+export async function bootstrapWithLLM() {
   const llmService = new LLMService();
   await llmService.initialize();
   const env = loadEnvIncludingLLMVars(llmService); 
@@ -44,3 +38,34 @@ export async function bootstrapJustLLMStartup() {
   const llmRouter = new LLMRouter(llmProvider, retryConfig);
   return { env, llmRouter, llmService };
 }
+
+/**
+ * Bootstrap base environment variables, LLM router, and MongoDB client.
+ */
+export async function bootstrapWithLLMAndMongoDB() {  
+  const { env, llmRouter, llmService } = await bootstrapWithLLM();
+  const mongoDBClientFactory = new MongoDBClientFactory();
+  const mongoClient = await mongoDBClientFactory.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
+  return { env, mongoClient, llmRouter, mongoDBClientFactory, llmService };
+}
+
+/**
+ * Bootstrap MongoDB client only (with base environment variables).
+ */
+export async function bootstrapWithMongoDB() {
+  const { env } = bootstrapBaseEnv();
+  const { mongoClient, mongoDBClientFactory } = await getMongoDBClientFactory(env);
+  return { env, mongoClient, mongoDBClientFactory };
+}
+
+/**
+ * 
+ * @param env 
+ * @returns 
+ */
+async function getMongoDBClientFactory(env: { MONGODB_URL: string; CODEBASE_DIR_PATH: string; IGNORE_ALREADY_PROCESSED_FILES: boolean; LLM: string; }) {
+  const mongoDBClientFactory = new MongoDBClientFactory();
+  const mongoClient = await mongoDBClientFactory.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
+  return { mongoClient, mongoDBClientFactory };
+}
+

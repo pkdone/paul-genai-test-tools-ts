@@ -4,7 +4,7 @@ import serverConfig from "./config/server.config";
 import InsightsDataServer from "./insightsServer/insights-data-server";
 import McpDataServer from "./mcpFramework/mcp-data-server";
 import { getProjectNameFromPath } from "./utils/path-utils";
-import { bootstrapStartup } from "./lifecycle/bootstrap-startup";
+import { bootstrapWithLLMAndMongoDB } from "./lifecycle/bootstrap-startup";
 import { MongoDBClientFactory } from "./utils/mongodb-client-factory";
 import { gracefulShutdown } from "./lifecycle/graceful-shutdown";
 
@@ -15,7 +15,7 @@ async function main() {
   let mongoDBClientFactory: MongoDBClientFactory | undefined;
   
   try {
-    const { env, mongoClient, mongoDBClientFactory: factory } = await bootstrapStartup();   
+    const { env, mongoClient, mongoDBClientFactory: factory } = await bootstrapWithLLMAndMongoDB();   
     mongoDBClientFactory = factory;
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     

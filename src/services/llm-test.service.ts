@@ -2,22 +2,30 @@ import promptsConfig from "../config/prompts.config";
 import { readFile } from "../utils/fs-utils";
 import { LLMModelQuality } from "../types/llm.types";
 import LLMRouter from "../llm/llm-router";
+import { Service } from "../types/service.types";
 
 /**
  * Service to test the LLM functionality.
  */
-export class LLMTestService {
+export class LLMTestService implements Service {
   /**
    * Constructor.
    */
   constructor(
-    private readonly llmRouter: LLMRouter
+    private readonly llmRouter: LLMRouter,
   ) {}
+
+  /**
+   * Execute the service - tests the LLM functionality.
+   */
+  async execute(): Promise<void> {
+    await this.testLLMFunctionality();
+  }
 
   /**
    * Tests the LLM functionality.
    */
-  async testLLMFunctionality(): Promise<void> {
+  private async testLLMFunctionality(): Promise<void> {
     this.llmRouter.displayLLMStatusSummary();
     const prompt = await readFile(promptsConfig.SAMPLE_PROMPT_FILEPATH);
     console.log("\n---PROMPT---");

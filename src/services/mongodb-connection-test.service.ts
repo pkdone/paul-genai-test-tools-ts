@@ -1,19 +1,29 @@
 import { MongoClient, Db } from "mongodb";
 import databaseConfig from "../config/database.config";
 import { getProjectNameFromPath } from "../utils/path-utils";
+import { Service } from "../types/service.types";
+import { EnvVars } from "../types/env.types";
 
 /**
  * Service to test the MongoDB connection.
  */
-export class MongoDBConnectionTestService {
+export class MongoDBConnectionTestService implements Service {
   /**
    * Constructor.
    */  
   constructor(
-    private readonly mongoClient: MongoClient
+    private readonly mongoClient: MongoClient,
+    private readonly env: EnvVars
   ) {}
 
-  async testConnection(srcDirPath: string): Promise<void> {
+  /**
+   * Execute the service - tests the MongoDB connection.
+   */
+  async execute(): Promise<void> {
+    await this.testConnection(this.env.CODEBASE_DIR_PATH);
+  }
+
+  private async testConnection(srcDirPath: string): Promise<void> {
     const projectName = getProjectNameFromPath(srcDirPath);     
     const db = this.mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
     const collName = databaseConfig.SOURCES_COLLCTN_NAME;  
