@@ -1,10 +1,8 @@
-import databaseConfig from "./config/database.config";
-import SummariesGenerator from "./insightGenerator/summaries-generator";
-import { getProjectNameFromPath } from "./utils/path-utils";
 import { bootstrapStartup } from "./lifecycle/bootstrap-startup";
 import { MongoDBClientFactory } from "./utils/mongodb-client-factory";
 import { gracefulShutdown } from "./lifecycle/graceful-shutdown";
 import LLMRouter from "./llm/llm-router";
+import { InsightGenerationService } from "./services/insight-generation.service";
 
 /**
  * Main function to run the program.
@@ -14,20 +12,11 @@ async function main() {
   let llmRouter: LLMRouter | undefined;
 
   try {
-    const { env, mongoClient, llmRouter: router, mongoDBClientFactory: factory } = await bootstrapStartup();   
-    mongoDBClientFactory = factory;
-    llmRouter = router;
-    const srcDirPath = env.CODEBASE_DIR_PATH;
-    const projectName = getProjectNameFromPath(srcDirPath);     
-    console.log(`Generating insights for project: ${projectName}`);
-    llmRouter.displayLLMStatusSummary();
-    const summariesGenerator = new SummariesGenerator(mongoClient, llmRouter, 
-      databaseConfig.CODEBASE_DB_NAME, databaseConfig.SOURCES_COLLCTN_NAME, databaseConfig.SUMMARIES_COLLCTN_NAME,
-      projectName);
-    await summariesGenerator.generateSummariesDataInDB()
-    console.log("Finished enerating insights for the project");
-    console.log("Summary of LLM invocations outcomes:");
-    llmRouter.displayLLMStatusDetails();
+    const startup = await bootstrapStartup();   
+    mongoDBClientFactory = startup.mongoDBClientFactory;
+    llmRouter = startup.llmRouter;    
+    const insightService = new InsightGenerationService(startup.mongoClient, startup.llmRouter);
+    await insightService.generateInsights(startup.env.CODEBASE_DIR_PATH);
   } finally {
     await gracefulShutdown(llmRouter, mongoDBClientFactory);
   }

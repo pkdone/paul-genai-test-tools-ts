@@ -1,9 +1,7 @@
-import promptsConfig from "./config/prompts.config";
-import { readFile } from "./utils/fs-utils";
-import { LLMModelQuality } from "./types/llm.types";
 import { bootstrapJustLLMStartup } from "./lifecycle/bootstrap-startup";
 import LLMRouter from "./llm/llm-router";
 import { gracefulShutdown } from "./lifecycle/graceful-shutdown";
+import { LLMTestService } from "./services/llm-test.service";
 
 /**
  * Main function to run the program.
@@ -12,21 +10,10 @@ async function main() {
   let llmRouter: LLMRouter | undefined;
   
   try {
-    const { llmRouter: router } = await bootstrapJustLLMStartup();   
-    llmRouter = router;
-    llmRouter.displayLLMStatusSummary();
-    const prompt = await readFile(promptsConfig.SAMPLE_PROMPT_FILEPATH);
-    console.log("\n---PROMPT---");
-    console.log(prompt);
-    console.log("\n\n---EMBEDDINGS---");
-    const embeddingsResult = await llmRouter.generateEmbeddings("hard-coded-test-input", prompt);
-    console.log(embeddingsResult ?? "<empty>");
-    console.log("\n\n---COMPLETION (Primary LLM)---");
-    const completionPrimaryResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, false, {}, LLMModelQuality.PRIMARY);
-    console.log(completionPrimaryResult ?? "<empty>");
-    console.log("\n\n---COMPLETION (Secondary LLM)---");
-    const completionSecondaryResult = await llmRouter.executeCompletion("hard-coded-test-input", prompt, false, {}, LLMModelQuality.SECONDARY);
-    console.log(completionSecondaryResult ?? "<empty>");
+    const startup = await bootstrapJustLLMStartup();   
+    llmRouter = startup.llmRouter;    
+    const testService = new LLMTestService(startup.llmRouter);
+    await testService.testLLMFunctionality();
   } finally {
     await gracefulShutdown(llmRouter);
   }
