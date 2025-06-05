@@ -181,9 +181,13 @@ export class LLMService {
   private constructModelsMetadata(llmProviderManifest: LLMProviderManifest, env: EnvVars): Record<string, ResolvedLLMModelMetadata> {
     const metadata: Record<string, ResolvedLLMModelMetadata> = {};
     
-    // Helper function to resolve URN
+    // Helper function to resolve URN from environment variable key
     const resolveUrn = (model: LLMModelMetadata): string => {
-      return typeof model.urn === 'function' ? model.urn(env) : model.urn;
+      const value = env[model.urnEnvKey] as string;
+      if (!value) {
+        throw new BadConfigurationLLMError(`Required environment variable ${model.urnEnvKey} is not set`);
+      }
+      return value;
     };
     
     // Create resolved metadata for embeddings model

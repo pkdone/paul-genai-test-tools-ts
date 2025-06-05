@@ -1,5 +1,5 @@
 // filepath: /home/pdone/Projects/paul-genai-test-tools-ts/src/llm/llm.test.ts
-import { LLMModelMetadata, LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMContext, LLMProviderImpl, 
+import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMContext, LLMProviderImpl, 
          LLMModelQuality, ResolvedLLMModelMetadata, LLMResponseTokensUsage } from "../types/llm.types";
 import { BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { z } from "zod";
@@ -188,8 +188,8 @@ describe("LLM Router tests", () => {
     test.each(mockModelsTestData)(
       "create mock $description",
       ({ model, property, expectedValue }) => {
-        const mockModel: LLMModelMetadata = model;
-        expect(mockModel[property as keyof LLMModelMetadata]).toBe(expectedValue);
+        const mockModel: ResolvedLLMModelMetadata = model;
+        expect(mockModel[property as keyof ResolvedLLMModelMetadata]).toBe(expectedValue);
       }
     );
   });

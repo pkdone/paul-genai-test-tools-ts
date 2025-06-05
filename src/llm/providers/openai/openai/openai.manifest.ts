@@ -29,33 +29,21 @@ export const openAIProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       internalKey: GPT_EMBEDDINGS_TEXT_3SMALL,
-      urn: (env) => {
-        const value = env[OPENAI_TEXT_EMBEDDINGS_MODEL_KEY] as string;
-        if (!value) throw new Error(`Required environment variable ${OPENAI_TEXT_EMBEDDINGS_MODEL_KEY} is not set`);
-        return value;
-      },
+      urnEnvKey: OPENAI_TEXT_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8191,
     },
     primaryCompletion: {
       internalKey: GPT_COMPLETIONS_GPT4_O,
-      urn: (env) => {
-        const value = env[OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY] as string;
-        if (!value) throw new Error(`Required environment variable ${OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY} is not set`);
-        return value;
-      },
+      urnEnvKey: OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 16384,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {
       internalKey: GPT_COMPLETIONS_GPT4_TURBO,
-      urn: (env) => {
-        const value = env[OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY] as string;
-        if (!value) throw new Error(`Required environment variable ${OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY} is not set`);
-        return value;
-      },
+      urnEnvKey: OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
       maxTotalTokens: 128000,

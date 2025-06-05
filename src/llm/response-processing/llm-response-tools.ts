@@ -1,6 +1,6 @@
 import llmConfig from "../../config/llm.config";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
-         LLMResponseStatus, LLMContext, LLMModelMetadata, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern} from "../../types/llm.types";
+         LLMResponseStatus, LLMContext, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern} from "../../types/llm.types";
 import { BadResponseContentLLMError } from "../../types/llm-errors.types";
 import { convertTextToJSON } from "../../utils/json-tools";
 import { getErrorText } from "../../utils/error-utils";
@@ -30,7 +30,7 @@ export function extractTokensAmountAndLimitFromErrorMsg(
   modelInternalKey: string, 
   prompt: string, 
   errorMsg: string,
-  modelsMetadata: Record<string, LLMModelMetadata>,
+  modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
   errorPatterns?: readonly LLMErrorMsgRegExPattern[]
 ) : LLMResponseTokensUsage {
   const { maxTotalTokens: parsedMaxTokens, promptTokens: parsedPromptTokens, completionTokens } = 

@@ -1,4 +1,4 @@
-import { LLMModelMetadata, LLMErrorMsgRegExPattern, LLMResponseTokensUsage } from "../../types/llm.types";
+import { ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern, LLMResponseTokensUsage } from "../../types/llm.types";
 
 /**
  * Extract token usage information from LLM error message.
@@ -6,7 +6,7 @@ import { LLMModelMetadata, LLMErrorMsgRegExPattern, LLMResponseTokensUsage } fro
 export function parseTokenUsageFromLLMError(
   modelInternalKey: string, 
   errorMsg: string,
-  llmModelsMetadata: Record<string, LLMModelMetadata>,
+  llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>,
   errorPatterns?: readonly LLMErrorMsgRegExPattern[]
 ): LLMResponseTokensUsage {
   const defaultResult: LLMResponseTokensUsage = { 
@@ -54,7 +54,7 @@ function processTokenMatchMaxFirst(
 function processTokenMatchPromptFirst(
   matches: RegExpMatchArray,
   modelInternalKey: string,
-  llmModelsMetadata: Record<string, LLMModelMetadata>
+  llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ): LLMResponseTokensUsage {
   return {
     promptTokens: parseInt(matches[1], 10),
@@ -69,7 +69,7 @@ function processTokenMatchPromptFirst(
 function processCharMatchMaxFirst(
   matches: RegExpMatchArray,
   modelInternalKey: string,
-  llmModelsMetadata: Record<string, LLMModelMetadata>
+  llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ): LLMResponseTokensUsage {
   if (matches.length <= 2) {
     return { maxTotalTokens: -1, promptTokens: -1, completionTokens: 0 };
@@ -87,7 +87,7 @@ function processCharMatchMaxFirst(
 function processCharMatchPromptFirst(
   matches: RegExpMatchArray,
   modelInternalKey: string,
-  llmModelsMetadata: Record<string, LLMModelMetadata>
+  llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ): LLMResponseTokensUsage {
   if (matches.length <= 2) {
     return { maxTotalTokens: -1, promptTokens: -1, completionTokens: 0 };
@@ -106,7 +106,7 @@ function calculateTokensFromChars(
   charsPrompt: number, 
   charsLimit: number, 
   modelInternalKey: string,
-  llmModelsMetadata: Record<string, LLMModelMetadata>
+  llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ): LLMResponseTokensUsage {
   const maxTotalTokens = llmModelsMetadata[modelInternalKey].maxTotalTokens;
   const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);

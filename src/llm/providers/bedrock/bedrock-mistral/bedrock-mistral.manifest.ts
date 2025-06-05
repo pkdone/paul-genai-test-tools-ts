@@ -25,33 +25,21 @@ export const bedrockMistralProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       internalKey: AWS_EMBEDDINGS_TITAN_V1,
-      urn: (env) => {
-        const value = env[BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY] as string;
-        if (!value) throw new Error(`Required environment variable ${BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY} is not set`);
-        return value;
-      },
+      urnEnvKey: BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
       internalKey: AWS_COMPLETIONS_MISTRAL_LARGE2,
-      urn: (env) => {
-        const value = env[BEDROCK_MISTRAL_COMPLETIONS_MODEL_PRIMARY_KEY] as string;
-        if (!value) throw new Error(`Required environment variable ${BEDROCK_MISTRAL_COMPLETIONS_MODEL_PRIMARY_KEY} is not set`);
-        return value;
-      },
+      urnEnvKey: BEDROCK_MISTRAL_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 131072,
     },
     secondaryCompletion: {
       internalKey: AWS_COMPLETIONS_MISTRAL_LARGE,
-      urn: (env) => {
-        const value = env[BEDROCK_MISTRAL_COMPLETIONS_MODEL_SECONDARY_KEY] as string;
-        if (!value) throw new Error(`Required environment variable ${BEDROCK_MISTRAL_COMPLETIONS_MODEL_SECONDARY_KEY} is not set`);
-        return value;
-      },
+      urnEnvKey: BEDROCK_MISTRAL_COMPLETIONS_MODEL_SECONDARY_KEY,
       maxCompletionTokens: 8192,
       maxTotalTokens: 32768,
       purpose: LLMPurpose.COMPLETIONS,

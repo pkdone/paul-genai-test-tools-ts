@@ -28,9 +28,9 @@ const mockEnv = {
   AZURE_OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY: "gpt-4-turbo",
 };
 
-// Helper function to resolve URN from manifest model
-const resolveUrn = (urn: string | ((env: typeof mockEnv) => string)): string => {
-  return typeof urn === 'function' ? urn(mockEnv) : urn;
+// Helper function to resolve URN from environment variable key
+const resolveUrn = (urnEnvKey: string): string => {
+  return mockEnv[urnEnvKey as keyof typeof mockEnv] as string;
 };
 
 // Create test instance using provider manifest
@@ -43,14 +43,14 @@ const testModelKeysSet: LLMModelInternalKeysSet = {
 const testModelsMetadata: Record<string, ResolvedLLMModelMetadata> = {
   [azureOpenAIProviderManifest.models.embeddings.internalKey]: {
     internalKey: azureOpenAIProviderManifest.models.embeddings.internalKey,
-    urn: resolveUrn(azureOpenAIProviderManifest.models.embeddings.urn),
+    urn: resolveUrn(azureOpenAIProviderManifest.models.embeddings.urnEnvKey),
     purpose: LLMPurpose.EMBEDDINGS,
     dimensions: azureOpenAIProviderManifest.models.embeddings.dimensions,
     maxTotalTokens: azureOpenAIProviderManifest.models.embeddings.maxTotalTokens,
   },
   [azureOpenAIProviderManifest.models.primaryCompletion.internalKey]: {
     internalKey: azureOpenAIProviderManifest.models.primaryCompletion.internalKey,
-    urn: resolveUrn(azureOpenAIProviderManifest.models.primaryCompletion.urn),
+    urn: resolveUrn(azureOpenAIProviderManifest.models.primaryCompletion.urnEnvKey),
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxCompletionTokens,
     maxTotalTokens: azureOpenAIProviderManifest.models.primaryCompletion.maxTotalTokens,
@@ -105,7 +105,7 @@ if (azureOpenAIProviderManifest.models.secondaryCompletion) {
   const secondaryModel = azureOpenAIProviderManifest.models.secondaryCompletion;
   testModelsMetadata[secondaryModel.internalKey] = {
     internalKey: secondaryModel.internalKey,
-    urn: resolveUrn(secondaryModel.urn),
+    urn: resolveUrn(secondaryModel.urnEnvKey),
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: secondaryModel.maxCompletionTokens ?? 4096,
     maxTotalTokens: secondaryModel.maxTotalTokens,

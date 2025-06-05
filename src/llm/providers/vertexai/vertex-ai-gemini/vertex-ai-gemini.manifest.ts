@@ -31,33 +31,21 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   models: {
     embeddings: {
       internalKey: GCP_EMBEDDINGS_TEXT_005,
-      urn: (env) => {
-        const value = env[VERTEXAI_TEXT_EMBEDDINGS_MODEL_KEY] as string;
-        if (!value) throw new Error(`Required environment variable ${VERTEXAI_TEXT_EMBEDDINGS_MODEL_KEY} is not set`);
-        return value;
-      },
+      urnEnvKey: VERTEXAI_TEXT_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 768,
       maxTotalTokens: 2048,
     },
     primaryCompletion: {
       internalKey: GCP_COMPLETIONS_GEMINI_PRO25,
-      urn: (env) => {
-        const value = env[VERTEXAI_GEMINI_COMPLETIONS_MODEL_PRIMARY_KEY] as string;
-        if (!value) throw new Error(`Required environment variable ${VERTEXAI_GEMINI_COMPLETIONS_MODEL_PRIMARY_KEY} is not set`);
-        return value;
-      },
+      urnEnvKey: VERTEXAI_GEMINI_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 65535,
       maxTotalTokens: 1048576,
     },
     secondaryCompletion: {
       internalKey: GCP_COMPLETIONS_GEMINI_FLASH20,
-      urn: (env) => {
-        const value = env[VERTEXAI_GEMINI_COMPLETIONS_MODEL_SECONDARY_KEY] as string;
-        if (!value) throw new Error(`Required environment variable ${VERTEXAI_GEMINI_COMPLETIONS_MODEL_SECONDARY_KEY} is not set`);
-        return value;
-      },
+      urnEnvKey: VERTEXAI_GEMINI_COMPLETIONS_MODEL_SECONDARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 1048576,

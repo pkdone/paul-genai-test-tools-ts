@@ -1,4 +1,4 @@
-import { EnvVars } from "./env.types";
+// EnvVars import removed as it's no longer needed after making manifests declarative
 
 /**
  * Interface for LLM implementation provider
@@ -63,11 +63,11 @@ interface BaseLLMModelMetadata {
 }
 
 /**
- * Type to define the main characteristics of the LLM model with flexible URN resolution.
+ * Type to define the main characteristics of the LLM model with declarative URN resolution.
  */ 
 export interface LLMModelMetadata extends BaseLLMModelMetadata {
-  /** The actual model ID/name used by the provider API - can be string or function that takes EnvVars */
-  readonly urn: string | ((env: EnvVars) => string);
+  /** The environment variable key that contains the actual model ID/name used by the provider API */
+  readonly urnEnvKey: string;
 }
 
 /**
