@@ -23,6 +23,7 @@ const llmConfig = {
   DEFAULT_VECTOR_QUANTIZATION_TYPE: "scalar",   // scalar | binary
   VECTOR_SEARCH_NUM_CANDIDATES: 150,
   VECTOR_SEARCH_NUM_LIMIT: 6,
+  PROBLEMATIC_SHUTDOWN_LLM_PROVIDER: "VertexAIGemini",
 } as const;
 
 export default llmConfig;

@@ -1,6 +1,6 @@
 import LLMRouter from "../llm/llm-router";
-import { VERTEX_GEMINI } from "../llm/providers/vertexai/vertex-ai-gemini/vertex-ai-gemini.manifest";
 import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
+import llmConfig from "../config/llm.config";
 
 /**
  * Gracefully shutdown LLM connections and MongoDB connections with provider-specific cleanup handling.
@@ -19,7 +19,7 @@ export async function gracefulShutdown(
     await llmRouter.close();
     
     // Only apply Google Cloud specific workaround when using VertexAI
-    if (llmRouter.getModelFamily() === VERTEX_GEMINI) {
+    if (llmRouter.getModelFamily() === llmConfig.PROBLEMATIC_SHUTDOWN_LLM_PROVIDER) {
       // Known Google Cloud Node.js client limitation: 
       // VertexAI SDK doesn't have explicit close() method and HTTP connections may persist
       // This is documented behavior - see: https://github.com/googleapis/nodejs-pubsub/issues/1190
