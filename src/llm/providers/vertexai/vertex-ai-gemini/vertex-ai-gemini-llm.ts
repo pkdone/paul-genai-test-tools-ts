@@ -9,12 +9,10 @@ import AbstractLLM from "../../abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
        from "../../../../types/llm-errors.types";
 import { VERTEX_GEMINI } from "./vertex-ai-gemini.manifest";
+import { LLMProviderSpecificConfig } from "../../llm-provider.types";
 const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.PROHIBITED_CONTENT,
                                            FinishReason.RECITATION, FinishReason.SAFETY,
                                            FinishReason.SPII];
-
-// Constants
-const VERTEXAI_EMBEDDINGS_TASK_TYPE = "QUESTION_ANSWERING";
 
 
 /**
@@ -38,9 +36,10 @@ class VertexAIGeminiLLM extends AbstractLLM {
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly project: string,
-    readonly location: string
+    readonly location: string,
+    providerSpecificConfig: LLMProviderSpecificConfig = {}
   ) {
-    super(modelsKeys, modelsMetadata, errorPatterns); 
+    super(modelsKeys, modelsMetadata, errorPatterns, providerSpecificConfig); 
     this.vertexAiApiClient = new VertexAI({project, location});
     this.embeddingsApiClient = new aiplatform.PredictionServiceClient({ apiEndpoint: `${location}-aiplatform.googleapis.com` });
     this.apiEndpointPrefix = `projects/${project}/locations/${location}/publishers/google/models/`;
@@ -174,7 +173,8 @@ class VertexAIGeminiLLM extends AbstractLLM {
   private buildFullEmebddingsLLMParameters(modelInternalKey: string, prompt: string) {
     const model = this.llmModelsMetadata[modelInternalKey].urn;
     const endpoint = `${this.apiEndpointPrefix}${model}`;
-    const instance = helpers.toValue({ content: prompt, task_type: VERTEXAI_EMBEDDINGS_TASK_TYPE });
+    const taskType = this.providerSpecificConfig.embeddingsTaskType ?? "QUESTION_ANSWERING";
+    const instance = helpers.toValue({ content: prompt, task_type: taskType });
     if (!instance) throw new BadConfigurationLLMError("Failed to convert prompt to IValue");
     const parameters = helpers.toValue({});
     return { endpoint, instances: [instance], parameters };
@@ -184,13 +184,14 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
   private buildFullCompletionLLMParameters(modelInternalKey: string) {
+    const config = this.providerSpecificConfig;
     const modelParams = { 
       model: this.llmModelsMetadata[modelInternalKey].urn,
       generationConfig: { 
         candidateCount: 1,
-        topP: llmConfig.TOP_P_LOWEST,
-        topK: llmConfig.TOP_K_LOWEST,
-        temperature: llmConfig.ZERO_TEMP,   
+        topP: config.topP ?? llmConfig.TOP_P_LOWEST,
+        topK: config.topK ?? llmConfig.TOP_K_LOWEST,
+        temperature: config.temperature ?? llmConfig.ZERO_TEMP,   
         maxOutputTokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
       },
       safetySettings: [
@@ -202,7 +203,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
       ],
     };
     const requestOptions = {
-      timeout: llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS,
+      timeout: config.requestTimeoutMillis ?? llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS,
     } as RequestOptions;
 
     return {modelParams, requestOptions};

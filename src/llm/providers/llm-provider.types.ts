@@ -3,6 +3,27 @@ import { LLMModelInternalKeysSet, LLMProviderImpl, LLMModelMetadata, ResolvedLLM
 import { EnvVars } from "../../types/env.types";
 
 /**
+ * Interface for provider-specific operational parameters that can be configured
+ * without code changes in the core LLM logic files.
+ */
+export interface LLMProviderSpecificConfig {
+  /** Any other provider-specific configuration */
+  [key: string]: unknown;
+  /** API version or similar version identifiers */
+  apiVersion?: string;
+  /** Default temperature for completions */
+  temperature?: number;
+  /** Default topP for completions */
+  topP?: number;  
+  /** Default topK for completions */
+  topK?: number;
+  /** Safety settings for providers that support them */
+  safetySettings?: Record<string, unknown>;
+  /** Request timeout in milliseconds */
+  requestTimeoutMillis?: number;
+}
+
+/**
  * Complete manifest defining a provider's configuration
  */
 export interface LLMProviderManifest {
@@ -20,12 +41,15 @@ export interface LLMProviderManifest {
   };
   /** Provider-specific error patterns for token limits/overload */
   errorPatterns: readonly LLMErrorMsgRegExPattern[];
+  /** Provider-specific operational configuration */
+  providerSpecificConfig?: LLMProviderSpecificConfig;
   /** Factory function to create an instance of the provider's LLMProviderImpl */
   factory: (
     envConfig: EnvVars,
     modelsInternallKeySet: LLMModelInternalKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
-    errorPatterns: readonly LLMErrorMsgRegExPattern[]
+    errorPatterns: readonly LLMErrorMsgRegExPattern[],
+    providerSpecificConfig?: LLMProviderSpecificConfig
   ) => LLMProviderImpl;
 }
 

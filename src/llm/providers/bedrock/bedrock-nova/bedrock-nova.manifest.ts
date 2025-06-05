@@ -58,7 +58,8 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
-  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     return new BedrockNovaLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);
   },
 }; 

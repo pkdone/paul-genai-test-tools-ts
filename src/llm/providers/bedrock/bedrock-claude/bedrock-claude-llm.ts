@@ -2,9 +2,6 @@ import llmConfig from "../../../../config/llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { BEDROCK_CLAUDE } from "./bedrock-claude.manifest";
 
-// Constants
-const AWS_ANTHROPIC_API_VERSION ="bedrock-2023-05-31";
-
 /** 
  * Class for the AWS Bedrock [Anthropic] Claude LLMs.
  */
@@ -20,8 +17,9 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
    * Assemble the Bedrock parameters for Claude completions only.
    */
   protected buildCompletionModelSpecificParameters(modelInternalKey: string, prompt: string) {
+    const config = this.providerSpecificConfig;
     return JSON.stringify({
-      anthropic_version: AWS_ANTHROPIC_API_VERSION,
+      anthropic_version: config.apiVersion,
       messages: [
         {
           role: "user",
@@ -33,9 +31,9 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
           ],
         },
       ],
-      temperature: llmConfig.ZERO_TEMP,
-      top_p: llmConfig.TOP_P_LOWEST,
-      top_k: llmConfig.TOP_K_LOWEST,
+      temperature: config.temperature ?? llmConfig.ZERO_TEMP,
+      top_p: config.topP ?? llmConfig.TOP_P_LOWEST,
+      top_k: config.topK ?? llmConfig.TOP_K_LOWEST,
       max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,    
     });
   }

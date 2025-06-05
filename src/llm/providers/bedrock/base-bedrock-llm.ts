@@ -3,7 +3,7 @@ import { BedrockRuntimeClient, InvokeModelCommand, ServiceUnavailableException,
 from "@aws-sdk/client-bedrock-runtime";     
 import { LLMModelInternalKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm.types";
 import llmConfig from "../../../config/llm.config";
-import { LLMImplSpecificResponseSummary } from "../llm-provider.types";
+import { LLMImplSpecificResponseSummary, LLMProviderSpecificConfig } from "../llm-provider.types";
 import { getErrorText, logErrorMsgAndDetail } from "../../../utils/error-utils";
 import AbstractLLM from "../abstract-llm";
 
@@ -27,10 +27,12 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   constructor(
     modelsKeys: LLMModelInternalKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
-    errorPatterns: readonly LLMErrorMsgRegExPattern[]
+    errorPatterns: readonly LLMErrorMsgRegExPattern[],
+    providerSpecificConfig: LLMProviderSpecificConfig = {}
   ) {
-    super(modelsKeys, modelsMetadata, errorPatterns);
-    this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS } });  
+    super(modelsKeys, modelsMetadata, errorPatterns, providerSpecificConfig);
+    const requestTimeoutMillis = providerSpecificConfig.requestTimeoutMillis ?? llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS;
+    this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: requestTimeoutMillis } });  
   }
 
   /**

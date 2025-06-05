@@ -4,6 +4,7 @@ import BedrockClaudeLLM from "./bedrock-claude-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 import { BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY, AWS_EMBEDDINGS_TITAN_V1 } from "../bedrock-models.constants";
+import llmConfig from "../../../../config/llm.config";
 
 // Environment variable name constants
 const BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY";
@@ -68,7 +69,13 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
-  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
-    return new BedrockClaudeLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);
+  providerSpecificConfig: {
+    apiVersion: "bedrock-2023-05-31",
+    temperature: llmConfig.ZERO_TEMP,
+    topP: llmConfig.TOP_P_LOWEST,
+    topK: llmConfig.TOP_K_LOWEST,
+  },
+  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
+    return new BedrockClaudeLLM(modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig);
   },
 }; 

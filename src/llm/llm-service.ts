@@ -52,7 +52,7 @@ export class LLMService {
     if (!llmProviderManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
     const modelsInternallKeySet = this.constructModelsInternalKeysSet(llmProviderManifest);
     const modelsMetadata = this.constructModelsMetadata(llmProviderManifest, env);
-    const llmProvider = llmProviderManifest.factory(env, modelsInternallKeySet, modelsMetadata, llmProviderManifest.errorPatterns);
+    const llmProvider = llmProviderManifest.factory(env, modelsInternallKeySet, modelsMetadata, llmProviderManifest.errorPatterns, llmProviderManifest.providerSpecificConfig);
     return llmProvider;
   }
 

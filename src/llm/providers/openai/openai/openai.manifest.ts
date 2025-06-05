@@ -62,7 +62,8 @@ export const openAIProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
-  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     const env = envConfig as BaseEnvVars & { 
       [OPENAI_LLM_API_KEY_KEY]: string;
       [OPENAI_TEXT_EMBEDDINGS_MODEL_KEY]: string;

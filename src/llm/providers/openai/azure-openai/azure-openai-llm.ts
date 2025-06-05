@@ -4,9 +4,7 @@ import { LLMModelInternalKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMError
 import BaseOpenAILLM from "../base-openai-llm";
 import { BadConfigurationLLMError } from "../../../../types/llm-errors.types";
 import { AZURE_OPENAI } from "./azure-openai.manifest";
-
-// Constants
-const AZURE_OPENAI_VERSION = "2025-01-01-preview";
+import { LLMProviderSpecificConfig } from "../../llm-provider.types";
 
 /**
  * Class for Azure's own managed version of the OpenAI service.
@@ -27,9 +25,10 @@ class AzureOpenAILLM extends BaseOpenAILLM {
     readonly endpoint: string,
     readonly embeddingsDeployment: string,
     readonly primaryCompletionsDeployment: string,
-    readonly secondaryCompletionsDeployment: string
+    readonly secondaryCompletionsDeployment: string,
+    providerSpecificConfig: LLMProviderSpecificConfig = {}
   ) { 
-    super(modelsKeys, modelsMetadata, errorPatterns);
+    super(modelsKeys, modelsMetadata, errorPatterns, providerSpecificConfig);
     this.modelToDeploymentMappings = new Map();
     this.modelToDeploymentMappings.set(modelsKeys.embeddingsInternalKey, embeddingsDeployment);
     this.modelToDeploymentMappings.set(modelsKeys.primaryCompletionInternalKey, primaryCompletionsDeployment);
@@ -39,7 +38,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
       this.modelToDeploymentMappings.set(secondaryCompletion, secondaryCompletionsDeployment);
     }
 
-    const apiVersion = AZURE_OPENAI_VERSION;
+    const apiVersion = providerSpecificConfig.apiVersion ?? "2025-01-01-preview";
     this.client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
   }
 
@@ -71,9 +70,10 @@ class AzureOpenAILLM extends BaseOpenAILLM {
       };
       return params;  
     } else {
+      const config = this.providerSpecificConfig;
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
         model: deployment,
-        temperature: llmConfig.ZERO_TEMP,
+        temperature: config.temperature ?? llmConfig.ZERO_TEMP,
         messages: [{ role: "user", content: prompt } ],
         max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
       };        

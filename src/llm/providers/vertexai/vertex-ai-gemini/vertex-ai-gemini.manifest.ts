@@ -3,6 +3,7 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BaseEnvVars } from "../../../../types/env.types";
+import llmConfig from "../../../../config/llm.config";
 
 // Environment variable name constants
 const VERTEXAI_PROJECTID_KEY = "VERTEXAI_PROJECTID";
@@ -63,7 +64,14 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: [] as const, // VertexAI has no specific error patterns defined
-  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
+  providerSpecificConfig: {
+    temperature: llmConfig.ZERO_TEMP,
+    topP: llmConfig.TOP_P_LOWEST,
+    topK: llmConfig.TOP_K_LOWEST,
+    requestTimeoutMillis: llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS,
+    embeddingsTaskType: "QUESTION_ANSWERING",
+  },
+  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
     const env = envConfig as BaseEnvVars & {
       [VERTEXAI_PROJECTID_KEY]: string;
       [VERTEXAI_LOCATION_KEY]: string;
@@ -76,7 +84,8 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
       modelsMetadata,
       errorPatterns,
       env[VERTEXAI_PROJECTID_KEY],
-      env[VERTEXAI_LOCATION_KEY]
+      env[VERTEXAI_LOCATION_KEY],
+      providerSpecificConfig
     );
   },
 }; 

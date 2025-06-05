@@ -4,6 +4,7 @@ import AzureOpenAILLM from "./azure-openai-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
 import { BaseEnvVars } from "../../../../types/env.types";
+import llmConfig from "../../../../config/llm.config";
 
 // Environment variable name constants
 const AZURE_OPENAI_LLM_API_KEY = "AZURE_OPENAI_LLM_API_KEY";
@@ -72,7 +73,11 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
-  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns) => {
+  providerSpecificConfig: {
+    apiVersion: "2025-01-01-preview",
+    temperature: llmConfig.ZERO_TEMP,
+  },
+  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
     const env = envConfig as BaseEnvVars & {
       [AZURE_OPENAI_LLM_API_KEY]: string;
       [AZURE_OPENAI_ENDPOINT_KEY]: string;
@@ -92,6 +97,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
       env[AZURE_OPENAI_EMBEDDINGS_MODEL_DEPLOYMENT_KEY],
       env[AZURE_OPENAI_COMPLETIONS_MODEL_DEPLOYMENT_PRIMARY_KEY],
       env[AZURE_OPENAI_COMPLETIONS_MODEL_DEPLOYMENT_SECONDARY_KEY] ?? "",
+      providerSpecificConfig
     );
   },
 }; 
