@@ -1,5 +1,5 @@
 import path from "path";
-import fs from "fs";
+import { promises as fs } from "fs";
 import fileSystemConfig from "../config/fileSystem.config";
 import serverConfig from "../config/server.config";
 import promptsConfig from "../config/prompts.config";
@@ -56,7 +56,7 @@ export class CodebaseInsightProcessor {
     const prompts: FileRequirementPrompt[] = [];
     
     try {
-      await fs.promises.mkdir(inputDir, { recursive: true });
+      await fs.mkdir(inputDir, { recursive: true });
       const files = await readDirContents(inputDir);
       const promptFiles = files.filter(file => promptsConfig.REQS_FILE_REGEX.exec(file.name) !== null);
       
