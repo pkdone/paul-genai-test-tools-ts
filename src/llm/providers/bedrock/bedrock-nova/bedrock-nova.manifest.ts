@@ -46,6 +46,12 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
+  providerSpecificConfig: {
+    requestTimeoutMillis: 9 * 60 * 1000, // 9 minutes - Nova models can be slower
+    maxRetryAttempts: 4, // More retries for newer models
+    minRetryDelayMillis: 25 * 1000, // 25 seconds
+    maxRetryAdditionalDelayMillis: 40 * 1000, // 40 seconds additional random delay
+  },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     return new BedrockNovaLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);

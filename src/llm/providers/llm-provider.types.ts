@@ -3,10 +3,24 @@ import { LLMModelInternalKeysSet, LLMProviderImpl, LLMModelMetadata, ResolvedLLM
 import { EnvVars } from "../../types/env.types";
 
 /**
+ * Interface for retry and timeout configuration used by LLMRouter
+ */
+export interface LLMRetryConfig {
+  /** Request timeout in milliseconds */
+  requestTimeoutMillis?: number;
+  /** Number of retry attempts for failed requests */
+  maxRetryAttempts?: number;
+  /** Minimum delay between retries in milliseconds */
+  minRetryDelayMillis?: number;
+  /** Maximum additional random delay to add between retries in milliseconds */
+  maxRetryAdditionalDelayMillis?: number;
+}
+
+/**
  * Interface for provider-specific operational parameters that can be configured
  * without code changes in the core LLM logic files.
  */
-export interface LLMProviderSpecificConfig {
+export interface LLMProviderSpecificConfig extends LLMRetryConfig {
   /** Any other provider-specific configuration */
   [key: string]: unknown;
   /** API version or similar version identifiers */
@@ -19,8 +33,6 @@ export interface LLMProviderSpecificConfig {
   topK?: number;
   /** Safety settings for providers that support them */
   safetySettings?: Record<string, unknown>;
-  /** Request timeout in milliseconds */
-  requestTimeoutMillis?: number;
 }
 
 /**

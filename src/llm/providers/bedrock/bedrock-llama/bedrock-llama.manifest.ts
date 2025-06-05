@@ -52,6 +52,12 @@ export const bedrockLlamaProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
+  providerSpecificConfig: {
+    requestTimeoutMillis: 10 * 60 * 1000, // 10 minutes - Llama models can be very slow for large requests
+    maxRetryAttempts: 4, // More retries for large models that may have capacity issues
+    minRetryDelayMillis: 35 * 1000, // 35 seconds - longer delay for large models
+    maxRetryAdditionalDelayMillis: 50 * 1000, // 50 seconds additional random delay
+  },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     return new BedrockLlamaLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);

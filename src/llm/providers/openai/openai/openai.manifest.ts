@@ -50,6 +50,12 @@ export const openAIProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
+  providerSpecificConfig: {
+    requestTimeoutMillis: 5 * 60 * 1000, // 5 minutes - OpenAI is generally faster than Azure
+    maxRetryAttempts: 3, // Standard retry attempts
+    minRetryDelayMillis: 15 * 1000, // 15 seconds - faster retry for OpenAI
+    maxRetryAdditionalDelayMillis: 25 * 1000, // 25 seconds additional random delay
+  },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     const env = envConfig as BaseEnvVars & { 

@@ -64,6 +64,10 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
   providerSpecificConfig: {
     apiVersion: "2025-01-01-preview",
     temperature: llmConfig.ZERO_TEMP,
+    requestTimeoutMillis: 7 * 60 * 1000, // 7 minutes - Azure OpenAI tends to be slower for complex requests
+    maxRetryAttempts: 4, // Extra attempt for Azure due to rate limiting
+    minRetryDelayMillis: 25 * 1000, // 25 seconds - slightly longer for Azure
+    maxRetryAdditionalDelayMillis: 35 * 1000, // 35 seconds additional random delay
   },
   factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
     const env = envConfig as BaseEnvVars & {

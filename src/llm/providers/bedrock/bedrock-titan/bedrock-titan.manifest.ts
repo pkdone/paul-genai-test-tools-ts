@@ -36,6 +36,12 @@ export const bedrockTitanProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
+  providerSpecificConfig: {
+    requestTimeoutMillis: 7 * 60 * 1000, // 7 minutes - Titan is generally faster than other Bedrock models
+    maxRetryAttempts: 3, // Standard retries for Titan
+    minRetryDelayMillis: 20 * 1000, // 20 seconds
+    maxRetryAdditionalDelayMillis: 30 * 1000, // 30 seconds additional random delay
+  },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     return new BedrockTitanLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);

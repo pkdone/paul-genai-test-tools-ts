@@ -39,6 +39,8 @@ export async function bootstrapJustLLMStartup() {
   await llmService.initialize();
   const env = loadEnvIncludingLLMVars(llmService); 
   const llmProvider = llmService.getLLMProvider(env);
-  const llmRouter = new LLMRouter(llmProvider);
+  const llmManifest = llmService.getLLMManifest(env.LLM);
+  const retryConfig = llmManifest?.providerSpecificConfig;
+  const llmRouter = new LLMRouter(llmProvider, retryConfig);
   return { env, llmRouter, llmService };
 }

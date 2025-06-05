@@ -8,6 +8,7 @@ import { withRetry } from "../utils/control-utils";
 import { reducePromptSizeToTokenLimit } from "./response-processing/llm-response-tools";
 import { log, logErrWithContext, logWithContext } from "./router-logging/llm-router-logging";
 import LLMStats from "./router-logging/llm-stats";
+import { LLMRetryConfig } from "./providers/llm-provider.types";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -20,15 +21,21 @@ class LLMRouter {
   // Private fields
   private readonly llmStats: LLMStats;
   private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
+  private readonly retryConfig: LLMRetryConfig;
 
   /**
    * Constructor.
    * 
    * @param llm The initialized LLM provider implementation
+   * @param retryConfig Provider-specific retry and timeout configuration
    */
-  constructor(private readonly llm: LLMProviderImpl) {
+  constructor(
+    private readonly llm: LLMProviderImpl,
+    retryConfig: LLMRetryConfig = {}
+  ) {
     this.llmStats = new LLMStats();
     this.modelsMetadata = llm.getModelsMetadata();
+    this.retryConfig = retryConfig;
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
 
@@ -240,14 +247,31 @@ class LLMRouter {
    */
   private async executeLLMFuncWithRetries(llmFunc: LLMFunction, prompt: string, asJson: boolean, context: LLMContext) {
     const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
+    const retryConfig = this.getRetryConfiguration();
+    
     return await withRetry(
       llmFunc as RetryFunc<LLMFunctionResponse>,
       [prompt, asJson, context],
       result => (result.status === LLMResponseStatus.OVERLOADED),
       recordRetryFunc,
-      llmConfig.INVOKE_LLM_NUM_ATTEMPTS, llmConfig.MIN_RETRY_DELAY_MILLIS,
-      llmConfig.MAX_RETRY_ADDITIONAL_MILLIS, llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS, true
+      retryConfig.maxAttempts,
+      retryConfig.minRetryDelayMillis,
+      retryConfig.maxRetryAdditionalDelayMillis,
+      retryConfig.requestTimeoutMillis,
+      true
     );
+  }
+
+  /**
+   * Get retry configuration from provider-specific config with fallbacks to global config.
+   */
+  private getRetryConfiguration() {
+    return {
+      maxAttempts: this.retryConfig.maxRetryAttempts ?? llmConfig.INVOKE_LLM_NUM_ATTEMPTS,
+      minRetryDelayMillis: this.retryConfig.minRetryDelayMillis ?? llmConfig.MIN_RETRY_DELAY_MILLIS,
+      maxRetryAdditionalDelayMillis: this.retryConfig.maxRetryAdditionalDelayMillis ?? llmConfig.MAX_RETRY_ADDITIONAL_MILLIS,
+      requestTimeoutMillis: this.retryConfig.requestTimeoutMillis ?? llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS,
+    };
   }
 
   /**

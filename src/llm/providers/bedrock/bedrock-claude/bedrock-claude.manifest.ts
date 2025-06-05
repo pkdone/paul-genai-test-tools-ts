@@ -62,6 +62,10 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
     temperature: llmConfig.ZERO_TEMP,
     topP: llmConfig.TOP_P_LOWEST,
     topK: llmConfig.TOP_K_LOWEST,
+    requestTimeoutMillis: 8 * 60 * 1000, // 8 minutes - Bedrock can be slower, especially for large models
+    maxRetryAttempts: 5, // More retries for Bedrock due to capacity limits
+    minRetryDelayMillis: 30 * 1000, // 30 seconds - longer delay for AWS rate limits
+    maxRetryAdditionalDelayMillis: 45 * 1000, // 45 seconds additional random delay
   },
   factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
     return new BedrockClaudeLLM(modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig);

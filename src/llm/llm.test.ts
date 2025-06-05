@@ -81,7 +81,7 @@ describe("LLM Router tests", () => {
   // Helper function to create LLMRouter instance
   const createLLMRouter = () => {
     const mockProvider = createMockLLMProvider();
-    return new LLMRouter(mockProvider);
+    return new LLMRouter(mockProvider, {});
   };
 
   describe("LLM provider abstractions", () => {

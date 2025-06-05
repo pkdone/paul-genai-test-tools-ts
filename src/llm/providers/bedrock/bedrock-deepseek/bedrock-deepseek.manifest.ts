@@ -36,6 +36,12 @@ export const bedrockDeepseekProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
+  providerSpecificConfig: {
+    requestTimeoutMillis: 8 * 60 * 1000, // 8 minutes - Deepseek models are reasonably fast
+    maxRetryAttempts: 4, // More retries as it's a newer model that might have availability issues
+    minRetryDelayMillis: 30 * 1000, // 30 seconds
+    maxRetryAdditionalDelayMillis: 40 * 1000, // 40 seconds additional random delay
+  },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     return new BedrockDeepseekLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);
