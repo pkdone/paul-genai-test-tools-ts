@@ -24,7 +24,7 @@ export async function gracefulShutdown(
       // VertexAI SDK doesn't have explicit close() method and HTTP connections may persist
       // This is documented behavior - see: https://github.com/googleapis/nodejs-pubsub/issues/1190
       // Use timeout-based cleanup as the recommended workaround
-      setTimeout(() => {
+      void setTimeout(() => {
         console.log('Forced exit because GCP client connections caanot be closed properly');
         process.exit(0);
       }, 1000); // 1 second should be enough for any pending operations

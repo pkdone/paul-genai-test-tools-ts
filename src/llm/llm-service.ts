@@ -183,11 +183,15 @@ export class LLMService {
     
     // Helper function to resolve URN from environment variable key
     const resolveUrn = (model: LLMModelMetadata): string => {
-      const value = env[model.urnEnvKey] as string;
-      if (!value) {
-        throw new BadConfigurationLLMError(`Required environment variable ${model.urnEnvKey} is not set`);
+      const value = env[model.urnEnvKey];
+
+      if (typeof value !== 'string' || value.length === 0) { // Type guard and emptiness check
+        throw new BadConfigurationLLMError(
+          `Required environment variable ${model.urnEnvKey} is not set, is empty, or is not a string. Found: ${String(value)}`
+        );
       }
-      return value;
+      
+      return value; // 'value' is now known to be a non-empty string
     };
     
     // Create resolved metadata for embeddings model

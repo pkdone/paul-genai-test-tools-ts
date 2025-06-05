@@ -1,5 +1,5 @@
 import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
-import { logErrorMsg, logErrorMsgAndDetail } from "./error-utils";
+import { logErrorMsgAndDetail } from "./error-utils";
 
 /**
  * A factory class for creating and managing MongoDB client connections.
@@ -95,8 +95,8 @@ export class MongoDBClientFactory {
         parsedUrl.password = "REDACTED";
       }
       return parsedUrl.toString();
-    } catch {
-      logErrorMsg("Could not parse URL for redaction.");
+    } catch (error: unknown) {
+      logErrorMsgAndDetail("Could not parse URL for redaction", error); 
       return "REDACTED_URL";
     }
   }

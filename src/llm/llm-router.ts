@@ -184,6 +184,10 @@ class LLMRouter {
       
       if (nextAction.shouldCropPrompt && llmResponse) {
         currentPrompt = this.cropPromptForTokenLimit(currentPrompt, llmResponse);
+        if (currentPrompt.trim() === "") {
+          logWithContext(`Prompt became empty after cropping for resource '${resourceName}', terminating attempts.`, context);
+          break; // Terminate if prompt is empty
+        }
         continue; // Try again with same LLM function but cropped prompt
       }
       

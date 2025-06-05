@@ -58,7 +58,7 @@ export class CodebaseInsightProcessor {
     try {
       await fs.mkdir(inputDir, { recursive: true });
       const files = await readDirContents(inputDir);
-      const promptFiles = files.filter(file => promptsConfig.REQS_FILE_REGEX.exec(file.name) !== null);
+      const promptFiles = files.filter(file => promptsConfig.REQS_FILE_REGEX.test(file.name));
       
       for (const file of promptFiles) {
         const filePath = path.join(inputDir, file.name);
