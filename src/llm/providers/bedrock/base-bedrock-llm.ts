@@ -31,7 +31,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
     providerSpecificConfig: LLMProviderSpecificConfig = {}
   ) {
     super(modelsKeys, modelsMetadata, errorPatterns, providerSpecificConfig);
-    const requestTimeoutMillis = providerSpecificConfig.requestTimeoutMillis ?? llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS;
+    const requestTimeoutMillis = providerSpecificConfig.requestTimeoutMillis ?? llmConfig.DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS;
     this.client = new BedrockRuntimeClient({ requestHandler: { requestTimeout: requestTimeoutMillis } });  
   }
 

@@ -73,7 +73,7 @@ class AzureOpenAILLM extends BaseOpenAILLM {
       const config = this.providerSpecificConfig;
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
         model: deployment,
-        temperature: config.temperature ?? llmConfig.ZERO_TEMP,
+        temperature: config.temperature ?? llmConfig.DEFAULT_ZERO_TEMP,
         messages: [{ role: "user", content: prompt } ],
         max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
       };        

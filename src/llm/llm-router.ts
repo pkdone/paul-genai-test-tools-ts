@@ -267,10 +267,10 @@ class LLMRouter {
    */
   private getRetryConfiguration() {
     return {
-      maxAttempts: this.retryConfig.maxRetryAttempts ?? llmConfig.INVOKE_LLM_NUM_ATTEMPTS,
-      minRetryDelayMillis: this.retryConfig.minRetryDelayMillis ?? llmConfig.MIN_RETRY_DELAY_MILLIS,
-      maxRetryAdditionalDelayMillis: this.retryConfig.maxRetryAdditionalDelayMillis ?? llmConfig.MAX_RETRY_ADDITIONAL_MILLIS,
-      requestTimeoutMillis: this.retryConfig.requestTimeoutMillis ?? llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS,
+      maxAttempts: this.retryConfig.maxRetryAttempts ?? llmConfig.DEFAULT_INVOKE_LLM_NUM_ATTEMPTS,
+      minRetryDelayMillis: this.retryConfig.minRetryDelayMillis ?? llmConfig.DEFAULT_MIN_RETRY_DELAY_MILLIS,
+      maxRetryAdditionalDelayMillis: this.retryConfig.maxRetryAdditionalDelayMillis ?? llmConfig.DEFAULT_MAX_RETRY_ADDITIONAL_MILLIS,
+      requestTimeoutMillis: this.retryConfig.requestTimeoutMillis ?? llmConfig.DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS,
     };
   }
 

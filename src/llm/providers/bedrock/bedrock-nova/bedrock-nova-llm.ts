@@ -20,9 +20,9 @@ class BedrockNovaLLM extends BaseBedrockLLM {
     return JSON.stringify({
       inferenceConfig: {
         max_new_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
-        temperature: llmConfig.ZERO_TEMP,
-        top_p: llmConfig.TOP_P_LOWEST,
-        top_k: llmConfig.TOP_K_LOWEST,
+        temperature: llmConfig.DEFAULT_ZERO_TEMP,
+        top_p: llmConfig.DEFAULT_TOP_P_LOWEST,
+        top_k: llmConfig.DEFAULT_TOP_K_LOWEST,
       },      
       messages: [
         {

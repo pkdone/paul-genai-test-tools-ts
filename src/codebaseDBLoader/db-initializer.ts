@@ -95,8 +95,8 @@ class DBInitializer {
             "type": "vector",
             "path": fieldToIndex,
             "numDimensions": this.numDimensions,
-            "similarity": llmConfig.DEFAULT_VECTOR_SIMILARITY_TYPE,
-            "quantization": llmConfig.DEFAULT_VECTOR_QUANTIZATION_TYPE,
+            "similarity": llmConfig.VECTOR_SIMILARITY_TYPE,
+            "quantization": llmConfig.VECTOR_QUANTIZATION_TYPE,
           },
           {
             "type": "filter",

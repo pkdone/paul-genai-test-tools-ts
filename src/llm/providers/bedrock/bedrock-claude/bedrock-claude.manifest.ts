@@ -59,9 +59,9 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
   providerSpecificConfig: {
     apiVersion: "bedrock-2023-05-31",
-    temperature: llmConfig.ZERO_TEMP,
-    topP: llmConfig.TOP_P_LOWEST,
-    topK: llmConfig.TOP_K_LOWEST,
+    temperature: llmConfig.DEFAULT_ZERO_TEMP,
+    topP: llmConfig.DEFAULT_TOP_P_LOWEST,
+    topK: llmConfig.DEFAULT_TOP_K_LOWEST,
     requestTimeoutMillis: 8 * 60 * 1000, // 8 minutes - Bedrock can be slower, especially for large models
     maxRetryAttempts: 5, // More retries for Bedrock due to capacity limits
     minRetryDelayMillis: 30 * 1000, // 30 seconds - longer delay for AWS rate limits

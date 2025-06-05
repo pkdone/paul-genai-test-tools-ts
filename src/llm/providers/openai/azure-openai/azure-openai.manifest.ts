@@ -63,7 +63,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
   providerSpecificConfig: {
     apiVersion: "2025-01-01-preview",
-    temperature: llmConfig.ZERO_TEMP,
+    temperature: llmConfig.DEFAULT_ZERO_TEMP,
     requestTimeoutMillis: 7 * 60 * 1000, // 7 minutes - Azure OpenAI tends to be slower for complex requests
     maxRetryAttempts: 4, // Extra attempt for Azure due to rate limiting
     minRetryDelayMillis: 25 * 1000, // 25 seconds - slightly longer for Azure

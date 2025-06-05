@@ -189,9 +189,9 @@ class VertexAIGeminiLLM extends AbstractLLM {
       model: this.llmModelsMetadata[modelInternalKey].urn,
       generationConfig: { 
         candidateCount: 1,
-        topP: config.topP ?? llmConfig.TOP_P_LOWEST,
-        topK: config.topK ?? llmConfig.TOP_K_LOWEST,
-        temperature: config.temperature ?? llmConfig.ZERO_TEMP,   
+        topP: config.topP ?? llmConfig.DEFAULT_TOP_P_LOWEST,
+        topK: config.topK ?? llmConfig.DEFAULT_TOP_K_LOWEST,
+        temperature: config.temperature ?? llmConfig.DEFAULT_ZERO_TEMP,   
         maxOutputTokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
       },
       safetySettings: [
@@ -203,7 +203,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
       ],
     };
     const requestOptions = {
-      timeout: config.requestTimeoutMillis ?? llmConfig.REQUEST_WAIT_TIMEOUT_MILLIS,
+      timeout: config.requestTimeoutMillis ?? llmConfig.DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS,
     } as RequestOptions;
 
     return {modelParams, requestOptions};

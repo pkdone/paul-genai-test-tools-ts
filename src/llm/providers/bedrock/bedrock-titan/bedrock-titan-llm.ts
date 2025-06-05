@@ -20,8 +20,8 @@ class BedrockTitanLLM extends BaseBedrockLLM {
     return JSON.stringify({
       inputText: prompt,
       textGenerationConfig: {
-        temperature: llmConfig.ZERO_TEMP,
-        topP: llmConfig.TOP_P_VLOW,
+        temperature: llmConfig.DEFAULT_ZERO_TEMP,
+        topP: llmConfig.DEFAULT_TOP_P_VLOW,
         maxTokenCount: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
       },
     });

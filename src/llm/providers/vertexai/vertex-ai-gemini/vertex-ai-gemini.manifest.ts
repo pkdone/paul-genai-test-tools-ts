@@ -53,9 +53,9 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   },
   errorPatterns: [] as const, // VertexAI has no specific error patterns defined
   providerSpecificConfig: {
-    temperature: llmConfig.ZERO_TEMP,
-    topP: llmConfig.TOP_P_LOWEST,
-    topK: llmConfig.TOP_K_LOWEST,
+    temperature: llmConfig.DEFAULT_ZERO_TEMP,
+    topP: llmConfig.DEFAULT_TOP_P_LOWEST,
+    topK: llmConfig.DEFAULT_TOP_K_LOWEST,
     requestTimeoutMillis: 6 * 60 * 1000, // 6 minutes - shorter timeout for GCP
     maxRetryAttempts: 3, // Standard retries for Vertex AI
     minRetryDelayMillis: 20 * 1000, // 20 seconds - moderate delay for GCP

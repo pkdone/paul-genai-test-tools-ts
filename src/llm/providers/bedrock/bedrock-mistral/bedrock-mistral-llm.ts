@@ -25,8 +25,8 @@ class BedrockMistralLLM extends BaseBedrockLLM {
           content: prompt,
         }
       ],
-      temperature: llmConfig.ZERO_TEMP,
-      top_p: llmConfig.TOP_P_LOWEST,
+      temperature: llmConfig.DEFAULT_ZERO_TEMP,
+      top_p: llmConfig.DEFAULT_TOP_P_LOWEST,
       max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
     });
   }

@@ -23,8 +23,8 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
 `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 You are a helpful software engineering and programming assistant, and you need to answer the question given without attempting to fill in any blanks in the question<|eot_id|>
 <|start_header_id|>user<|end_header_id|>${prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`,
-      temperature: llmConfig.ZERO_TEMP,
-      top_p: llmConfig.TOP_P_LOWEST,
+      temperature: llmConfig.DEFAULT_ZERO_TEMP,
+      top_p: llmConfig.DEFAULT_TOP_P_LOWEST,
     };
 
     // Currently for v3 and lower Llama LLMs, getting this error even though left to their own devices they seem to happily default to max completions of 8192: Malformed input request: #/max_gen_len: 8192 is not less or equal to 2048, please reformat your input and try again. ValidationException: Malformed input request: #/max_gen_len: 8192 is not less or equal to 2048, please reformat your input and try again.
