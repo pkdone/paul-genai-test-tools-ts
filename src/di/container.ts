@@ -19,6 +19,7 @@ import { InsightGenerationService } from "../services/insight-generation.service
 import { InlineInsightsService } from "../services/inline-insights.service";
 import { MongoDBConnectionTestService } from "../services/mongodb-connection-test.service";
 import { LLMTestService } from "../services/llm-test.service";
+import { InsightsMcpServerService } from "../services/insights-mcp-server.service";
 
 /**
  * DI Container service for managing dependency registration and resolution.
@@ -74,6 +75,7 @@ export class DIContainer {
     container.register(TOKENS.InlineInsightsService, { useClass: InlineInsightsService });
     container.register(TOKENS.MongoDBConnectionTestService, { useClass: MongoDBConnectionTestService });
     container.register(TOKENS.LLMTestService, { useClass: LLMTestService });
+    container.register(TOKENS.InsightsMcpServerService, { useClass: InsightsMcpServerService });
   }
   
   /**
