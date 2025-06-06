@@ -28,6 +28,8 @@
     "suppressImplicitAnyIndexErrors": false,
     "noUnusedParameters": true,
     "noUnusedLocals": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
   },
   "include": [
     "src/**/*.ts"

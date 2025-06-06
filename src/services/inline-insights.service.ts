@@ -1,18 +1,25 @@
+import "reflect-metadata";
+import { injectable, inject } from "tsyringe";
 import fileSystemConfig from "../config/fileSystem.config";
 import { clearDirectory, buildDirDescendingListOfFiles } from "../utils/fs-utils";
 import { CodebaseInsightProcessor } from "../insightGenerator/codebase-insight-processor";
-import LLMRouter from "../llm/llm-router";
+import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
-import { EnvVars } from "../types/env.types";
+import type { EnvVars } from "../types/env.types";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service to generate inline insights.
  */
+@injectable()
 export class InlineInsightsService implements Service {
   /**
-   * Constructor.
+   * Constructor with dependency injection.
    */
-  constructor(private readonly llmRouter: LLMRouter, private readonly env: EnvVars) {}
+  constructor(
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
+    @inject(TOKENS.EnvVars) private readonly env: EnvVars
+  ) {}
 
   /**
    * Execute the service - generates inline insights.

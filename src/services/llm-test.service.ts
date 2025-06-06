@@ -1,18 +1,22 @@
+import "reflect-metadata";
+import { injectable, inject } from "tsyringe";
 import promptsConfig from "../config/prompts.config";
 import { readFile } from "../utils/fs-utils";
 import { LLMModelQuality } from "../types/llm.types";
-import LLMRouter from "../llm/llm-router";
+import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service to test the LLM functionality.
  */
+@injectable()
 export class LLMTestService implements Service {
   /**
-   * Constructor.
+   * Constructor with dependency injection.
    */
   constructor(
-    private readonly llmRouter: LLMRouter,
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
   ) {}
 
   /**

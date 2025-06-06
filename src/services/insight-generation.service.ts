@@ -1,20 +1,27 @@
-import { MongoClient } from 'mongodb';
+import "reflect-metadata";
+import { injectable, inject } from "tsyringe";
+import type { MongoClient } from 'mongodb';
 import databaseConfig from "../config/database.config";
 import SummariesGenerator from "../insightGenerator/summaries-generator";
 import { getProjectNameFromPath } from "../utils/path-utils";
-import LLMRouter from "../llm/llm-router";
+import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
-import { EnvVars } from "../types/env.types";
+import type { EnvVars } from "../types/env.types";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service to generate insights.
  */
+@injectable()
 export class InsightGenerationService implements Service {
   /**
-   * Constructor.
+   * Constructor with dependency injection.
    */
-  constructor(private readonly mongoClient: MongoClient, private readonly llmRouter: LLMRouter,
-              private readonly env: EnvVars) {}
+  constructor(
+    @inject(TOKENS.MongoClient) private readonly mongoClient: MongoClient,
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
+    @inject(TOKENS.EnvVars) private readonly env: EnvVars
+  ) {}
 
   /**
    * Execute the service - generates insights.

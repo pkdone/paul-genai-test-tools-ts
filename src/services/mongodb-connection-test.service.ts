@@ -1,17 +1,24 @@
-import { MongoClient, Db } from "mongodb";
+import "reflect-metadata";
+import { injectable, inject } from "tsyringe";
+import type { MongoClient, Db } from "mongodb";
 import databaseConfig from "../config/database.config";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import { Service } from "../types/service.types";
-import { EnvVars } from "../types/env.types";
+import type { EnvVars } from "../types/env.types";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service to test the MongoDB connection.
  */
+@injectable()
 export class MongoDBConnectionTestService implements Service {
   /**
-   * Constructor.
+   * Constructor with dependency injection.
    */  
-  constructor(private readonly mongoClient: MongoClient, private readonly env: EnvVars) {}
+  constructor(
+    @inject(TOKENS.MongoClient) private readonly mongoClient: MongoClient,
+    @inject(TOKENS.EnvVars) private readonly env: EnvVars
+  ) {}
 
   /**
    * Execute the service - tests the MongoDB connection.

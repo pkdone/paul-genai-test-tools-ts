@@ -1,37 +1,40 @@
+import "reflect-metadata";
 import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
 import { gracefulShutdown } from "./graceful-shutdown";
 import LLMRouter from "../llm/llm-router";
-import { bootstraper } from "./bootstrap-startup";
-import { Service, ServiceRunnerConfig, ServiceFactory, ServiceDependencies } from "../types/service.types";
+import { Service, ServiceRunnerConfig } from "../types/service.types";
+import { diContainer } from "../di/container";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Generic service runner function that handles the common CLI pattern:
- * 1. Bootstrap appropriate resources based on service requirements
- * 2. Create and execute service
+ * 1. Bootstrap appropriate resources based on service requirements using DI container
+ * 2. Create and execute service using DI container
  * 3. Handle graceful shutdown
  */
-export async function runService<T extends Service>(serviceFactory: ServiceFactory<T>,
-                                                    config: ServiceRunnerConfig): Promise<void> {
+export async function runService(
+  serviceToken: symbol,
+  config: ServiceRunnerConfig
+): Promise<void> {
   let mongoDBClientFactory: MongoDBClientFactory | undefined;
   let llmRouter: LLMRouter | undefined;
   
   try {    
-    // Bootstrap appropriate resources based on config using the unified bootstrap function
+    // Register dependencies in the DI container
     console.log(`START: ${new Date().toISOString()}`);
-    const bootstrapResult = await bootstraper(config);
-    mongoDBClientFactory = bootstrapResult.mongoDBClientFactory;
-    llmRouter = bootstrapResult.llmRouter;
+    await diContainer.registerDependencies(config);
     
-    // Create service dependencies
-    const dependencies: ServiceDependencies = {
-      mongoClient: bootstrapResult.mongoClient,
-      llmRouter: bootstrapResult.llmRouter,
-      env: bootstrapResult.env
-    };
+    // Resolve dependencies for cleanup
+    if (config.requiresMongoDB) {
+      mongoDBClientFactory = diContainer.resolve(TOKENS.MongoDBClientFactory) as MongoDBClientFactory;
+    }
+    if (config.requiresLLM) {
+      llmRouter = diContainer.resolve(TOKENS.LLMRouter) as LLMRouter;
+    }
     
-    // Create and execute service
-    const service = serviceFactory(dependencies);
-    await service.execute();    
+         // Resolve and execute service
+     const service = diContainer.resolve(serviceToken) as Service;
+     await service.execute();    
   } finally {
     await gracefulShutdown(llmRouter, mongoDBClientFactory);
   }
