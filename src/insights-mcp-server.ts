@@ -4,7 +4,7 @@ import serverConfig from "./config/server.config";
 import InsightsDataServer from "./insightsServer/insights-data-server";
 import McpDataServer from "./mcpFramework/mcp-data-server";
 import { getProjectNameFromPath } from "./utils/path-utils";
-import { bootstrapWithLLMAndMongoDB } from "./lifecycle/bootstrap-startup";
+import { bootstraper } from "./lifecycle/bootstrap-startup";
 import { MongoDBClientFactory } from "./utils/mongodb-client-factory";
 import { gracefulShutdown } from "./lifecycle/graceful-shutdown";
 
@@ -15,8 +15,9 @@ async function main() {
   let mongoDBClientFactory: MongoDBClientFactory | undefined;
   
   try {
-    const { env, mongoClient, mongoDBClientFactory: factory } = await bootstrapWithLLMAndMongoDB();   
-    mongoDBClientFactory = factory;
+    const { env, mongoClient, mongoDBClientFactory: factory } = await bootstraper({ requiresMongoDB: true, requiresLLM: true });   
+    mongoDBClientFactory = factory;    
+    if (!mongoClient) throw new Error("MongoDB client is required but was not initialized");
     const srcDirPath = env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
     const analysisDataServer = new InsightsDataServer(mongoClient, databaseConfig.CODEBASE_DB_NAME, projectName);
