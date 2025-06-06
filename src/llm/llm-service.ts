@@ -17,7 +17,6 @@ export class LLMService {
 
   /**
    * Constructor for dependency injection pattern
-   * @param modelFamily - The specific model family to load
    */
   constructor(modelFamily: string) { 
     this.modelFamily = modelFamily;
@@ -28,96 +27,61 @@ export class LLMService {
    */
   static async loadManifestForModelFamily(modelFamily: string): Promise<LLMProviderManifest> {
     const providersRootPath = path.join(__dirname, fileSystemConfig.PROVIDERS_FOLDER_NAME);
-    const manifest = await LLMService.loadSpecificProviderStatic(providersRootPath, modelFamily);
-    
-    if (!manifest) {
-      throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
-    }
-    
+    const manifest = await LLMService.findManifestRecursively(providersRootPath, modelFamily);    
+    if (!manifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);    
     return manifest;
   }
 
   /**
-   * Static version of loadSpecificProvider for use without instance
+   * Recursively search for a manifest matching the target model family
    */
-  private static async loadSpecificProviderStatic(rootPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
+  private static async findManifestRecursively(searchPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
     try {
-      const providerGroupDirs = await readDirContents(rootPath);
+      const entries = await readDirContents(searchPath);
       
-      for (const groupDir of providerGroupDirs) {
-        if (!groupDir.isDirectory()) continue;
-        const groupPath = path.join(rootPath, groupDir.name);
-        
-        const manifest = await LLMService.loadProviderGroupsForSpecific(groupPath, targetModelFamily);
+      // First, check if current directory has a manifest file
+      const manifestFile = entries
+        .filter(file => file.isFile())
+        .find(file => file.name.endsWith(fileSystemConfig.MANIFEST_FILE_SUFFIX));
+      
+      if (manifestFile) {
+        const manifestPath = path.join(searchPath, manifestFile.name);
+        const manifest = await LLMService.loadAndValidateManifest(manifestPath, targetModelFamily);
         if (manifest) return manifest;
       }
-    } catch (error: unknown) {
-      logErrorMsgAndDetail(`Failed to read providers root directory ${rootPath}`, error);
-    }
-    
-    return undefined;
-  }
-  
-  /**
-   * Load provider implementations from a provider group directory, searching for specific model family
-   */
-  private static async loadProviderGroupsForSpecific(groupPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
-    try {
-      const providerImplDirs = await readDirContents(groupPath);
       
-      for (const implDir of providerImplDirs) {
-        if (!implDir.isDirectory()) continue;        
-        const implPath = path.join(groupPath, implDir.name);
-        const manifest = await LLMService.loadProviderImplForSpecific(implPath, targetModelFamily);
-        if (manifest) {
-          return manifest;
+      // Then, recursively search subdirectories
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          const subPath = path.join(searchPath, entry.name);
+          const manifest = await LLMService.findManifestRecursively(subPath, targetModelFamily);
+          if (manifest) return manifest;
         }
       }
     } catch (error: unknown) {
-      logErrorMsgAndDetail(`Failed to read provider group directory ${groupPath}`, error);
+      logErrorMsgAndDetail(`Failed to search directory ${searchPath}`, error);
     }
     
     return undefined;
   }
   
   /**
-   * Load a specific provider implementation manifest if it matches the target model family
+   * Load and validate a manifest file, returning it only if it matches the target model family
    */
-  private static async loadProviderImplForSpecific(implPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
+  private static async loadAndValidateManifest(manifestPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
     try {
-      const filesInImplDir = await readDirContents(implPath);
-      const llmProviderManifestFile = filesInImplDir
-        .filter(file => file.isFile())
-        .find(file => file.name.endsWith(fileSystemConfig.MANIFEST_FILE_SUFFIX));        
-      if (!llmProviderManifestFile) return undefined;      
-      const llmProviderManifestPath = path.join(implPath, llmProviderManifestFile.name);
-      return await LLMService.importSpecificManifest(llmProviderManifestPath, targetModelFamily);
-    } catch (error: unknown) {
-      logErrorMsgAndDetail(`Failed to load manifest from ${implPath}`, error);
-      return undefined;
-    }
-  }
-  
-  /**
-   * Import a manifest from the given path if it matches the target model family
-   */
-  private static async importSpecificManifest(manifestPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
-    const module: unknown = await import(manifestPath);    
-    if (!module || typeof module !== 'object') return undefined;
-    const llmProviderManifestKey = Object.keys(module).find(key => 
-      key.endsWith(fileSystemConfig.PROVIDER_MANIFEST_KEY));
+      const module: unknown = await import(manifestPath);    
+      if (!module || typeof module !== 'object') return undefined;      
+      const manifestKey = Object.keys(module).find(key => 
+        key.endsWith(fileSystemConfig.PROVIDER_MANIFEST_KEY));        
+      if (!manifestKey || !(manifestKey in module)) return undefined;      
+      const manifestValue = (module as Record<string, unknown>)[manifestKey];
       
-    if (!llmProviderManifestKey || !(llmProviderManifestKey in module)) {
-      return undefined;
-    }
-    
-    const manifestValue = (module as Record<string, unknown>)[llmProviderManifestKey];
-    
-    if (LLMService.isLlmValidManifest(manifestValue)) {
-      // Only return if this matches our target model family
-      if (manifestValue.modelFamily === targetModelFamily) {
+      if (LLMService.isValidManifest(manifestValue) && manifestValue.modelFamily === targetModelFamily) {
         return manifestValue;
       }
+    } catch (error: unknown) {
+      logErrorMsgAndDetail(`Failed to load manifest from ${manifestPath}`, error);
     }
     
     return undefined;
@@ -126,7 +90,7 @@ export class LLMService {
   /**
    * Type guard to validate if a value is a valid LLMProviderManifest
    */
-  private static isLlmValidManifest(value: unknown): value is LLMProviderManifest {
+  private static isValidManifest(value: unknown): value is LLMProviderManifest {
     return value !== null && 
            typeof value === 'object' && 
            'modelFamily' in value && 
@@ -143,13 +107,7 @@ export class LLMService {
       return;
     }
     
-    const providersRootPath = path.join(__dirname, fileSystemConfig.PROVIDERS_FOLDER_NAME);
-    this.manifest = await this.loadSpecificProvider(providersRootPath, this.modelFamily);
-    
-    if (!this.manifest) {
-      throw new BadConfigurationLLMError(`Could not find provider for model family '${this.modelFamily}'. Check paths and manifest exports in 'src/llm/providers/*/*/*.manifest.ts'.`);
-    }
-    
+    this.manifest = await LLMService.loadManifestForModelFamily(this.modelFamily);
     console.log(`LLMService: Loaded provider for model family '${this.modelFamily}': ${this.manifest.providerName}`);
     this.isInitialized = true;
   }
@@ -158,89 +116,69 @@ export class LLMService {
    * Get the loaded provider manifest
    */
   getLLMManifest(): LLMProviderManifest {
-    if (!this.isInitialized || !this.manifest) {
-      throw new Error("LLMService is not initialized. Call initialize() first.");
-    }
-    return this.manifest;
+    const manifest = this.getInitializedManifest();
+    return manifest;
   }
 
   /**
    * Get an LLM provider instance using the loaded manifest and environment
    */
   getLLMProvider(env: EnvVars): LLMProviderImpl {
-    if (!this.isInitialized || !this.manifest) {
-      throw new Error("LLMService is not initialized. Call initialize() first.");
-    }
-    
-    const modelsInternallKeySet = this.constructModelsInternalKeysSet(this.manifest);
-    const modelsMetadata = this.constructModelsMetadata(this.manifest, env);
-    const llmProvider = this.manifest.factory(env, modelsInternallKeySet, modelsMetadata, this.manifest.errorPatterns, this.manifest.providerSpecificConfig);
-    return llmProvider;
+    const manifest = this.getInitializedManifest();    
+    const modelsInternallKeySet = this.buildModelsInternalKeysSet(manifest);
+    const modelsMetadata = this.buildModelsMetadata(manifest, env);    
+    return manifest.factory(env, modelsInternallKeySet, modelsMetadata, manifest.errorPatterns, 
+                            manifest.providerSpecificConfig
+    );
   }
 
   /**
-   * Load only the specific provider that matches the given model family
+   * Get the initialized manifest, throwing error if not initialized
    */
-  private async loadSpecificProvider(rootPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
-    return LLMService.loadSpecificProviderStatic(rootPath, targetModelFamily);
+  private getInitializedManifest(): LLMProviderManifest {
+    if (!this.isInitialized || !this.manifest) throw new Error("LLMService is not initialized. Call initialize() first.");
+    return this.manifest;
   }
 
   /**
-   * Construct LLMModelSet from manifest
+   * Build LLMModelInternalKeysSet from manifest
    */
-  private constructModelsInternalKeysSet(llmProviderManifest: LLMProviderManifest): LLMModelsInternalKeysSet {
-    const modelsInternallKeySet: LLMModelsInternalKeysSet = {
-      embeddingsInternalKey: llmProviderManifest.models.embeddings.internalKey,
-      primaryCompletionInternalKey: llmProviderManifest.models.primaryCompletion.internalKey,
+  private buildModelsInternalKeysSet(manifest: LLMProviderManifest): LLMModelsInternalKeysSet {
+    const keysSet: LLMModelsInternalKeysSet = {
+      embeddingsInternalKey: manifest.models.embeddings.internalKey,
+      primaryCompletionInternalKey: manifest.models.primaryCompletion.internalKey,
     };
-
-    if (llmProviderManifest.models.secondaryCompletion) {
-      modelsInternallKeySet.secondaryCompletionInternalKey = llmProviderManifest.models.secondaryCompletion.internalKey;
-    }
-
-    return modelsInternallKeySet;
+    if (manifest.models.secondaryCompletion) keysSet.secondaryCompletionInternalKey = manifest.models.secondaryCompletion.internalKey;
+    return keysSet;
   }
 
   /**
-   * Construct LLMModelMetadata record from manifest
+   * Build resolved model metadata from manifest and environment
    */
-  private constructModelsMetadata(llmProviderManifest: LLMProviderManifest, env: EnvVars): Record<string, ResolvedLLMModelMetadata> {
-    const metadata: Record<string, ResolvedLLMModelMetadata> = {};
-    
-    // Helper function to resolve URN from environment variable key
+  private buildModelsMetadata(manifest: LLMProviderManifest, env: EnvVars): Record<string, ResolvedLLMModelMetadata> {
     const resolveUrn = (model: LLMModelMetadata): string => {
       const value = env[model.urnEnvKey];
-
-      if (typeof value !== 'string' || value.length === 0) { // Type guard and emptiness check
+      
+      if (typeof value !== 'string' || value.length === 0) {
         throw new BadConfigurationLLMError(
           `Required environment variable ${model.urnEnvKey} is not set, is empty, or is not a string. Found: ${String(value)}`
         );
       }
-      
-      return value; // 'value' is now known to be a non-empty string
+
+      return value;
     };
     
-    // Create resolved metadata for embeddings model
-    const embeddingsModel = llmProviderManifest.models.embeddings;
-    metadata[embeddingsModel.internalKey] = {
-      ...embeddingsModel,
-      urn: resolveUrn(embeddingsModel)
-    };
+    const metadata: Record<string, ResolvedLLMModelMetadata> = {};
     
-    // Create resolved metadata for primary completion model
-    const primaryCompletionModel = llmProviderManifest.models.primaryCompletion;
-    metadata[primaryCompletionModel.internalKey] = {
-      ...primaryCompletionModel,
-      urn: resolveUrn(primaryCompletionModel)
-    };
+    // Process all models using the same pattern
+    const models = [
+      manifest.models.embeddings,
+      manifest.models.primaryCompletion,
+      ...(manifest.models.secondaryCompletion ? [manifest.models.secondaryCompletion] : [])
+    ];
     
-    // Create resolved metadata for secondary completion model if it exists
-    if (llmProviderManifest.models.secondaryCompletion) {
-      const secondaryCompletionModel = llmProviderManifest.models.secondaryCompletion;
-      metadata[secondaryCompletionModel.internalKey] = {
-        ...secondaryCompletionModel,
-        urn: resolveUrn(secondaryCompletionModel)
-      };
+    for (const model of models) {
+      metadata[model.internalKey] = {...model, urn: resolveUrn(model)};
     }
 
     return metadata;
