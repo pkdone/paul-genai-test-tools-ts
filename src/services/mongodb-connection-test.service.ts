@@ -11,10 +11,7 @@ export class MongoDBConnectionTestService implements Service {
   /**
    * Constructor.
    */  
-  constructor(
-    private readonly mongoClient: MongoClient,
-    private readonly env: EnvVars
-  ) {}
+  constructor(private readonly mongoClient: MongoClient, private readonly env: EnvVars) {}
 
   /**
    * Execute the service - tests the MongoDB connection.

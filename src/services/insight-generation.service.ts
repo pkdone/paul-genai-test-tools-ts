@@ -13,11 +13,8 @@ export class InsightGenerationService implements Service {
   /**
    * Constructor.
    */
-  constructor(
-    private readonly mongoClient: MongoClient,
-    private readonly llmRouter: LLMRouter,
-    private readonly env: EnvVars
-  ) {}
+  constructor(private readonly mongoClient: MongoClient, private readonly llmRouter: LLMRouter,
+              private readonly env: EnvVars) {}
 
   /**
    * Execute the service - generates insights.
@@ -33,14 +30,9 @@ export class InsightGenerationService implements Service {
     const projectName = getProjectNameFromPath(srcDirPath);     
     console.log(`Generating insights for project: ${projectName}`);
     this.llmRouter.displayLLMStatusSummary();
-    const summariesGenerator = new SummariesGenerator(
-      this.mongoClient, 
-      this.llmRouter, 
-      databaseConfig.CODEBASE_DB_NAME, 
-      databaseConfig.SOURCES_COLLCTN_NAME, 
-      databaseConfig.SUMMARIES_COLLCTN_NAME,
-      projectName
-    );
+    const summariesGenerator = new SummariesGenerator(this.mongoClient, this.llmRouter, 
+                               databaseConfig.CODEBASE_DB_NAME, databaseConfig.SOURCES_COLLCTN_NAME, 
+                               databaseConfig.SUMMARIES_COLLCTN_NAME, projectName);
     await summariesGenerator.generateSummariesDataInDB();    
     console.log("Finished generating insights for the project");
     console.log("Summary of LLM invocations outcomes:");

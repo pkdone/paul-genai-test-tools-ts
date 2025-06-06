@@ -12,10 +12,7 @@ export class InlineInsightsService implements Service {
   /**
    * Constructor.
    */
-  constructor(
-    private readonly llmRouter: LLMRouter,
-    private readonly env: EnvVars
-  ) {}
+  constructor(private readonly llmRouter: LLMRouter, private readonly env: EnvVars) {}
 
   /**
    * Execute the service - generates inline insights.
@@ -34,13 +31,8 @@ export class InlineInsightsService implements Service {
     const insightProcessor = new CodebaseInsightProcessor();
     const prompts = await insightProcessor.loadPrompts();
     await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
-    await insightProcessor.processSourceFilesWithPrompts(
-      this.llmRouter, 
-      srcFilepaths, 
-      cleanSrcDirPath, 
-      prompts, 
-      llmName
-    );      
+    await insightProcessor.processSourceFilesWithPrompts(this.llmRouter, srcFilepaths, 
+      cleanSrcDirPath, prompts, llmName);      
     this.llmRouter.displayLLMStatusDetails();
     console.log(`View generated results in the '${fileSystemConfig.OUTPUT_DIR}' folder`);
   }

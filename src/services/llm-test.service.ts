@@ -38,24 +38,14 @@ export class LLMTestService implements Service {
     
     // Test primary LLM completion
     console.log("\n\n---COMPLETION (Primary LLM)---");
-    const completionPrimaryResult = await this.llmRouter.executeCompletion(
-      "hard-coded-test-input", 
-      prompt, 
-      false, 
-      {}, 
-      LLMModelQuality.PRIMARY
-    );
+    const completionPrimaryResult = await this.llmRouter.executeCompletion("hard-coded-test-input", 
+                                      prompt, false, {}, LLMModelQuality.PRIMARY);
     console.log(completionPrimaryResult ?? "<empty>");
     
     // Test secondary LLM completion
     console.log("\n\n---COMPLETION (Secondary LLM)---");
-    const completionSecondaryResult = await this.llmRouter.executeCompletion(
-      "hard-coded-test-input", 
-      prompt, 
-      false, 
-      {}, 
-      LLMModelQuality.SECONDARY
-    );
+    const completionSecondaryResult = await this.llmRouter.executeCompletion("hard-coded-test-input", 
+                                        prompt, false, {}, LLMModelQuality.SECONDARY);
     console.log(completionSecondaryResult ?? "<empty>");
   }
 } 

@@ -14,11 +14,8 @@ export class CodeQueryService implements Service {
   /**
    * Constructor.
    */
-  constructor(
-    private readonly mongoClient: MongoClient,
-    private readonly llmRouter: LLMRouter,
-    private readonly env: EnvVars
-  ) {}
+  constructor(private readonly mongoClient: MongoClient, private readonly llmRouter: LLMRouter,
+              private readonly env: EnvVars) {}
 
   /**
    * Execute the service - queries the codebase.
