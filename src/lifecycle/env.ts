@@ -1,6 +1,20 @@
+import dotenv from "dotenv";
+import { z } from "zod";
+import { baseEnvVarsSchema } from "../types/env.types";
 import LLMRouter from "../llm/llm-router";
 import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
 import llmConfig from "../config/llm.config";
+
+/**
+ * Utility function to load only base environment variables and validate them.
+ */
+export function loadBaseEnvVarsOnly(): z.infer<typeof baseEnvVarsSchema> {
+  dotenv.config();
+  const rawEnv = process.env;
+  const parsedEnv = baseEnvVarsSchema.parse(rawEnv);
+  return parsedEnv;
+}
+
 
 /**
  * Gracefully shutdown LLM connections and MongoDB connections with provider-specific cleanup handling.
@@ -8,10 +22,7 @@ import llmConfig from "../config/llm.config";
  * @param llmRouter The LLM router instance to close, or undefined if not initialized
  * @param mongoDBClientFactory The MongoDB client factory to close, or undefined if not initialized
  */
-export async function gracefulShutdown(
-  llmRouter?: LLMRouter, 
-  mongoDBClientFactory?: MongoDBClientFactory
-): Promise<void> {
+export async function gracefulShutdown(llmRouter?: LLMRouter, mongoDBClientFactory?: MongoDBClientFactory): Promise<void> {
   console.log(`END: ${new Date().toISOString()}`);
 
   // Close LLM connections
@@ -36,3 +47,4 @@ export async function gracefulShutdown(
     await mongoDBClientFactory.closeAll();
   }
 }
+

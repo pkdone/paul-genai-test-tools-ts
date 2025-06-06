@@ -11,7 +11,7 @@ import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
 import { TOKENS } from "../di/tokens";
 import type { MongoDBClientFactory } from "../utils/mongodb-client-factory";
-import { gracefulShutdown } from "../lifecycle/graceful-shutdown.js";
+import { gracefulShutdown } from "../lifecycle/env";
 
 /**
  * Service to run the MCP insights server.

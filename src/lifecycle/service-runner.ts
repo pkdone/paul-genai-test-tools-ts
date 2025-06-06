@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
-import { gracefulShutdown } from "./graceful-shutdown";
+import { gracefulShutdown } from "./env";
 import LLMRouter from "../llm/llm-router";
 import { Service, ServiceRunnerConfig } from "../types/service.types";
 import { diContainer } from "../di/container";

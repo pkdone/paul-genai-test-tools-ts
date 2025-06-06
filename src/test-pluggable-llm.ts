@@ -4,4 +4,3 @@ import { TOKENS } from "./di/tokens";
 
 runService(TOKENS.LLMTestService,{ requiresMongoDB: false, requiresLLM: true })
   .catch(console.error);
-

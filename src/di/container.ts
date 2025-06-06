@@ -12,7 +12,7 @@ import { z } from "zod";
 import { baseEnvVarsSchema } from "../types/env.types";
 import { BadConfigurationLLMError } from "../types/llm-errors.types";
 import { getErrorStack } from "../utils/error-utils";
-import { loadBaseEnvVarsOnly } from "../lifecycle/bootstrap-startup";
+import { loadBaseEnvVarsOnly } from "../lifecycle/env";
 import { CodebaseCaptureService } from "../services/codebase-capture.service";
 import { CodeQueryService } from "../services/code-query.service";
 import { InsightGenerationService } from "../services/insight-generation.service";
