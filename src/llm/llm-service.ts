@@ -8,17 +8,130 @@ import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { readDirContents } from "../utils/fs-utils";
 
 /**
- * Service for managing LLM providers using auto-discovery of manifests
+ * Service for managing a single LLM provider
  */
 export class LLMService {
-  private readonly providerRegistry: Map<string, LLMProviderManifest>;
+  private manifest?: LLMProviderManifest;
+  private readonly modelFamily: string;
   private isInitialized = false;
 
   /**
    * Constructor for dependency injection pattern
+   * @param modelFamily - The specific model family to load
    */
-  constructor() { 
-    this.providerRegistry = new Map();
+  constructor(modelFamily: string) { 
+    this.modelFamily = modelFamily;
+  }
+
+  /**
+   * Static method to load a manifest for a specific model family without creating a full service
+   */
+  static async loadManifestForModelFamily(modelFamily: string): Promise<LLMProviderManifest> {
+    const providersRootPath = path.join(__dirname, fileSystemConfig.PROVIDERS_FOLDER_NAME);
+    const manifest = await LLMService.loadSpecificProviderStatic(providersRootPath, modelFamily);
+    
+    if (!manifest) {
+      throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
+    }
+    
+    return manifest;
+  }
+
+  /**
+   * Static version of loadSpecificProvider for use without instance
+   */
+  private static async loadSpecificProviderStatic(rootPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
+    try {
+      const providerGroupDirs = await readDirContents(rootPath);
+      
+      for (const groupDir of providerGroupDirs) {
+        if (!groupDir.isDirectory()) continue;
+        const groupPath = path.join(rootPath, groupDir.name);
+        
+        const manifest = await LLMService.loadProviderGroupsForSpecific(groupPath, targetModelFamily);
+        if (manifest) return manifest;
+      }
+    } catch (error: unknown) {
+      logErrorMsgAndDetail(`Failed to read providers root directory ${rootPath}`, error);
+    }
+    
+    return undefined;
+  }
+  
+  /**
+   * Load provider implementations from a provider group directory, searching for specific model family
+   */
+  private static async loadProviderGroupsForSpecific(groupPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
+    try {
+      const providerImplDirs = await readDirContents(groupPath);
+      
+      for (const implDir of providerImplDirs) {
+        if (!implDir.isDirectory()) continue;        
+        const implPath = path.join(groupPath, implDir.name);
+        const manifest = await LLMService.loadProviderImplForSpecific(implPath, targetModelFamily);
+        if (manifest) {
+          return manifest;
+        }
+      }
+    } catch (error: unknown) {
+      logErrorMsgAndDetail(`Failed to read provider group directory ${groupPath}`, error);
+    }
+    
+    return undefined;
+  }
+  
+  /**
+   * Load a specific provider implementation manifest if it matches the target model family
+   */
+  private static async loadProviderImplForSpecific(implPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
+    try {
+      const filesInImplDir = await readDirContents(implPath);
+      const llmProviderManifestFile = filesInImplDir
+        .filter(file => file.isFile())
+        .find(file => file.name.endsWith(fileSystemConfig.MANIFEST_FILE_SUFFIX));        
+      if (!llmProviderManifestFile) return undefined;      
+      const llmProviderManifestPath = path.join(implPath, llmProviderManifestFile.name);
+      return await LLMService.importSpecificManifest(llmProviderManifestPath, targetModelFamily);
+    } catch (error: unknown) {
+      logErrorMsgAndDetail(`Failed to load manifest from ${implPath}`, error);
+      return undefined;
+    }
+  }
+  
+  /**
+   * Import a manifest from the given path if it matches the target model family
+   */
+  private static async importSpecificManifest(manifestPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
+    const module: unknown = await import(manifestPath);    
+    if (!module || typeof module !== 'object') return undefined;
+    const llmProviderManifestKey = Object.keys(module).find(key => 
+      key.endsWith(fileSystemConfig.PROVIDER_MANIFEST_KEY));
+      
+    if (!llmProviderManifestKey || !(llmProviderManifestKey in module)) {
+      return undefined;
+    }
+    
+    const manifestValue = (module as Record<string, unknown>)[llmProviderManifestKey];
+    
+    if (LLMService.isLlmValidManifest(manifestValue)) {
+      // Only return if this matches our target model family
+      if (manifestValue.modelFamily === targetModelFamily) {
+        return manifestValue;
+      }
+    }
+    
+    return undefined;
+  }
+
+  /**
+   * Type guard to validate if a value is a valid LLMProviderManifest
+   */
+  private static isLlmValidManifest(value: unknown): value is LLMProviderManifest {
+    return value !== null && 
+           typeof value === 'object' && 
+           'modelFamily' in value && 
+           'factory' in value &&
+           typeof (value as Record<string, unknown>).factory === 'function';
   }
 
   /**
@@ -29,134 +142,47 @@ export class LLMService {
       console.warn("LLMService is already initialized.");
       return;
     }
-    await this.initializeRegistry();
+    
+    const providersRootPath = path.join(__dirname, fileSystemConfig.PROVIDERS_FOLDER_NAME);
+    this.manifest = await this.loadSpecificProvider(providersRootPath, this.modelFamily);
+    
+    if (!this.manifest) {
+      throw new BadConfigurationLLMError(`Could not find provider for model family '${this.modelFamily}'. Check paths and manifest exports in 'src/llm/providers/*/*/*.manifest.ts'.`);
+    }
+    
+    console.log(`LLMService: Loaded provider for model family '${this.modelFamily}': ${this.manifest.providerName}`);
     this.isInitialized = true;
   }
 
   /**
-   * Get a provider manifest by model family
+   * Get the loaded provider manifest
    */
-  getLLMManifest(modelFamily: string): LLMProviderManifest | undefined {
-    if (!this.isInitialized) {
+  getLLMManifest(): LLMProviderManifest {
+    if (!this.isInitialized || !this.manifest) {
       throw new Error("LLMService is not initialized. Call initialize() first.");
     }
-    return this.providerRegistry.get(modelFamily);
+    return this.manifest;
   }
 
   /**
-   * Get an LLM provider instance for the given model family and environment
+   * Get an LLM provider instance using the loaded manifest and environment
    */
-  getLLMProviderInstance(modelFamily: string, env: EnvVars): LLMProviderImpl {
-    if (!this.isInitialized) throw new Error("LLMService is not initialized. Call initialize() first.");
-    const llmProviderManifest = this.providerRegistry.get(modelFamily);
-    if (!llmProviderManifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);
-    const modelsInternallKeySet = this.constructModelsInternalKeysSet(llmProviderManifest);
-    const modelsMetadata = this.constructModelsMetadata(llmProviderManifest, env);
-    const llmProvider = llmProviderManifest.factory(env, modelsInternallKeySet, modelsMetadata, llmProviderManifest.errorPatterns, llmProviderManifest.providerSpecificConfig);
+  getLLMProvider(env: EnvVars): LLMProviderImpl {
+    if (!this.isInitialized || !this.manifest) {
+      throw new Error("LLMService is not initialized. Call initialize() first.");
+    }
+    
+    const modelsInternallKeySet = this.constructModelsInternalKeysSet(this.manifest);
+    const modelsMetadata = this.constructModelsMetadata(this.manifest, env);
+    const llmProvider = this.manifest.factory(env, modelsInternallKeySet, modelsMetadata, this.manifest.errorPatterns, this.manifest.providerSpecificConfig);
     return llmProvider;
   }
 
   /**
-   * Get an LLM provider instance using the environment's LLM setting
+   * Load only the specific provider that matches the given model family
    */
-  getLLMProvider(env: EnvVars): LLMProviderImpl {
-    return this.getLLMProviderInstance(env.LLM, env);
-  }
-
-  /**
-   * Auto-discover and load all provider manifests from the providers directory
-   */
-  private async initializeRegistry(): Promise<void> {    
-    const providersRootPath = path.join(__dirname, fileSystemConfig.PROVIDERS_FOLDER_NAME);
-    
-    try {
-      await this.loadProviderManifests(providersRootPath);      
-      if (this.providerRegistry.size === 0) console.warn("LLMService: No LLM provider manifests were loaded. Check paths and manifest exports in 'src/llm/providers/*/*/*.manifest.ts'.");
-    } catch (error: unknown) {
-      logErrorMsgAndDetail(`Failed to read providers root directory ${providersRootPath}`, error);
-    }
-  }
-  
-  /**
-   * Load provider manifests from the given directory path
-   */
-  private async loadProviderManifests(rootPath: string): Promise<void> {
-    const providerGroupDirs = await readDirContents(rootPath);
-    
-    for (const groupDir of providerGroupDirs) {
-      if (!groupDir.isDirectory()) continue;
-      const groupPath = path.join(rootPath, groupDir.name);
-      await this.loadProviderGroups(groupPath);
-    }
-  }
-  
-  /**
-   * Load provider implementations from a provider group directory
-   */
-  private async loadProviderGroups(groupPath: string): Promise<void> {
-    try {
-      const providerImplDirs = await readDirContents(groupPath);
-      
-      for (const implDir of providerImplDirs) {
-        if (!implDir.isDirectory()) continue;        
-        const implPath = path.join(groupPath, implDir.name);
-        await this.loadProviderImpl(implPath);
-      }
-    } catch (error: unknown) {
-      logErrorMsgAndDetail(`Failed to read provider group directory ${groupPath}`, error);
-    }
-  }
-  
-  /**
-   * Load a specific provider implementation manifest
-   */
-  private async loadProviderImpl(implPath: string): Promise<void> {
-    try {
-      const filesInImplDir = await readDirContents(implPath);
-      const llmProviderManifestFile = filesInImplDir
-        .filter(file => file.isFile())
-        .find(file => file.name.endsWith(fileSystemConfig.MANIFEST_FILE_SUFFIX));        
-      if (!llmProviderManifestFile) return;      
-      const llmProviderManifestPath = path.join(implPath, llmProviderManifestFile.name);
-      await this.importAndRegisterManifest(llmProviderManifestPath);
-    } catch (error: unknown) {
-      logErrorMsgAndDetail(`Failed to load manifest from ${implPath}`, error);
-    }
-  }
-  
-  /**
-   * Import and register a manifest from the given path
-   */
-  private async importAndRegisterManifest(manifestPath: string): Promise<void> {
-    const module: unknown = await import(manifestPath);    
-    if (!module || typeof module !== 'object') return;
-    const llmProviderManifestKey = Object.keys(module).find(key => 
-      key.endsWith(fileSystemConfig.PROVIDER_MANIFEST_KEY));
-      
-    if (!llmProviderManifestKey || !(llmProviderManifestKey in module)) {
-      console.warn(`Could not find an exported manifest in ${manifestPath}`);
-      return;
-    }
-    
-    const manifestValue = (module as Record<string, unknown>)[llmProviderManifestKey];
-    
-    if (this.isLlmValidManifest(manifestValue)) {
-      this.providerRegistry.set(manifestValue.modelFamily, manifestValue);
-      console.log(`Registered LLM provider: ${manifestValue.providerName}`);
-    } else {
-      console.warn(`Manifest ${manifestPath} is not a valid LLMProviderManifest.`);
-    }
-  }
-
-  /**
-   * Type guard to validate if a value is a valid LLMProviderManifest
-   */
-  private isLlmValidManifest(value: unknown): value is LLMProviderManifest {
-    return value !== null && 
-           typeof value === 'object' && 
-           'modelFamily' in value && 
-           'factory' in value &&
-           typeof (value as Record<string, unknown>).factory === 'function';
+  private async loadSpecificProvider(rootPath: string, targetModelFamily: string): Promise<LLMProviderManifest | undefined> {
+    return LLMService.loadSpecificProviderStatic(rootPath, targetModelFamily);
   }
 
   /**

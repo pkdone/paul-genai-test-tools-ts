@@ -50,12 +50,12 @@ export class DIContainer {
     
     // Register LLM dependencies if required
     if (config.requiresLLM) {
-      const llmService = new LLMService();
+      const llmService = new LLMService(envVars.LLM);
       await llmService.initialize();
       container.registerInstance(TOKENS.LLMService, llmService);
       const llmProvider = llmService.getLLMProvider(envVars);
-      const llmManifest = llmService.getLLMManifest(envVars.LLM);
-      const retryConfig = llmManifest?.providerSpecificConfig;
+      const llmManifest = llmService.getLLMManifest();
+      const retryConfig = llmManifest.providerSpecificConfig;
       const llmRouter = new LLMRouter(llmProvider, retryConfig);
       container.registerInstance(TOKENS.LLMRouter, llmRouter);
     }
@@ -118,14 +118,8 @@ export class DIContainer {
       }
       const selectedLlmModelFamily = selectedLlmContainer.data.LLM;
 
-      // Create a temporary LLMService instance to get the manifest
-      // We can't resolve from container yet since we're still in the registration phase
-      const tempLlmService = new LLMService();
-      await tempLlmService.initialize();
-      const manifest = tempLlmService.getLLMManifest(selectedLlmModelFamily);
-      if (!manifest) {
-        throw new Error(`No provider manifest found for LLM: '${selectedLlmModelFamily}'`);
-      }
+      // Load the manifest for the selected provider to get the environment schema
+      const manifest = await LLMService.loadManifestForModelFamily(selectedLlmModelFamily);
 
       const finalSchema = baseEnvVarsSchema.merge(manifest.envSchema).passthrough();
       const parsedEnv = finalSchema.parse(rawEnv);
