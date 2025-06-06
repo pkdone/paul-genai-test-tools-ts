@@ -1,3 +1,4 @@
+
 import llmConfig from "../../config/llm.config";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
          LLMResponseStatus, LLMContext, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern} from "../../types/llm.types";
@@ -77,30 +78,4 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
   }      
 }  
 
-/**
- * Reduce the size of the prompt to be inside the LLM's indicated token limit.
- */
-export function reducePromptSizeToTokenLimit(
-  prompt: string, 
-  modelInternalKey: string, 
-  tokensUage: LLMResponseTokensUsage,
-  modelsMetadata: Record<string, ResolvedLLMModelMetadata>
-) {
-  if (prompt.trim() === "") return prompt;  
-  const { promptTokens, completionTokens, maxTotalTokens } = tokensUage;
-  const maxCompletionTokensLimit = modelsMetadata[modelInternalKey].maxCompletionTokens; // will be undefined if for embeddings
-  let reductionRatio = 1;
-  
-  // If all the LLM#s available completion tokens have been consumed then will need to reduce prompt size to try influence any subsequenet generated completion to be smaller
-  if (maxCompletionTokensLimit && (completionTokens >= (maxCompletionTokensLimit - llmConfig.COMPLETION_MAX_TOKENS_LIMIT_BUFFER))) {
-    reductionRatio = Math.min((maxCompletionTokensLimit / (completionTokens + 1)), llmConfig.COMPLETION_TOKENS_REDUCE_MIN_RATIO);
-  }
 
-  // If the total tokens used is more than the total tokens available then reduce the prompt size proportionally
-  if (reductionRatio >= 1) {
-    reductionRatio = Math.min((maxTotalTokens / (promptTokens + completionTokens + 1)), llmConfig.PROMPT_TOKENS_REDUCE_MIN_RATIO);
-  }
-
-  const newPromptSize = Math.floor(prompt.length * reductionRatio);
-  return prompt.substring(0, newPromptSize);
-}

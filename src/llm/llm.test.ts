@@ -462,7 +462,7 @@ describe("LLM Router tests", () => {
             maxTotalTokens: 8192
           } as LLMResponseTokensUsage
         } as LLMFunctionResponse,
-        expectedResult: "This is a very long prompt that needs" // Cropped by mock to half length
+        expectedResult: "This is a very long prompt that needs to be cropped because of " // Cropped based on token usage calculation
       },
       {
         description: "short prompt with valid token usage should still be processed",
@@ -478,7 +478,7 @@ describe("LLM Router tests", () => {
             maxTotalTokens: 8192
           } as LLMResponseTokensUsage
         } as LLMFunctionResponse,
-        expectedResult: "Short " // Cropped by mock to half length
+        expectedResult: "Short prom" // Cropped based on token usage calculation
       },
       {
         description: "medium length prompt with high token usage",
@@ -494,7 +494,7 @@ describe("LLM Router tests", () => {
             maxTotalTokens: 8192
           } as LLMResponseTokensUsage
         } as LLMFunctionResponse,
-        expectedResult: "This is a medium length prompt for testing " // Cropped by mock to half length
+        expectedResult: "This is a medium length prompt for testing purposes and should be cropped" // Cropped based on token usage calculation
       }
     ];
 

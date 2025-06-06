@@ -5,7 +5,7 @@ import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
 import { RetryFunc } from "../types/control.types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { withRetry } from "../utils/control-utils";
-import { reducePromptSizeToTokenLimit } from "./response-processing/llm-response-tools";
+import { PromptAdapter } from "./response-processing/prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "./router-logging/llm-router-logging";
 import LLMStats from "./router-logging/llm-stats";
 import { LLMRetryConfig } from "./providers/llm-provider.types";
@@ -22,6 +22,7 @@ class LLMRouter {
   private readonly llmStats: LLMStats;
   private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
   private readonly retryConfig: LLMRetryConfig;
+  private readonly promptAdapter: PromptAdapter;
 
   /**
    * Constructor.
@@ -36,6 +37,7 @@ class LLMRouter {
     this.llmStats = new LLMStats();
     this.modelsMetadata = llm.getModelsMetadata();
     this.retryConfig = retryConfig;
+    this.promptAdapter = new PromptAdapter();
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
 
@@ -238,12 +240,8 @@ class LLMRouter {
    * Crops the prompt to fit within token limits when the current LLM exceeds capacity.
    */
   private cropPromptForTokenLimit(currentPrompt: string, llmResponse: LLMFunctionResponse): string {
-    if (!llmResponse.tokensUage) {
-      throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but for some reason `tokensUage` is not present", llmResponse);
-    }
-    
     this.llmStats.recordCrop();
-    return reducePromptSizeToTokenLimit(currentPrompt, llmResponse.modelInternalKey, llmResponse.tokensUage, this.modelsMetadata);
+    return this.promptAdapter.adaptPromptFromResponse(currentPrompt, llmResponse, this.modelsMetadata);
   }
 
   /**

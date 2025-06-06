@@ -1,5 +1,5 @@
-import { LLMPurpose } from "../../types/llm.types";
-import { reducePromptSizeToTokenLimit } from "./llm-response-tools";
+import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMResponseTokensUsage } from "../../types/llm.types";
+import { PromptAdapter } from "./prompt-adapter";
 import { parseTokenUsageFromLLMError } from "./llm-error-pattern-parser";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../providers/bedrock/bedrock-error-patterns";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../providers/openai/openai-error-patterns";
@@ -22,49 +22,72 @@ const testMetadata = {
 };
 
 describe("Response Processing tests", () => {
+  // Helper function to create a mock LLM response for prompt adapter testing
+  const createMockLLMResponse = (modelInternalKey: string, tokensUsage: LLMResponseTokensUsage): LLMFunctionResponse => ({
+    status: LLMResponseStatus.EXCEEDED,
+    request: "mock request",
+    modelInternalKey,
+    context: {},
+    tokensUage: tokensUsage
+  });
+
   describe("Test prompt reduction function", () => {
     test("reduce prompt for successful LLM completions - should not reduce", () => {
       const prompt = "1234 1234 1234 1234";
       const tokensUsage = { promptTokens: 4, completionTokens: 10, maxTotalTokens: 8192 };
-      expect(reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata)).toBe("1234 1234 1234 1");
+      const adapter = new PromptAdapter();
+      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      expect(adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata)).toBe("1234 1234 1234 1");
     });
 
     test("reduce prompt for LLM completion tokens limit hit - should reduce", () => {
       const prompt = "1234 ".repeat(25);
       const tokensUsage = { promptTokens: 100, completionTokens: 4096, maxTotalTokens: 8192 };
-      expect(reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata).length).toBe(93);
+      const adapter = new PromptAdapter();
+      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      expect(adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata).length).toBe(93);
     });
 
     test("reduce prompt for LLM total tokens limit hit - should reduce", () => {
       const prompt = "A".repeat(57865);  // random string
       const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 8192 };
-      const result = reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata);
+      const adapter = new PromptAdapter();
+      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      const result = adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata);
       expect(result.length).toBe(49185);
     });
 
     test("reduce empty prompt - should return empty", () => {
       const prompt = "";
       const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 8192 };
-      expect(reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata)).toBe("");
+      const adapter = new PromptAdapter();
+      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      expect(adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata)).toBe("");
     });
 
     test("reduce prompt for LLM total tokens limit hit severely - should reduce significantly", () => {
       const prompt = "1234 ".repeat(250);
       const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 8192 };
-      const result = reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata);
+      const adapter = new PromptAdapter();
+      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      const result = adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata);
       expect(result.length).toBe(1062);
     });
 
     test("reduce prompt with lower completion tokens limit - should reduce", () => {
       const prompt = "A".repeat(1000);
       const tokensUsage = { promptTokens: 6000, completionTokens: 3000, maxTotalTokens: 32768 };
-      expect(reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata).length).toBeLessThan(prompt.length);
+      const adapter = new PromptAdapter();
+      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      expect(adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata).length).toBeLessThan(prompt.length);
     });
 
     test("reduce prompt with higher max tokens limit - should reduce less", () => {
       const prompt = "A".repeat(1000);
       const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 32768 };
-      const result = reducePromptSizeToTokenLimit(prompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata);
+      const adapter = new PromptAdapter();
+      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      const result = adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata);
       expect(result.length).toBeLessThan(prompt.length);
     });
   });
