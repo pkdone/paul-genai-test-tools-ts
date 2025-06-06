@@ -6,7 +6,7 @@
     "test:int": "jest --testPathIgnorePatterns=\"/node_modules/\" --testPathPattern=\"\\\\.int\\\\.test\\\\.ts$\"",
     "lint": "eslint .",
     "validate": "npm run compile && npm run lint && npm run test && npm run test:int",
-    "checkin": "git add . && git commit -m \"refactorings\" && git push"
+    "checkin": "git add . && git commit -m \"refactorings\" && git push && git status"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
