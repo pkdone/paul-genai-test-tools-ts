@@ -1,7 +1,3 @@
-import { MongoClient } from 'mongodb';
-import LLMRouter from '../llm/llm-router';
-import { EnvVars } from './env.types';
-
 /**
  * Base interface that all services must implement.
  */
@@ -21,17 +17,3 @@ export interface ServiceRunnerConfig {
   /** Whether this service requires LLM router */
   requiresLLM: boolean;
 }
-
-/**
- * Dependencies that can be injected into services.
- */
-export interface ServiceDependencies {
-  mongoClient?: MongoClient;
-  llmRouter?: LLMRouter;
-  env: EnvVars;
-}
-
-/**
- * Factory function type for creating service instances.
- */
-export type ServiceFactory<T extends Service> = (dependencies: ServiceDependencies) => T; 

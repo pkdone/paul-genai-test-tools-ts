@@ -40,13 +40,6 @@ export class DIContainer {
   resolve(token: symbol): unknown {
     return container.resolve(token);
   }
-  
-  /**
-   * Clear all registered dependencies (useful for testing).
-   */
-  clearContainer(): void {
-    container.clearInstances();
-  }
 }
 
 /**

@@ -75,13 +75,6 @@ export class MongoDBClientFactory {
   }
 
   /**
-   * Gets the number of active connections.
-   */
-  getConnectionCount(): number {
-    return this.clients.size;
-  }
-
-  /**
    * Redacts sensitive credentials from a MongoDB connection string.
    *
    * @param url The MongoDB connection string.
