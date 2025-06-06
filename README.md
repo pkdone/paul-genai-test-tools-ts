@@ -30,11 +30,18 @@ Current test tools:
     -  __Text completions 'primate'model, typically with a small token limit__ for generating text and JSON content for dealing with text inputs 
     -  __Text completions 'secondary' model, typically with a large token limit__ for generating text and JSON content for dealing with text inputs (as backup if primary model errors for a particular piece of cotnent)
 
-1. From the root folder of this project, run the following command to copy an example environment configuration file to a new file into the same root folder called `.env`, and then edit the values for the properties shown in this new `.env` file to reflect your specific environment settings:
+1. From the root folder of this project, run the following command to copy an example environment configuration file to a new file into the same root folder called `.env`:
 
     ```console
     cp 'EXAMPLE.env' '.env'
     ```
+
+    Edit the `.env` file to:
+    - Set your `LLM` provider (e.g., "OpenAI", "VertexAIGemini", etc.)
+    - Set your MongoDB URL and codebase directory path
+    - Add the specific environment variables required for your chosen LLM provider
+    
+    The system uses a **manifest-driven approach** - you only need to configure environment variables for your selected LLM provider. The application will automatically validate only the variables required for your chosen provider and provide clear error messages if any are missing.
 
 1. OPTIONAL: Ensure you have a running MongoDB [Atlas](https://www.mongodb.com/atlas) dedicated cluster of any size/tier. You can even use an 'M0' free-tier version, although for some uses cases, the free-tier storage limit of 512MB may be insufficient. Ensure the approprate network and database access rights are configured. Optional because some use cases won't neeed a database. 
 
@@ -126,7 +133,7 @@ In the AWS Console, select the Bedrock Configuration | Model Access option and e
 
 2. **Update Environment Configuration**:
    - Add any new environment variables (defined in your manifest's `envSchema`) to your local `.env` file with their actual values.
-   - Add example values for these new variables to the `EXAMPLE.env` file.
    - Update the comment for the `LLM` variable in both `.env` and `EXAMPLE.env` to include your new `modelFamily` string as an option.
+   - Optionally, add documentation for your provider-specific variables to the `EXAMPLE.env` comments section to help other users.
 
-The `llm-service.ts` will automatically discover and register your new provider based on its manifest file. No changes are needed in `src/types/env-types.ts` or `src/llm/llm-service.ts` for adding new providers with their own environment variables.
+The `llm-service.ts` will automatically discover and register your new provider based on its manifest file. The system uses a **manifest-driven approach** where environment variables are dynamically validated based on the selected provider - no changes are needed in `src/types/env-types.ts` or `src/llm/llm-service.ts` for adding new providers with their own environment variables.

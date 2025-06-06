@@ -56,6 +56,22 @@ async function loadEnvIncludingLLMVars(): Promise<EnvVars> {
       return parsedEnv as EnvVars;
     } catch (error) {
       if (error instanceof BadConfigurationLLMError) throw error;
+      
+      // Enhanced error handling for missing provider-specific environment variables
+      if (error instanceof z.ZodError) {
+        const missingEnvVars = error.issues
+          .filter(issue => issue.code === 'invalid_type' && issue.received === 'undefined')
+          .map(issue => issue.path.join('.'));
+        
+        if (missingEnvVars.length > 0) {
+          const selectedLlmModelFamily = process.env.LLM ?? 'unknown';
+          throw new BadConfigurationLLMError(
+            `Missing required environment variables for ${selectedLlmModelFamily} provider: ${missingEnvVars.join(', ')}. ` +
+            `Please add these variables to your .env file. See EXAMPLE.env for guidance on provider-specific variables.`
+          );
+        }
+      }
+      
       throw new BadConfigurationLLMError("Failed to load and validate environment variables for LLM configuration", getErrorStack(error));
     }
 } 

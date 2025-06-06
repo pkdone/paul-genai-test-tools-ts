@@ -6,19 +6,14 @@ import { z } from "zod";
 export const baseEnvVarsSchema = z.object({
   MONGODB_URL: z.string().url(),
   CODEBASE_DIR_PATH: z.string().min(1, "CODEBASE_DIR_PATH cannot be empty"),
-  IGNORE_ALREADY_PROCESSED_FILES: z
-    .union([
-      z.enum(["true", "false"]), // Handle strings "true"/"false" (with quotes in .env)
-      z.boolean(),               // Handle native boolean true/false (without quotes in .env)
-      z.literal("TRUE").transform(() => "true"),      // Handle case variations
-      z.literal("FALSE").transform(() => "false"),    // Handle case variations
-    ])
-    .optional()
-    .default("false")
-    .transform((val) => {
-      if (typeof val === "boolean") return val;
-      return val === "true";
-    }),
+  IGNORE_ALREADY_PROCESSED_FILES: z.preprocess(
+    (val) => {
+      if (typeof val === 'string') return val.toLowerCase() === 'true';
+      if (typeof val === 'boolean') return val;
+      return false; // Default for undefined or other types before boolean parsing
+    },
+    z.boolean()
+  ).default(false),
   LLM: z.string().min(1, "LLM provider selection cannot be empty"),
 });
 
