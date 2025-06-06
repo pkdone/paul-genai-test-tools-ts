@@ -10,7 +10,9 @@ import { getFileSuffix, transformJSToTSFilePath } from "../utils/path-utils";
 import { countLines } from "../utils/text-utils";
 import { promiseAllThrottled } from "../utils/control-utils";
 import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
-import { PromptBuilder } from "../promptTemplating/prompt-builder";    
+import { PromptBuilder } from "../promptTemplating/prompt-builder";
+import { BaseFileSummary, JavaScriptFileSummary } from "../types/llm.types";
+import { convertTextToJSON } from "../utils/json-tools";
 
 /** 
  * Loads each source file into a class to represent it.
@@ -127,7 +129,7 @@ class CodebaseToDBLoader {
   /**
    * Invoke an LLM completion with a prompt to get a summary, returning the LLM's response as JSON.
    */
-  private async getContentSummarisedAsJSON(filepath: string, type: string, content: string) {
+  private async getContentSummarisedAsJSON(filepath: string, type: string, content: string): Promise<BaseFileSummary | JavaScriptFileSummary | {content: string} | {error: string}> {
     if (content.length <= 0) return { content: "<empty-file>" };     
     let promptFileName: string | undefined;
     
@@ -138,19 +140,23 @@ class CodebaseToDBLoader {
     }
 
     promptFileName = promptFileName ?? promptsConfig.DEFAULT_FILE_SUMMARY_PROMPTS;
-    let response;
 
     try {        
       const contentToReplaceList = [{ label: promptsConfig.PROMPT_CONTENT_BLOCK_LABEL, content }];
       const promptFilePath = transformJSToTSFilePath(__dirname, promptsConfig.PROMPTS_FOLDER_NAME, promptFileName);
       const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
-      response = await this.llmRouter.executeCompletion(filepath, prompt, true, {resource: filepath, requireJSON: true});      
+      const llmResponse = await this.llmRouter.executeCompletion(filepath, prompt, true, {resource: filepath, requireJSON: true});
+      
+      // Use specific types based on file type for better type safety
+      if (type === 'js' || type === 'ts') {
+        return convertTextToJSON<JavaScriptFileSummary>(llmResponse as string);
+      } else {
+        return convertTextToJSON<BaseFileSummary>(llmResponse as string);
+      }
     } catch (error: unknown) {
       logErrorMsgAndDetail(`No summary generated for file '${filepath}' due to processing error`, error);
-      response = {error: getErrorText(error)};
+      return {error: getErrorText(error)};
     }
-
-    return response;
   }
 
   /**
