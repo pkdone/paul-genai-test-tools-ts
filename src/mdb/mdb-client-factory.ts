@@ -1,5 +1,5 @@
 import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
-import { logErrorMsgAndDetail } from "./error-utils";
+import { logErrorMsgAndDetail } from "../utils/error-utils";
 import databaseConfig from "../config/database.config";
 
 /**

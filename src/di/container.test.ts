@@ -5,7 +5,7 @@ import { TOKENS } from './tokens';
 // Mock the LLM-related modules to avoid environment dependencies in tests
 jest.mock('../llm/llm-service');
 jest.mock('../llm/llm-router');
-jest.mock('../utils/mongodb-client-factory', () => ({
+jest.mock('../mdb/mdb-client-factory', () => ({
   MongoDBClientFactory: jest.fn().mockImplementation(() => ({
     connect: jest.fn().mockResolvedValue({
       db: () => ({

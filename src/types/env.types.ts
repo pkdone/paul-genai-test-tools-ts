@@ -22,3 +22,23 @@ export type BaseEnvVars = z.infer<typeof baseEnvVarsSchema>;
 // This type represents the fully parsed environment variables, including provider-specific ones.
 // The actual shape depends on the dynamically constructed schema in bootstrap.ts.
 export type EnvVars = BaseEnvVars & Record<string, unknown>; // Allows for provider-specific properties after Zod parsing
+
+/**
+ * Base interface for file summary responses from LLM
+ */
+export interface BaseFileSummary {
+  readonly purpose: string;
+  readonly implementation: string;
+  readonly databaseIntegration: {
+    readonly mechanism: string;
+    readonly description: string;
+  };
+}
+
+/**
+ * Enhanced file summary for JavaScript/TypeScript files with additional reference information
+ */
+export interface JavaScriptFileSummary extends BaseFileSummary {
+  readonly internalReferences: readonly string[];
+  readonly externalReferences: readonly string[];
+}

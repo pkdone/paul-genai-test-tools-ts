@@ -11,7 +11,7 @@ import { countLines } from "../utils/text-utils";
 import { promiseAllThrottled } from "../utils/control-utils";
 import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";
-import { BaseFileSummary, JavaScriptFileSummary } from "../types/llm.types";
+import { BaseFileSummary, JavaScriptFileSummary } from "../types/env.types";
 import { convertTextToJSON } from "../utils/json-tools";
 
 /** 

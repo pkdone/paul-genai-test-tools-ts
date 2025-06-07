@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
+import { MongoDBClientFactory } from "../mdb/mdb-client-factory";
 import { gracefulShutdown } from "./env";
 import LLMRouter from "../llm/llm-router";
 import { Service, ServiceRunnerConfig } from "../types/service.types";

@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { z } from "zod";
 import { baseEnvVarsSchema } from "../types/env.types";
 import LLMRouter from "../llm/llm-router";
-import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
+import { MongoDBClientFactory } from "../mdb/mdb-client-factory";
 import llmConfig from "../config/llm.config";
 
 /**

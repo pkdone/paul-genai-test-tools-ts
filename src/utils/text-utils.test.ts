@@ -1,4 +1,5 @@
-import { countLines, joinArrayWithSeparators, convertArrayOfNumbersToArrayOfDoubles } from "./text-utils";
+import { countLines, joinArrayWithSeparators } from "./text-utils";
+import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
 import { Double } from "bson";
 
 describe("Text utilities", () => {

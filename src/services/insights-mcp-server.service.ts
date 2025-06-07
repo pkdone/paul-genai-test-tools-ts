@@ -10,7 +10,7 @@ import { getProjectNameFromPath } from "../utils/path-utils";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
 import { TOKENS } from "../di/tokens";
-import type { MongoDBClientFactory } from "../utils/mongodb-client-factory";
+import type { MongoDBClientFactory } from "../mdb/mdb-client-factory";
 import { gracefulShutdown } from "../lifecycle/env";
 
 /**
