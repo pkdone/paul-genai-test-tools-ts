@@ -23,8 +23,6 @@ export function loadBaseEnvVarsOnly(): z.infer<typeof baseEnvVarsSchema> {
  * @param mongoDBClientFactory The MongoDB client factory to close, or undefined if not initialized
  */
 export async function gracefulShutdown(llmRouter?: LLMRouter, mongoDBClientFactory?: MongoDBClientFactory): Promise<void> {
-  console.log(`END: ${new Date().toISOString()}`);
-
   // Close LLM connections
   if (llmRouter) {
     await llmRouter.close();

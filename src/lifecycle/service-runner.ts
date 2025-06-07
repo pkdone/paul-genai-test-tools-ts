@@ -33,6 +33,7 @@ export async function runService(
     const service = container.resolve<Service>(serviceToken);
     await service.execute();    
   } finally {
+    console.log(`END: ${new Date().toISOString()}`);
     await gracefulShutdown(llmRouter, mongoDBClientFactory);
   }
 } 
