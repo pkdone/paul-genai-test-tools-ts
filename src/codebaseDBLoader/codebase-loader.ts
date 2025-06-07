@@ -87,17 +87,31 @@ class CodebaseToDBLoader {
     if (!content) return;  // Skip empty files
     const filename = path.basename(filepath);
     const linesCount = countLines(content);    
-    const summary = await this.getContentSummarisedAsJSON(filepath, type, content);
-    const summaryVector = await this.getContentEmbeddings(filepath, JSON.stringify(summary), "summary");
-    const contentVector = await this.getContentEmbeddings(filepath, content, "content")
+    
+    const summaryResult = await this.getContentSummarisedAsJSON(filepath, type, content);
+    let summary: BaseFileSummary | JavaScriptFileSummary | undefined;
+    let summaryError: string | undefined;
+    let summaryVector: number[] | null = null; // Initialize as null
+
+    if ('error' in summaryResult) {
+      summaryError = (summaryResult as { error: string }).error;
+      // Do not generate summaryVector if there's an error
+    } else {
+      summary = summaryResult as BaseFileSummary | JavaScriptFileSummary;
+      summaryVector = await this.getContentEmbeddings(filepath, JSON.stringify(summary), "summary");
+    }
+    
+    const contentVector = await this.getContentEmbeddings(filepath, content, "content");
+    
     await colctn.insertOne({
       projectName: this.projectName,
       filename,
       filepath,
       type,
       linesCount,
-      summary,
-      summaryVector,
+      summary: summary ?? null, 
+      summaryError: summaryError ?? null, 
+      summaryVector, // Will be null if summary failed
       content,  
       contentVector,    
     });
