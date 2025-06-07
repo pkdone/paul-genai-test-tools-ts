@@ -112,7 +112,7 @@ class CodebaseToDBLoader {
   }
 
   /**
-   * QUery the DB `sources` collection for existence of a record with matching filepath field for 
+   * Query the DB `sources` collection for existence of a record with matching filepath field for 
    * this project.
    */
   private async doesMetadataForFileExistsInDB(colctn: Collection, filepath: string) {
@@ -146,13 +146,36 @@ class CodebaseToDBLoader {
       const promptFilePath = transformJSToTSFilePath(__dirname, promptsConfig.PROMPTS_FOLDER_NAME, promptFileName);
       const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
       const llmResponse = await this.llmRouter.executeCompletion(filepath, prompt, true, {resource: filepath, requireJSON: true});
-      
-      // Use specific types based on file type for better type safety
-      if (type === 'js' || type === 'ts') {
-        return convertTextToJSON<JavaScriptFileSummary>(llmResponse as string);
-      } else {
-        return convertTextToJSON<BaseFileSummary>(llmResponse as string);
+
+      if (llmResponse === null) {
+        logErrorMsgAndDetail(`LLM returned null response for summary of file '${filepath}'`, null);
+        return { error: "LLM returned null response" };
       }
+
+      let summaryData: BaseFileSummary | JavaScriptFileSummary | { error: string };
+
+      if (typeof llmResponse === 'string') {
+        try {
+          if (type === 'js' || type === 'ts') {
+            summaryData = convertTextToJSON<JavaScriptFileSummary>(llmResponse);
+          } else {
+            summaryData = convertTextToJSON<BaseFileSummary>(llmResponse);
+          }
+        } catch (jsonError: unknown) {
+          logErrorMsgAndDetail(`Failed to parse LLM string response to JSON for file '${filepath}'`, jsonError);
+          return { error: `Failed to parse LLM JSON: ${getErrorText(jsonError)}` };
+        }
+      } else if (!Array.isArray(llmResponse)) {
+        if (type === 'js' || type === 'ts') {
+          summaryData = llmResponse as unknown as JavaScriptFileSummary; 
+        } else {
+          summaryData = llmResponse as unknown as BaseFileSummary; 
+        }
+      } else {
+         logErrorMsgAndDetail(`Unexpected LLM response type for summary of file '${filepath}'. Expected string or object, got ${typeof llmResponse}`, llmResponse);
+         return { error: `Unexpected LLM response type: ${typeof llmResponse}` };
+      }
+      return summaryData;
     } catch (error: unknown) {
       logErrorMsgAndDetail(`No summary generated for file '${filepath}' due to processing error`, error);
       return {error: getErrorText(error)};
