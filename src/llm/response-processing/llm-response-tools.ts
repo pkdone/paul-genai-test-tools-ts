@@ -62,7 +62,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
   asJson: boolean, 
   context: LLMContext,
   modelsMetadata: Record<string, ResolvedLLMModelMetadata>
-) {
+): LLMFunctionResponse {
   if (taskType === LLMPurpose.COMPLETIONS) {
     try {
       if (typeof responseContent !== "string") throw new BadResponseContentLLMError("Generated content is not a string", responseContent);

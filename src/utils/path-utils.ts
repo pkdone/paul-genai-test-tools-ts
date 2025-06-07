@@ -4,7 +4,7 @@ import fileSystemConfig from "../config/fileSystem.config";
 /**
  * Get the name of a project from its path.
  */
-export function getProjectNameFromPath(filePath: string) { 
+export function getProjectNameFromPath(filePath: string): string { 
   const normalisedPath = filePath.endsWith("/") ? filePath.slice(0, -1) : filePath;  
   return path.basename(normalisedPath);   
 }
@@ -12,7 +12,7 @@ export function getProjectNameFromPath(filePath: string) {
 /**
  * Returns the suffix of a filename from a full file path.
  */
-export function getFileSuffix(filepath: string) {
+export function getFileSuffix(filepath: string): string {
   const baseName = path.basename(filepath);
   let suffix = "";
 

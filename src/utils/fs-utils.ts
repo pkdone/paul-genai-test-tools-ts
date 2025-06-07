@@ -1,5 +1,5 @@
 import fileSystemConfig from "../config/fileSystem.config";
-import { promises as fs } from "fs";
+import { promises as fs, Dirent } from "fs";
 import path from "path";
 import { logErrorMsgAndDetail } from "./error-utils";
 const UTF8_ENCODING = "utf8";
@@ -7,35 +7,35 @@ const UTF8_ENCODING = "utf8";
 /**
  * Read content from a file
  */
-export async function readFile(filepath: string) {
+export async function readFile(filepath: string): Promise<string> {
   return fs.readFile(filepath, UTF8_ENCODING);
 }
 
 /**
  * Write content to a file.
  */
-export async function writeFile(filepath: string, content: string) {
+export async function writeFile(filepath: string, content: string): Promise<void> {
   await fs.writeFile(filepath, content, UTF8_ENCODING);
 }
 
 /**
  * Append content to a file.
  */
-export async function appendFile(filepath: string, content: string) {
+export async function appendFile(filepath: string, content: string): Promise<void> {
   await fs.appendFile(filepath, content, UTF8_ENCODING);
 }
 
 /**
  * Get the handle of the files in a directory
  */
-export async function readDirContents(dirpath: string) {
+export async function readDirContents(dirpath: string): Promise<Dirent[]> {
   return fs.readdir(dirpath, { withFileTypes: true });
 }
 
 /**
  * Deletes all files and folders in a directory, except for a file named `.gitignore`.
  */
-export async function clearDirectory(dirPath: string) {
+export async function clearDirectory(dirPath: string): Promise<void> {
   try {
     const files = await fs.readdir(dirPath);
     const removalPromises = files
@@ -65,7 +65,7 @@ export async function clearDirectory(dirPath: string) {
  * Reads the contents of a file and returns an array of lines, filtering out blank lines and lines
  * starting with #.
  */
-export async function getTextLines(filePath: string) {
+export async function getTextLines(filePath: string): Promise<string[]> {
   const fileContents = await readFile(filePath);
   const lines = fileContents
     .split("\n")
@@ -77,8 +77,8 @@ export async function getTextLines(filePath: string) {
 /**
  * Build the list of files descending from a directory 
  */
-export async function buildDirDescendingListOfFiles(srcDirPath: string) {
-  const files = [];
+export async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string[]> {
+  const files: string[] = [];
   const queue: string[] = [srcDirPath];
 
   while (queue.length) {

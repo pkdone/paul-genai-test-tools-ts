@@ -32,7 +32,7 @@ class CodebaseToDBLoader {
   /**
    * Generate the set of representations of source files including each one's content and metadata.
    */
-  async loadIntoDB() {
+  async loadIntoDB(): Promise<void> {
     const srcFilepaths = await buildDirDescendingListOfFiles(this.srcDirPath);
     await this.insertSourceContentIntoDB(srcFilepaths);
   }

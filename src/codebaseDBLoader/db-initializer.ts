@@ -27,7 +27,7 @@ class DBInitializer {
   /**
    * Ensure require indexes exist, creating them if not
    */ 
-  async ensureRequiredIndexes() {
+  async ensureRequiredIndexes(): Promise<void> {
     await this.generateNormalIndexes();
     await this.generateSearchIndexes();    
   }

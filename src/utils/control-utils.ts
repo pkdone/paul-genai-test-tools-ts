@@ -12,7 +12,7 @@ import controlConfig from "../config/control.config";
  * @param maxConcurrency The maximum number of tasks to be executed concurrently.
  * @returns A promise that resolves to an array of the results from the input tasks.
  */
-export async function promiseAllThrottled<T>(tasks: PromiseFunction<T>[], maxConcurrency = controlConfig.DEFAULT_MAX_CONCURRENCY) {
+export async function promiseAllThrottled<T>(tasks: PromiseFunction<T>[], maxConcurrency = controlConfig.DEFAULT_MAX_CONCURRENCY): Promise<T[]> {
   if (maxConcurrency <= 0) throw new Error("maxConcurrency must be a positive number.");
   const results: T[] = [];
   const tasksCopy = [...tasks]; // Create a shallow copy
@@ -62,7 +62,7 @@ export async function withRetry<T>(
   maxRetryAdditionalDelay = controlConfig.DEFAULT_MAX_RETRY_ADDITIONAL_DELAY,
   waitTimeout = controlConfig.DEFAULT_WAIT_TIMEOUT,
   logTimeouts = true
-) {
+): Promise<T | null> {
 
   let attempts = 0;
   let result: T | null = null;

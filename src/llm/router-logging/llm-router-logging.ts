@@ -4,7 +4,7 @@ import { logErrorDetail } from "../../utils/error-utils";
 /**
  * Log info/error text to the console or a redirected-to file
  */
-export function log(text: string) {
+export function log(text: string): void {
   console.log(text);
 }
 
@@ -12,7 +12,7 @@ export function log(text: string) {
  * Log both the error content and also any context associated with work being done when the 
  * error occurred, add the context to the error object and then throw the augmented error.
  */
-export function logErrWithContext(error: unknown, context: LLMContext) {
+export function logErrWithContext(error: unknown, context: LLMContext): void {
   logErrorDetail(error);  
   logContext(context);
 }
@@ -20,7 +20,7 @@ export function logErrWithContext(error: unknown, context: LLMContext) {
 /**
  * Log the message and the associated context keys and values.
  */
-export function logWithContext(msg: string, context: LLMContext) {
+export function logWithContext(msg: string, context: LLMContext): void {
   log(msg);
   logContext(context);
 }
@@ -28,7 +28,7 @@ export function logWithContext(msg: string, context: LLMContext) {
 /**
  * Log the context keys and values.
  */
-export function logContext(context: LLMContext) {
+export function logContext(context: LLMContext): void {
   if ((context instanceof Object) && !Array.isArray(context)) {
     for (const [key, value] of Object.entries(context)) {
       log(`  * ${key}: ${String(value)}`);

@@ -28,7 +28,7 @@ export class PromptBuilder {
    * 'contentToReplaceList' is an array of object where each object has two keys, 'label' and
    *'content', where the value for each is a string.
    */
-  async buildPrompt(promptFilePath: string, contentToReplaceList: PromptLabelContentBlocks) {
+  async buildPrompt(promptFilePath: string, contentToReplaceList: PromptLabelContentBlocks): Promise<string> {
     const promptTemplate = await this.getPromptFileContents(promptFilePath);
     return this.generatePromptFromFilledOutTemplate(promptFilePath, promptTemplate, contentToReplaceList);
   }

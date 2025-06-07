@@ -44,21 +44,21 @@ class LLMRouter {
   /**
    * Call close on LLM implementation to release resources.
    */
-  async close() {
+  async close(): Promise<void> {
     await this.llm.close();
   }
 
   /**
    * Get the model family of the LLM implementation.
    */
-  getModelFamily() {
+  getModelFamily(): string {
     return this.llm.getModelFamily();
   }
 
   /**
    * Get the description of models the chosen plug-in provides.
    */
-  getModelsUsedDescription() {
+  getModelsUsedDescription(): string {
     const [ embeddings, primary, secondary ] = this.llm.getModelsNames();
     return `${this.llm.getModelFamily()} (embeddings: ${embeddings}, completions-primary: ${primary}, completions-secondary: ${secondary})`;
   }  
@@ -67,7 +67,7 @@ class LLMRouter {
   /**
    * Get the maximum number of tokens for the given model quality. 
    */
-  getEmbeddedModelDimensions() {
+  getEmbeddedModelDimensions(): number | undefined {
     return this.llm.getEmbeddedModelDimensions();
   }
 
@@ -77,7 +77,7 @@ class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}) {
+  async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}): Promise<number[] | null> {
     context.purpose = LLMPurpose.EMBEDDINGS;
     const llmFunc = this.llm.generateEmbeddings.bind(this.llm);
     const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
@@ -101,7 +101,7 @@ class LLMRouter {
   async executeCompletion(resourceName: string, prompt: string, asJson = false,
                           context: LLMContext = {},
                           modelQualityOverride: LLMModelQuality | null = null
-                         ) {                            
+                         ): Promise<LLMGeneratedContent | null> {                            
     const availableModelQualities = modelQualityOverride? [modelQualityOverride] : this.llm.getAvailableCompletionModelQualities();
     const modelQualityCompletionFunctions = this.getModelQualityCompletionFunctions(availableModelQualities);
     context.purpose = LLMPurpose.COMPLETIONS;
@@ -118,7 +118,7 @@ class LLMRouter {
   /**
    * Print the accumulated statistics of LLM invocation result types.
    */
-  displayLLMStatusSummary() {
+  displayLLMStatusSummary(): void {
     console.log("LLM inovocation event types that will be recorded:");
     console.table(this.llmStats.getStatusTypesStatistics(), ["description", "symbol"]);
   }
@@ -126,7 +126,7 @@ class LLMRouter {
   /**
    * Print the accumulated statistics of LLM invocation result types.
    */
-  displayLLMStatusDetails() {
+  displayLLMStatusDetails(): void {
     console.table(this.llmStats.getStatusTypesStatistics(true));
   }
 
