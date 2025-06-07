@@ -1,105 +1,230 @@
-import { DIContainer } from './container';
+import { registerDependencies, container } from './container';
 import { ServiceRunnerConfig } from '../types/service.types';
+import { TOKENS } from './tokens';
 
-describe('DIContainer Singleton Behavior', () => {
-  let diContainer: DIContainer;
+// Mock the LLM-related modules to avoid environment dependencies in tests
+jest.mock('../llm/llm-service');
+jest.mock('../llm/llm-router');
+jest.mock('../utils/mongodb-client-factory', () => ({
+  MongoDBClientFactory: jest.fn().mockImplementation(() => ({
+    connect: jest.fn().mockResolvedValue({
+      db: () => ({
+        collection: () => ({
+          find: () => ({
+            map: () => ({ toArray: () => [] })
+          })
+        })
+      })
+    })
+  }))
+}));
+
+describe('Dependency Registration', () => {
   
   beforeEach(() => {
-    // Get a fresh instance for each test
-    diContainer = DIContainer.getInstance();
-    // Reset the registration state to ensure clean test environment
-    diContainer.resetRegistrationState();
+    // Clear the container before each test
+    container.clearInstances();
+    
+    // Mock environment variables
+    process.env.MONGODB_URL = 'mongodb://test:27017/test';
+    process.env.CODEBASE_DIR_PATH = '/test/path';
   });
   
-  describe('singleton behavior', () => {
-    it('should maintain singleton instance across multiple calls', () => {
-      const instance1 = DIContainer.getInstance();
-      const instance2 = DIContainer.getInstance();
+  describe('registerDependencies function', () => {
+    it('should register basic dependencies without LLM or MongoDB', async () => {
+      const config: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: false
+      };
       
-      expect(instance1).toBe(instance2);
+      await registerDependencies(config);
+      
+      // Verify that environment variables and services are registered
+      expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
+      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
+      expect(container.isRegistered(TOKENS.InsightGenerationService)).toBe(true);
+      
+      // Verify that LLM and MongoDB dependencies are not registered
+      expect(container.isRegistered(TOKENS.LLMService)).toBe(false);
+      expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(false);
     });
     
-    it('should track registration state correctly', async () => {
+    it('should register MongoDB dependencies when required', async () => {
+      const config: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: true
+      };
+      
+      await registerDependencies(config);
+      
+      // Verify that MongoDB dependencies are registered along with basic dependencies
+      expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
+      expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(true);
+      expect(container.isRegistered(TOKENS.MongoClient)).toBe(true);
+      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
+      
+      // Verify that LLM dependencies are not registered
+      expect(container.isRegistered(TOKENS.LLMService)).toBe(false);
+    });
+    
+    it('should handle multiple calls without errors (idempotent)', async () => {
       const config: ServiceRunnerConfig = {
         requiresLLM: false,
         requiresMongoDB: false
       };
       
       // First registration
-      await diContainer.registerDependencies(config);
+      await registerDependencies(config);
       
-      // Check that basic services are registered
-      expect(diContainer.isRegistered('services')).toBe(true);
-      expect(diContainer.isRegistered('llmDependencies')).toBe(false);
-      expect(diContainer.isRegistered('mongoDBDependencies')).toBe(false);
+      // Second registration should not throw errors
+      await expect(registerDependencies(config)).resolves.not.toThrow();
+      
+      // Dependencies should still be registered
+      expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
+      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
     });
     
-    it('should not re-register dependencies on subsequent calls', async () => {
+    it('should handle multiple calls with MongoDB without errors', async () => {
       const config: ServiceRunnerConfig = {
         requiresLLM: false,
-        requiresMongoDB: false
+        requiresMongoDB: true
       };
-      
-      // Spy on console.log to verify logging behavior
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
       
       // First registration
-      await diContainer.registerDependencies(config);
+      await registerDependencies(config);
+      expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(true);
       
-      // Second registration - should skip already registered dependencies
-      await diContainer.registerDependencies(config);
+      // Second registration should not throw errors
+      await expect(registerDependencies(config)).resolves.not.toThrow();
       
-      // Verify that "skipping registration" messages appear
-      const skipMessages = consoleSpy.mock.calls.filter(call => 
-        typeof call[0] === 'string' && call[0].includes('already registered') && call[0].includes('skipping')
-      );
-      
-      expect(skipMessages.length).toBeGreaterThan(0);
-      
-      consoleSpy.mockRestore();
-    });
-    
-    it('should handle different environment configurations', async () => {
-      const configWithoutLLM: ServiceRunnerConfig = {
-        requiresLLM: false,
-        requiresMongoDB: false
-      };
-      
-      // Register without LLM first
-      await diContainer.registerDependencies(configWithoutLLM);
-      expect(diContainer.isRegistered('envDependencies', 'llm:false')).toBe(true);
-      expect(diContainer.isRegistered('llmDependencies')).toBe(false);
-      
-      // Verify that LLM dependencies are not registered yet
-      expect(diContainer.isRegistered('envDependencies', 'llm:true')).toBe(false);
-    });
-    
-    it('should provide reset functionality for testing', async () => {
-      const config: ServiceRunnerConfig = {
-        requiresLLM: false,
-        requiresMongoDB: false
-      };
-      
-      // Register some dependencies
-      await diContainer.registerDependencies(config);
-      expect(diContainer.isRegistered('services')).toBe(true);
-      
-      // Reset and verify state is cleared
-      diContainer.resetRegistrationState();
-      expect(diContainer.isRegistered('services')).toBe(false);
-      expect(diContainer.isRegistered('llmDependencies')).toBe(false);
-      expect(diContainer.isRegistered('mongoDBDependencies')).toBe(false);
+      // Dependencies should still be registered
+      expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(true);
+      expect(container.isRegistered(TOKENS.MongoClient)).toBe(true);
     });
   });
   
-  describe('registration state tracking', () => {
-    it('should correctly identify registered dependency groups', () => {
+  describe('tsyringe singleton behavior', () => {
+    it('should provide access to registered environment variables', async () => {
+      const config: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: false
+      };
+      
+      await registerDependencies(config);
+      
+      // Should be able to resolve environment variables
+      const envVars = container.resolve(TOKENS.EnvVars);
+      
+      expect(envVars).toBeDefined();
+      expect(envVars).toHaveProperty('CODEBASE_DIR_PATH');
+    });
+    
+    it('should resolve MongoDB dependencies when registered', async () => {
+      const config: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: true
+      };
+      
+      await registerDependencies(config);
+      
+      // Should be able to resolve MongoDB dependencies
+      const mongoFactory = container.resolve(TOKENS.MongoDBClientFactory);
+      const mongoClient = container.resolve(TOKENS.MongoClient);
+      
+      expect(mongoFactory).toBeDefined();
+      expect(mongoClient).toBeDefined();
+    });
+    
+    it('should resolve MongoDB-dependent services when all dependencies are registered', async () => {
+      const config: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: true
+      };
+      
+      await registerDependencies(config);
+      
+      // Should be able to resolve MongoDB-dependent service
+      const mongoConnectionTestService = container.resolve(TOKENS.MongoDBConnectionTestService);
+      
+      expect(mongoConnectionTestService).toBeDefined();
+    });
+    
+    it('should maintain singleton behavior across multiple resolutions', async () => {
+      const config: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: true
+      };
+      
+      await registerDependencies(config);
+      
+      // Resolve the same dependencies multiple times
+      const mongoFactory1 = container.resolve(TOKENS.MongoDBClientFactory);
+      const mongoFactory2 = container.resolve(TOKENS.MongoDBClientFactory);
+      
+      // Should be the same instance due to singleton registration
+      expect(mongoFactory1).toBe(mongoFactory2);
+    });
+    
+    it('should check registration state correctly', async () => {
       // Initially nothing should be registered
-      expect(diContainer.isRegistered('services')).toBe(false);
-      expect(diContainer.isRegistered('llmDependencies')).toBe(false);
-      expect(diContainer.isRegistered('mongoDBDependencies')).toBe(false);
-      expect(diContainer.isRegistered('envDependencies', 'llm:false')).toBe(false);
-      expect(diContainer.isRegistered('envDependencies', 'llm:true')).toBe(false);
+      expect(container.isRegistered(TOKENS.EnvVars)).toBe(false);
+      expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(false);
+      expect(container.isRegistered(TOKENS.LLMService)).toBe(false);
+      
+      const config: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: true
+      };
+      
+      await registerDependencies(config);
+      
+      // Check that correct dependencies are now registered
+      expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
+      expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(true);
+      expect(container.isRegistered(TOKENS.LLMService)).toBe(false);
+    });
+  });
+  
+  describe('conditional registration behavior', () => {
+    it('should only register services once even with multiple registerServices calls', async () => {
+      const config: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: false
+      };
+      
+      // First registration
+      await registerDependencies(config);
+      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
+      
+      // Second registration should not cause issues
+      await registerDependencies(config);
+      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
+      
+      // Test that registration is idempotent - verify service tokens are registered
+      expect(container.isRegistered(TOKENS.InsightGenerationService)).toBe(true);
+      expect(container.isRegistered(TOKENS.LLMTestService)).toBe(true);
+    });
+    
+    it('should handle mixed dependency scenarios', async () => {
+      // First register without MongoDB
+      const config1: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: false
+      };
+      
+      await registerDependencies(config1);
+      expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
+      expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(false);
+      
+      // Then register with MongoDB
+      const config2: ServiceRunnerConfig = {
+        requiresLLM: false,
+        requiresMongoDB: true
+      };
+      
+      await registerDependencies(config2);
+      expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
+      expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(true);
     });
   });
 }); 

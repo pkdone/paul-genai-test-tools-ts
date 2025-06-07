@@ -9,17 +9,16 @@ import { LLMTestService } from "../../services/llm-test.service";
 import { InsightsMcpServerService } from "../../services/insights-mcp-server.service";
 
 /**
- * Register application services.
- * This function should only be called once per application lifetime to maintain singleton behavior.
+ * Register application services as singletons using tsyringe's built-in singleton management.
  */
 export function registerServices(): void {
-  console.log('Registering application services (singleton initialization)...');  
-  container.register(TOKENS.CodebaseCaptureService, { useClass: CodebaseCaptureService });
-  container.register(TOKENS.CodeQueryService, { useClass: CodeQueryService });
-  container.register(TOKENS.InsightGenerationService, { useClass: InsightGenerationService });
-  container.register(TOKENS.InlineInsightsService, { useClass: InlineInsightsService });
-  container.register(TOKENS.MongoDBConnectionTestService, { useClass: MongoDBConnectionTestService });
-  container.register(TOKENS.LLMTestService, { useClass: LLMTestService });
-  container.register(TOKENS.InsightsMcpServerService, { useClass: InsightsMcpServerService });
+  console.log('Registering application services as singletons...');  
+  container.registerSingleton(TOKENS.CodebaseCaptureService, CodebaseCaptureService);
+  container.registerSingleton(TOKENS.CodeQueryService, CodeQueryService);
+  container.registerSingleton(TOKENS.InsightGenerationService, InsightGenerationService);
+  container.registerSingleton(TOKENS.InlineInsightsService, InlineInsightsService);
+  container.registerSingleton(TOKENS.MongoDBConnectionTestService, MongoDBConnectionTestService);
+  container.registerSingleton(TOKENS.LLMTestService, LLMTestService);
+  container.registerSingleton(TOKENS.InsightsMcpServerService, InsightsMcpServerService);  
   console.log('Application services registered as singletons');
 } 

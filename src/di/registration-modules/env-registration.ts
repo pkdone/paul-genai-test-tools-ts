@@ -11,13 +11,19 @@ import dotenv from "dotenv";
 
 /**
  * Register environment variables based on requirements.
- * This function should only be called once per environment configuration to maintain singleton behavior.
+ * Uses conditional registration with tsyringe's isRegistered check to prevent duplicates.
  */
 export async function registerEnvDependencies(requiresLLM: boolean): Promise<void> {
-  console.log(`Registering environment variables (singleton initialization) - LLM required: ${requiresLLM}...`);
-  const envVars = await loadEnvironmentVars(requiresLLM);
-  container.registerInstance(TOKENS.EnvVars, envVars);
-  console.log('Environment variables loaded and registered as singleton');
+  console.log(`Registering environment variables - LLM required: ${requiresLLM}...`);
+  
+  // Check if EnvVars is already registered
+  if (!container.isRegistered(TOKENS.EnvVars)) {
+    const envVars = await loadEnvironmentVars(requiresLLM);
+    container.registerInstance(TOKENS.EnvVars, envVars);
+    console.log('Environment variables loaded and registered as singleton');
+  } else {
+    console.log('Environment variables already registered - skipping registration');
+  }
 }
 
 /**

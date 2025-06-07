@@ -3,7 +3,7 @@ import { MongoDBClientFactory } from "../utils/mongodb-client-factory";
 import { gracefulShutdown } from "./env";
 import LLMRouter from "../llm/llm-router";
 import { Service, ServiceRunnerConfig } from "../types/service.types";
-import { diContainer } from "../di/container";
+import { registerDependencies, container } from "../di/container";
 import { TOKENS } from "../di/tokens";
 
 /**
@@ -21,17 +21,17 @@ export async function runService(
   
   try {    
     console.log(`START: ${new Date().toISOString()}`);
-    await diContainer.registerDependencies(config);
+    await registerDependencies(config);
     
     if (config.requiresMongoDB) {
-      mongoDBClientFactory = diContainer.resolve(TOKENS.MongoDBClientFactory) as MongoDBClientFactory;
+      mongoDBClientFactory = container.resolve<MongoDBClientFactory>(TOKENS.MongoDBClientFactory);
     }
     if (config.requiresLLM) {
-      llmRouter = diContainer.resolve(TOKENS.LLMRouter) as LLMRouter;
+      llmRouter = container.resolve<LLMRouter>(TOKENS.LLMRouter);
     }
     
-     const service = diContainer.resolve(serviceToken) as Service;
-     await service.execute();    
+    const service = container.resolve<Service>(serviceToken);
+    await service.execute();    
   } finally {
     await gracefulShutdown(llmRouter, mongoDBClientFactory);
   }
