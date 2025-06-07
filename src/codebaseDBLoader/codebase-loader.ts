@@ -50,17 +50,13 @@ class CodebaseToDBLoader {
       await colctn.deleteMany({projectName: this.projectName});
     }
 
-    const jobs = [];
-
-    for (const filepath of filepaths) {
-      jobs.push(async () => {
-        try {
-          await this.captureSrcFileMetadataToCollection(colctn, filepath);   
-        } catch (error: unknown) {
-          logErrorMsgAndDetail(`Problem introspecting and processing source file: ${filepath}`, error);    
-        }
-      });
-    }
+    const jobs = filepaths.map(filepath => async () => {
+      try {
+        await this.captureSrcFileMetadataToCollection(colctn, filepath);
+      } catch (error: unknown) {
+        logErrorMsgAndDetail(`Problem introspecting and processing source file: ${filepath}`, error);
+      }
+    });
 
     await promiseAllThrottled(jobs, serverConfig.MAX_CONCURRENCY);
   }

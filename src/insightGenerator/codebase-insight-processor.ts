@@ -32,18 +32,14 @@ export class CodebaseInsightProcessor {
     llmName: string
   ): Promise<string[]> {
     const codeBlocksContent = await this.mergeSourceFilesContent(srcFilepaths, srcDirPath);
-    const jobs = [];
-    
-    for (const prompt of prompts) {
-      jobs.push(async () => {
-        const result = await this.executePromptAgainstCodebase(prompt, codeBlocksContent, llmRouter);
-        const outputFileName = `${prompt.filename}.result`;
-        const outputFilePath = path.join(__dirname, "..", "..", fileSystemConfig.OUTPUT_DIR, outputFileName);
-        await writeFile(outputFilePath, 
-          `GENERATED-BY: ${llmName}\n\nREQUIREMENT: ${prompt.question}\n\nRECOMENDATIONS:\n\n${result.trim()}\n`);
-        return outputFilePath;
-      });    
-    }
+    const jobs = prompts.map(prompt => async () => {
+      const result = await this.executePromptAgainstCodebase(prompt, codeBlocksContent, llmRouter);
+      const outputFileName = `${prompt.filename}.result`;
+      const outputFilePath = path.join(__dirname, "..", "..", fileSystemConfig.OUTPUT_DIR, outputFileName);
+      await writeFile(outputFilePath, 
+        `GENERATED-BY: ${llmName}\n\nREQUIREMENT: ${prompt.question}\n\nRECOMENDATIONS:\n\n${result.trim()}\n`);
+      return outputFilePath;
+    });
 
     return await promiseAllThrottled<string>(jobs, serverConfig.MAX_CONCURRENCY);
   }
