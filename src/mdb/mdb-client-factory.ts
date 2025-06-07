@@ -1,6 +1,6 @@
 import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import databaseConfig from "../config/database.config";
+import { redactUrl } from "./mdb-utils";
 
 /**
  * A factory class for creating and managing MongoDB client connections.
@@ -25,7 +25,7 @@ export class MongoDBClientFactory {
       return client;
     }
 
-    console.log(`Connecting MongoDB client to: ${this.redactUrl(url)}`);
+    console.log(`Connecting MongoDB client to: ${redactUrl(url)}`);
 
     try {
       const newClient = new MongoClient(url, options);
@@ -73,25 +73,5 @@ export class MongoDBClientFactory {
     }
 
     this.clients.clear();
-  }
-
-  /**
-   * Redacts sensitive credentials from a MongoDB connection string.
-   *
-   * @param url The MongoDB connection string.
-   * @returns A redacted connection string.
-   */
-  private redactUrl(url: string): string {
-    try {
-      const parsedUrl = new URL(url);
-      if (parsedUrl.username || parsedUrl.password) {
-        parsedUrl.username = databaseConfig.REDACTED_CREDENTIALS;
-        parsedUrl.password = databaseConfig.REDACTED_CREDENTIALS;
-      }
-      return parsedUrl.toString();
-    } catch (error: unknown) {
-      logErrorMsgAndDetail("Could not parse URL for redaction", error); 
-      return databaseConfig.REDACTED_URL;
-    }
   }
 } 

@@ -1,5 +1,6 @@
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
+import { createVectorSearchIndexDefinition } from "../mdb/mdb-utils";
 import llmConfig from "../config/llm.config";
 import databaseConfig from "../config/database.config";
 
@@ -84,34 +85,29 @@ class DBInitializer {
    * field exxtracted from a file.
    */
   private createFileContentVectorIndexDefiniton(fieldToIndex: string) {
-    // Generate index name based on field name
     const indexName = fieldToIndex === databaseConfig.CONTENT_VECTOR_INDEX 
       ? databaseConfig.CONTENT_VECTOR_INDEX_NAME 
       : databaseConfig.SUMMARY_VECTOR_INDEX_NAME;
     
-    return {
-      name: indexName,
-      type: "vectorSearch",
-      definition: {
-        "fields": [
-          {
-            "type": "vector",
-            "path": fieldToIndex,
-            "numDimensions": this.numDimensions,
-            "similarity": llmConfig.VECTOR_SIMILARITY_TYPE,
-            "quantization": llmConfig.VECTOR_QUANTIZATION_TYPE,
-          },
-          {
-            "type": "filter",
-            "path": "projectName"
-          },
-          {
-            "type": "filter",
-            "path": "type"
-          }
-        ]
+    const filters = [
+      {
+        type: "filter",
+        path: "projectName"
       },
-    }
+      {
+        type: "filter",
+        path: "type"
+      }
+    ];
+
+    return createVectorSearchIndexDefinition(
+      indexName,
+      fieldToIndex,
+      this.numDimensions,
+      llmConfig.VECTOR_SIMILARITY_TYPE,
+      llmConfig.VECTOR_QUANTIZATION_TYPE,
+      filters
+    );
   }
 }
 
