@@ -20,9 +20,9 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
   protected buildCompletionModelSpecificParameters(modelInternalKey: string, prompt: string) {
     const bodyObj: { prompt: string, temperature: number, top_p: number, max_gen_len?: number } = {
       prompt: 
-`<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+`<|begin_of_text|><|start_header_id|>${llmConfig.LLM_ROLE_SYSTEM}<|end_header_id|>
 You are a helpful software engineering and programming assistant, and you need to answer the question given without attempting to fill in any blanks in the question<|eot_id|>
-<|start_header_id|>user<|end_header_id|>${prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`,
+<|start_header_id|>${llmConfig.LLM_ROLE_USER}<|end_header_id|>${prompt}<|eot_id|><|start_header_id|>${llmConfig.LLM_ROLE_ASSISTANT}<|end_header_id|>`,
       temperature: llmConfig.DEFAULT_ZERO_TEMP,
       top_p: llmConfig.DEFAULT_TOP_P_LOWEST,
     };

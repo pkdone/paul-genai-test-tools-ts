@@ -1,6 +1,7 @@
 {
   "scripts": {
     "compile": "tsc",
+    "build": "tsc",
     "test": "jest",
     "test:verbose": "jest --verbose",
     "test:int": "jest --testPathIgnorePatterns=\"/node_modules/\" --testPathPattern=\"\\\\.int\\\\.test\\\\.ts$\"",

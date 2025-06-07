@@ -1,5 +1,6 @@
 import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
 import { logErrorMsgAndDetail } from "./error-utils";
+import databaseConfig from "../config/database.config";
 
 /**
  * A factory class for creating and managing MongoDB client connections.
@@ -84,13 +85,13 @@ export class MongoDBClientFactory {
     try {
       const parsedUrl = new URL(url);
       if (parsedUrl.username || parsedUrl.password) {
-        parsedUrl.username = "REDACTED";
-        parsedUrl.password = "REDACTED";
+        parsedUrl.username = databaseConfig.REDACTED_CREDENTIALS;
+        parsedUrl.password = databaseConfig.REDACTED_CREDENTIALS;
       }
       return parsedUrl.toString();
     } catch (error: unknown) {
       logErrorMsgAndDetail("Could not parse URL for redaction", error); 
-      return "REDACTED_URL";
+      return databaseConfig.REDACTED_URL;
     }
   }
 } 

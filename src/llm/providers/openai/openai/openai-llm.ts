@@ -52,7 +52,7 @@ class OpenAILLM extends BaseOpenAILLM {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
         model: this.llmModelsMetadata[modelInternalKey].urn,
         temperature: llmConfig.DEFAULT_ZERO_TEMP,
-        messages: [{ role: "user", content: prompt } ],
+        messages: [{ role: llmConfig.LLM_ROLE_USER as "user", content: prompt } ],
         max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
       };        
       return params;

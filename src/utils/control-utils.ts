@@ -1,5 +1,6 @@
 import { PromiseFunction, RetryFunc, CheckResultFunc, LogRetryEventFunc }
        from "../types/control.types";
+import controlConfig from "../config/control.config";
 
 /**
  * Executes a given array of task promise functions in batches, limiting the number of concurrent 
@@ -11,7 +12,7 @@ import { PromiseFunction, RetryFunc, CheckResultFunc, LogRetryEventFunc }
  * @param maxConcurrency The maximum number of tasks to be executed concurrently.
  * @returns A promise that resolves to an array of the results from the input tasks.
  */
-export async function promiseAllThrottled<T>(tasks: PromiseFunction<T>[], maxConcurrency = 100) {
+export async function promiseAllThrottled<T>(tasks: PromiseFunction<T>[], maxConcurrency = controlConfig.DEFAULT_MAX_CONCURRENCY) {
   if (maxConcurrency <= 0) throw new Error("maxConcurrency must be a positive number.");
   const results: T[] = [];
   const tasksCopy = [...tasks]; // Create a shallow copy
@@ -56,10 +57,10 @@ export async function withRetry<T>(
   args: unknown[],
   checkResultForNeedToRetryFunc: CheckResultFunc<T>,
   logRetryEventFunc: LogRetryEventFunc | null = null,
-  maxAttempts = 3,
-  minRetryDelay = 7000,
-  maxRetryAdditionalDelay = 3000,
-  waitTimeout = 300000,
+  maxAttempts = controlConfig.DEFAULT_MAX_ATTEMPTS,
+  minRetryDelay = controlConfig.DEFAULT_MIN_RETRY_DELAY,
+  maxRetryAdditionalDelay = controlConfig.DEFAULT_MAX_RETRY_ADDITIONAL_DELAY,
+  waitTimeout = controlConfig.DEFAULT_WAIT_TIMEOUT,
   logTimeouts = true
 ) {
 

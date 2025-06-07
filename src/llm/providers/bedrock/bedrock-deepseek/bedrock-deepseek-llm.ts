@@ -20,7 +20,7 @@ class BedrockDeepseekLLM extends BaseBedrockLLM {
     return JSON.stringify({
       messages: [
         {
-          role: "user",
+          role: llmConfig.LLM_ROLE_USER,
           content: prompt,
         },
       ],

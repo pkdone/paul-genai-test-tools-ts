@@ -26,7 +26,7 @@ class BedrockNovaLLM extends BaseBedrockLLM {
       },      
       messages: [
         {
-          role: "user",
+          role: llmConfig.LLM_ROLE_USER,
           content: [
             {
               text: prompt,

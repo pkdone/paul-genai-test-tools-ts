@@ -22,7 +22,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
       anthropic_version: config.apiVersion,
       messages: [
         {
-          role: "user",
+          role: llmConfig.LLM_ROLE_USER,
           content: [
             {
               type: "text",
