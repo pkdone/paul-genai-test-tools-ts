@@ -30,7 +30,6 @@ export class LLMTestService implements Service {
    * Tests the LLM functionality.
    */
   private async testLLMFunctionality(): Promise<void> {
-    this.llmRouter.displayLLMStatusSummary();
     const prompt = await readFile(promptsConfig.SAMPLE_PROMPT_FILEPATH);
     console.log("\n---PROMPT---");
     console.log(prompt);
