@@ -65,7 +65,6 @@ async function loadEnvIncludingLLMVars(): Promise<EnvVars> {
     } catch (error) {
       if (error instanceof BadConfigurationLLMError) throw error;
       
-      // Enhanced error handling for missing provider-specific environment variables
       if (error instanceof z.ZodError) {
         const missingEnvVars = error.issues
           .filter(issue => issue.code === 'invalid_type' && issue.received === 'undefined')

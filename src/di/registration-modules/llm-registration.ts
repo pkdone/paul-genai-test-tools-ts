@@ -12,13 +12,10 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
   console.log('Registering LLM dependencies...');  
   
   if (!container.isRegistered(TOKENS.LLMService)) {
-    // Create and initialize LLM service singleton
     const llmService = new LLMService(envVars.LLM);
     await llmService.initialize();
     container.registerInstance(TOKENS.LLMService, llmService);
     console.log(`LLM Service initialized for model family: ${envVars.LLM}`);
-    
-    // Create LLM router singleton
     const llmProvider = llmService.getLLMProvider(envVars);
     const llmManifest = llmService.getLLMManifest();
     const retryConfig = llmManifest.providerSpecificConfig;
