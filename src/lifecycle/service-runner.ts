@@ -20,11 +20,9 @@ export async function runService(
   let llmRouter: LLMRouter | undefined;
   
   try {    
-    // Register dependencies in the DI container
     console.log(`START: ${new Date().toISOString()}`);
     await diContainer.registerDependencies(config);
     
-    // Resolve dependencies for cleanup
     if (config.requiresMongoDB) {
       mongoDBClientFactory = diContainer.resolve(TOKENS.MongoDBClientFactory) as MongoDBClientFactory;
     }
@@ -32,7 +30,6 @@ export async function runService(
       llmRouter = diContainer.resolve(TOKENS.LLMRouter) as LLMRouter;
     }
     
-         // Resolve and execute service
      const service = diContainer.resolve(serviceToken) as Service;
      await service.execute();    
   } finally {

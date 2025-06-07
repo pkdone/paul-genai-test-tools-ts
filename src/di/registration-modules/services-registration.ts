@@ -10,9 +10,10 @@ import { InsightsMcpServerService } from "../../services/insights-mcp-server.ser
 
 /**
  * Register application services.
+ * This function should only be called once per application lifetime to maintain singleton behavior.
  */
 export function registerServices(): void {
-  console.log('Registering application services...');  
+  console.log('Registering application services (singleton initialization)...');  
   container.register(TOKENS.CodebaseCaptureService, { useClass: CodebaseCaptureService });
   container.register(TOKENS.CodeQueryService, { useClass: CodeQueryService });
   container.register(TOKENS.InsightGenerationService, { useClass: InsightGenerationService });
@@ -20,4 +21,5 @@ export function registerServices(): void {
   container.register(TOKENS.MongoDBConnectionTestService, { useClass: MongoDBConnectionTestService });
   container.register(TOKENS.LLMTestService, { useClass: LLMTestService });
   container.register(TOKENS.InsightsMcpServerService, { useClass: InsightsMcpServerService });
+  console.log('Application services registered as singletons');
 } 

@@ -11,11 +11,13 @@ import dotenv from "dotenv";
 
 /**
  * Register environment variables based on requirements.
+ * This function should only be called once per environment configuration to maintain singleton behavior.
  */
 export async function registerEnvDependencies(requiresLLM: boolean): Promise<void> {
-  console.log('Registering environment variables...');
+  console.log(`Registering environment variables (singleton initialization) - LLM required: ${requiresLLM}...`);
   const envVars = await loadEnvironmentVars(requiresLLM);
   container.registerInstance(TOKENS.EnvVars, envVars);
+  console.log('Environment variables loaded and registered as singleton');
 }
 
 /**
