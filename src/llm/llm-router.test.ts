@@ -12,13 +12,13 @@ jest.mock("./response-processing/llm-response-tools", () => ({
   })
 }));
 
-jest.mock("./router-logging/llm-router-logging", () => ({
+jest.mock("./router-tracking/llm-router-logging", () => ({
   log: jest.fn(),
   logErrWithContext: jest.fn(),
   logWithContext: jest.fn()
 }));
 
-jest.mock("./router-logging/llm-stats", () => {
+jest.mock("./router-tracking/llm-stats", () => {
   return jest.fn().mockImplementation(() => ({
     recordSuccess: jest.fn(),
     recordFailure: jest.fn(),
