@@ -233,7 +233,6 @@ describe("MongoDBClientFactory", () => {
       const client = await factory.connect(id, url);
       
       // Mock close to throw an error by replacing the close method after connection
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       client.close = jest.fn().mockRejectedValue(closeError);
 
       await factory.closeAll();
