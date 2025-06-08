@@ -46,7 +46,7 @@ class CodebaseToDBLoader {
     console.log(`Creating metadata for ${filepaths.length} files to the MongoDB database collection: '${db.databaseName}.${colctn.collectionName}'`);
     
     if (!this.ignoreIfAlreadyCaptured) {
-      console.log(`Deleteing older version of the project's metadata files from the database to enable the metadata to be re-generated - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to avoid re-processing of all files`);
+      console.log(`Deleting older version of the project's metadata files from the database to enable the metadata to be re-generated - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to avoid re-processing of all files`);
       await colctn.deleteMany({projectName: this.projectName});
     }
 
@@ -83,22 +83,19 @@ class CodebaseToDBLoader {
     if (!content) return;  // Skip empty files
     const filename = path.basename(filepath);
     const linesCount = countLines(content);    
-    
     const summaryResult = await this.getContentSummarisedAsJSON(filepath, type, content);
     let summary: BaseFileSummary | JavaScriptFileSummary | undefined;
     let summaryError: string | undefined;
     let summaryVector: number[] | null = null; // Initialize as null
 
-    if ('error' in summaryResult) {
-      summaryError = (summaryResult as { error: string }).error;
-      // Do not generate summaryVector if there's an error
+    if ('error' in summaryResult && typeof summaryResult.error === 'string') {
+      summaryError = summaryResult.error;
     } else {
       summary = summaryResult as BaseFileSummary | JavaScriptFileSummary;
       summaryVector = await this.getContentEmbeddings(filepath, JSON.stringify(summary), "summary");
     }
     
     const contentVector = await this.getContentEmbeddings(filepath, content, "content");
-    
     await colctn.insertOne({
       projectName: this.projectName,
       filename,
