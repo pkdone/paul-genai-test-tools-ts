@@ -42,21 +42,21 @@ describe("LLM Service tests", () => {
     factory: jest.fn(),
     models: {
       embeddings: {
-        internalKey: "OPENAI_EMBEDDINGS",
+        modelKey: "OPENAI_EMBEDDINGS",
         urnEnvKey: "OPENAI_EMBEDDINGS_MODEL",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
         maxTotalTokens: 8191
       },
       primaryCompletion: {
-        internalKey: "OPENAI_PRIMARY",
+        modelKey: "OPENAI_PRIMARY",
         urnEnvKey: "OPENAI_PRIMARY_MODEL", 
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
         maxTotalTokens: 8192
       },
       secondaryCompletion: {
-        internalKey: "OPENAI_SECONDARY",
+        modelKey: "OPENAI_SECONDARY",
         urnEnvKey: "OPENAI_SECONDARY_MODEL",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
@@ -218,9 +218,9 @@ describe("LLM Service tests", () => {
       expect(mockProviderManifest.factory).toHaveBeenCalledWith(
         mockEnv,
         {
-          embeddingsInternalKey: "OPENAI_EMBEDDINGS",
-          primaryCompletionInternalKey: "OPENAI_PRIMARY",
-          secondaryCompletionInternalKey: "OPENAI_SECONDARY"
+                  embeddingsModelKey: "OPENAI_EMBEDDINGS",
+        primaryCompletionModelKey: "OPENAI_PRIMARY",
+        secondaryCompletionModelKey: "OPENAI_SECONDARY"
         },
         {
           "OPENAI_EMBEDDINGS": {
@@ -268,9 +268,9 @@ describe("LLM Service tests", () => {
       expect(manifestWithoutSecondary.factory).toHaveBeenCalledWith(
         mockEnv,
         {
-          embeddingsInternalKey: "OPENAI_EMBEDDINGS",
-          primaryCompletionInternalKey: "OPENAI_PRIMARY"
-          // No secondaryCompletionInternalKey
+                  embeddingsModelKey: "OPENAI_EMBEDDINGS",
+        primaryCompletionModelKey: "OPENAI_PRIMARY"
+        // No secondaryCompletionModelKey
         },
         expect.any(Object),
         manifestWithoutSecondary.errorPatterns,
@@ -419,8 +419,8 @@ describe("LLM Service tests", () => {
       expect(minimalManifest.factory).toHaveBeenCalledWith(
         mockEnv,
         {
-          embeddingsInternalKey: "OPENAI_EMBEDDINGS",
-          primaryCompletionInternalKey: "OPENAI_PRIMARY"
+                  embeddingsModelKey: "OPENAI_EMBEDDINGS",
+        primaryCompletionModelKey: "OPENAI_PRIMARY"
         },
         expect.any(Object),
         minimalManifest.errorPatterns,

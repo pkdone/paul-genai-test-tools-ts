@@ -28,21 +28,21 @@ export const openAIProviderManifest: LLMProviderManifest = {
   }),
   models: {
     embeddings: {
-      internalKey: GPT_EMBEDDINGS_TEXT_3SMALL,
+      modelKey: GPT_EMBEDDINGS_TEXT_3SMALL,
       urnEnvKey: OPENAI_TEXT_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8191,
     },
     primaryCompletion: {
-      internalKey: GPT_COMPLETIONS_GPT4_O,
+      modelKey: GPT_COMPLETIONS_GPT4_O,
       urnEnvKey: OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 16384,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {
-      internalKey: GPT_COMPLETIONS_GPT4_TURBO,
+      modelKey: GPT_COMPLETIONS_GPT4_TURBO,
       urnEnvKey: OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
@@ -57,13 +57,13 @@ export const openAIProviderManifest: LLMProviderManifest = {
     maxRetryAdditionalDelayMillis: 25 * 1000, // 25 seconds additional random delay
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
+  factory: (envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     const env = envConfig as BaseEnvVars & { 
       [OPENAI_LLM_API_KEY_KEY]: string;
       [OPENAI_TEXT_EMBEDDINGS_MODEL_KEY]: string;
       [OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY]: string;
       [OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY]: string;
     };
-    return new OpenAILLM(modelsInternallKeySet, modelsMetadata, errorPatterns, env[OPENAI_LLM_API_KEY_KEY]);
+    return new OpenAILLM(modelsKeysSet, modelsMetadata, errorPatterns, env[OPENAI_LLM_API_KEY_KEY]);
   },
 }; 

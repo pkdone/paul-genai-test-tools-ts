@@ -30,21 +30,21 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
   }),
   models: {
     embeddings: {
-      internalKey: GCP_EMBEDDINGS_TEXT_005,
+      modelKey: GCP_EMBEDDINGS_TEXT_005,
       urnEnvKey: VERTEXAI_TEXT_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 768,
       maxTotalTokens: 2048,
     },
     primaryCompletion: {
-      internalKey: GCP_COMPLETIONS_GEMINI_PRO25,
+      modelKey: GCP_COMPLETIONS_GEMINI_PRO25,
       urnEnvKey: VERTEXAI_GEMINI_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 65535,
       maxTotalTokens: 1048576,
     },
     secondaryCompletion: {
-      internalKey: GCP_COMPLETIONS_GEMINI_FLASH20,
+      modelKey: GCP_COMPLETIONS_GEMINI_FLASH20,
       urnEnvKey: VERTEXAI_GEMINI_COMPLETIONS_MODEL_SECONDARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
@@ -62,7 +62,7 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
     maxRetryAdditionalDelayMillis: 30 * 1000, // 30 seconds additional random delay
     embeddingsTaskType: "QUESTION_ANSWERING",
   },
-  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
+  factory: (envConfig, modelsKeysSet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
     const env = envConfig as BaseEnvVars & {
       [VERTEXAI_PROJECTID_KEY]: string;
       [VERTEXAI_LOCATION_KEY]: string;
@@ -71,7 +71,7 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
       [VERTEXAI_GEMINI_COMPLETIONS_MODEL_SECONDARY_KEY]: string;
     };
     return new VertexAIGeminiLLM(
-      modelsInternallKeySet,
+      modelsKeysSet,
       modelsMetadata,
       errorPatterns,
       env[VERTEXAI_PROJECTID_KEY],

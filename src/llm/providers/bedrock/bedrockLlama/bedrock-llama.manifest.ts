@@ -30,21 +30,21 @@ export const bedrockLlamaProviderManifest: LLMProviderManifest = {
   }),
   models: {
     embeddings: {
-      internalKey: AWS_EMBEDDINGS_TITAN_V1,
+      modelKey: AWS_EMBEDDINGS_TITAN_V1,
       urnEnvKey: BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      internalKey: AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT,
+      modelKey: AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT,
       urnEnvKey: BEDROCK_LLAMA_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {
-      internalKey: AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT,
+      modelKey: AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT,
       urnEnvKey: BEDROCK_LLAMA_COMPLETIONS_MODEL_SECONDARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
@@ -59,7 +59,7 @@ export const bedrockLlamaProviderManifest: LLMProviderManifest = {
     maxRetryAdditionalDelayMillis: 50 * 1000, // 50 seconds additional random delay
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
-    return new BedrockLlamaLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);
+  factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
+    return new BedrockLlamaLLM(modelsKeysSet, modelsMetadata, errorPatterns);
   },
 }; 

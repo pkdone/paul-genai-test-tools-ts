@@ -5,14 +5,14 @@ import { OPENAI_COMMON_ERROR_PATTERNS } from "../providers/openai/openai-error-p
 
 const testMetadata = {
   "GPT_COMPLETIONS_GPT4": {
-    internalKey: "GPT_COMPLETIONS_GPT4",
+    modelKey: "GPT_COMPLETIONS_GPT4",
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   "GPT_EMBEDDINGS_GPT4": {
-    internalKey: "GPT_EMBEDDINGS_GPT4",
+    modelKey: "GPT_EMBEDDINGS_GPT4",
     urn: "text-embedding-ada-002",
     purpose: LLMPurpose.EMBEDDINGS,
     maxCompletionTokens: 0,
@@ -188,7 +188,7 @@ describe("llm-response-tools", () => {
     const skeletonResult: LLMFunctionResponse = {
       status: LLMResponseStatus.UNKNOWN,
       request: "test request",
-      modelInternalKey: "GPT_COMPLETIONS_GPT4",
+      modelKey: "GPT_COMPLETIONS_GPT4",
       context: {},
       tokensUage: { promptTokens: 100, completionTokens: 50, maxTotalTokens: 8192 }
     };

@@ -35,21 +35,21 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
   }),
   models: {
     embeddings: {
-      internalKey: AWS_EMBEDDINGS_TITAN_V1,
+      modelKey: AWS_EMBEDDINGS_TITAN_V1,
       urnEnvKey: BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      internalKey: AWS_COMPLETIONS_CLAUDE_V40,
+      modelKey: AWS_COMPLETIONS_CLAUDE_V40,
       urnEnvKey: BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 32768,  // Should be 64k but errors if larger than around 39200
       maxTotalTokens: 200000,
     },
     secondaryCompletion: {
-      internalKey: AWS_COMPLETIONS_CLAUDE_V37,
+      modelKey: AWS_COMPLETIONS_CLAUDE_V37,
       urnEnvKey: BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 65536,
@@ -67,7 +67,7 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
     minRetryDelayMillis: 30 * 1000, // 30 seconds - longer delay for AWS rate limits
     maxRetryAdditionalDelayMillis: 45 * 1000, // 45 seconds additional random delay
   },
-  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
-    return new BedrockClaudeLLM(modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig);
+  factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
+    return new BedrockClaudeLLM(modelsKeysSet, modelsMetadata, errorPatterns, providerSpecificConfig);
   },
 }; 

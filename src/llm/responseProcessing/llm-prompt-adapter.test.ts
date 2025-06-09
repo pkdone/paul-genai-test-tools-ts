@@ -3,14 +3,14 @@ import { PromptAdapter, TokenLimitReductionStrategy, PromptAdaptationStrategy } 
 
 const testMetadata = {
   "GPT_COMPLETIONS_GPT4": {
-    internalKey: "GPT_COMPLETIONS_GPT4",
+    modelKey: "GPT_COMPLETIONS_GPT4",
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   "GPT_COMPLETIONS_GPT4_32k": {
-    internalKey: "GPT_COMPLETIONS_GPT4_32k",
+    modelKey: "GPT_COMPLETIONS_GPT4_32k",
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
@@ -20,10 +20,10 @@ const testMetadata = {
 
 describe("PromptAdapter", () => {
   // Helper function to create a mock LLM response for prompt adapter testing
-  const createMockLLMResponse = (modelInternalKey: string, tokensUsage: LLMResponseTokensUsage): LLMFunctionResponse => ({
+  const createMockLLMResponse = (modelKey: string, tokensUsage: LLMResponseTokensUsage): LLMFunctionResponse => ({
     status: LLMResponseStatus.EXCEEDED,
     request: "mock request",
-    modelInternalKey,
+    modelKey,
     context: {},
     tokensUage: tokensUsage
   });
@@ -94,7 +94,7 @@ describe("PromptAdapter", () => {
       const mockResponse: LLMFunctionResponse = {
         status: LLMResponseStatus.EXCEEDED,
         request: "mock request",
-        modelInternalKey: "GPT_COMPLETIONS_GPT4",
+        modelKey: "GPT_COMPLETIONS_GPT4",
         context: {},
         tokensUage: undefined
       };
@@ -182,7 +182,7 @@ describe("TokenLimitReductionStrategy", () => {
   test("should handle model without maxCompletionTokens defined", () => {
     const customMetadata: Record<string, ResolvedLLMModelMetadata> = {
       "CUSTOM_MODEL": {
-        internalKey: "CUSTOM_MODEL",
+        modelKey: "CUSTOM_MODEL",
         urn: "custom",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: undefined,

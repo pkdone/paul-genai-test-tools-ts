@@ -16,7 +16,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelInternalKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
     const config = this.providerSpecificConfig;
     return JSON.stringify({
       anthropic_version: config.apiVersion,
@@ -34,7 +34,7 @@ class BedrockClaudeLLM extends BaseBedrockLLM {
       temperature: config.temperature ?? llmConfig.DEFAULT_ZERO_TEMP,
       top_p: config.topP ?? llmConfig.DEFAULT_TOP_P_LOWEST,
       top_k: config.topK ?? llmConfig.DEFAULT_TOP_K_LOWEST,
-      max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,    
+              max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,    
     });
   }
 

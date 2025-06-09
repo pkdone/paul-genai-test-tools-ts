@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { LLMModelInternalKeysSet, LLMProviderImpl, LLMModelMetadata, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm.types";
+import { LLMModelKeysSet, LLMProviderImpl, LLMModelMetadata, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../../types/llm.types";
 import { EnvVars } from "../../types/env.types";
 
 /**
@@ -58,7 +58,7 @@ export interface LLMProviderManifest {
   /** Factory function to create an instance of the provider's LLMProviderImpl */
   factory: (
     envConfig: EnvVars,
-    modelsInternallKeySet: LLMModelInternalKeysSet,
+    modelsKeysSet: LLMModelKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     providerSpecificConfig?: LLMProviderSpecificConfig

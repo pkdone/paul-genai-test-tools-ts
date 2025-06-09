@@ -17,7 +17,7 @@ class BedrockLlamaLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Llama completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelInternalKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
     const bodyObj: { prompt: string, temperature: number, top_p: number, max_gen_len?: number } = {
       prompt: 
 `<|begin_of_text|><|start_header_id|>${llmConfig.LLM_ROLE_SYSTEM}<|end_header_id|>
@@ -28,8 +28,8 @@ You are a helpful software engineering and programming assistant, and you need t
     };
 
     // Currently for v3 and lower Llama LLMs, getting this error even though left to their own devices they seem to happily default to max completions of 8192: Malformed input request: #/max_gen_len: 8192 is not less or equal to 2048, please reformat your input and try again. ValidationException: Malformed input request: #/max_gen_len: 8192 is not less or equal to 2048, please reformat your input and try again.
-    if (modelInternalKey === AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT) {
-      bodyObj.max_gen_len = this.llmModelsMetadata[modelInternalKey].maxCompletionTokens;
+    if (modelKey === AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT) {
+      bodyObj.max_gen_len = this.llmModelsMetadata[modelKey].maxCompletionTokens;
     }
 
     return JSON.stringify(bodyObj);    

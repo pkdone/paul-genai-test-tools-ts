@@ -12,13 +12,13 @@ import { parseTokenUsageFromLLMError } from "./llm-error-pattern-parser";
  * values.
  */
 export function extractTokensAmountFromMetadataDefaultingMissingValues(
-  modelInternalKey: string, 
+  modelKey: string, 
   tokenUsage: LLMResponseTokensUsage,
   modelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ) : LLMResponseTokensUsage {
   let { promptTokens, completionTokens, maxTotalTokens } = tokenUsage;
   if (completionTokens < 0) completionTokens = 0;
-  if (maxTotalTokens < 0) maxTotalTokens = modelsMetadata[modelInternalKey].maxTotalTokens;
+  if (maxTotalTokens < 0) maxTotalTokens = modelsMetadata[modelKey].maxTotalTokens;
   if (promptTokens < 0) promptTokens = Math.max(1, maxTotalTokens - completionTokens + 1);
   return { promptTokens, completionTokens, maxTotalTokens };
 }
@@ -28,15 +28,15 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(
  * for all prompt/completions/maxTokens if not found in the error message.
  */
 export function extractTokensAmountAndLimitFromErrorMsg(
-  modelInternalKey: string, 
+  modelKey: string, 
   prompt: string, 
   errorMsg: string,
   modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
   errorPatterns?: readonly LLMErrorMsgRegExPattern[]
 ) : LLMResponseTokensUsage {
   const { maxTotalTokens: parsedMaxTokens, promptTokens: parsedPromptTokens, completionTokens } = 
-    parseTokenUsageFromLLMError(modelInternalKey, errorMsg, modelsMetadata, errorPatterns);  
-  const publishedMaxTotalTokens = modelsMetadata[modelInternalKey].maxTotalTokens;
+    parseTokenUsageFromLLMError(modelKey, errorMsg, modelsMetadata, errorPatterns);  
+  const publishedMaxTotalTokens = modelsMetadata[modelKey].maxTotalTokens;
   let maxTotalTokens = parsedMaxTokens;
   let promptTokens = parsedPromptTokens;
 
@@ -56,7 +56,7 @@ export function extractTokensAmountAndLimitFromErrorMsg(
  */
 export function postProcessAsJSONIfNeededGeneratingNewResult(
   skeletonResult: LLMFunctionResponse, 
-  modelInternalKey: string, 
+  modelKey: string, 
   taskType: LLMPurpose, 
   responseContent: LLMGeneratedContent, 
   asJson: boolean, 
@@ -69,7 +69,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
       const generatedContent = asJson ? convertTextToJSON(responseContent) : responseContent;
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: generatedContent };
     } catch (error: unknown) {
-      console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${modelsMetadata[modelInternalKey].urn})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);
+      console.log(`ISSUE: LLM response cannot be parsed to JSON  (model '${modelsMetadata[modelKey].urn})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`);
       context.jsonParseError = getErrorText(error);
       return { ...skeletonResult, status: LLMResponseStatus.OVERLOADED };
     }

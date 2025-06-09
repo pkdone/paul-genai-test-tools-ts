@@ -39,21 +39,21 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
   }),
   models: {
     embeddings: {
-      internalKey: GPT_EMBEDDINGS_ADA002,
+      modelKey: GPT_EMBEDDINGS_ADA002,
       urnEnvKey: AZURE_OPENAI_ADA_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1536,
       maxTotalTokens: 8191,
     },
     primaryCompletion: {
-      internalKey: GPT_COMPLETIONS_GPT4_O,
+      modelKey: GPT_COMPLETIONS_GPT4_O,
       urnEnvKey: AZURE_OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 16384,
       maxTotalTokens: 128000,
     },
     secondaryCompletion: {
-      internalKey: GPT_COMPLETIONS_GPT4_TURBO,
+      modelKey: GPT_COMPLETIONS_GPT4_TURBO,
       urnEnvKey: AZURE_OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 4096,
@@ -69,7 +69,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
     minRetryDelayMillis: 25 * 1000, // 25 seconds - slightly longer for Azure
     maxRetryAdditionalDelayMillis: 35 * 1000, // 35 seconds additional random delay
   },
-  factory: (envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
+  factory: (envConfig, modelsKeysSet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
     const env = envConfig as BaseEnvVars & {
       [AZURE_OPENAI_LLM_API_KEY]: string;
       [AZURE_OPENAI_ENDPOINT_KEY]: string;
@@ -81,7 +81,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
       [AZURE_OPENAI_GPT_COMPLETIONS_MODEL_SECONDARY_KEY]: string;
     };
     return new AzureOpenAILLM(
-      modelsInternallKeySet,
+      modelsKeysSet,
       modelsMetadata,
       errorPatterns,
       env[AZURE_OPENAI_LLM_API_KEY],

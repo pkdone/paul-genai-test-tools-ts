@@ -5,14 +5,14 @@ import { OPENAI_COMMON_ERROR_PATTERNS } from "../providers/openai/openai-error-p
 
 const testMetadata = {
   "GPT_COMPLETIONS_GPT4": {
-    internalKey: "GPT_COMPLETIONS_GPT4",
+    modelKey: "GPT_COMPLETIONS_GPT4",
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
   "GPT_COMPLETIONS_GPT4_32k": {
-    internalKey: "GPT_COMPLETIONS_GPT4_32k",
+    modelKey: "GPT_COMPLETIONS_GPT4_32k",
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,

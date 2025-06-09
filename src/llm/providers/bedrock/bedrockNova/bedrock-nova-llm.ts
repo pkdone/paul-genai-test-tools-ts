@@ -16,10 +16,10 @@ class BedrockNovaLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Nova completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelInternalKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
     return JSON.stringify({
       inferenceConfig: {
-        max_new_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
+                  max_new_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
         temperature: llmConfig.DEFAULT_ZERO_TEMP,
         top_p: llmConfig.DEFAULT_TOP_P_LOWEST,
         top_k: llmConfig.DEFAULT_TOP_K_LOWEST,

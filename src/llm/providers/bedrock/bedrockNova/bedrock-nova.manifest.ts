@@ -24,21 +24,21 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
   }),
   models: {
     embeddings: {
-      internalKey: AWS_EMBEDDINGS_TITAN_V1,
+      modelKey: AWS_EMBEDDINGS_TITAN_V1,
       urnEnvKey: BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      internalKey: AWS_COMPLETIONS_NOVA_PRO_V1,
+      modelKey: AWS_COMPLETIONS_NOVA_PRO_V1,
       urnEnvKey: BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 5000,
       maxTotalTokens: 300000,
     },
     secondaryCompletion: {
-      internalKey: AWS_COMPLETIONS_NOVA_LITE_V1,
+      modelKey: AWS_COMPLETIONS_NOVA_LITE_V1,
       urnEnvKey: BEDROCK_NOVA_COMPLETIONS_MODEL_SECONDARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 5000,
@@ -53,7 +53,7 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
     maxRetryAdditionalDelayMillis: 40 * 1000, // 40 seconds additional random delay
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
-    return new BedrockNovaLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);
+  factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
+    return new BedrockNovaLLM(modelsKeysSet, modelsMetadata, errorPatterns);
   },
 }; 

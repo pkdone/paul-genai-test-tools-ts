@@ -1,7 +1,7 @@
 import { BedrockRuntimeClient, InvokeModelCommand, ServiceUnavailableException,
   ThrottlingException, ModelTimeoutException, ValidationException }
 from "@aws-sdk/client-bedrock-runtime";     
-import { LLMModelInternalKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm.types";
+import { LLMModelKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../types/llm.types";
 import llmConfig from "../../../config/llm.config";
 import { LLMImplSpecificResponseSummary, LLMProviderSpecificConfig } from "../llm-provider.types";
 import { getErrorText, logErrorMsgAndDetail } from "../../../utils/error-utils";
@@ -25,7 +25,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * Constructor.
    */
   constructor(
-    modelsKeys: LLMModelInternalKeysSet,
+    modelsKeys: LLMModelKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     providerSpecificConfig: LLMProviderSpecificConfig = {}
@@ -50,9 +50,9 @@ abstract class BaseBedrockLLM extends AbstractLLM {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelInternalKey: string, prompt: string) {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string) {
     // Invoke LLM
-    const fullParameters = this.buildFullLLMParameters(taskType, modelInternalKey, prompt);
+    const fullParameters = this.buildFullLLMParameters(taskType, modelKey, prompt);
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
     const llmResponse = JSON.parse(Buffer.from(rawResponse.body).toString(llmConfig.LLM_UTF8_ENCODING)) as Record<string, unknown>;
@@ -69,7 +69,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * Assemble the AWS Bedrock API parameters structure for embeddings and completions models with 
    * the prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelInternalKey: string, prompt: string) {
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
     let body;
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
@@ -78,11 +78,11 @@ abstract class BaseBedrockLLM extends AbstractLLM {
         //dimensions: this.getEmbeddedModelDimensions(),  // Throws error but when moving to Titan Text Embeddings V2 should be able to set dimensions to 56, 512, 1024 according to: https://docs.aws.amazon.com/code-library/latest/ug/bedrock-runtime_example_bedrock-runtime_InvokeModelWithResponseStream_TitanTextEmbeddings_section.html
       });
     } else {
-      body = this.buildCompletionModelSpecificParameters(modelInternalKey, prompt);
+      body = this.buildCompletionModelSpecificParameters(modelKey, prompt);
     }
 
     return {
-      modelId: this.llmModelsMetadata[modelInternalKey].urn,
+      modelId: this.llmModelsMetadata[modelKey].urn,
       contentType: llmConfig.LLM_RESPONSE_JSON_CONTENT_TYPE,
       accept: llmConfig.LLM_RESPONSE_ANY_CONTENT_TYPE,
       body,
@@ -136,7 +136,7 @@ abstract class BaseBedrockLLM extends AbstractLLM {
    * Abstract method to be overriden. Assemble the AWS Bedrock API parameters structure for the 
    * specific completions model hosted on Bedroc.
    */
-  protected abstract buildCompletionModelSpecificParameters(modelInternalKey: string, prompt: string): string;
+  protected abstract buildCompletionModelSpecificParameters(modelKey: string, prompt: string): string;
 
   /**
    * Extract the relevant information from the completion LLM specific response.

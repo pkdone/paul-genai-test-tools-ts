@@ -127,9 +127,9 @@ In the AWS Console, select the Bedrock Configuration | Model Access option and e
        }),
        ```
        If your provider doesn't require specific environment variables (e.g., it uses a default SDK credential chain), use `envSchema: z.object({})`.
-     - **`models`**: An object defining the `embeddings`, `primaryCompletion`, and optionally `secondaryCompletion` models, including their `internalKey`, `urn`, `purpose`, and token/dimension details.
+     - **`models`**: An object defining the `embeddings`, `primaryCompletion`, and optionally `secondaryCompletion` models, including their `modelKey`, `urn`, `purpose`, and token/dimension details.
      - **`errorPatterns`**: An array of `LLMErrorMsgRegExPattern` for parsing token limits from error messages.
-     - **`factory`**: A function that takes `(envConfig: EnvVars, modelsInternalKeySet: LLMModelInternalKeysSet, modelsMetadata: Record<string, LLMModelMetadata>, errorPatterns: readonly LLMErrorMsgRegExPattern[])` and returns an instance of your `<provider_name>-llm.ts` class. Access your specific environment variables from `envConfig` (e.g., `envConfig.MY_PROVIDER_API_KEY as string`).
+     - **`factory`**: A function that takes `(envConfig: EnvVars, modelsKeysSet: LLMModelKeysSet, modelsMetadata: Record<string, LLMModelMetadata>, errorPatterns: readonly LLMErrorMsgRegExPattern[])` and returns an instance of your `<provider_name>-llm.ts` class. Access your specific environment variables from `envConfig` (e.g., `envConfig.MY_PROVIDER_API_KEY as string`).
 
 2. **Update Environment Configuration**:
    - Add any new environment variables (defined in your manifest's `envSchema`) to your local `.env` file with their actual values.

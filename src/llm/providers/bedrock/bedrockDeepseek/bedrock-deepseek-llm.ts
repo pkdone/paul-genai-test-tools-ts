@@ -16,7 +16,7 @@ class BedrockDeepseekLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelInternalKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
     return JSON.stringify({
       messages: [
         {
@@ -24,7 +24,7 @@ class BedrockDeepseekLLM extends BaseBedrockLLM {
           content: prompt,
         },
       ],
-      max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
+              max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       temperature: llmConfig.DEFAULT_ZERO_TEMP,
       top_p: llmConfig.DEFAULT_TOP_P_LOWEST,
     });

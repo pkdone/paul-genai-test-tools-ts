@@ -6,7 +6,7 @@ import { BadResponseMetadataLLMError } from "../../types/llm-errors.types";
  * Strategy interface for prompt adaptation approaches.
  */
 export interface PromptAdaptationStrategy {
-  adaptPrompt(prompt: string, modelInternalKey: string, tokensUsage: LLMResponseTokensUsage, modelsMetadata: Record<string, ResolvedLLMModelMetadata>): string;
+  adaptPrompt(prompt: string, modelKey: string, tokensUsage: LLMResponseTokensUsage, modelsMetadata: Record<string, ResolvedLLMModelMetadata>): string;
 }
 
 /**
@@ -15,14 +15,14 @@ export interface PromptAdaptationStrategy {
 export class TokenLimitReductionStrategy implements PromptAdaptationStrategy {
   adaptPrompt(
     prompt: string,
-    modelInternalKey: string,
+    modelKey: string,
     tokensUsage: LLMResponseTokensUsage,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>
   ): string {
     if (prompt.trim() === "") return prompt;
     
     const { promptTokens, completionTokens, maxTotalTokens } = tokensUsage;
-    const maxCompletionTokensLimit = modelsMetadata[modelInternalKey].maxCompletionTokens;
+    const maxCompletionTokensLimit = modelsMetadata[modelKey].maxCompletionTokens;
     let reductionRatio = 1;
     
     // If all the LLM's available completion tokens have been consumed then will need to reduce prompt size to try influence any subsequent generated completion to be smaller
@@ -64,7 +64,7 @@ export class PromptAdapter {
       throw new BadResponseMetadataLLMError("LLM response indicated token limit exceeded but `tokensUage` is not present", llmResponse);
     }
 
-    return this.strategy.adaptPrompt(prompt, llmResponse.modelInternalKey, llmResponse.tokensUage, modelsMetadata);
+    return this.strategy.adaptPrompt(prompt, llmResponse.modelKey, llmResponse.tokensUage, modelsMetadata);
   }
 
   /**

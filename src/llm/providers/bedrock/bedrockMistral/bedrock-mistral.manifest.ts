@@ -24,21 +24,21 @@ export const bedrockMistralProviderManifest: LLMProviderManifest = {
   }),
   models: {
     embeddings: {
-      internalKey: AWS_EMBEDDINGS_TITAN_V1,
+      modelKey: AWS_EMBEDDINGS_TITAN_V1,
       urnEnvKey: BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
       purpose: LLMPurpose.EMBEDDINGS,
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      internalKey: AWS_COMPLETIONS_MISTRAL_LARGE2,
+      modelKey: AWS_COMPLETIONS_MISTRAL_LARGE2,
       urnEnvKey: BEDROCK_MISTRAL_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 8192,
       maxTotalTokens: 131072,
     },
     secondaryCompletion: {
-      internalKey: AWS_COMPLETIONS_MISTRAL_LARGE,
+      modelKey: AWS_COMPLETIONS_MISTRAL_LARGE,
       urnEnvKey: BEDROCK_MISTRAL_COMPLETIONS_MODEL_SECONDARY_KEY,
       maxCompletionTokens: 8192,
       maxTotalTokens: 32768,
@@ -53,7 +53,7 @@ export const bedrockMistralProviderManifest: LLMProviderManifest = {
     maxRetryAdditionalDelayMillis: 35 * 1000, // 35 seconds additional random delay
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  factory: (_envConfig, modelsInternallKeySet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
-    return new BedrockMistralLLM(modelsInternallKeySet, modelsMetadata, errorPatterns);
+  factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
+    return new BedrockMistralLLM(modelsKeysSet, modelsMetadata, errorPatterns);
   },
 }; 

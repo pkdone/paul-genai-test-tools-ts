@@ -42,7 +42,7 @@ jest.mock("./responseProcessing/llm-prompt-adapter", () => ({
 
 // Zod schema for LLMModelMetadata validation
 const llmModelMetadataSchema = z.object({
-  internalKey: z.string(),
+      modelKey: z.string(),
   urn: z.string().min(1, "Model ID cannot be empty"),
   purpose: z.nativeEnum(LLMPurpose),
   dimensions: z.number().positive().optional(),
@@ -78,14 +78,14 @@ describe("LLM Router tests", () => {
     getModelFamily: jest.fn(() => "OpenAI"),
     getModelsMetadata: jest.fn(() => ({
       "GPT_COMPLETIONS_GPT4": {
-        internalKey: "GPT_COMPLETIONS_GPT4",
+        modelKey: "GPT_COMPLETIONS_GPT4",
         urn: "gpt-4",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: 4096,
         maxTotalTokens: 8192
       } as ResolvedLLMModelMetadata,
       "GPT_EMBEDDINGS_ADA002": {
-        internalKey: "GPT_EMBEDDINGS_ADA002",
+        modelKey: "GPT_EMBEDDINGS_ADA002",
         urn: "text-embedding-ada-002",
         purpose: LLMPurpose.EMBEDDINGS,
         dimensions: 1536,
@@ -148,7 +148,7 @@ describe("LLM Router tests", () => {
       {
         description: "embeddings model with purpose check",
         model: {
-          internalKey: "GPT_EMBEDDINGS_ADA002",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
           urn: "text-embedding-ada-002",
           purpose: LLMPurpose.EMBEDDINGS,
           dimensions: 1536,
@@ -160,7 +160,7 @@ describe("LLM Router tests", () => {
       {
         description: "completion model with purpose check",
         model: {
-          internalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           urn: "gpt-4",
           purpose: LLMPurpose.COMPLETIONS,
           maxCompletionTokens: 4096,
@@ -172,7 +172,7 @@ describe("LLM Router tests", () => {
       {
         description: "embeddings model with dimensions check",
         model: {
-          internalKey: "GPT_EMBEDDINGS_ADA002",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
           urn: "text-embedding-ada-002",
           purpose: LLMPurpose.EMBEDDINGS,
           dimensions: 1536,
@@ -184,7 +184,7 @@ describe("LLM Router tests", () => {
       {
         description: "completion model with maxCompletionTokens check",
         model: {
-          internalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           urn: "gpt-4",
           purpose: LLMPurpose.COMPLETIONS,
           maxCompletionTokens: 4096,
@@ -196,7 +196,7 @@ describe("LLM Router tests", () => {
       {
         description: "embeddings model with maxTotalTokens check",
         model: {
-          internalKey: "GPT_EMBEDDINGS_ADA002",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
           urn: "text-embedding-ada-002",
           purpose: LLMPurpose.EMBEDDINGS,
           dimensions: 1536,
@@ -208,7 +208,7 @@ describe("LLM Router tests", () => {
       {
         description: "embeddings model with urn check",
         model: {
-          internalKey: "GPT_EMBEDDINGS_ADA002",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
           urn: "text-embedding-ada-002",
           purpose: LLMPurpose.EMBEDDINGS,
           dimensions: 1536,
@@ -220,19 +220,19 @@ describe("LLM Router tests", () => {
       {
         description: "embeddings model with internalKey check",
         model: {
-          internalKey: "GPT_EMBEDDINGS_ADA002",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
           urn: "text-embedding-ada-002",
           purpose: LLMPurpose.EMBEDDINGS,
           dimensions: 1536,
           maxTotalTokens: 8191
         },
-        property: "internalKey",
+        property: "modelKey",
         expectedValue: "GPT_EMBEDDINGS_ADA002"
       },
       {
         description: "completion model with maxTotalTokens check",
         model: {
-          internalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           urn: "gpt-4",
           purpose: LLMPurpose.COMPLETIONS,
           maxCompletionTokens: 4096,
@@ -258,7 +258,7 @@ describe("LLM Router tests", () => {
       {
         description: "valid embeddings model",
         model: {
-          internalKey: "GPT_EMBEDDINGS_ADA002",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
           urn: "text-embedding-ada-002",
           purpose: LLMPurpose.EMBEDDINGS,
           dimensions: 1536,
@@ -269,7 +269,7 @@ describe("LLM Router tests", () => {
       {
         description: "valid completions model",
         model: {
-          internalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           urn: "gpt-4",
           purpose: LLMPurpose.COMPLETIONS,
           maxCompletionTokens: 4096,
@@ -283,7 +283,7 @@ describe("LLM Router tests", () => {
       {
         description: "embeddings model without dimensions",
         model: {
-          internalKey: "GPT_EMBEDDINGS_ADA002",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
           urn: "text-embedding-ada-002",
           purpose: LLMPurpose.EMBEDDINGS,
           maxTotalTokens: 8191
@@ -293,7 +293,7 @@ describe("LLM Router tests", () => {
       {
         description: "completions model without maxCompletionTokens",
         model: {
-          internalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           urn: "gpt-4",
           purpose: LLMPurpose.COMPLETIONS,
           maxTotalTokens: 8192
@@ -303,7 +303,7 @@ describe("LLM Router tests", () => {
       {
         description: "model with maxCompletionTokens > maxTotalTokens",
         model: {
-          internalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           urn: "gpt-4",
           purpose: LLMPurpose.COMPLETIONS,
           maxCompletionTokens: 10000,
@@ -314,7 +314,7 @@ describe("LLM Router tests", () => {
       {
         description: "model with empty urn",
         model: {
-          internalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           urn: "",
           purpose: LLMPurpose.COMPLETIONS,
           maxCompletionTokens: 4096,
@@ -347,7 +347,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: mockEmbeddings,
         request: "test content",
-        modelInternalKey: "GPT_EMBEDDINGS_ADA002",
+        modelKey: "GPT_EMBEDDINGS_ADA002",
         context: {}
       });
 
@@ -364,7 +364,7 @@ describe("LLM Router tests", () => {
         .mockResolvedValueOnce({
           status: LLMResponseStatus.OVERLOADED,
           request: "test content",
-          modelInternalKey: "GPT_EMBEDDINGS_ADA002",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
           context: {}
         })
         .mockResolvedValue(null);
@@ -381,7 +381,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: "invalid response",
         request: "test content",
-        modelInternalKey: "GPT_EMBEDDINGS_ADA002",
+        modelKey: "GPT_EMBEDDINGS_ADA002",
         context: {}
       });
 
@@ -400,7 +400,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT4",
+        modelKey: "GPT_COMPLETIONS_GPT4",
         context: {}
       });
 
@@ -418,7 +418,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT4",
+        modelKey: "GPT_COMPLETIONS_GPT4",
         context: {}
       });
 
@@ -436,7 +436,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT35",
+        modelKey: "GPT_COMPLETIONS_GPT35",
         context: {}
       });
 
@@ -453,7 +453,7 @@ describe("LLM Router tests", () => {
         .mockResolvedValueOnce({
           status: LLMResponseStatus.OVERLOADED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {}
         })
         .mockResolvedValue(null);
@@ -471,7 +471,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: 12345, // Invalid response type
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT4",
+        modelKey: "GPT_COMPLETIONS_GPT4",
         context: {}
       });
 
@@ -519,7 +519,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.OVERLOADED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
         } as LLMFunctionResponse,
         currentLLMIndex: 0,
@@ -537,7 +537,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.OVERLOADED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
         } as LLMFunctionResponse,
         currentLLMIndex: 1,
@@ -555,7 +555,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
           tokensUage: {
             promptTokens: 5000,
@@ -613,7 +613,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
           tokensUage: {
             promptTokens: 5000,
@@ -636,7 +636,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.UNKNOWN,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
         } as LLMFunctionResponse,
         currentLLMIndex: 0,
@@ -685,7 +685,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
           tokensUage: {
             promptTokens: 5000,
@@ -701,7 +701,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
           tokensUage: {
             promptTokens: 100,
@@ -717,7 +717,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
           tokensUage: {
             promptTokens: 8000,
@@ -751,7 +751,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
           // tokensUage is missing
         } as LLMFunctionResponse,
@@ -763,7 +763,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
           tokensUage: undefined
         } as LLMFunctionResponse,
@@ -775,7 +775,7 @@ describe("LLM Router tests", () => {
         llmResponse: {
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
           tokensUage: undefined
         } as LLMFunctionResponse,
@@ -915,7 +915,7 @@ describe("LLM Router tests", () => {
         .mockResolvedValueOnce({
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
-          modelInternalKey: "GPT_COMPLETIONS_GPT4",
+          modelKey: "GPT_COMPLETIONS_GPT4",
           context: {},
           tokensUage: {
             promptTokens: 8000,
@@ -942,7 +942,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: null,
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT4",
+        modelKey: "GPT_COMPLETIONS_GPT4",
         context: {}
       });
 
@@ -959,7 +959,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT4",
+        modelKey: "GPT_COMPLETIONS_GPT4",
         context: {}
       });
 
@@ -981,7 +981,7 @@ describe("LLM Router tests", () => {
       mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
         status: LLMResponseStatus.OVERLOADED,
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT4",
+        modelKey: "GPT_COMPLETIONS_GPT4",
         context: {}
       });
 
@@ -991,7 +991,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT35",
+        modelKey: "GPT_COMPLETIONS_GPT35",
         context: {}
       });
 
@@ -1010,7 +1010,7 @@ describe("LLM Router tests", () => {
       mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
         status: LLMResponseStatus.EXCEEDED,
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT4",
+        modelKey: "GPT_COMPLETIONS_GPT4",
         context: {},
         tokensUage: {
           promptTokens: 8000,
@@ -1022,7 +1022,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: "Secondary completion success",
         request: "test prompt",
-        modelInternalKey: "GPT_COMPLETIONS_GPT35",
+        modelKey: "GPT_COMPLETIONS_GPT35",
         context: {}
       });
 
@@ -1042,7 +1042,7 @@ describe("LLM Router tests", () => {
         status: LLMResponseStatus.COMPLETED,
         generated: mockEmbeddings,
         request: "test content",
-        modelInternalKey: "GPT_EMBEDDINGS_ADA002",
+        modelKey: "GPT_EMBEDDINGS_ADA002",
         context: {}
       });
 

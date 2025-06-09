@@ -1,6 +1,6 @@
 import path from 'path';
 import { fileSystemConfig } from "../config/fileSystem.config";
-import { LLMProviderImpl, LLMModelInternalKeysSet as LLMModelsInternalKeysSet, LLMModelMetadata, ResolvedLLMModelMetadata } from "../types/llm.types";
+import { LLMProviderImpl, LLMModelKeysSet as LLMModelsKeysSet, LLMModelMetadata, ResolvedLLMModelMetadata } from "../types/llm.types";
 import { EnvVars } from "../types/env.types";
 import { BadConfigurationLLMError } from "../types/llm-errors.types";
 import { LLMProviderManifest } from "./providers/llm-provider.types";
@@ -125,9 +125,9 @@ export class LLMService {
    */
   getLLMProvider(env: EnvVars): LLMProviderImpl {
     const manifest = this.getInitializedManifest();    
-    const modelsInternallKeySet = this.buildModelsInternalKeysSet(manifest);
+    const modelsKeysSet = this.buildModelsKeysSet(manifest);
     const modelsMetadata = this.buildModelsMetadata(manifest, env);    
-    return manifest.factory(env, modelsInternallKeySet, modelsMetadata, manifest.errorPatterns, 
+    return manifest.factory(env, modelsKeysSet, modelsMetadata, manifest.errorPatterns, 
                             manifest.providerSpecificConfig
     );
   }
@@ -141,14 +141,14 @@ export class LLMService {
   }
 
   /**
-   * Build LLMModelInternalKeysSet from manifest
+   * Build LLMModelKeysSet from manifest
    */
-  private buildModelsInternalKeysSet(manifest: LLMProviderManifest): LLMModelsInternalKeysSet {
-    const keysSet: LLMModelsInternalKeysSet = {
-      embeddingsInternalKey: manifest.models.embeddings.internalKey,
-      primaryCompletionInternalKey: manifest.models.primaryCompletion.internalKey,
+  private buildModelsKeysSet(manifest: LLMProviderManifest): LLMModelsKeysSet {
+    const keysSet: LLMModelsKeysSet = {
+      embeddingsModelKey: manifest.models.embeddings.modelKey,
+      primaryCompletionModelKey: manifest.models.primaryCompletion.modelKey,
     };
-    if (manifest.models.secondaryCompletion) keysSet.secondaryCompletionInternalKey = manifest.models.secondaryCompletion.internalKey;
+    if (manifest.models.secondaryCompletion) keysSet.secondaryCompletionModelKey = manifest.models.secondaryCompletion.modelKey;
     return keysSet;
   }
 
@@ -178,7 +178,7 @@ export class LLMService {
     ];
     
     for (const model of models) {
-      metadata[model.internalKey] = {...model, urn: resolveUrn(model)};
+      metadata[model.modelKey] = {...model, urn: resolveUrn(model)};
     }
 
     return metadata;

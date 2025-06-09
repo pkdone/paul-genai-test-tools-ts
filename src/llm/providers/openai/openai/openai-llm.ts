@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
 import llmConfig from "../../../../config/llm.config";
-import { LLMModelInternalKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
+import { LLMModelKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { OPENAI } from "./openai.manifest";
 
@@ -15,7 +15,7 @@ class OpenAILLM extends BaseOpenAILLM {
    * Constructor.
    */
   constructor(
-    modelsKeys: LLMModelInternalKeysSet,
+    modelsKeys: LLMModelKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly apiKey: string
@@ -41,19 +41,19 @@ class OpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelInternalKey: string, prompt: string) {
+  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
-        model: this.llmModelsMetadata[modelInternalKey].urn,
+        model: this.llmModelsMetadata[modelKey].urn,
         input: prompt
       };
       return params;  
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
-        model: this.llmModelsMetadata[modelInternalKey].urn,
+        model: this.llmModelsMetadata[modelKey].urn,
         temperature: llmConfig.DEFAULT_ZERO_TEMP,
         messages: [{ role: llmConfig.LLM_ROLE_USER as "user", content: prompt } ],
-        max_tokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
+        max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       };        
       return params;
     } 
@@ -61,3 +61,4 @@ class OpenAILLM extends BaseOpenAILLM {
 }
 
 export default OpenAILLM;
+

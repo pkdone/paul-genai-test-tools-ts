@@ -3,7 +3,7 @@ import { VertexAI, RequestOptions, FinishReason, HarmCategory, HarmBlockThreshol
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
 import llmConfig from "../../../../config/llm.config";
-import { LLMModelInternalKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
+import { LLMModelKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../../types/llm.types";
 import { getErrorText, logErrorMsgAndDetail } from "../../../../utils/error-utils";
 import AbstractLLM from "../../abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
@@ -32,7 +32,7 @@ class VertexAIGeminiLLM extends AbstractLLM {
    * Constructor
    */
   constructor(
-    modelsKeys: LLMModelInternalKeysSet,
+    modelsKeys: LLMModelKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
     readonly project: string,
@@ -73,20 +73,20 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelInternalKey: string, prompt: string) {
+  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string) {
     if (taskType === LLMPurpose.EMBEDDINGS) {
-      return await this.invokeImplementationSpecificEmbeddingsLLM(modelInternalKey, prompt);
+      return await this.invokeImplementationSpecificEmbeddingsLLM(modelKey, prompt);
     } else {
-      return this.invokeImplementationSpecificCompletionLLM(modelInternalKey, prompt);
+      return this.invokeImplementationSpecificCompletionLLM(modelKey, prompt);
     }
   }
 
   /**
    * Invoke the actuall LLM's embedding API directly.
    */ 
-  protected async invokeImplementationSpecificEmbeddingsLLM(modelInternalKey: string, prompt: string) {  
+  protected async invokeImplementationSpecificEmbeddingsLLM(modelKey: string, prompt: string) {  
     // Invoke LLM
-    const fullParameters = this.buildFullEmebddingsLLMParameters(modelInternalKey, prompt);
+    const fullParameters = this.buildFullEmebddingsLLMParameters(modelKey, prompt);
     const llmResponses = await this.embeddingsApiClient.predict(fullParameters);
     const [predictionResponses] = llmResponses;
     const predictions = predictionResponses.predictions;
@@ -106,9 +106,9 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Invoke the actuall LLM's completion API directly.
    */ 
-  protected async invokeImplementationSpecificCompletionLLM(modelInternalKey: string, prompt: string) {
+  protected async invokeImplementationSpecificCompletionLLM(modelKey: string, prompt: string) {
     // Invoke LLM
-    const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(modelInternalKey);
+    const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(modelKey);
     const llm = this.vertexAiApiClient.getGenerativeModel(modelParams, requestOptions);
     const llmResponses = await llm.generateContent(prompt);
     const usageMetadata = llmResponses.response.usageMetadata;
@@ -170,8 +170,8 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullEmebddingsLLMParameters(modelInternalKey: string, prompt: string) {
-    const model = this.llmModelsMetadata[modelInternalKey].urn;
+  private buildFullEmebddingsLLMParameters(modelKey: string, prompt: string) {
+    const model = this.llmModelsMetadata[modelKey].urn;
     const endpoint = `${this.apiEndpointPrefix}${model}`;
     const taskType = this.providerSpecificConfig.embeddingsTaskType ?? "QUESTION_ANSWERING";
     const instance = helpers.toValue({ content: prompt, task_type: taskType });
@@ -183,16 +183,16 @@ class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullCompletionLLMParameters(modelInternalKey: string) {
+  private buildFullCompletionLLMParameters(modelKey: string) {
     const config = this.providerSpecificConfig;
     const modelParams = { 
-      model: this.llmModelsMetadata[modelInternalKey].urn,
+      model: this.llmModelsMetadata[modelKey].urn,
       generationConfig: { 
         candidateCount: 1,
         topP: config.topP ?? llmConfig.DEFAULT_TOP_P_LOWEST,
         topK: config.topK ?? llmConfig.DEFAULT_TOP_K_LOWEST,
         temperature: config.temperature ?? llmConfig.DEFAULT_ZERO_TEMP,   
-        maxOutputTokens: this.llmModelsMetadata[modelInternalKey].maxCompletionTokens,
+                  maxOutputTokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       },
       safetySettings: [
         { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },

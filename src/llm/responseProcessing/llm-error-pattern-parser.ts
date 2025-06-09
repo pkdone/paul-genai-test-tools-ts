@@ -4,7 +4,7 @@ import { ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern, LLMResponseTokensUsa
  * Extract token usage information from LLM error message.
  */
 export function parseTokenUsageFromLLMError(
-  modelInternalKey: string, 
+  modelKey: string, 
   errorMsg: string,
   llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>,
   errorPatterns?: readonly LLMErrorMsgRegExPattern[]
@@ -24,11 +24,11 @@ export function parseTokenUsageFromLLMError(
     if (pattern.units === "tokens") {
       return pattern.isMaxFirst
         ? processTokenMatchMaxFirst(matches)
-        : processTokenMatchPromptFirst(matches, modelInternalKey, llmModelsMetadata);
+        : processTokenMatchPromptFirst(matches, modelKey, llmModelsMetadata);
     } else {
       return pattern.isMaxFirst
-        ? processCharMatchMaxFirst(matches, modelInternalKey, llmModelsMetadata)
-        : processCharMatchPromptFirst(matches, modelInternalKey, llmModelsMetadata);
+        ? processCharMatchMaxFirst(matches, modelKey, llmModelsMetadata)
+        : processCharMatchPromptFirst(matches, modelKey, llmModelsMetadata);
     }
   }
   
@@ -53,12 +53,12 @@ function processTokenMatchMaxFirst(
  */
 function processTokenMatchPromptFirst(
   matches: RegExpMatchArray,
-  modelInternalKey: string,
+  modelKey: string,
   llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ): LLMResponseTokensUsage {
   return {
     promptTokens: parseInt(matches[1], 10),
-    maxTotalTokens: matches.length > 2 ? parseInt(matches[2], 10) : llmModelsMetadata[modelInternalKey].maxTotalTokens,
+    maxTotalTokens: matches.length > 2 ? parseInt(matches[2], 10) : llmModelsMetadata[modelKey].maxTotalTokens,
     completionTokens: matches.length > 3 ? parseInt(matches[3], 10) : 0
   };
 }
@@ -68,7 +68,7 @@ function processTokenMatchPromptFirst(
  */
 function processCharMatchMaxFirst(
   matches: RegExpMatchArray,
-  modelInternalKey: string,
+  modelKey: string,
   llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ): LLMResponseTokensUsage {
   if (matches.length <= 2) {
@@ -78,7 +78,7 @@ function processCharMatchMaxFirst(
   const charsLimit = parseInt(matches[1], 10);
   const charsPrompt = parseInt(matches[2], 10);
   
-  return calculateTokensFromChars(charsPrompt, charsLimit, modelInternalKey, llmModelsMetadata);
+  return calculateTokensFromChars(charsPrompt, charsLimit, modelKey, llmModelsMetadata);
 }
 
 /**
@@ -86,7 +86,7 @@ function processCharMatchMaxFirst(
  */
 function processCharMatchPromptFirst(
   matches: RegExpMatchArray,
-  modelInternalKey: string,
+  modelKey: string,
   llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ): LLMResponseTokensUsage {
   if (matches.length <= 2) {
@@ -96,7 +96,7 @@ function processCharMatchPromptFirst(
   const charsPrompt = parseInt(matches[1], 10);
   const charsLimit = parseInt(matches[2], 10);
   
-  return calculateTokensFromChars(charsPrompt, charsLimit, modelInternalKey, llmModelsMetadata);
+  return calculateTokensFromChars(charsPrompt, charsLimit, modelKey, llmModelsMetadata);
 }
 
 /**
@@ -105,10 +105,10 @@ function processCharMatchPromptFirst(
 function calculateTokensFromChars(
   charsPrompt: number, 
   charsLimit: number, 
-  modelInternalKey: string,
+  modelKey: string,
   llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>
 ): LLMResponseTokensUsage {
-  const maxTotalTokens = llmModelsMetadata[modelInternalKey].maxTotalTokens;
+  const maxTotalTokens = llmModelsMetadata[modelKey].maxTotalTokens;
   const promptTokensDerived = Math.ceil((charsPrompt / charsLimit) * maxTotalTokens);
   
   return {
