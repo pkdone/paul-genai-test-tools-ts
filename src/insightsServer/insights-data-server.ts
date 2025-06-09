@@ -1,6 +1,5 @@
 import { MongoClient, Collection, Sort } from "mongodb";
-import databaseConfig from "../config/database.config";
-import reportingConfig from "../config/reporting.config";
+import { databaseConfig, reportingConfig } from "../config";
 
 // Interface for project insights
 interface SummariesRecord {

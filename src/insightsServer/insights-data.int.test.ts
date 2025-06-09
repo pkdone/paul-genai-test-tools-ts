@@ -1,5 +1,5 @@
 import InsightsDataServer from "./insights-data-server";
-import databaseConfig from "../config/database.config";
+import { databaseConfig } from "../config";
 import { loadBaseEnvVarsOnly } from "../lifecycle/env";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import { MongoDBClientFactory } from "../mdb/mdb-client-factory";

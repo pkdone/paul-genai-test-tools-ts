@@ -1,4 +1,4 @@
-import llmConfig from "../../../../config/llm.config";
+import { llmConfig } from "../../../../config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, BEDROCK_LLAMA } from "./bedrock-llama.manifest";
 

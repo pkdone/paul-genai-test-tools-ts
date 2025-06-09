@@ -1,8 +1,6 @@
 import path from "path";
 import { promises as fs } from "fs";
-import fileSystemConfig from "../config/fileSystem.config";
-import mcpConfig from "../config/mcp.config";
-import promptsConfig from "../config/prompts.config";
+import { fileSystemConfig, mcpConfig, promptsConfig } from "../config";
 import { readFile, writeFile, readDirContents } from "../utils/fs-utils";
 import { getFileSuffix } from "../utils/path-utils";
 import { promiseAllThrottled } from "../utils/control-utils";

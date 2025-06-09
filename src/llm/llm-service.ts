@@ -1,5 +1,5 @@
 import path from 'path';
-import { fileSystemConfig } from "../config/fileSystem.config";
+import { fileSystemConfig } from "../config";
 import { LLMProviderImpl, LLMModelKeysSet as LLMModelsKeysSet, LLMModelMetadata, ResolvedLLMModelMetadata } from "../types/llm.types";
 import { EnvVars } from "../types/env.types";
 import { BadConfigurationLLMError } from "../types/llm-errors.types";

@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import InsightsDataServer from "../insightsServer/insights-data-server";
-import mcpConfig from "../config/mcp.config";
+import { mcpConfig } from "../config";
 
 /** 
  * Class representing the MCP Data Server.

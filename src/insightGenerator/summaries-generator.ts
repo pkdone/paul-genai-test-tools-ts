@@ -1,6 +1,5 @@
 import LLMRouter from "../llm/llm-router";
-import promptsConfig from "../config/prompts.config";
-import reportingConfig from "../config/reporting.config";
+import { promptsConfig, reportingConfig } from "../config";
 import { MongoClient, Collection } from "mongodb";
 import CodeMetadataQueryer from "./code-metadata-queryer";
 import { logErrorMsgAndDetail } from "../utils/error-utils";

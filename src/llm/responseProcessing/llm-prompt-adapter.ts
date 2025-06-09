@@ -1,4 +1,4 @@
-import llmConfig from "../../config/llm.config";
+import { llmConfig } from "../../config";
 import { LLMResponseTokensUsage, LLMFunctionResponse, ResolvedLLMModelMetadata } from "../../types/llm.types";
 import { BadResponseMetadataLLMError } from "../../types/llm-errors.types";
 

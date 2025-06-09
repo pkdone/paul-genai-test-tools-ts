@@ -1,4 +1,4 @@
-import llmConfig from "../config/llm.config";
+import { llmConfig } from "../config";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse,
          ResolvedLLMModelMetadata } from "../types/llm.types";

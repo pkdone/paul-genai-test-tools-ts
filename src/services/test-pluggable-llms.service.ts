@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import promptsConfig from "../config/prompts.config";
+import { promptsConfig } from "../config";
 import { readFile } from "../utils/fs-utils";
 import { LLMModelQuality } from "../types/llm.types";
 import type LLMRouter from "../llm/llm-router";

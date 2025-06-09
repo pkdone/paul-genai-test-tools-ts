@@ -1,10 +1,7 @@
 import { Collection, MongoClient } from "mongodb";
 import LLMRouter from "../llm/llm-router";
 import path from "path";
-import databaseConfig from "../config/database.config";
-import fileSystemConfig from "../config/fileSystem.config";
-import promptsConfig from "../config/prompts.config";
-import mcpConfig from "../config/mcp.config";
+import { databaseConfig, fileSystemConfig, promptsConfig, mcpConfig } from "../config";
 import { readFile, buildDirDescendingListOfFiles } from "../utils/fs-utils";
 import { getFileSuffix, transformJSToTSFilePath } from "../utils/path-utils";
 import { countLines } from "../utils/text-utils";

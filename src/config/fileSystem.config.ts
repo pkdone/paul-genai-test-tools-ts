@@ -31,6 +31,4 @@ export const fileSystemConfig = {
   PROVIDER_MANIFEST_KEY: "ProviderManifest",
   PROVIDERS_FOLDER_NAME: "providers",
   TRAILING_SLASH_PATTERN: /\/$/,  //Regex pattern to match trailing slash at end of string
-} as const;
-
-export default fileSystemConfig; 
+} as const; 

@@ -16,6 +16,4 @@ export const reportingConfig = {
     busentities: "Business Entities",
     busprocesses: "Business Processes",
   } as const,
-} as const;
-
-export default reportingConfig; 
+} as const; 

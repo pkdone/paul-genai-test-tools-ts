@@ -1,7 +1,7 @@
 /**
  * LLM (Large Language Model) configuration.
  */
-const llmConfig = {
+export const llmConfig = {
   LLM_ROLE_USER: "user" as string,
   LLM_ROLE_ASSISTANT: "assistant" as string, 
   LLM_ROLE_SYSTEM: "system" as string,
@@ -27,5 +27,3 @@ const llmConfig = {
   VECTOR_SEARCH_NUM_LIMIT: 6,
   PROBLEMATIC_SHUTDOWN_LLM_PROVIDER: "VertexAIGemini",
 } as const;
-
-export default llmConfig;

@@ -1,5 +1,5 @@
 import path from "path";
-import fileSystemConfig from "../config/fileSystem.config";
+import { fileSystemConfig } from "../config";
 
 /**
  * Get the name of a project from its path.

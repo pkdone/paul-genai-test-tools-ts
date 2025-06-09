@@ -13,5 +13,3 @@ export const databaseConfig = {
   REDACTED_URL: "REDACTED_URL" as string,
   REDACTED_CREDENTIALS: "REDACTED" as string,
 } as const;
-
-export default databaseConfig;

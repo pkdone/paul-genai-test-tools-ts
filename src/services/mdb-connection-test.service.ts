@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import type { MongoClient, Db } from "mongodb";
-import databaseConfig from "../config/database.config";
+import { databaseConfig } from "../config";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";

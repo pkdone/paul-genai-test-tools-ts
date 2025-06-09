@@ -1,4 +1,4 @@
-import llmConfig from "../../../../config/llm.config";
+import { llmConfig } from "../../../../config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { BEDROCK_DEEPSEEK } from "./bedrock-deepseek.manifest";
 

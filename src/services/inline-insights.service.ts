@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import fileSystemConfig from "../config/fileSystem.config";
+import { fileSystemConfig } from "../config";
 import { clearDirectory, buildDirDescendingListOfFiles } from "../utils/fs-utils";
 import { CodebaseInsightProcessor } from "../insightGenerator/codebase-insight-processor";
 import type LLMRouter from "../llm/llm-router";

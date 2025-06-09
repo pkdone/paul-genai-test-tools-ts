@@ -1,6 +1,6 @@
 import { PromiseFunction, RetryFunc, CheckResultFunc, LogRetryEventFunc }
        from "../types/control.types";
-import controlConfig from "../config/control.config";
+import { controlConfig } from "../config";
 
 /**
  * Executes a given array of task promise functions in batches, limiting the number of concurrent 

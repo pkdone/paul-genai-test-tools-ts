@@ -3,7 +3,7 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
 import { LLMPurpose } from "../../../../types/llm.types";
 import { BaseEnvVars } from "../../../../types/env.types";
-import llmConfig from "../../../../config/llm.config";
+import { llmConfig } from "../../../../config";
 
 // Environment variable name constants
 const VERTEXAI_PROJECTID_KEY = "VERTEXAI_PROJECTID";

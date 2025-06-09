@@ -14,5 +14,3 @@ export const httpConfig = {
   // HTTP content types
   ENCODING_UTF8: "utf8",
 } as const;
-
-export default httpConfig;

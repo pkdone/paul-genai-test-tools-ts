@@ -4,7 +4,7 @@ import type { MongoClient } from 'mongodb';
 import { getTextLines } from "../utils/fs-utils";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import CodeQuestioner from "../talkToCodebase/code-questioner";
-import promptsConfig from "../config/prompts.config";
+import { promptsConfig } from "../config";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";

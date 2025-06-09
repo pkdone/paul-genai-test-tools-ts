@@ -3,7 +3,7 @@ import { z } from "zod";
 import { baseEnvVarsSchema } from "../types/env.types";
 import LLMRouter from "../llm/llm-router";
 import { MongoDBClientFactory } from "../mdb/mdb-client-factory";
-import llmConfig from "../config/llm.config";
+import { llmConfig } from "../config";
 
 /**
  * Utility function to load only base environment variables and validate them.

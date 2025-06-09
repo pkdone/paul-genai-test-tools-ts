@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import type { MongoClient } from 'mongodb';
-import databaseConfig from "../config/database.config";
+import { databaseConfig } from "../config";
 import SummariesGenerator from "../insightGenerator/summaries-generator";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import type LLMRouter from "../llm/llm-router";

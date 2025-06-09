@@ -1,4 +1,4 @@
-import fileSystemConfig from "../config/fileSystem.config";
+import { fileSystemConfig } from "../config";
 import { promises as fs, Dirent } from "fs";
 import path from "path";
 import { logErrorMsgAndDetail } from "./error-utils";

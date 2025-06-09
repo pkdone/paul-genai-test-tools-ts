@@ -27,6 +27,4 @@ export const promptsConfig = {
   PROMPT_CONTENT_BLOCK_LABEL: "CONTENT_BLOCK",
   PROMPT_QUESTION_BLOCK_LABEL: "QUESTION_BLOCK",
   CODE_BLOCK_MARKDOWN: "```",
-} as const;
-
-export default promptsConfig; 
+} as const; 

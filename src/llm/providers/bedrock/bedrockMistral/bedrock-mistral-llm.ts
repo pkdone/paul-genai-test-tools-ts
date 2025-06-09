@@ -1,4 +1,4 @@
-import llmConfig from "../../../../config/llm.config";
+import { llmConfig } from "../../../../config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { BEDROCK_MISTRAL } from "./bedrock-mistral.manifest";
 

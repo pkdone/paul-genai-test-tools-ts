@@ -1,8 +1,7 @@
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { createVectorSearchIndexDefinition } from "../mdb/mdb-utils";
-import llmConfig from "../config/llm.config";
-import databaseConfig from "../config/database.config";
+import { llmConfig, databaseConfig } from "../config";
 
 /**
  * Class for initializing the MongoDB database.

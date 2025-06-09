@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import type { MongoClient } from 'mongodb';
-import databaseConfig from "../config/database.config";
+import { databaseConfig } from "../config";
 import DBInitializer from "../codebaseDBLoader/db-initializer";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import CodebaseToDBLoader from "../codebaseDBLoader/codebase-loader";

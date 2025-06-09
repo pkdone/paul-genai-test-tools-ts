@@ -1,13 +1,11 @@
 import { MongoClient, Collection, Double } from "mongodb";
 import LLMRouter from "../llm/llm-router";
-import databaseConfig from "../config/database.config";
-import fileSystemConfig from "../config/fileSystem.config";
-import promptsConfig from "../config/prompts.config";
+import { databaseConfig, fileSystemConfig, promptsConfig } from "../config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
 import { transformJSToTSFilePath } from "../utils/path-utils";
-import llmConfig from "../config/llm.config";
+import { llmConfig } from "../config";
 
 // Interface for source file record
 interface SourceFileCodeMetadata {
