@@ -144,7 +144,7 @@ describe('Dependency Registration', () => {
       await registerDependencies(config);
       
       // Should be able to resolve MongoDB-dependent service
-      const mongoConnectionTestService = container.resolve(TOKENS.MongoDBConnectionTestService);
+      const mongoConnectionTestService = container.resolve(TOKENS.MDBConnectionTestService);
       
       expect(mongoConnectionTestService).toBeDefined();
     });
@@ -202,7 +202,7 @@ describe('Dependency Registration', () => {
       
       // Test that registration is idempotent - verify service tokens are registered
       expect(container.isRegistered(TOKENS.InsightGenerationService)).toBe(true);
-      expect(container.isRegistered(TOKENS.LLMTestService)).toBe(true);
+      expect(container.isRegistered(TOKENS.PluggableLLMsTestService)).toBe(true);
     });
     
     it('should handle mixed dependency scenarios', async () => {

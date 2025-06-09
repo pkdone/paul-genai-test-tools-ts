@@ -11,7 +11,7 @@ import { TOKENS } from "../di/tokens";
  * Service to test the LLM functionality.
  */
 @injectable()
-export class LLMTestService implements Service {
+export class PluggableLLMsTestService implements Service {
   /**
    * Constructor with dependency injection.
    */
@@ -23,13 +23,13 @@ export class LLMTestService implements Service {
    * Execute the service - tests the LLM functionality.
    */
   async execute(): Promise<void> {
-    await this.testLLMFunctionality();
+    await this.testPluggableLLMs();
   }
 
   /**
    * Tests the LLM functionality.
    */
-  private async testLLMFunctionality(): Promise<void> {
+  private async testPluggableLLMs(): Promise<void> {
     const prompt = await readFile(promptsConfig.SAMPLE_PROMPT_FILEPATH);
     console.log("\n---PROMPT---");
     console.log(prompt);

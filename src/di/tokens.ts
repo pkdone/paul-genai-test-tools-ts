@@ -15,7 +15,7 @@ export const TOKENS = {
   CodeQueryService: Symbol.for('CodeQueryService'),
   InsightGenerationService: Symbol.for('InsightGenerationService'),
   InlineInsightsService: Symbol.for('InlineInsightsService'),
-  LLMTestService: Symbol.for('LLMTestService'),
-  MongoDBConnectionTestService: Symbol.for('MongoDBConnectionTestService'),
+  PluggableLLMsTestService: Symbol.for('PluggableLLMsTestService'),
+  MDBConnectionTestService: Symbol.for('MDBConnectionTestService'),
   InsightsMcpServerService: Symbol.for('InsightsMcpServerService')
 } as const; 

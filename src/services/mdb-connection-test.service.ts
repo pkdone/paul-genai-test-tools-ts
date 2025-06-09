@@ -11,7 +11,7 @@ import { TOKENS } from "../di/tokens";
  * Service to test the MongoDB connection.
  */
 @injectable()
-export class MongoDBConnectionTestService implements Service {
+export class MDBConnectionTestService implements Service {
   /**
    * Constructor with dependency injection.
    */  

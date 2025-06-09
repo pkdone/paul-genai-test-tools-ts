@@ -180,12 +180,10 @@ describe("MongoDBClientFactory", () => {
         { id: "client3", url: "mongodb://localhost:27019/db3" }
       ];
 
-      // Create separate mock clients for each connection
-      const mockClients: jest.Mocked<MongoClient>[] = [];
+      // Create an array to track close method spies
       const closeSpies: jest.SpyInstance[] = [];
       
       // Mock the MongoClient constructor to return different instances
-      let mockCallCount = 0;
       MockedMongoClient.mockImplementation(() => {
         const newMockClient = {
           connect: jest.fn().mockResolvedValue(undefined),
@@ -193,10 +191,8 @@ describe("MongoDBClientFactory", () => {
           db: jest.fn(),
           topology: {},
         } as unknown as jest.Mocked<MongoClient>;
-        mockClients[mockCallCount] = newMockClient;
         // Create a spy on each client's close method
-        closeSpies[mockCallCount] = jest.spyOn(newMockClient, 'close');
-        mockCallCount++;
+        closeSpies.push(jest.spyOn(newMockClient, 'close'));
         return newMockClient;
       });
 
@@ -249,11 +245,7 @@ describe("MongoDBClientFactory", () => {
         { id: "client2", url: "mongodb://localhost:27018/db2" }
       ];
 
-      // Create separate mock clients for each connection
-      const mockClients: jest.Mocked<MongoClient>[] = [];
-      
       // Mock the MongoClient constructor to return different instances
-      let mockCallCount = 0;
       MockedMongoClient.mockImplementation(() => {
         const newMockClient = {
           connect: jest.fn().mockResolvedValue(undefined),
@@ -261,7 +253,6 @@ describe("MongoDBClientFactory", () => {
           db: jest.fn(),
           topology: {},
         } as unknown as jest.Mocked<MongoClient>;
-        mockClients[mockCallCount++] = newMockClient;
         return newMockClient;
       });
 
@@ -294,12 +285,8 @@ describe("MongoDBClientFactory", () => {
         { id: "primary", url: "mongodb://localhost:27017/primary" },
         { id: "secondary", url: "mongodb://localhost:27018/secondary" }
       ];
-
-      // Create separate mock clients for each connection
-      const mockClients: jest.Mocked<MongoClient>[] = [];
       
       // Mock the MongoClient constructor to return different instances
-      let mockCallCount = 0;
       MockedMongoClient.mockImplementation(() => {
         const newMockClient = {
           connect: jest.fn().mockResolvedValue(undefined),
@@ -307,7 +294,6 @@ describe("MongoDBClientFactory", () => {
           db: jest.fn(),
           topology: {},
         } as unknown as jest.Mocked<MongoClient>;
-        mockClients[mockCallCount++] = newMockClient;
         return newMockClient;
       });
 
