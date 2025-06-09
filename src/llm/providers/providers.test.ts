@@ -1,9 +1,9 @@
 import { LLMPurpose, ResolvedLLMModelMetadata, LLMModelInternalKeysSet } from "../../types/llm.types";
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
-         extractTokensAmountAndLimitFromErrorMsg }  from "../response-processing/llm-response-tools";
-import { bedrockClaudeProviderManifest, AWS_COMPLETIONS_CLAUDE_V35 } from "./bedrock/bedrock-claude/bedrock-claude.manifest";
-import { azureOpenAIProviderManifest, GPT_COMPLETIONS_GPT4, GPT_COMPLETIONS_GPT4_32k } from "./openai/azure-openai/azure-openai.manifest";
-import { bedrockLlamaProviderManifest, AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT } from "./bedrock/bedrock-llama/bedrock-llama.manifest";
+         extractTokensAmountAndLimitFromErrorMsg }  from "../responseProcessing/llm-response-tools";
+import { bedrockClaudeProviderManifest, AWS_COMPLETIONS_CLAUDE_V35 } from "./bedrock/bedrockClaude/bedrock-claude.manifest";
+import { azureOpenAIProviderManifest, GPT_COMPLETIONS_GPT4, GPT_COMPLETIONS_GPT4_32k } from "./openai/azureOpenai/azure-openai.manifest";
+import { bedrockLlamaProviderManifest, AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT } from "./bedrock/bedrockLlama/bedrock-llama.manifest";
 import { loadBaseEnvVarsOnly } from "../../lifecycle/env";
 
 // Load environment variables (including MongoDB URL) from .env file

@@ -5,9 +5,9 @@ import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
 import { RetryFunc } from "../types/control.types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { withRetry } from "../utils/control-utils";
-import { PromptAdapter } from "./response-processing/llm-prompt-adapter";
-import { log, logErrWithContext, logWithContext } from "./router-tracking/llm-router-logging";
-import LLMStats from "./router-tracking/llm-stats";
+import { PromptAdapter } from "./responseProcessing/llm-prompt-adapter";
+import { log, logErrWithContext, logWithContext } from "./routerTracking/llm-router-logging";
+import LLMStats from "./routerTracking/llm-stats";
 import { LLMRetryConfig } from "./providers/llm-provider.types";
 
 /**
