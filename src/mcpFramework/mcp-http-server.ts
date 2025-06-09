@@ -8,7 +8,7 @@ import mcpConfig from "../config/mcp.config";
 /** 
  * Class to handle HTTP requests and responses for the Model Context Protocol (MCP) server.
  */
-class McpHttpServer {
+export default class McpHttpServer {
   /**
    * Constructor.
    */
@@ -103,4 +103,4 @@ class McpHttpServer {
    
 }
  
-export default McpHttpServer;
+

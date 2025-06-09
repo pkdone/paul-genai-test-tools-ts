@@ -9,7 +9,7 @@ import { LLMProviderSpecificConfig } from "../../llm-provider.types";
 /**
  * Class for Azure's own managed version of the OpenAI service.
  */
-class AzureOpenAILLM extends BaseOpenAILLM {
+export default class AzureOpenAILLM extends BaseOpenAILLM {
   // Private fields
   private readonly client: OpenAI;
   private readonly modelToDeploymentMappings: Map<string, string>;
@@ -81,5 +81,3 @@ class AzureOpenAILLM extends BaseOpenAILLM {
     } 
   }
 }
-
-export default AzureOpenAILLM;

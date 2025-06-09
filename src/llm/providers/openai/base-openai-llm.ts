@@ -6,7 +6,7 @@ import AbstractLLM from "../abstract-llm";
 /**
  * Abstract base class for all OpenAI-based LLM providers.
  */
-abstract class BaseOpenAILLM extends AbstractLLM {
+export default abstract class BaseOpenAILLM extends AbstractLLM {
   /**
    * 
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
@@ -100,5 +100,3 @@ abstract class BaseOpenAILLM extends AbstractLLM {
    */
   protected abstract buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
 }
-
-export default BaseOpenAILLM;

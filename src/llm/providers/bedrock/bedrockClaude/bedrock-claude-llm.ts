@@ -5,7 +5,7 @@ import { BEDROCK_CLAUDE } from "./bedrock-claude.manifest";
 /** 
  * Class for the AWS Bedrock [Anthropic] Claude LLMs.
  */
-class BedrockClaudeLLM extends BaseBedrockLLM {
+export default class BedrockClaudeLLM extends BaseBedrockLLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
@@ -66,5 +66,3 @@ interface ClaudeCompletionLLMSpecificResponse {
     output_tokens?: number;
   };
 }
-
-export default BedrockClaudeLLM;

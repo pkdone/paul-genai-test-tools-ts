@@ -20,7 +20,7 @@ interface SourceFileCodeMetadata {
 /**
  * Provides ability to query the codebase, using Vector Search under the covers.
  */
-class CodeQuestioner {
+export default class CodeQuestioner {
   // Private fields
   private readonly colctn: Collection<SourceFileCodeMetadata>;
   private readonly promptBuilder = new PromptBuilder();
@@ -118,4 +118,4 @@ class CodeQuestioner {
 }
 
 
-export default CodeQuestioner;
+

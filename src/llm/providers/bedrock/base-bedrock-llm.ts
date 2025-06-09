@@ -17,7 +17,7 @@ import AbstractLLM from "../abstract-llm";
  * ThrottlingException, ModelNotReadyException, ModelTimeoutException, ValidationException,
  * CredentialsProviderError
  */
-abstract class BaseBedrockLLM extends AbstractLLM {
+export default abstract class BaseBedrockLLM extends AbstractLLM {
   // Private fields
   private readonly client: BedrockRuntimeClient;
 
@@ -154,5 +154,3 @@ interface TitanEmbeddingsLLMSpecificResponse {
     tokenCount?: number;
   }[];
 }
-
-export default BaseBedrockLLM;

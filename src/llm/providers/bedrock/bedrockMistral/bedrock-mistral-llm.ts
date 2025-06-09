@@ -6,7 +6,7 @@ import { BEDROCK_MISTRAL } from "./bedrock-mistral.manifest";
  * Class for the AWS Bedrock Mistral LLMs.
  *
  */
-class BedrockMistralLLM extends BaseBedrockLLM {
+export default class BedrockMistralLLM extends BaseBedrockLLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
@@ -65,4 +65,4 @@ interface MistralCompletionLLMSpecificResponse {
   }
 }
 
-export default BedrockMistralLLM;
+

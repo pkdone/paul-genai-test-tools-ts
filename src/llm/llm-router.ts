@@ -17,7 +17,7 @@ import { LLMRetryConfig } from "./providers/llm-provider.types";
  * 
  * See the `README` for the LLM non-functional behaviours abstraction / protection applied.
  */
-class LLMRouter {
+export default class LLMRouter {
   // Private fields
   private readonly llmStats: LLMStats;
   private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
@@ -289,5 +289,3 @@ class LLMRouter {
     );    
   }
 }
-
-export default LLMRouter;

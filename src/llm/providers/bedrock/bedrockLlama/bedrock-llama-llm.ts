@@ -6,7 +6,7 @@ import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, BEDROCK_LLAMA } from "./bedroc
  * Class for the AWS Bedrock Llama LLMs.
  *
  */
-class BedrockLlamaLLM extends BaseBedrockLLM {
+export default class BedrockLlamaLLM extends BaseBedrockLLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
@@ -62,4 +62,4 @@ interface LlamaCompletionLLMSpecificResponse {
   generation_token_count?: number;
 }
 
-export default BedrockLlamaLLM;
+

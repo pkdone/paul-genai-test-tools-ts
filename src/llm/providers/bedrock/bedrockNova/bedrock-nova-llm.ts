@@ -5,7 +5,7 @@ import { BEDROCK_NOVA } from "./bedrock-nova.manifest";
 /** 
  * Class for the AWS Bedrock Nova LLMs.
  */
-class BedrockNovaLLM extends BaseBedrockLLM {
+export default class BedrockNovaLLM extends BaseBedrockLLM {
   /**
    * Get the model family this LLM implementation belongs to.
    */
@@ -73,4 +73,4 @@ interface NovaCompletionLLMSpecificResponse {
   }
 }
 
-export default BedrockNovaLLM;
+

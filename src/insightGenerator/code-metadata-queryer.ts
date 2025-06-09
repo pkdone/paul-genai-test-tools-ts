@@ -67,7 +67,7 @@ interface ProcsAndTriggers {
 /**
  * Class responsible for querying code metadata from the database.
  */
-export class CodeMetadataQueryer {
+export default class CodeMetadataQueryer {
   // Private field for the Mongo Collection
   private readonly colctn: Collection<SourceFileRecord>;
 
@@ -253,4 +253,4 @@ export class CodeMetadataQueryer {
   }
 }
 
-export default CodeMetadataQueryer;
+

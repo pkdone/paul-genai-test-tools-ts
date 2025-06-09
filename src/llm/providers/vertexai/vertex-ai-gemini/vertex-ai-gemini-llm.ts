@@ -22,7 +22,7 @@ const VERTEXAI_TERMINAL_FINISH_REASONS = [ FinishReason.BLOCKLIST, FinishReason.
  * 
  * GoogleApiError, ClientError, GoogleAuthError, GoogleGenerativeAIError, IllegalArgumentError
  */
-class VertexAIGeminiLLM extends AbstractLLM {
+export default class VertexAIGeminiLLM extends AbstractLLM {
   // Private fields
   private readonly vertexAiApiClient: VertexAI;
   private readonly embeddingsApiClient: aiplatform.PredictionServiceClient;
@@ -230,4 +230,3 @@ class VertexAIGeminiLLM extends AbstractLLM {
   }
 }
 
-export default VertexAIGeminiLLM;

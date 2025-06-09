@@ -17,7 +17,7 @@ import { convertTextToJSON } from "../utils/json-tools";
 /** 
  * Loads each source file into a class to represent it.
  */
-class CodebaseToDBLoader {
+export default class CodebaseToDBLoader {
   // Private fields
   private readonly promptBuilder = new PromptBuilder();
   private doneCheckingAlreadyCapturedFiles = false;
@@ -203,4 +203,4 @@ class CodebaseToDBLoader {
   }
 }
 
-export default CodebaseToDBLoader;
+

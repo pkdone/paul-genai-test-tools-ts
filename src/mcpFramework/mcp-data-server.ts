@@ -5,7 +5,7 @@ import mcpConfig from "../config/mcp.config";
 /** 
  * Class representing the MCP Data Server.
  */
-class McpDataServer {
+export default class McpDataServer {
   /**
    * Constructor.
    */
@@ -30,4 +30,3 @@ class McpDataServer {
   }  
 }
  
-export default McpDataServer;

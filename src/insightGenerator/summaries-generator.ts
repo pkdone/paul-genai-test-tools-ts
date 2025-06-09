@@ -12,7 +12,7 @@ import { transformJSToTSFilePath } from "../utils/path-utils";
  * Generates metadata in database collections to capture application information,
  * such as business entities and processes, for a given project.
  */
-class SummariesGenerator {
+export default class SummariesGenerator {
   private readonly promptBuilder = new PromptBuilder();
   private readonly destinationCollection: Collection;
   private readonly llmProviderDescription: string;
@@ -125,4 +125,4 @@ class SummariesGenerator {
   }
 }
 
-export default SummariesGenerator;
+

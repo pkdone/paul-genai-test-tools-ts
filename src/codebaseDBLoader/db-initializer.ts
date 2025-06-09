@@ -7,7 +7,7 @@ import databaseConfig from "../config/database.config";
 /**
  * Class for initializing the MongoDB database.
  */
-class DBInitializer {
+export default class DBInitializer {
   // Private members
   private readonly db: Db;
 
@@ -111,4 +111,4 @@ class DBInitializer {
   }
 }
 
-export default DBInitializer;
+

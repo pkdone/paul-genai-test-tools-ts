@@ -7,7 +7,7 @@ import { OPENAI } from "./openai.manifest";
 /**
  * Class for the public OpenAI service.
  */
-class OpenAILLM extends BaseOpenAILLM {
+export default class OpenAILLM extends BaseOpenAILLM {
   // Private fields
   private readonly client: OpenAI;
 
@@ -59,6 +59,4 @@ class OpenAILLM extends BaseOpenAILLM {
     } 
   }
 }
-
-export default OpenAILLM;
 

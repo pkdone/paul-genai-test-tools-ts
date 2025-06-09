@@ -11,7 +11,7 @@ import { BadConfigurationLLMError } from "../../types/llm-errors.types";
  * Abstract class for any LLM provider services - provides outline of abstract methods to be
  * implemented by an extended class that implements a specific LLM integration.
  */
-abstract class AbstractLLM implements LLMProviderImpl {
+export default abstract class AbstractLLM implements LLMProviderImpl {
   // Fields
   protected readonly llmModelsMetadata: Record<string, ResolvedLLMModelMetadata>;
   protected readonly providerSpecificConfig: LLMProviderSpecificConfig;
@@ -155,6 +155,4 @@ abstract class AbstractLLM implements LLMProviderImpl {
    * Is the token limit exceeded?
    */
   protected abstract isTokenLimitExceeded(error: unknown): boolean;
-}  
-
-export default AbstractLLM;
+}

@@ -3,7 +3,7 @@ import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary } from "../../types/l
 /**
  * Class for accumulating and tracking statistics of LLM invocation result types.
  */
-class LLMStats {
+export default class LLMStats {
   // Private fields
   private readonly doPrintEventTicks: boolean;
   private readonly statusTypes: Record<string, LLMStatsCategoryStatus> = {
@@ -79,5 +79,3 @@ class LLMStats {
     if (this.doPrintEventTicks) console.log(statusType.symbol);
   }
 }
-
-export default LLMStats;
