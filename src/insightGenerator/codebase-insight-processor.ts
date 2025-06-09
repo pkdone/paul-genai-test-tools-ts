@@ -1,7 +1,7 @@
 import path from "path";
 import { promises as fs } from "fs";
 import fileSystemConfig from "../config/fileSystem.config";
-import serverConfig from "../config/server.config";
+import mcpConfig from "../config/mcp.config";
 import promptsConfig from "../config/prompts.config";
 import { readFile, writeFile, readDirContents } from "../utils/fs-utils";
 import { getFileSuffix } from "../utils/path-utils";
@@ -41,7 +41,7 @@ export class CodebaseInsightProcessor {
       return outputFilePath;
     });
 
-    return await promiseAllThrottled<string>(jobs, serverConfig.MAX_CONCURRENCY);
+    return await promiseAllThrottled<string>(jobs, mcpConfig.MAX_CONCURRENCY);
   }
   
   /**

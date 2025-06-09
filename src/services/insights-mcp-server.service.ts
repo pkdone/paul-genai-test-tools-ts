@@ -3,7 +3,7 @@ import { injectable, inject } from "tsyringe";
 import type { MongoClient } from 'mongodb';
 import McpHttpServer from "../mcpFramework/mcp-http-server";
 import databaseConfig from "../config/database.config";
-import serverConfig from "../config/server.config";
+import mcpConfig from "../config/mcp.config";
 import InsightsDataServer from "../insightsServer/insights-data-server";
 import McpDataServer from "../mcpFramework/mcp-data-server";
 import { getProjectNameFromPath } from "../utils/path-utils";
@@ -43,13 +43,13 @@ export class InsightsMcpServerService implements Service {
     const analysisDataServer = new InsightsDataServer(this.mongoClient, databaseConfig.CODEBASE_DB_NAME, projectName);
     const mcpDataServer = new McpDataServer(analysisDataServer);
     const mcpServer = mcpDataServer.configure();
-    const mcpHttpServer = new McpHttpServer(mcpServer, serverConfig.DEFAULT_MCP_HOSTNAME);
+    const mcpHttpServer = new McpHttpServer(mcpServer, mcpConfig.DEFAULT_MCP_HOSTNAME);
     const httpServer = mcpHttpServer.configure();
     
     // Return a Promise that keeps the server running until it's closed
     await new Promise<void>((resolve) => {
-      httpServer.listen(serverConfig.DEFAULT_MCP_PORT, () => { 
-        console.log(`MCP server listening on port ${serverConfig.DEFAULT_MCP_PORT}`); 
+      httpServer.listen(mcpConfig.DEFAULT_MCP_PORT, () => { 
+        console.log(`MCP server listening on port ${mcpConfig.DEFAULT_MCP_PORT}`); 
       });
       
       httpServer.on("close", () => {

@@ -4,7 +4,7 @@ import path from "path";
 import databaseConfig from "../config/database.config";
 import fileSystemConfig from "../config/fileSystem.config";
 import promptsConfig from "../config/prompts.config";
-import serverConfig from "../config/server.config";
+import mcpConfig from "../config/mcp.config";
 import { readFile, buildDirDescendingListOfFiles } from "../utils/fs-utils";
 import { getFileSuffix, transformJSToTSFilePath } from "../utils/path-utils";
 import { countLines } from "../utils/text-utils";
@@ -58,7 +58,7 @@ class CodebaseToDBLoader {
       }
     });
 
-    await promiseAllThrottled(jobs, serverConfig.MAX_CONCURRENCY);
+    await promiseAllThrottled(jobs, mcpConfig.MAX_CONCURRENCY);
   }
 
   /**
