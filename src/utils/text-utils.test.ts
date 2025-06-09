@@ -1,6 +1,4 @@
 import { countLines, joinArrayWithSeparators } from "./text-utils";
-import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
-import { Double } from "bson";
 
 describe("Text utilities", () => {
   describe("countLines", () => {
@@ -25,15 +23,4 @@ describe("Text utilities", () => {
     });
   });
 
-  describe("convertArrayOfNumbersToArrayOfDoubles", () => {
-    test("converts numbers to BSON Doubles", () => {
-      const numbers = [1, 2.5, 3.14];
-      const doubles = convertArrayOfNumbersToArrayOfDoubles(numbers);
-      expect(doubles).toHaveLength(3);
-      expect(doubles[0]).toBeInstanceOf(Double);
-      expect(doubles[0].valueOf()).toBe(1);
-      expect(doubles[1].valueOf()).toBe(2.5);
-      expect(doubles[2].valueOf()).toBe(3.14);
-    });
-  });
 }); 
