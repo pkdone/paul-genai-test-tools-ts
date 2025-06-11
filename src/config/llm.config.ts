@@ -2,9 +2,9 @@
  * LLM (Large Language Model) configuration.
  */
 export const llmConfig = {
-  LLM_ROLE_USER: "user" as string,
-  LLM_ROLE_ASSISTANT: "assistant" as string, 
-  LLM_ROLE_SYSTEM: "system" as string,
+  LLM_ROLE_USER: "user",
+  LLM_ROLE_ASSISTANT: "assistant", 
+  LLM_ROLE_SYSTEM: "system",
   DEFAULT_MIN_RETRY_DELAY_MILLIS: 20 * 1000,
   DEFAULT_MAX_RETRY_ADDITIONAL_MILLIS: 30 * 1000,
   DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS: 7 * 60 * 1000,
