@@ -10,7 +10,7 @@ const BEDROCK_DEEPSEEK_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_DEEPSEEK_COMPLET
 
 // Exported constants
 export const BEDROCK_DEEPSEEK = "BedrockDeepseek";
-export const AWS_COMPLETIONS_DEEPSEEKE_R1 = "AWS_COMPLETIONS_DEEPSEEKE_R1";
+export const AWS_COMPLETIONS_DEEPSEEK_R1 = "AWS_COMPLETIONS_DEEPSEEK_R1";
 
 export const bedrockDeepseekProviderManifest: LLMProviderManifest = {
   providerName: "Bedrock Deepseek",
@@ -28,7 +28,7 @@ export const bedrockDeepseekProviderManifest: LLMProviderManifest = {
       maxTotalTokens: 8192,
     },
     primaryCompletion: {
-      modelKey: AWS_COMPLETIONS_DEEPSEEKE_R1,
+      modelKey: AWS_COMPLETIONS_DEEPSEEK_R1,
       urnEnvKey: BEDROCK_DEEPSEEK_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
       maxCompletionTokens: 16384,

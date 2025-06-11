@@ -45,9 +45,10 @@ export function getErrorText(error: unknown): string {
  * stack.
  */
 export function getErrorStack(obj: unknown): string {
-  if (obj instanceof Error && obj.stack) {
-    return obj.stack;
+  if (obj instanceof Error) {
+    return obj.stack ?? `Error: ${obj.message} (Stack trace not available)`;
   } else {
-    return new Error().stack ?? 'No stack trace available';
+    // For non-Error objects, provide a generic message or a new stack trace indicating it's for a non-Error
+    return `Stack trace for non-Error object (details: ${JSON.stringify(obj)}): \n${new Error().stack ?? 'No stack trace available'}`;
   }
 }
