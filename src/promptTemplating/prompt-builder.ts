@@ -72,10 +72,9 @@ export class PromptBuilder {
     for (const item of contentToReplaceList) {
       const { label, content } = item;
       const wrappedLabel = `{${label}}`;
-      const regex = new RegExp(wrappedLabel, "g");
 
       if (replacedText.includes(wrappedLabel)) {
-        replacedText = replacedText.replace(regex, content);
+        replacedText = replacedText.replaceAll(wrappedLabel, content);
       } else {
         console.warn(`Warning: No replacements found for label "${wrappedLabel}" in template "${templateReference}".`);
       }
