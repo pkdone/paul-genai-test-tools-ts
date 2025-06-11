@@ -79,7 +79,7 @@ export default class LLMRouter {
    */
   async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}): Promise<number[] | null> {
     context.purpose = LLMPurpose.EMBEDDINGS;
-    const llmFunc = this.llm.generateEmbeddings.bind(this.llm);
+    const llmFunc = this.llm.generateEmbeddings;
     const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
 
     if (contentResponse !== null && !(Array.isArray(contentResponse) && contentResponse.every(item => typeof item === 'number'))) {
@@ -284,8 +284,8 @@ export default class LLMRouter {
     if (availableModelQualities.length <= 0) throw new BadConfigurationLLMError("No LLM implementation completions models provided");
     return availableModelQualities.map(quality => 
       quality === LLMModelQuality.PRIMARY 
-        ? this.llm.executeCompletionPrimary.bind(this.llm)
-        : this.llm.executeCompletionSecondary.bind(this.llm)
+        ? this.llm.executeCompletionPrimary
+        : this.llm.executeCompletionSecondary
     );    
   }
 }

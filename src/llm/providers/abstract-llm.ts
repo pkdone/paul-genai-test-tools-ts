@@ -72,25 +72,28 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
 
   /**
    * Generate embeddings for the given content.
+   * Uses arrow function to enable easier binding of `this` context.
    */
-  async generateEmbeddings(content: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
+  generateEmbeddings = async (content: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> => {
     return this.executeLLMImplFunction(this.modelsKeys.embeddingsModelKey, LLMPurpose.EMBEDDINGS, content, asJson, context);
   }
 
   /**
    * Execute the LLM function for the primary completion model.
+   * Uses arrow function to enable easier binding of `this` context.
    */
-  async executeCompletionPrimary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
+  executeCompletionPrimary = async (prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> => {
     return this.executeLLMImplFunction(this.modelsKeys.primaryCompletionModelKey, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
   /**
    * Execute the LLM function for the secondary completion model.
+   * Uses arrow function to enable easier binding of `this` context.
    */
-  async executeCompletionSecondary(prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> {
+  executeCompletionSecondary = async (prompt: string, asJson = false, context: LLMContext = {}): Promise<LLMFunctionResponse> => {
     const secondaryCompletion = this.modelsKeys.secondaryCompletionModelKey;
     if (!secondaryCompletion) throw new BadConfigurationLLMError(`'Secondary' text model for ${this.constructor.name} was not defined`);
-    return await this.executeLLMImplFunction(secondaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
+    return this.executeLLMImplFunction(secondaryCompletion, LLMPurpose.COMPLETIONS, prompt, asJson, context);
   }
 
   /**

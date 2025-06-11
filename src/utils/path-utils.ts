@@ -13,14 +13,7 @@ export function getProjectNameFromPath(filePath: string): string {
  * Returns the suffix of a filename from a full file path.
  */
 export function getFileSuffix(filepath: string): string {
-  const baseName = path.basename(filepath);
-  let suffix = "";
-
-  if (baseName.includes(".")) {
-    suffix = baseName.split(".").pop() ?? "";
-  }
-
-  return suffix;
+  return path.extname(filepath).slice(1); // .slice(1) to remove the leading dot
 }  
 
 /**
