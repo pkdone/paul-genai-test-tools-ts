@@ -103,6 +103,7 @@ export default class LLMRouter {
                           modelQualityOverride: LLMModelQuality | null = null
                          ): Promise<LLMGeneratedContent | null> {                            
     const availableModelQualities = modelQualityOverride? [modelQualityOverride] : this.llm.getAvailableCompletionModelQualities();
+    if (availableModelQualities.length === 0) throw new BadConfigurationLLMError("No available completion model qualities found for the provider.");
     const modelQualityCompletionFunctions = this.getModelQualityCompletionFunctions(availableModelQualities);
     context.purpose = LLMPurpose.COMPLETIONS;
     context.modelQuality = availableModelQualities[0];
@@ -186,10 +187,12 @@ export default class LLMRouter {
       
       if (nextAction.shouldCropPrompt && llmResponse) {
         currentPrompt = this.cropPromptForTokenLimit(currentPrompt, llmResponse);
+
         if (currentPrompt.trim() === "") {
           logWithContext(`Prompt became empty after cropping for resource '${resourceName}', terminating attempts.`, context);
-          break; // Terminate if prompt is empty
+          break; 
         }
+
         continue; // Try again with same LLM function but cropped prompt
       }
       
