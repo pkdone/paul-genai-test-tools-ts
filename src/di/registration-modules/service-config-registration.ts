@@ -14,7 +14,8 @@ const SERVICE_CONFIGURATIONS = new Map<symbol, ServiceRunnerConfig>([
   // Services with specific requirements
   [TOKENS.InlineInsightsService, { requiresMongoDB: false, requiresLLM: true }],
   [TOKENS.MDBConnectionTestService, { requiresMongoDB: true, requiresLLM: false }],
-  [TOKENS.PluggableLLMsTestService, { requiresMongoDB: false, requiresLLM: true }]
+  [TOKENS.PluggableLLMsTestService, { requiresMongoDB: false, requiresLLM: true }],
+  [TOKENS.ReportGenerationService, { requiresMongoDB: true, requiresLLM: false }]
 ]);
 
 /**
