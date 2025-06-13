@@ -4,7 +4,7 @@ import type { MongoClient } from "mongodb";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
 import { TOKENS } from "../di/tokens";
-import { fileSystemConfig, reportConfig } from "../config";
+import { fileSystemConfig, reportingConfig } from "../config";
 import { clearDirectory, writeFile } from "../utils/fs-utils";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import path from "path";
@@ -42,12 +42,9 @@ export class ReportGenerationService implements Service {
     await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
     const projectName = getProjectNameFromPath(srcDirPath);      
     console.log(`Creating report for project: ${projectName}`);
-    const htmlFilePath = path.join(fileSystemConfig.OUTPUT_DIR, reportConfig.OUTPUT_SUMMARY_HTML_FILE);
-    const appReportGenerator = new AppReportGenerator();
-    await writeFile(htmlFilePath, appReportGenerator.generateHTMLReport());      
+    const htmlFilePath = path.join(fileSystemConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
+    const appReportGenerator = new AppReportGenerator(this.mongoClient, projectName);
+    await writeFile(htmlFilePath, await appReportGenerator.generateHTMLReport());      
     console.log(`View generated report in a browser: file://${path.resolve(htmlFilePath)}`);
-
-    // Simulate an async operation to avoid linting warning
-    await new Promise(resolve => setTimeout(resolve, 0));    
   }
 }
