@@ -9,3 +9,4 @@ export { llmConfig } from './llm.config';
 export { mcpConfig } from './mcp.config';
 export { promptsConfig } from './prompts.config';
 export { reportingConfig } from './reporting.config';
+export { reportConfig } from './report.config';

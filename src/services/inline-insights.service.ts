@@ -41,6 +41,6 @@ export class InlineInsightsService implements Service {
     await insightProcessor.processSourceFilesWithPrompts(this.llmRouter, srcFilepaths, 
       cleanSrcDirPath, prompts, llmName);      
     this.llmRouter.displayLLMStatusDetails();
-    console.log(`View generated results in the '${fileSystemConfig.OUTPUT_DIR}' folder`);
+    console.log(`View generated results in the 'file://${fileSystemConfig.OUTPUT_DIR}' folder`);
   }
 } 
