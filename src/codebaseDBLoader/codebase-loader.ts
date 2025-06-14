@@ -87,9 +87,11 @@ export default class CodebaseToDBLoader {
 
     if ('error' in summaryResult && typeof summaryResult.error === 'string') {
       summaryError = summaryResult.error;
-    } else {
+    } else if (typeof summaryResult === 'object' && !('error' in summaryResult)) {
       summary = summaryResult as BaseFileSummary | JavaScriptFileSummary;
       summaryVector = await this.getContentEmbeddings(filepath, JSON.stringify(summary), "summary");
+    } else {
+      summaryError = "Unexpected summary result structure";
     }
     
     const contentVector = await this.getContentEmbeddings(filepath, content, "content");
@@ -101,7 +103,7 @@ export default class CodebaseToDBLoader {
       linesCount,
       summary: summary ?? null, 
       summaryError: summaryError ?? null, 
-      summaryVector, // Will be null if summary failed
+      summaryVector, // Will be null if summary failed or was not generated
       content,  
       contentVector,    
     });
