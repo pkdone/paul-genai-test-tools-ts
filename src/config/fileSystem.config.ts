@@ -23,7 +23,7 @@ export const fileSystemConfig = {
     "woff2", "xls", "xlsx", "xul", "zip", "3gp", "3g2", "7z", "ear",
     "war", "tar", "gz", "tgz"
   ] as const,
-  SOURCE_FILES_FOR_CODE: ["js", "ts", "java", "py"] as const,
+  SOURCE_FILES_FOR_CODE: ["js", "ts", "java", "py", "sql"] as const,
   JAVA_FILE_TYPE: "java",
   SRC_FOLDER_NAME: "/src/",
   DIST_FOLDER_NAME: "/dist/",
