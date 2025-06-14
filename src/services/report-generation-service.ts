@@ -28,7 +28,6 @@ export class ReportGenerationService implements Service {
    */
   async execute(): Promise<void> {
     console.log('Connecting to MongoDB...');
-    await this.mongoClient.connect();
     await this.generateReport(this.env.CODEBASE_DIR_PATH);
   }
 

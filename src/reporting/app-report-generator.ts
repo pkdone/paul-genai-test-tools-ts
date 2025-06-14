@@ -97,10 +97,10 @@ export default class AppReportGenerator {
    * Generate a HTML table with header and normal rows from an array of objects (rows).
    */
   private generateHTMLTableFromArrayOfObjects(keyForArrayOfObjects: Record<string, string | number>[] | null) {
-    if (!keyForArrayOfObjects) return [];
+    if (!keyForArrayOfObjects || keyForArrayOfObjects.length === 0) return [];
     const html: string[] = [];
     html.push("<p><table>");
-    const keysOfInterest = Object.keys(keyForArrayOfObjects[0]); // Use first object's keys
+    const keysOfInterest = Object.keys(keyForArrayOfObjects[0]); // Now safe
     html.push("<tr>");
 
     for (const key of keysOfInterest) {
