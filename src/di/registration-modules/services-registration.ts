@@ -3,7 +3,7 @@ import { TOKENS } from "../tokens";
 import { CodebaseCaptureService } from "../../services/codebase-capture.service";
 import { CodebaseQueryService } from "../../services/code-query.service";
 import { InsightsFromDBGenerationService } from "../../services/insights-from-db-generation.service";
-import { RawCodeGenerateInsightsToFileService } from "../../services/raw-code-generate-insights-to-file.service";
+import { OneShotGenerateInsightsService } from "../../services/one-shot-generate-insights.service";
 import { MDBConnectionTestService } from "../../services/mdb-connection-test.service";
 import { PluggableLLMsTestService } from "../../services/test-pluggable-llms.service";
 import { McpServerService } from "../../services/mcp-server.service";
@@ -17,7 +17,7 @@ export function registerServices(): void {
   container.registerSingleton(TOKENS.CodebaseCaptureService, CodebaseCaptureService);
   container.registerSingleton(TOKENS.CodebaseQueryService, CodebaseQueryService);
   container.registerSingleton(TOKENS.InsightsFromDBGenerationService, InsightsFromDBGenerationService);
-  container.registerSingleton(TOKENS.RawCodeGenerateInsightsToFileService, RawCodeGenerateInsightsToFileService);
+  container.registerSingleton(TOKENS.OneShotGenerateInsightsService, OneShotGenerateInsightsService);
   container.registerSingleton(TOKENS.MDBConnectionTestService, MDBConnectionTestService);
   container.registerSingleton(TOKENS.PluggableLLMsTestService, PluggableLLMsTestService);
   container.registerSingleton(TOKENS.McpServerService, McpServerService);
