@@ -12,7 +12,7 @@ import { TOKENS } from "../di/tokens";
  * Service to generate inline insights.
  */
 @injectable()
-export class InlineInsightsService implements Service {
+export class OneShotGenerateInsightsService implements Service {
   /**
    * Constructor with dependency injection.
    */

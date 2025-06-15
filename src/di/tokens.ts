@@ -15,11 +15,11 @@ export const TOKENS = {
   
   // Services
   CodebaseCaptureService: Symbol.for('CodebaseCaptureService'),
-  CodeQueryService: Symbol.for('CodeQueryService'),
-  InsightGenerationService: Symbol.for('InsightGenerationService'),
-  InlineInsightsService: Symbol.for('InlineInsightsService'),
+  CodebaseQueryService: Symbol.for('CodebaseQueryService'),
+  InsightsFromDBGenerationService: Symbol.for('InsightsFromDBGenerationService'),
+  OneShotGenerateInsightsService: Symbol.for('OneShotGenerateInsightsService'),
   PluggableLLMsTestService: Symbol.for('PluggableLLMsTestService'),
   MDBConnectionTestService: Symbol.for('MDBConnectionTestService'),
-  InsightsMcpServerService: Symbol.for('InsightsMcpServerService'),
+  McpServerService: Symbol.for('McpServerService'),
   ReportGenerationService: Symbol.for('ReportGenerationService'),
 } as const; 

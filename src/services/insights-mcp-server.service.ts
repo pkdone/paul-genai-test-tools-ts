@@ -16,7 +16,7 @@ import { gracefulShutdown } from "../lifecycle/env";
  * Service to run the MCP insights server.
  */
 @injectable()
-export class InsightsMcpServerService implements Service {
+export class McpServerService implements Service {
   /**
    * Constructor with dependency injection.
    */

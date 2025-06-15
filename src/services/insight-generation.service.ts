@@ -13,7 +13,7 @@ import { TOKENS } from "../di/tokens";
  * Service to generate insights.
  */
 @injectable()
-export class InsightGenerationService implements Service {
+export class InsightsFromDBGenerationService implements Service {
   /**
    * Constructor with dependency injection.
    */

@@ -14,7 +14,7 @@ import { TOKENS } from "../di/tokens";
  * Service to query the codebase.
  */
 @injectable()
-export class CodeQueryService implements Service {
+export class CodebaseQueryService implements Service {
   /**
    * Constructor with dependency injection.
    */

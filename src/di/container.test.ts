@@ -41,8 +41,8 @@ describe('Dependency Registration', () => {
       
       // Verify that environment variables and services are registered
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
-      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
-      expect(container.isRegistered(TOKENS.InsightGenerationService)).toBe(true);
+      expect(container.isRegistered(TOKENS.CodebaseQueryService)).toBe(true);
+      expect(container.isRegistered(TOKENS.InsightsFromDBGenerationService)).toBe(true);
       
       // Verify that LLM and MongoDB dependencies are not registered
       expect(container.isRegistered(TOKENS.LLMService)).toBe(false);
@@ -61,7 +61,7 @@ describe('Dependency Registration', () => {
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
       expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(true);
       expect(container.isRegistered(TOKENS.MongoClient)).toBe(true);
-      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
+      expect(container.isRegistered(TOKENS.CodebaseQueryService)).toBe(true);
       
       // Verify that LLM dependencies are not registered
       expect(container.isRegistered(TOKENS.LLMService)).toBe(false);
@@ -81,7 +81,7 @@ describe('Dependency Registration', () => {
       
       // Dependencies should still be registered
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
-      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
+      expect(container.isRegistered(TOKENS.CodebaseQueryService)).toBe(true);
     });
     
     it('should handle multiple calls with MongoDB without errors', async () => {
@@ -194,14 +194,14 @@ describe('Dependency Registration', () => {
       
       // First registration
       await registerDependencies(config);
-      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
+      expect(container.isRegistered(TOKENS.CodebaseQueryService)).toBe(true);
       
       // Second registration should not cause issues
       await registerDependencies(config);
-      expect(container.isRegistered(TOKENS.CodeQueryService)).toBe(true);
+      expect(container.isRegistered(TOKENS.CodebaseQueryService)).toBe(true);
       
       // Test that registration is idempotent - verify service tokens are registered
-      expect(container.isRegistered(TOKENS.InsightGenerationService)).toBe(true);
+      expect(container.isRegistered(TOKENS.InsightsFromDBGenerationService)).toBe(true);
       expect(container.isRegistered(TOKENS.PluggableLLMsTestService)).toBe(true);
     });
     

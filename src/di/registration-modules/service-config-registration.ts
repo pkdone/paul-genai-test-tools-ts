@@ -7,12 +7,12 @@ import { ServiceRunnerConfig } from "../../types/service.types";
 const SERVICE_CONFIGURATIONS = new Map<symbol, ServiceRunnerConfig>([
   // Main application services that require both MongoDB and LLM
   [TOKENS.CodebaseCaptureService, { requiresMongoDB: true, requiresLLM: true }],
-  [TOKENS.CodeQueryService, { requiresMongoDB: true, requiresLLM: true }],
-  [TOKENS.InsightGenerationService, { requiresMongoDB: true, requiresLLM: true }],
-  [TOKENS.InsightsMcpServerService, { requiresMongoDB: true, requiresLLM: true }],
+  [TOKENS.CodebaseQueryService, { requiresMongoDB: true, requiresLLM: true }],
+  [TOKENS.InsightsFromDBGenerationService, { requiresMongoDB: true, requiresLLM: true }],
+  [TOKENS.McpServerService, { requiresMongoDB: true, requiresLLM: true }],
   
   // Services with specific requirements
-  [TOKENS.InlineInsightsService, { requiresMongoDB: false, requiresLLM: true }],
+  [TOKENS.OneShotGenerateInsightsService, { requiresMongoDB: false, requiresLLM: true }],
   [TOKENS.MDBConnectionTestService, { requiresMongoDB: true, requiresLLM: false }],
   [TOKENS.PluggableLLMsTestService, { requiresMongoDB: false, requiresLLM: true }],
   [TOKENS.ReportGenerationService, { requiresMongoDB: true, requiresLLM: false }]
