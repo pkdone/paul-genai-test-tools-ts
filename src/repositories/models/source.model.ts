@@ -35,11 +35,11 @@ export interface SourceFileRecord {
   readonly filepath: string;
   readonly type: string;
   readonly linesCount: number;
-  readonly summary: DatabaseSummary | null;
-  readonly summaryError: string | null;
-  readonly summaryVector: number[] | null;
+  readonly summary?: DatabaseSummary;
+  readonly summaryError?: string;
+  readonly summaryVector?: number[];
   readonly content: string;
-  readonly contentVector: number[] | null;
+  readonly contentVector?: number[];
 }
 
 /**

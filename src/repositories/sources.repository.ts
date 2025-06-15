@@ -152,7 +152,7 @@ export default class SourcesRepository implements ISourcesRepository {
     for await (const record of cursor) {
       results.push({
         filepath: record.filepath,
-        summary: record.summary ?? undefined,
+        ...(record.summary && { summary: record.summary }),
       });
     }
     
@@ -206,5 +206,48 @@ export default class SourcesRepository implements ISourcesRepository {
       );
       throw error;
     }
+  }
+
+  /**
+   * Get file paths for a specific project (used for testing)
+   */
+  async getFilePaths(projectName: string): Promise<string[]> {
+    const query = { projectName };
+    const options = { projection: { filepath: 1 } };
+    
+    const cursor = this.collection.find(query, options);
+    const results: string[] = [];
+    
+    for await (const record of cursor) {
+      results.push(record.filepath);
+    }
+    
+    return results;
+  }
+
+  /**
+   * Get file count for a project
+   */
+  async getFileCount(projectName: string): Promise<number> {
+    const pipeline = [
+      { $match: { projectName } },
+      { $group: { _id: "", count: { $sum: 1 } } }
+    ];
+
+    const result = await this.collection.aggregate<{ count: number }>(pipeline).toArray();
+    return result.length > 0 && result[0] ? result[0].count : 0;
+  }
+
+  /**
+   * Get total lines of code for a project
+   */
+  async getTotalLinesOfCode(projectName: string): Promise<number> {
+    const pipeline = [
+      { $match: { projectName } },
+      { $group: { _id: "", count: { $sum: "$linesCount" } } }
+    ];
+
+    const result = await this.collection.aggregate<{ count: number }>(pipeline).toArray();
+    return result.length > 0 && result[0] ? result[0].count : 0;
   }
 } 

@@ -20,4 +20,4 @@ export interface AppSummaryRecord {
 /**
  * Type for partial app summary updates
  */
-export type AppSummaryUpdate = Record<string, unknown>; 
+export type AppSummaryUpdate = Record<string, unknown>;

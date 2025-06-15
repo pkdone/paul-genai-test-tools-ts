@@ -49,4 +49,19 @@ export interface ISourcesRepository {
     numCandidates: number, 
     limit: number
   ): Promise<SourceFileMetadata[]>;
+
+  /**
+   * Get file paths for a specific project (used for testing)
+   */
+  getFilePaths(projectName: string): Promise<string[]>;
+
+  /**
+   * Get file count for a project
+   */
+  getFileCount(projectName: string): Promise<number>;
+
+  /**
+   * Get total lines of code for a project
+   */
+  getTotalLinesOfCode(projectName: string): Promise<number>;
 } 

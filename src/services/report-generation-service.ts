@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import type { MongoClient } from "mongodb";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
 import { TOKENS } from "../di/tokens";
@@ -10,6 +9,7 @@ import { getProjectNameFromPath } from "../utils/path-utils";
 import path from "path";
 import AppReportGenerator from "../dataReporting/reportGeneration/app-report-generator";
 import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
 
 /**
  * Service to generate a report of an application's composition.
@@ -20,8 +20,8 @@ export class ReportGenerationService implements Service {
    * Constructor with dependency injection.
    */  
   constructor(
-    @inject(TOKENS.MongoClient) private readonly mongoClient: MongoClient,
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars
   ) {}
 
@@ -44,7 +44,7 @@ export class ReportGenerationService implements Service {
     const projectName = getProjectNameFromPath(srcDirPath);      
     console.log(`Creating report for project: ${projectName}`);
     const htmlFilePath = path.join(fileSystemConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
-    const appReportGenerator = new AppReportGenerator(this.mongoClient, this.sourcesRepository, projectName);
+    const appReportGenerator = new AppReportGenerator(this.sourcesRepository, this.appSummariesRepository, projectName);
     await writeFile(htmlFilePath, await appReportGenerator.generateHTMLReport());      
     console.log(`View generated report in a browser: file://${path.resolve(htmlFilePath)}`);
   }

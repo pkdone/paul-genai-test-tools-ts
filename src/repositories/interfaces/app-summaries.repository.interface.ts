@@ -28,4 +28,17 @@ export interface IAppSummariesRepository {
    * Delete an app summary record
    */
   deleteAppSummary(projectName: string): Promise<void>;
+
+  /**
+   * Get app summary info for reporting (description and LLM provider)
+   */
+  getAppSummaryInfo(projectName: string): Promise<{
+    appdescription?: string;
+    llmProvider?: string;
+  } | null>;
+
+  /**
+   * Get specific field data from app summary
+   */
+  getAppSummaryField<T = string>(projectName: string, fieldName: string): Promise<T | null>;
 } 

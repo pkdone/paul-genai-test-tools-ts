@@ -10,6 +10,7 @@ import { logErrorMsgAndDetail } from "../../utils/error-utils";
 import { BaseFileSummary, JavaScriptFileSummary } from "./types";
 import { FileSummarizer } from "./file-summarizer";
 import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
+import type { SourceFileRecord } from "../../repositories/models/source.model";
 import { TOKENS } from "../../di/tokens";
 
 /** 
@@ -89,30 +90,36 @@ export default class CodebaseToDBLoader {
     const summaryResult = await this.fileSummarizer.getSummaryAsJSON(filepath, type, content);
     let summary: BaseFileSummary | JavaScriptFileSummary | undefined;
     let summaryError: string | undefined;
-    let summaryVector: number[] | null = null; // Initialize as null
+    let summaryVector: number[] | undefined;
 
     if ('error' in summaryResult && typeof summaryResult.error === 'string') {
       summaryError = summaryResult.error;
     } else if (typeof summaryResult === 'object' && !('error' in summaryResult)) {
       summary = summaryResult as BaseFileSummary | JavaScriptFileSummary;
-      summaryVector = await this.getContentEmbeddings(filepath, JSON.stringify(summary), "summary");
+      const summaryVectorResult = await this.getContentEmbeddings(filepath, JSON.stringify(summary), "summary");
+      summaryVector = summaryVectorResult ?? undefined;
     } else {
       summaryError = "Unexpected summary result structure";
     }
     
-    const contentVector = await this.getContentEmbeddings(filepath, content, "content");
-    await this.sourcesRepository.insertSourceFile({
+    const contentVectorResult = await this.getContentEmbeddings(filepath, content, "content");
+    const contentVector = contentVectorResult ?? undefined;
+    
+    // Build the source file record with conditional optional fields
+    const sourceFileRecord: Omit<SourceFileRecord, "_id"> = {
       projectName: this.projectName,
       filename,
       filepath,
       type,
       linesCount,
-      summary: summary ?? null, 
-      summaryError: summaryError ?? null, 
-      summaryVector, // Will be null if summary failed or was not generated
-      content,  
-      contentVector,    
-    });
+      content,
+      ...(summary !== undefined && { summary }),
+      ...(summaryError !== undefined && { summaryError }),
+      ...(summaryVector !== undefined && { summaryVector }),
+      ...(contentVector !== undefined && { contentVector }),
+    };
+    
+    await this.sourcesRepository.insertSourceFile(sourceFileRecord);
   }
 
   /**

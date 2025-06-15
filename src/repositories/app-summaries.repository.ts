@@ -66,4 +66,37 @@ export default class AppSummariesRepository implements IAppSummariesRepository {
   async deleteAppSummary(projectName: string): Promise<void> {
     await this.collection.deleteOne({ projectName });
   }
+
+  /**
+   * Get app summary info for reporting (description and LLM provider)
+   */
+  async getAppSummaryInfo(projectName: string): Promise<{
+    appdescription?: string;
+    llmProvider?: string;
+  } | null> {
+    const query = { projectName };
+    const options = {
+      projection: { _id: 0, appdescription: 1, llmProvider: 1 },
+    };
+    return await this.collection.findOne(query, options);
+  }
+
+  /**
+   * Get specific field data from app summary
+   * @example
+   * // For string fields:
+   * // getAppSummaryField<string>(projectName, 'llmProvider')
+   * // For array fields:
+   * // getAppSummaryField<string[]>(projectName, 'businessProcesses')
+   * // For custom object arrays:
+   * // getAppSummaryField<BusinessProcess[]>(projectName, 'busprocesses')
+   */
+  async getAppSummaryField<T = string>(projectName: string, fieldName: string): Promise<T | null> {
+    const query = { projectName };
+    const options = {
+      projection: { _id: 0, [fieldName]: 1 },
+    };
+    const record = await this.collection.findOne<Record<string, T>>(query, options);
+    return record?.[fieldName] ?? null;
+  }
 } 

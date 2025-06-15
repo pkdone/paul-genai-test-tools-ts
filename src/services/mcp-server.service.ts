@@ -1,13 +1,13 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import type { MongoClient } from 'mongodb';
-import { databaseConfig, mcpConfig } from "../config";
+import { mcpConfig } from "../config";
 import McpHttpServer from "../dataReporting/mcpServing/mcp-http-server";
 import McpDataServer from "../dataReporting/mcpServing/mcp-data-server";
 import InsightsDataServer from "../dataReporting/mcpServing/insights-data-server";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
+import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
 import { TOKENS } from "../di/tokens";
 import type { MongoDBClientFactory } from "../mdb/mdb-client-factory";
 import { gracefulShutdown } from "../lifecycle/env";
@@ -21,7 +21,7 @@ export class McpServerService implements Service {
    * Constructor with dependency injection.
    */
   constructor(
-    @inject(TOKENS.MongoClient) private readonly mongoClient: MongoClient,
+    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     @inject(TOKENS.MongoDBClientFactory) private readonly mongoDBClientFactory: MongoDBClientFactory,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars
   ) {}
@@ -39,7 +39,7 @@ export class McpServerService implements Service {
   private async startMcpServer(): Promise<void> {
     const srcDirPath = this.env.CODEBASE_DIR_PATH;
     const projectName = getProjectNameFromPath(srcDirPath);     
-    const analysisDataServer = new InsightsDataServer(this.mongoClient, databaseConfig.CODEBASE_DB_NAME, projectName);
+    const analysisDataServer = new InsightsDataServer(this.appSummariesRepository, projectName);
     const mcpDataServer = new McpDataServer(analysisDataServer);
     const mcpServer = mcpDataServer.configure();
     const mcpHttpServer = new McpHttpServer(mcpServer, mcpConfig.DEFAULT_MCP_HOSTNAME);

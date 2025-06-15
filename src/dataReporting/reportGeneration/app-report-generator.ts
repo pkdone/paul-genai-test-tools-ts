@@ -1,52 +1,29 @@
 import { injectable, inject } from "tsyringe";
-import { Collection, MongoClient } from "mongodb";
-import { databaseConfig, reportingConfig } from "../../config";
+import { reportingConfig } from "../../config";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
 import DBCodeMetadataQueryer from "../../dbMetadataQueryer/db-code-metadata-queryer";
 import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
+import type { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
 import { TOKENS } from "../../di/tokens";
-
-// Interface for what we need from the AppSummaries collection
-interface AppSummariesCollRecord {
-  projectName: string;
-  appdescription: string;
-  llmProvider: string;
-}
-
-// Interface for the aggregation $sum command to be sent
-interface SumCommand {
-  "$sum": number | string;  // Literal or agg exx`x`pression that should resolve to a literal
-}
-
-// Interface for the aggregation count response from issuing the $sum command
-interface SumResponse {
-  "count": number;
-}
 
 /**
  * Class responsible for generating the HTML report for the application.
  */
 @injectable()
 export default class AppReportGenerator {
-  // Private field for the Mongo Collection
+  // Private fields
   private readonly currentDate;
-  private readonly sourcesColctn;
-  private readonly appSummariesColctn: Collection<AppSummariesCollRecord>;
   private readonly codeMetadataQueryer;
-
 
   /**
    * Constructor
    */
   constructor(
-    @inject(TOKENS.MongoClient) readonly mongoDBClient: MongoClient, 
-    @inject(TOKENS.SourcesRepository) sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     private readonly projectName: string
   ) { 
     this.currentDate = new Date().toLocaleString();
-    const db = mongoDBClient.db(databaseConfig.CODEBASE_DB_NAME);
-    this.sourcesColctn = db.collection(databaseConfig.SOURCES_COLLCTN_NAME);
-    this.appSummariesColctn = db.collection(databaseConfig.SUMMARIES_COLLCTN_NAME); 
     this.codeMetadataQueryer = new DBCodeMetadataQueryer(sourcesRepository, this.projectName);
   }
 
@@ -74,17 +51,17 @@ export default class AppReportGenerator {
    * Generate HTML paragraph containing the previously captured app summary.
    */
   async generateAppStatisticsAsHTML() {    
-    const appSummaryRecord = await this.queryAppSummaryInfo();
+    const appSummaryRecord = await this.appSummariesRepository.getAppSummaryInfo(this.projectName);
     if (!appSummaryRecord) throw new Error("Unable to generate app statistics for a report because no app summary data exists - ensure you first run the scripts to process the source data and generate insights");
     const html: string[] = [];
     html.push(`\n<h2>Application Statistics</h2>\n`);
     html.push(this.generateHTMLKeyValueParagraph("Application", this.projectName));
     html.push(this.generateHTMLKeyValueParagraph("Snapshot date/time", this.currentDate));
-    html.push(this.generateHTMLKeyValueParagraph("LLM provider", appSummaryRecord.llmProvider));
-    html.push(this.generateHTMLKeyValueParagraph("Number of files", String(await this.getSumInProject({"$sum": 1}))));
-    html.push(this.generateHTMLKeyValueParagraph("Lines of code", String(await this.getSumInProject({"$sum": "$linesCount"}))));
+    html.push(this.generateHTMLKeyValueParagraph("LLM provider", appSummaryRecord.llmProvider ?? "Unknown"));
+    html.push(this.generateHTMLKeyValueParagraph("Number of files", String(await this.sourcesRepository.getFileCount(this.projectName))));
+    html.push(this.generateHTMLKeyValueParagraph("Lines of code", String(await this.sourcesRepository.getTotalLinesOfCode(this.projectName))));
     html.push(`\n<h2>Application Description</h2>\n`);
-    html.push(`\n<p>${appSummaryRecord.appdescription}</p>\n`);
+    html.push(`\n<p>${appSummaryRecord.appdescription ?? "No description available"}</p>\n`);
     return html;
   }
 
@@ -95,7 +72,7 @@ export default class AppReportGenerator {
   async generateHTMLTableForCategory(category: string, label: string) {
     const html: string[] = [];
     html.push(`\n<h2>${label}</h2>\n`);
-    const componentList = await this.queryAppSummaryCollectionSubDocuments(category);    
+    const componentList = await this.appSummariesRepository.getAppSummaryField<Record<string, unknown>[]>(this.projectName, category);    
     html.push(...this.generateHTMLTableFromArrayOfObjects(componentList));
     console.log(`Generated ${label} table`);
     return html;
@@ -104,7 +81,7 @@ export default class AppReportGenerator {
   /**
    * Generate a HTML table with header and normal rows from an array of objects (rows).
    */
-  private generateHTMLTableFromArrayOfObjects(keyForArrayOfObjects: Record<string, string | number>[] | null) {
+  private generateHTMLTableFromArrayOfObjects(keyForArrayOfObjects: Record<string, unknown>[] | null) {
     if (!keyForArrayOfObjects || keyForArrayOfObjects.length === 0) return [];
     const html: string[] = [];
     html.push("<p><table>");
@@ -122,12 +99,21 @@ export default class AppReportGenerator {
       html.push("<tr>");
 
       for (const key of keysOfInterest) {
-        const value = field[key] ?? "";
+        const value = field[key];
+        let stringValue = "";
+        
+        if (value != null) {
+          if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+            stringValue = String(value);
+          } else {
+            stringValue = JSON.stringify(value);
+          }
+        }
         
         if (key === "link") {
-          html.push(`<td><a href="${value}" target="_blank">Link</a></td>`);
+          html.push(`<td><a href="${stringValue}" target="_blank">Link</a></td>`);
         } else {
-          html.push(`<td>${value}</td>`);
+          html.push(`<td>${stringValue}</td>`);
         }
       }
 
@@ -203,55 +189,4 @@ export default class AppReportGenerator {
     return `<p>${key}: <b>${value}</b>${extraContent}</p>`;
   }
 
-  /**
-   * Query app summary DB for app description for this project.
-   */
-  private async queryAppSummaryInfo(): Promise<AppSummariesCollRecord | null> {
-    const query = { 
-      projectName: this.projectName, 
-    };
-    const options = {
-      projection: { _id: 0, appdescription: 1, llmProvider: 1 },
-    };
-    return await this.appSummariesColctn.findOne(query, options);
-  }  
-
-  /**
-   * Query the appSummaries collection to locate the specific appSummary record for the current 
-   * project name and return the array of sub-documents for a named fied in this record.
-   */
-  private async queryAppSummaryCollectionSubDocuments(fieldname: string): Promise<Record<string, string>[] | null> {
-    const query = { 
-      projectName: this.projectName, 
-    };
-    const options = {
-      projection: { _id: 0, [fieldname]: 1 },
-    };
-    const record = await this.appSummariesColctn.findOne<Record<string, Record<string, string>[]>>(query, options);
-    return record?.[fieldname] ?? null;
-  }  
-
-  /**
-   * Aggregate by performing a sum for against all captued files for this project.
-   */
-  private async getSumInProject(sumOperationCmnd: SumCommand): Promise<number> {
-    const pipeline = [
-      {$match: {
-        projectName: this.projectName,
-      }},
-    
-      {$group: {
-        _id: "",
-        count: sumOperationCmnd,
-      }},    
-    ];
-
-    const result = this.sourcesColctn.aggregate<SumResponse>(pipeline);
-    const payload = await result.toArray();
-    
-    if (payload.length > 0 && payload[0] && typeof payload[0].count === 'number') {
-      return payload[0].count;
-    }
-    return 0; // Return 0 if no documents matched or count is not found
-  }  
 }
