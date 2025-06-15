@@ -1,5 +1,6 @@
 import { LLMPurpose, LLMResponseStatus, LLMContext, LLMFunctionResponse, LLMResponseTokensUsage } from "../../types/llm.types";
-import { extractTokensAmountFromMetadataDefaultingMissingValues, extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult } from "./llm-response-tools";
+import { extractTokensAmountFromMetadataDefaultingMissingValues, postProcessAsJSONIfNeededGeneratingNewResult } from "./llm-response-tools";
+import { extractTokensAmountAndLimitFromErrorMsg } from "./llm-error-pattern-parser";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../providers/bedrock/bedrock-error-patterns";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../providers/openai/openai-error-patterns";
 

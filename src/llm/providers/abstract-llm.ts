@@ -3,8 +3,9 @@ import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMResponseSt
 import { LLMImplSpecificResponseSummary, LLMProviderSpecificConfig } from "./llm-provider.types";
 import { getErrorText } from "../../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
-         extractTokensAmountAndLimitFromErrorMsg, postProcessAsJSONIfNeededGeneratingNewResult,
+         postProcessAsJSONIfNeededGeneratingNewResult,
        } from "../responseProcessing/llm-response-tools";
+import { extractTokensAmountAndLimitFromErrorMsg } from "../responseProcessing/llm-error-pattern-parser";
 import { BadConfigurationLLMError } from "../../types/llm-errors.types";
 
 /**

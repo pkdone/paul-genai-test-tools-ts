@@ -1,4 +1,5 @@
 import { ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern, LLMResponseTokensUsage } from "../../types/llm.types";
+import { llmConfig } from "../../config";
 
 /**
  * Extract token usage information from LLM error message.
@@ -116,4 +117,31 @@ function calculateTokensFromChars(
     promptTokens: Math.max(promptTokensDerived, maxTotalTokens + 1),
     completionTokens: 0
   };
+}
+
+/**
+ * Extract token usage information and limit from LLM error message. Derives values
+ * for all prompt/completions/maxTokens if not found in the error message.
+ */
+export function extractTokensAmountAndLimitFromErrorMsg(
+  modelKey: string, 
+  prompt: string, 
+  errorMsg: string,
+  modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
+  errorPatterns?: readonly LLMErrorMsgRegExPattern[]
+) : LLMResponseTokensUsage {
+  const { maxTotalTokens: parsedMaxTokens, promptTokens: parsedPromptTokens, completionTokens } = 
+    parseTokenUsageFromLLMError(modelKey, errorMsg, modelsMetadata, errorPatterns);  
+  const publishedMaxTotalTokens = modelsMetadata[modelKey].maxTotalTokens;
+  let maxTotalTokens = parsedMaxTokens;
+  let promptTokens = parsedPromptTokens;
+
+  if (promptTokens < 0) { 
+    const assumedMaxTotalTokens = (maxTotalTokens > 0) ? maxTotalTokens : publishedMaxTotalTokens;
+    const estimatedPromptTokensConsumed = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
+    promptTokens = Math.max(estimatedPromptTokensConsumed, (assumedMaxTotalTokens + 1));
+  }
+
+  if (maxTotalTokens <= 0) maxTotalTokens = publishedMaxTotalTokens;
+  return { promptTokens, completionTokens, maxTotalTokens };
 }

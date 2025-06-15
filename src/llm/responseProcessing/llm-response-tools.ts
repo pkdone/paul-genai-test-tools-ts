@@ -1,11 +1,8 @@
-
-import { llmConfig } from "../../config";
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
-         LLMResponseStatus, LLMContext, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern} from "../../types/llm.types";
+         LLMResponseStatus, LLMContext, ResolvedLLMModelMetadata} from "../../types/llm.types";
 import { BadResponseContentLLMError } from "../../types/llm-errors.types";
 import { convertTextToJSON } from "../../utils/json-tools";
 import { getErrorText } from "../../utils/error-utils";
-import { parseTokenUsageFromLLMError } from "./llm-error-pattern-parser";
 
 /**
  * Extract token usage information from LLM response metadata, defaulting missing
@@ -22,33 +19,6 @@ export function extractTokensAmountFromMetadataDefaultingMissingValues(
   if (promptTokens < 0) promptTokens = Math.max(1, maxTotalTokens - completionTokens + 1);
   return { promptTokens, completionTokens, maxTotalTokens };
 }
-
-/**
- * Extract token usage information and limit from LLM error message. Derives values
- * for all prompt/completions/maxTokens if not found in the error message.
- */
-export function extractTokensAmountAndLimitFromErrorMsg(
-  modelKey: string, 
-  prompt: string, 
-  errorMsg: string,
-  modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
-  errorPatterns?: readonly LLMErrorMsgRegExPattern[]
-) : LLMResponseTokensUsage {
-  const { maxTotalTokens: parsedMaxTokens, promptTokens: parsedPromptTokens, completionTokens } = 
-    parseTokenUsageFromLLMError(modelKey, errorMsg, modelsMetadata, errorPatterns);  
-  const publishedMaxTotalTokens = modelsMetadata[modelKey].maxTotalTokens;
-  let maxTotalTokens = parsedMaxTokens;
-  let promptTokens = parsedPromptTokens;
-
-  if (promptTokens < 0) { 
-    const assumedMaxTotalTokens = (maxTotalTokens > 0) ? maxTotalTokens : publishedMaxTotalTokens;
-    const estimatedPromptTokensConsumed = Math.floor(prompt.length / llmConfig.MODEL_CHARS_PER_TOKEN_ESTIMATE);
-    promptTokens = Math.max(estimatedPromptTokensConsumed, (assumedMaxTotalTokens + 1));
-  }
-
-  if (maxTotalTokens <= 0) maxTotalTokens = publishedMaxTotalTokens;
-  return { promptTokens, completionTokens, maxTotalTokens };
-}    
 
 /** 
  * Post-process the LLM response, converting it to JSON if necessary, and build the
