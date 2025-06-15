@@ -1,5 +1,5 @@
 import { MongoClient, Collection, Sort } from "mongodb";
-import { fileSystemConfig } from "../../config";
+import { fileSystemConfig } from "../config";
 
 // Enum for stored procedure complexity levels
 enum Complexity {

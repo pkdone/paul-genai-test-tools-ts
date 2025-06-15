@@ -1,7 +1,7 @@
 import { Collection, MongoClient } from "mongodb/mongodb";
 import { databaseConfig, reportingConfig } from "../../config";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
-import DBCodeMetadataQueryer from "../../dataCapture/insightsFromDBGeneration/db-code-metadata-queryer";
+import DBCodeMetadataQueryer from "../../dbMetadataQueryer/db-code-metadata-queryer";
 
 // Interface for what we need from the AppSummaries collection
 interface AppSummariesCollRecord {

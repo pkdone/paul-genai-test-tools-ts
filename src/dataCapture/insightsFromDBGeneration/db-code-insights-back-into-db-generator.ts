@@ -1,7 +1,7 @@
 import LLMRouter from "../../llm/llm-router";
 import { promptsConfig, reportingConfig } from "../../config";
 import { MongoClient, Collection } from "mongodb";
-import DBCodeMetadataQueryer from "./db-code-metadata-queryer";
+import DBCodeMetadataQueryer from "../../dbMetadataQueryer/db-code-metadata-queryer";
 import { logErrorMsgAndDetail } from "../../utils/error-utils";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
 import { PromptBuilder } from "../../promptTemplating/prompt-builder";
