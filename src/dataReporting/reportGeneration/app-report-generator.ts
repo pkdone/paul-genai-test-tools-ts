@@ -240,6 +240,10 @@ export default class AppReportGenerator {
 
     const result = this.sourcesColctn.aggregate<SumResponse>(pipeline);
     const payload = await result.toArray();
-    return payload[0].count;
+    
+    if (payload.length > 0 && payload[0] && typeof payload[0].count === 'number') {
+      return payload[0].count;
+    }
+    return 0; // Return 0 if no documents matched or count is not found
   }  
 }
