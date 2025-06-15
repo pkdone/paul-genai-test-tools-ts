@@ -1,5 +1,7 @@
-import { MongoClient, Collection, Sort } from "mongodb";
+import { injectable, inject } from "tsyringe";
 import { fileSystemConfig } from "../config";
+import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import { TOKENS } from "../di/tokens";
 
 // Enum for stored procedure complexity levels
 enum Complexity {
@@ -8,29 +10,9 @@ enum Complexity {
   HIGH = "high",
 }
 
-// Interface for stored procedures and triggers
-interface StoredProcedureOrTrigger {
-  name: string;
-  purpose: string;
-  complexity: Complexity; 
-  linesOfCode: number;
-}
 
-// Interface for source file record
-interface SourceFileRecord {
-  summary?: {
-    classpath?: string;
-    purpose?: string;
-    implementation?: string;
-    databaseIntegration?: {
-      mechanism: string;
-      description: string;
-    };
-    storedProcedures?: StoredProcedureOrTrigger[];
-    triggers?: StoredProcedureOrTrigger[];
-  };
-  filepath: string;
-}
+
+
 
 // Interface for the database interaction list
 interface ProcsAndTriggers {
@@ -67,21 +49,15 @@ interface ProcsAndTriggers {
 /**
  * Class responsible for querying code metadata from the database.
  */
+@injectable()
 export default class DBCodeMetadataQueryer {
-  // Private field for the Mongo Collection
-  private readonly colctn: Collection<SourceFileRecord>;
-
   /**
    * Constructor
    */
   constructor(
-    readonly mongoClient: MongoClient,
-    readonly databaseName: string,
-    readonly sourceCollectionName: string,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     private readonly projectName: string
   ) {
-    const db = mongoClient.db(databaseName);
-    this.colctn = db.collection<SourceFileRecord>(sourceCollectionName);
   }
 
   /**
@@ -89,21 +65,7 @@ export default class DBCodeMetadataQueryer {
    */
   async buildSourceFileListSummaryList() {
     const srcFilesList: string[] = [];
-    const query = {
-      projectName: this.projectName,
-      type: { $in: fileSystemConfig.SOURCE_FILES_FOR_CODE },
-    };
-    const options = {
-      projection: {
-        _id: 0,
-        "summary.classpath": 1,
-        "summary.purpose": 1,
-        "summary.implementation": 1,
-        filepath: 1,
-      },
-      sort: { "summary.classpath": 1 } as Sort,
-    };
-    const records = await this.colctn.find(query, options).toArray();
+    const records = await this.sourcesRepository.getSourceFileSummaries(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
 
     for (const record of records) {
       const { summary } = record;
@@ -124,47 +86,7 @@ export default class DBCodeMetadataQueryer {
    * Returns a list of database integrations.
    */
   async buildDBInteractionList() {
-    const dbIntegrationsList: {
-      path: string;
-      mechanism: string;
-      description: string;
-    }[] = [];
-    const query = {
-      projectName: this.projectName,
-      type: { $in: fileSystemConfig.SOURCE_FILES_FOR_CODE },
-      "summary.databaseIntegration.mechanism": { $ne: "NONE" },
-    };
-    const options = {
-      projection: {
-        _id: 0,
-        "summary.classpath": 1,
-        "summary.databaseIntegration.mechanism": 1,
-        "summary.databaseIntegration.description": 1,
-        filepath: 1,
-      },
-      sort: {
-        "summary.databaseIntegration.mechanism": 1,
-        "summary.classpath": 1,
-      } as Sort,
-    };
-    const records = await this.colctn.find(query, options).toArray();
-
-    for (const record of records) {
-      const { summary } = record;
-
-      if (!summary?.databaseIntegration) {
-        console.log(`No DB interaction summary exists for file: ${record.filepath}. Skipping.`);
-        continue;
-      }
-
-      dbIntegrationsList.push({
-        path: summary.classpath ?? record.filepath,
-        mechanism: summary.databaseIntegration.mechanism,
-        description: summary.databaseIntegration.description,
-      });
-    }
-
-    return dbIntegrationsList;
+    return await this.sourcesRepository.getDatabaseIntegrations(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
   }
 
   /**
@@ -175,22 +97,8 @@ export default class DBCodeMetadataQueryer {
       procs: { total: 0, low: 0, medium: 0, high: 0, list: [] },
       trigs: { total: 0, low: 0, medium: 0, high: 0, list: [] },
     };
-    const query = {
-      $and: [
-        { projectName: this.projectName },
-        { type: { $in: fileSystemConfig.SOURCE_FILES_FOR_CODE } },
-        {
-          $or: [
-            { "summary.storedProcedures": { $exists: true, $ne: [] } },
-            { "summary.triggers": { $exists: true, $ne: [] } },
-          ],
-        },
-      ],
-    };
-    const options = {
-      projection: { _id: 0, summary: 1, filepath: 1 },
-    };
-    const records = await this.colctn.find(query, options).toArray();
+    
+    const records = await this.sourcesRepository.getStoredProceduresAndTriggers(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
 
     for (const record of records) {
       const { summary } = record;
@@ -203,12 +111,12 @@ export default class DBCodeMetadataQueryer {
       // Process stored procedures
       for (const sp of summary.storedProcedures ?? []) {
         procsAndTriggers.procs.total++;
-        this.incrementComplexityCount(procsAndTriggers.procs, sp.complexity);
+        this.incrementComplexityCount(procsAndTriggers.procs, sp.complexity as Complexity);
         procsAndTriggers.procs.list.push({
           path: record.filepath,
           type: "STORED PROCEDURE",
           functionName: sp.name,
-          complexity: sp.complexity,
+          complexity: sp.complexity as Complexity,
           linesOfCode: sp.linesOfCode,
           purpose: sp.purpose,
         });
@@ -217,12 +125,12 @@ export default class DBCodeMetadataQueryer {
       // Process triggers
       for (const trig of summary.triggers ?? []) {
         procsAndTriggers.trigs.total++;
-        this.incrementComplexityCount(procsAndTriggers.trigs, trig.complexity);
+        this.incrementComplexityCount(procsAndTriggers.trigs, trig.complexity as Complexity);
         procsAndTriggers.trigs.list.push({
           path: record.filepath,
           type: "TRIGGER",
           functionName: trig.name,
-          complexity: trig.complexity,
+          complexity: trig.complexity as Complexity,
           linesOfCode: trig.linesOfCode,
           purpose: trig.purpose,
         });

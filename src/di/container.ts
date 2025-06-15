@@ -5,6 +5,7 @@ import { EnvVars } from "../types/env.types";
 import { TOKENS } from "./tokens";
 import { registerEnvDependencies, registerLLMDependencies, registerMongoDBDependencies, 
          registerServices } from "./registration-modules";
+import { registerRepositories } from "./registration-modules/repositories-registration";
 
 /**
  * Register dependencies based on service configuration.
@@ -15,7 +16,10 @@ export async function registerDependencies(config: ServiceRunnerConfig): Promise
   await registerEnvDependencies(config.requiresLLM);  
   const envVars = container.resolve<EnvVars>(TOKENS.EnvVars);
   if (config.requiresLLM) await registerLLMDependencies(envVars);
-  if (config.requiresMongoDB) await registerMongoDBDependencies(envVars);
+  if (config.requiresMongoDB) {
+    await registerMongoDBDependencies(envVars);
+    registerRepositories();
+  }
   registerServices();  
   console.log('Dependency registration completed');
 }

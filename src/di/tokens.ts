@@ -13,6 +13,10 @@ export const TOKENS = {
   // Configuration
   ServiceRunnerConfig: Symbol.for('ServiceRunnerConfig'),
   
+  // Repositories
+  SourcesRepository: Symbol.for('SourcesRepository'),
+  AppSummariesRepository: Symbol.for('AppSummariesRepository'),
+  
   // Services
   CodebaseCaptureService: Symbol.for('CodebaseCaptureService'),
   CodebaseQueryService: Symbol.for('CodebaseQueryService'),

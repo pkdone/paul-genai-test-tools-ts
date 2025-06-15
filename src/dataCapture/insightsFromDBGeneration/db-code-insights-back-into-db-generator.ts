@@ -1,19 +1,22 @@
-import LLMRouter from "../../llm/llm-router";
+import { injectable, inject } from "tsyringe";
+import type LLMRouter from "../../llm/llm-router";
 import { promptsConfig, reportingConfig } from "../../config";
-import { MongoClient, Collection } from "mongodb";
 import DBCodeMetadataQueryer from "../../dbMetadataQueryer/db-code-metadata-queryer";
 import { logErrorMsgAndDetail } from "../../utils/error-utils";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
 import { PromptBuilder } from "../../promptTemplating/prompt-builder";
 import { transformJSToTSFilePath } from "../../utils/path-utils";
+import type { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
+import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
+import { TOKENS } from "../../di/tokens";
 
 /**
  * Generates metadata in database collections to capture application information,
  * such as business entities and processes, for a given project.
  */
+@injectable()
 export default class DBCodeInsightsBackIntoDBGenerator {
   private readonly promptBuilder = new PromptBuilder();
-  private readonly destinationCollection: Collection;
   private readonly llmProviderDescription: string;
   private readonly codeMetadataQueryer: DBCodeMetadataQueryer;
 
@@ -21,17 +24,13 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    * Creates a new SummariesGenerator.
    */
   constructor(
-    readonly mongoClient: MongoClient,
-    private readonly llmRouter: LLMRouter,
-    readonly databaseName: string,
-    readonly sourceCollectionName: string,
-    readonly destinationCollectionName: string,
+    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
+    @inject(TOKENS.SourcesRepository) sourcesRepository: ISourcesRepository,
     private readonly projectName: string,
   ) {
-    const db = mongoClient.db(databaseName);
-    this.destinationCollection = db.collection(destinationCollectionName);
-    this.codeMetadataQueryer = new DBCodeMetadataQueryer(mongoClient, databaseName, 
-                                                       sourceCollectionName, projectName);
+    // Create DBCodeMetadataQueryer with injected repository
+    this.codeMetadataQueryer = new DBCodeMetadataQueryer(sourcesRepository, projectName);
     this.llmProviderDescription = llmRouter.getModelsUsedDescription();
   }
 
@@ -98,29 +97,14 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    * keyed by the project name.
    */
   private async createAppSummaryRecordInDB(fieldValuesToInclude: Record<string, unknown> = {}) {
-    const record = { projectName: this.projectName, ...fieldValuesToInclude };
-    await this.destinationCollection.replaceOne(
-      { projectName: this.projectName },
-      record,
-      { upsert: true }
-    );
+    await this.appSummariesRepository.createOrReplaceAppSummary(this.projectName, fieldValuesToInclude);
   }
 
   /**
    * Updates the existing 'app summary' record with the specified key-value pairs.
    */
   private async updateAppSummaryRecord(keysValuesObject: Record<string, unknown> ) {
-    const result = await this.destinationCollection.updateOne(
-      { projectName: this.projectName },
-      { $set: keysValuesObject }
-    );
-
-    if (result.modifiedCount < 1) {
-      throw new Error(
-        `Unable to insert dataset with field name(s) '${Object.keys(keysValuesObject).join(", ")}' ` +
-          `into collection '${this.destinationCollection.collectionName}'.`
-      );
-    }
+    await this.appSummariesRepository.updateAppSummary(this.projectName, keysValuesObject);
   }
 }
 

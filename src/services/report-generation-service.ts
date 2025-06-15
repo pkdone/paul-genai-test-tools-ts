@@ -9,6 +9,7 @@ import { clearDirectory, writeFile } from "../utils/fs-utils";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import path from "path";
 import AppReportGenerator from "../dataReporting/reportGeneration/app-report-generator";
+import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 
 /**
  * Service to generate a report of an application's composition.
@@ -20,6 +21,7 @@ export class ReportGenerationService implements Service {
    */  
   constructor(
     @inject(TOKENS.MongoClient) private readonly mongoClient: MongoClient,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars
   ) {}
 
@@ -42,7 +44,7 @@ export class ReportGenerationService implements Service {
     const projectName = getProjectNameFromPath(srcDirPath);      
     console.log(`Creating report for project: ${projectName}`);
     const htmlFilePath = path.join(fileSystemConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
-    const appReportGenerator = new AppReportGenerator(this.mongoClient, projectName);
+    const appReportGenerator = new AppReportGenerator(this.mongoClient, this.sourcesRepository, projectName);
     await writeFile(htmlFilePath, await appReportGenerator.generateHTMLReport());      
     console.log(`View generated report in a browser: file://${path.resolve(htmlFilePath)}`);
   }

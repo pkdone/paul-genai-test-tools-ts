@@ -1,7 +1,10 @@
-import { Collection, MongoClient } from "mongodb/mongodb";
+import { injectable, inject } from "tsyringe";
+import { Collection, MongoClient } from "mongodb";
 import { databaseConfig, reportingConfig } from "../../config";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
 import DBCodeMetadataQueryer from "../../dbMetadataQueryer/db-code-metadata-queryer";
+import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
+import { TOKENS } from "../../di/tokens";
 
 // Interface for what we need from the AppSummaries collection
 interface AppSummariesCollRecord {
@@ -23,6 +26,7 @@ interface SumResponse {
 /**
  * Class responsible for generating the HTML report for the application.
  */
+@injectable()
 export default class AppReportGenerator {
   // Private field for the Mongo Collection
   private readonly currentDate;
@@ -34,12 +38,16 @@ export default class AppReportGenerator {
   /**
    * Constructor
    */
-  constructor(readonly mongoDBClient: MongoClient, private readonly projectName: string) { 
+  constructor(
+    @inject(TOKENS.MongoClient) readonly mongoDBClient: MongoClient, 
+    @inject(TOKENS.SourcesRepository) sourcesRepository: ISourcesRepository,
+    private readonly projectName: string
+  ) { 
     this.currentDate = new Date().toLocaleString();
     const db = mongoDBClient.db(databaseConfig.CODEBASE_DB_NAME);
     this.sourcesColctn = db.collection(databaseConfig.SOURCES_COLLCTN_NAME);
     this.appSummariesColctn = db.collection(databaseConfig.SUMMARIES_COLLCTN_NAME); 
-    this.codeMetadataQueryer = new DBCodeMetadataQueryer(mongoDBClient, databaseConfig.CODEBASE_DB_NAME, databaseConfig.SOURCES_COLLCTN_NAME, this.projectName);
+    this.codeMetadataQueryer = new DBCodeMetadataQueryer(sourcesRepository, this.projectName);
   }
 
   /**

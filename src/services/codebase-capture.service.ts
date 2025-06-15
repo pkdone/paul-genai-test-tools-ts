@@ -8,6 +8,7 @@ import CodebaseToDBLoader from "../dataCapture/codebaseToDBIngestion/codebase-to
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
+import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import { TOKENS } from "../di/tokens";
 
 /**
@@ -21,6 +22,7 @@ export class CodebaseCaptureService implements Service {
   constructor(
     @inject(TOKENS.MongoClient) private readonly mongoClient: MongoClient,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars
   ) {}
 
@@ -44,7 +46,7 @@ export class CodebaseCaptureService implements Service {
     );
     await dbInitializer.ensureRequiredIndexes();
     this.llmRouter.displayLLMStatusSummary();
-    const codebaseToDBLoader = new CodebaseToDBLoader(this.mongoClient, this.llmRouter, projectName, 
+    const codebaseToDBLoader = new CodebaseToDBLoader(this.sourcesRepository, this.llmRouter, projectName, 
                                                       srcDirPath, ignoreIfAlreadyCaptured
     );
     await codebaseToDBLoader.loadIntoDB();      

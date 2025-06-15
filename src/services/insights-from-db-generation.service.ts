@@ -1,12 +1,12 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import type { MongoClient } from 'mongodb';
-import { databaseConfig } from "../config";
 import DBCodeInsightsBackIntoDBGenerator from "../dataCapture/insightsFromDBGeneration/db-code-insights-back-into-db-generator";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
+import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
+import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import { TOKENS } from "../di/tokens";
 
 /**
@@ -18,8 +18,9 @@ export class InsightsFromDBGenerationService implements Service {
    * Constructor with dependency injection.
    */
   constructor(
-    @inject(TOKENS.MongoClient) private readonly mongoClient: MongoClient,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
+    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars
   ) {}
 
@@ -37,9 +38,12 @@ export class InsightsFromDBGenerationService implements Service {
     const projectName = getProjectNameFromPath(srcDirPath);     
     console.log(`Generating insights for project: ${projectName}`);
     this.llmRouter.displayLLMStatusSummary();
-    const summariesGenerator = new DBCodeInsightsBackIntoDBGenerator(this.mongoClient, this.llmRouter, 
-                               databaseConfig.CODEBASE_DB_NAME, databaseConfig.SOURCES_COLLCTN_NAME, 
-                               databaseConfig.SUMMARIES_COLLCTN_NAME, projectName);
+    const summariesGenerator = new DBCodeInsightsBackIntoDBGenerator(
+      this.appSummariesRepository, 
+      this.llmRouter, 
+      this.sourcesRepository,
+      projectName
+    );
     await summariesGenerator.generateSummariesDataInDB();    
     console.log("Finished generating insights for the project");
     console.log("Summary of LLM invocations outcomes:");

@@ -1,33 +1,30 @@
-import { MongoClient, Collection, Double } from "mongodb";
-import LLMRouter from "../llm/llm-router";
-import { databaseConfig, fileSystemConfig, promptsConfig } from "../config";
+import { injectable, inject } from "tsyringe";
+import type LLMRouter from "../llm/llm-router";
+import { fileSystemConfig, promptsConfig } from "../config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
-import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
 import { transformJSToTSFilePath } from "../utils/path-utils";
 import { llmConfig } from "../config";
-
-// Interface for source file record
-interface SourceFileCodeMetadata {
-  projectName: string;
-  type: string;
-  filepath: string;
-  content: string;
-}
+import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import type { SourceFileMetadata } from "../repositories/models/source.model";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Provides ability to query the codebase, using Vector Search under the covers.
  */
+@injectable()
 export default class CodeQuestioner {
   // Private fields
-  private readonly colctn: Collection<SourceFileCodeMetadata>;
   private readonly promptBuilder = new PromptBuilder();
   
   /**
    * Constructor.
    */
-  constructor(readonly mongoClient: MongoClient, private readonly llmRouter: LLMRouter, private readonly projectName: string) { 
-    this.colctn = mongoClient.db(databaseConfig.CODEBASE_DB_NAME).collection(databaseConfig.SOURCES_COLLCTN_NAME);
+  constructor(
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter, 
+    private readonly projectName: string
+  ) { 
   }
 
   /**
@@ -38,7 +35,13 @@ export default class CodeQuestioner {
     const queryVector = await this.llmRouter.generateEmbeddings("Human question", question);
     if (queryVector === null || queryVector.length <= 0) return "No vector was generated for the question - unable to answer question";
     const queryVectorDoubles = convertArrayOfNumbersToArrayOfDoubles(queryVector);  // HACK, see: https://jira.mongodb.org/browse/NODE-5714
-    const bestMatchFiles = await this.findJavaCodeFileMatches(queryVectorDoubles);
+    const bestMatchFiles = await this.sourcesRepository.vectorSearchContent(
+      this.projectName,
+      fileSystemConfig.JAVA_FILE_TYPE,
+      queryVectorDoubles,
+      llmConfig.VECTOR_SEARCH_NUM_CANDIDATES,
+      llmConfig.VECTOR_SEARCH_NUM_LIMIT
+    );
 
     if (bestMatchFiles.length <= 0) {
       console.log("Vector search on code using the question failed to return any results");
@@ -64,47 +67,14 @@ export default class CodeQuestioner {
     }
   }
 
-  /**
-   * Find best matching Java Code Files for a given vectorized code question.
-   */
-  private async findJavaCodeFileMatches(queryVector: Double[]) {
-    const pipeline = [
-      {$vectorSearch: {
-        index: databaseConfig.CONTENT_VECTOR_INDEX_NAME,
-        path: databaseConfig.CONTENT_VECTOR_INDEX,
-        filter: {
-          $and: [
-            {projectName: { $eq: this.projectName} },
-            {type: { $eq: fileSystemConfig.JAVA_FILE_TYPE} },
-          ],
-        },
-        queryVector: queryVector,
-        numCandidates: llmConfig.VECTOR_SEARCH_NUM_CANDIDATES,
-        limit: llmConfig.VECTOR_SEARCH_NUM_LIMIT,
-      }},
 
-      {$project: {
-        _id: 0,
-        filepath: 1,
-        type: 1,
-        content: 1
-      }},
-    ];
-
-    try {
-      return await this.colctn.aggregate<SourceFileCodeMetadata>(pipeline).toArray();  
-    } catch (error: unknown) {
-      logErrorMsgAndDetail(`Problem performing Atlas Vector Search aggregation - ensure the vector index is defined for the '${databaseConfig.SOURCES_COLLCTN_NAME}' collection`, error);    
-      throw error;
-    }
-  }
 
 
   //
   // Turns a list of content of source code file and their respective filetypes and produces one 
   // piece of text using Markdown code-block syntax to delinante the content of each source file.
   //
-  private mergeSourceCodeFilesContentIntoMarkdownText(sourceFileMetadataList: SourceFileCodeMetadata[]) {
+  private mergeSourceCodeFilesContentIntoMarkdownText(sourceFileMetadataList: SourceFileMetadata[]) {
     const markdownParts: string[] = [];
 
     for (const fileMetadata of sourceFileMetadataList) {
