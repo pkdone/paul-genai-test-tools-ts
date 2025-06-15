@@ -77,11 +77,11 @@ export default class McpHttpServer {
   /**
    * Sends an HTTP error response.
    */
-  private sendHTTPError(res: ServerResponse, code: number, externamMsg: string, errMsg: string, error: unknown = null) {
+  private sendHTTPError(res: ServerResponse, code: number, externalMsg: string, errMsg: string, error: unknown = null) {
     logErrorMsgAndDetail(errMsg, error);
   
     if (!res.headersSent) {
-      res.writeHead(code).end(externamMsg);
+      res.writeHead(code).end(externalMsg);
     } else {
       res.end();
     }
