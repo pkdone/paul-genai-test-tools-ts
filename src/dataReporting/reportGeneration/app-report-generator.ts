@@ -1,7 +1,7 @@
 import { Collection, MongoClient } from "mongodb/mongodb";
 import { databaseConfig, reportingConfig } from "../../config";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
-import CodeMetadataQueryer from "../../dataCapture/insightsFromDBGeneration/code-metadata-queryer";
+import DBCodeMetadataQueryer from "../../dataCapture/insightsFromDBGeneration/db-code-metadata-queryer";
 
 // Interface for what we need from the AppSummaries collection
 interface AppSummariesCollRecord {
@@ -39,7 +39,7 @@ export default class AppReportGenerator {
     const db = mongoDBClient.db(databaseConfig.CODEBASE_DB_NAME);
     this.sourcesColctn = db.collection(databaseConfig.SOURCES_COLLCTN_NAME);
     this.appSummariesColctn = db.collection(databaseConfig.SUMMARIES_COLLCTN_NAME); 
-    this.codeMetadataQueryer = new CodeMetadataQueryer(mongoDBClient, databaseConfig.CODEBASE_DB_NAME, databaseConfig.SOURCES_COLLCTN_NAME, this.projectName);
+    this.codeMetadataQueryer = new DBCodeMetadataQueryer(mongoDBClient, databaseConfig.CODEBASE_DB_NAME, databaseConfig.SOURCES_COLLCTN_NAME, this.projectName);
   }
 
   /**

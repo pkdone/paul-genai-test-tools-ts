@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { fileSystemConfig } from "../config";
 import { clearDirectory, buildDirDescendingListOfFiles } from "../utils/fs-utils";
-import { CodebaseInsightProcessor } from "../dataCapture/insightsFromDBGeneration/codebase-insight-processor";
+import { DBCodeInsightsOneshotToFileGenerator } from "../dataCapture/insightsFromDBGeneration/db-code-insights-oneshot-generator";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
@@ -35,7 +35,7 @@ export class OneShotGenerateInsightsService implements Service {
     const cleanSrcDirPath = srcDirPath.replace(fileSystemConfig.TRAILING_SLASH_PATTERN, "");
     const srcFilepaths = await buildDirDescendingListOfFiles(cleanSrcDirPath);
     this.llmRouter.displayLLMStatusSummary();
-    const insightProcessor = new CodebaseInsightProcessor();
+    const insightProcessor = new DBCodeInsightsOneshotToFileGenerator();
     const prompts = await insightProcessor.loadPrompts();
     await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
     await insightProcessor.processSourceFilesWithPrompts(this.llmRouter, srcFilepaths, 

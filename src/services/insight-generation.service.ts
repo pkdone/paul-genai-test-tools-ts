@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import type { MongoClient } from 'mongodb';
 import { databaseConfig } from "../config";
-import SummariesGenerator from "../dataCapture/insightsFromDBGeneration/summaries-generator";
+import DBCodeInsightsBackIntoDBGenerator from "../dataCapture/insightsFromDBGeneration/insights-back-into-db-generator";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
@@ -37,7 +37,7 @@ export class InsightsFromDBGenerationService implements Service {
     const projectName = getProjectNameFromPath(srcDirPath);     
     console.log(`Generating insights for project: ${projectName}`);
     this.llmRouter.displayLLMStatusSummary();
-    const summariesGenerator = new SummariesGenerator(this.mongoClient, this.llmRouter, 
+    const summariesGenerator = new DBCodeInsightsBackIntoDBGenerator(this.mongoClient, this.llmRouter, 
                                databaseConfig.CODEBASE_DB_NAME, databaseConfig.SOURCES_COLLCTN_NAME, 
                                databaseConfig.SUMMARIES_COLLCTN_NAME, projectName);
     await summariesGenerator.generateSummariesDataInDB();    

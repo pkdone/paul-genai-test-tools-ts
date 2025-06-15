@@ -1,7 +1,7 @@
 import LLMRouter from "../../llm/llm-router";
 import { promptsConfig, reportingConfig } from "../../config";
 import { MongoClient, Collection } from "mongodb";
-import CodeMetadataQueryer from "./code-metadata-queryer";
+import DBCodeMetadataQueryer from "./db-code-metadata-queryer";
 import { logErrorMsgAndDetail } from "../../utils/error-utils";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
 import { PromptBuilder } from "../../promptTemplating/prompt-builder";
@@ -11,11 +11,11 @@ import { transformJSToTSFilePath } from "../../utils/path-utils";
  * Generates metadata in database collections to capture application information,
  * such as business entities and processes, for a given project.
  */
-export default class SummariesGenerator {
+export default class DBCodeInsightsBackIntoDBGenerator {
   private readonly promptBuilder = new PromptBuilder();
   private readonly destinationCollection: Collection;
   private readonly llmProviderDescription: string;
-  private readonly codeMetadataQueryer: CodeMetadataQueryer;
+  private readonly codeMetadataQueryer: DBCodeMetadataQueryer;
 
   /**
    * Creates a new SummariesGenerator.
@@ -30,7 +30,7 @@ export default class SummariesGenerator {
   ) {
     const db = mongoClient.db(databaseName);
     this.destinationCollection = db.collection(destinationCollectionName);
-    this.codeMetadataQueryer = new CodeMetadataQueryer(mongoClient, databaseName, 
+    this.codeMetadataQueryer = new DBCodeMetadataQueryer(mongoClient, databaseName, 
                                                        sourceCollectionName, projectName);
     this.llmProviderDescription = llmRouter.getModelsUsedDescription();
   }
