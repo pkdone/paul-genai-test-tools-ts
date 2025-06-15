@@ -17,7 +17,7 @@ export const TOKENS = {
   CodebaseCaptureService: Symbol.for('CodebaseCaptureService'),
   CodebaseQueryService: Symbol.for('CodebaseQueryService'),
   InsightsFromDBGenerationService: Symbol.for('InsightsFromDBGenerationService'),
-  OneShotGenerateInsightsService: Symbol.for('OneShotGenerateInsightsService'),
+  RawCodeGenerateInsightsToFileService: Symbol.for('RawCodeGenerateInsightsToFileService'),
   PluggableLLMsTestService: Symbol.for('PluggableLLMsTestService'),
   MDBConnectionTestService: Symbol.for('MDBConnectionTestService'),
   McpServerService: Symbol.for('McpServerService'),

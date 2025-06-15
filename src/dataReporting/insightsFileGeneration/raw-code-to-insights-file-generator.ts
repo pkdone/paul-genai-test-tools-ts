@@ -18,7 +18,7 @@ export interface FileRequirementPrompt {
 /**
  * Class responsible for processing codebase insights using LLM
  */
-export class DBCodeInsightsOneshotToFileGenerator {
+export class RawCodeToInsightsFileGenerator {
   /**
    * Process source files with prompts and write individual output files.
    */

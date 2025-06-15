@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { fileSystemConfig } from "../config";
 import { clearDirectory, buildDirDescendingListOfFiles } from "../utils/fs-utils";
-import { DBCodeInsightsOneshotToFileGenerator } from "../dataCapture/insightsFromDBGeneration/db-code-insights-oneshot-to-file-generator";
+import { RawCodeToInsightsFileGenerator } from "../dataReporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
@@ -12,7 +12,7 @@ import { TOKENS } from "../di/tokens";
  * Service to generate inline insights.
  */
 @injectable()
-export class OneShotGenerateInsightsService implements Service {
+export class RawCodeGenerateInsightsToFileService implements Service {
   /**
    * Constructor with dependency injection.
    */
@@ -35,7 +35,7 @@ export class OneShotGenerateInsightsService implements Service {
     const cleanSrcDirPath = srcDirPath.replace(fileSystemConfig.TRAILING_SLASH_PATTERN, "");
     const srcFilepaths = await buildDirDescendingListOfFiles(cleanSrcDirPath);
     this.llmRouter.displayLLMStatusSummary();
-    const insightProcessor = new DBCodeInsightsOneshotToFileGenerator();
+    const insightProcessor = new RawCodeToInsightsFileGenerator();
     const prompts = await insightProcessor.loadPrompts();
     await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
     await insightProcessor.processSourceFilesWithPrompts(this.llmRouter, srcFilepaths, 
