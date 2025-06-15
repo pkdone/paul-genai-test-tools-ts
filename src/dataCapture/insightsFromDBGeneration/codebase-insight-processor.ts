@@ -1,11 +1,11 @@
 import path from "path";
 import { promises as fs } from "fs";
-import { fileSystemConfig, mcpConfig, promptsConfig } from "../config";
-import { readFile, writeFile, readDirContents } from "../utils/fs-utils";
-import { getFileSuffix } from "../utils/path-utils";
-import { promiseAllThrottled } from "../utils/control-utils";
-import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
-import LLMRouter from "../llm/llm-router";
+import { fileSystemConfig, mcpConfig, promptsConfig } from "../../config";
+import { readFile, writeFile, readDirContents } from "../../utils/fs-utils";
+import { getFileSuffix } from "../../utils/path-utils";
+import { promiseAllThrottled } from "../../utils/control-utils";
+import { logErrorMsgAndDetail, getErrorText } from "../../utils/error-utils";
+import LLMRouter from "../../llm/llm-router";
 
 /**
  * Interface to define the filename and question of a file requirement prompt

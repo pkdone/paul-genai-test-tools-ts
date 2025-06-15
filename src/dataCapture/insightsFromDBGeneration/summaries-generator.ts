@@ -1,11 +1,11 @@
-import LLMRouter from "../llm/llm-router";
-import { promptsConfig, reportingConfig } from "../config";
+import LLMRouter from "../../llm/llm-router";
+import { promptsConfig, reportingConfig } from "../../config";
 import { MongoClient, Collection } from "mongodb";
 import CodeMetadataQueryer from "./code-metadata-queryer";
-import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { joinArrayWithSeparators } from "../utils/text-utils";
-import { PromptBuilder } from "../promptTemplating/prompt-builder";
-import { transformJSToTSFilePath } from "../utils/path-utils";
+import { logErrorMsgAndDetail } from "../../utils/error-utils";
+import { joinArrayWithSeparators } from "../../utils/text-utils";
+import { PromptBuilder } from "../../promptTemplating/prompt-builder";
+import { transformJSToTSFilePath } from "../../utils/path-utils";
 
 /**
  * Generates metadata in database collections to capture application information,

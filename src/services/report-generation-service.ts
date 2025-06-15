@@ -8,7 +8,7 @@ import { fileSystemConfig, reportingConfig } from "../config";
 import { clearDirectory, writeFile } from "../utils/fs-utils";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import path from "path";
-import AppReportGenerator from "../reporting/app-report-generator";
+import AppReportGenerator from "../dataReporting/reportGeneration/app-report-generator";
 
 /**
  * Service to generate a report of an application's composition.

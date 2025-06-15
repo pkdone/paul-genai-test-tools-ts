@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import type { MongoClient } from 'mongodb';
-import McpHttpServer from "../mcpFramework/mcp-http-server";
 import { databaseConfig, mcpConfig } from "../config";
-import InsightsDataServer from "../insightsServer/insights-data-server";
-import McpDataServer from "../mcpFramework/mcp-data-server";
+import McpHttpServer from "../dataReporting/mcpServing/mcp-http-server";
+import McpDataServer from "../dataReporting/mcpServing/mcp-data-server";
+import InsightsDataServer from "../dataReporting/mcpServing/insights-data-server";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";

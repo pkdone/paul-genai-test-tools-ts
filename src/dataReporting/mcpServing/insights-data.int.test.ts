@@ -1,8 +1,8 @@
 import InsightsDataServer from "./insights-data-server";
-import { databaseConfig } from "../config";
-import { loadBaseEnvVarsOnly } from "../lifecycle/env";
-import { getProjectNameFromPath } from "../utils/path-utils";
-import { MongoDBClientFactory } from "../mdb/mdb-client-factory";
+import { databaseConfig } from "../../config";
+import { loadBaseEnvVarsOnly } from "../../lifecycle/env";
+import { getProjectNameFromPath } from "../../utils/path-utils";
+import { MongoDBClientFactory } from "../../mdb/mdb-client-factory";
 
 describe("AnalysisDataServer", () => {
   it("should return an array of objects where each object has keys 'name' and 'description'", async () => {

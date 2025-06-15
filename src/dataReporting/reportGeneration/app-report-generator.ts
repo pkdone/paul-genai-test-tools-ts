@@ -1,7 +1,7 @@
 import { Collection, MongoClient } from "mongodb/mongodb";
-import { databaseConfig, reportingConfig } from "../config";
-import { joinArrayWithSeparators } from "../utils/text-utils";
-import CodeMetadataQueryer from "../insightGenerator/code-metadata-queryer";
+import { databaseConfig, reportingConfig } from "../../config";
+import { joinArrayWithSeparators } from "../../utils/text-utils";
+import CodeMetadataQueryer from "../../dataCapture/insightsFromDBGeneration/code-metadata-queryer";
 
 // Interface for what we need from the AppSummaries collection
 interface AppSummariesCollRecord {
