@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import type { MongoClient } from 'mongodb';
 import { databaseConfig } from "../config";
-import DBCodeInsightsBackIntoDBGenerator from "../dataCapture/insightsFromDBGeneration/insights-back-into-db-generator";
+import DBCodeInsightsBackIntoDBGenerator from "../dataCapture/insightsFromDBGeneration/db-code-insights-back-into-db-generator";
 import { getProjectNameFromPath } from "../utils/path-utils";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
