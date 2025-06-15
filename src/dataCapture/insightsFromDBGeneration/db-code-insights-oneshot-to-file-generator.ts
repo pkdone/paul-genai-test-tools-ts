@@ -33,7 +33,7 @@ export class DBCodeInsightsOneshotToFileGenerator {
     const jobs = prompts.map(prompt => async () => {
       const result = await this.executePromptAgainstCodebase(prompt, codeBlocksContent, llmRouter);
       const outputFileName = `${prompt.filename}.result`;
-      const outputFilePath = path.join(__dirname, "..", "..", fileSystemConfig.OUTPUT_DIR, outputFileName);
+      const outputFilePath = path.join(__dirname, "..", "..", "..", fileSystemConfig.OUTPUT_DIR, outputFileName);
       await writeFile(outputFilePath, 
         `GENERATED-BY: ${llmName}\n\nREQUIREMENT: ${prompt.question}\n\nRECOMENDATIONS:\n\n${result.trim()}\n`);
       return outputFilePath;
