@@ -1,7 +1,7 @@
 /**
  * Summary interface that includes all possible properties from the database
  */
-export interface DatabaseSummary {
+export interface SourceFileSummary {
   readonly purpose?: string;
   readonly implementation?: string;
   readonly classpath?: string;
@@ -35,7 +35,7 @@ export interface SourceFileRecord {
   readonly filepath: string;
   readonly type: string;
   readonly linesCount: number;
-  readonly summary?: DatabaseSummary;
+  readonly summary?: SourceFileSummary;
   readonly summaryError?: string;
   readonly summaryVector?: number[];
   readonly content: string;
@@ -45,32 +45,12 @@ export interface SourceFileRecord {
 /**
  * Interface for source file metadata used in queries
  */
-export interface SourceFileMetadata {
+export interface SourceFileShortInfo {
   readonly projectName: string;
   readonly type: string;
   readonly filepath: string;
   readonly content: string;
-  readonly summary?: {
-    readonly classpath?: string;
-    readonly purpose?: string;
-    readonly implementation?: string;
-    readonly databaseIntegration?: {
-      readonly mechanism: string;
-      readonly description: string;
-    };
-    readonly storedProcedures?: {
-      readonly name: string;
-      readonly purpose: string;
-      readonly complexity: "low" | "medium" | "high";
-      readonly linesOfCode: number;
-    }[];
-    readonly triggers?: {
-      readonly name: string;
-      readonly purpose: string;
-      readonly complexity: "low" | "medium" | "high";
-      readonly linesOfCode: number;
-    }[];
-  };
+  readonly summary?: SourceFileSummary;
 }
 
 /**
@@ -78,5 +58,5 @@ export interface SourceFileMetadata {
  */
 export interface SourceFileSummaryInfo {
   readonly filepath: string;
-  readonly summary?: DatabaseSummary;
+  readonly summary?: SourceFileSummary;
 } 

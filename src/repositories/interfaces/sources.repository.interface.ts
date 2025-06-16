@@ -1,5 +1,5 @@
 import { Double } from "mongodb";
-import { SourceFileRecord, SourceFileMetadata, SourceFileSummaryInfo } from "../models/source.model";
+import { SourceFileRecord, SourceFileShortInfo, SourceFileSummaryInfo } from "../models/source.model";
 
 /**
  * Interface for the Sources repository
@@ -48,7 +48,7 @@ export interface ISourcesRepository {
     queryVector: Double[], 
     numCandidates: number, 
     limit: number
-  ): Promise<SourceFileMetadata[]>;
+  ): Promise<SourceFileShortInfo[]>;
 
   /**
    * Get file paths for a specific project (used for testing)

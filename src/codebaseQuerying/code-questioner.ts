@@ -6,7 +6,7 @@ import { PromptBuilder } from "../promptTemplating/prompt-builder";
 import { transformJSToTSFilePath } from "../utils/path-utils";
 import { llmConfig } from "../config";
 import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
-import type { SourceFileMetadata } from "../repositories/models/source.model";
+import type { SourceFileShortInfo } from "../repositories/models/source.model";
 import { TOKENS } from "../di/tokens";
 
 /**
@@ -67,14 +67,11 @@ export default class CodeQuestioner {
     }
   }
 
-
-
-
-  //
-  // Turns a list of content of source code file and their respective filetypes and produces one 
-  // piece of text using Markdown code-block syntax to delinante the content of each source file.
-  //
-  private mergeSourceCodeFilesContentIntoMarkdownText(sourceFileMetadataList: SourceFileMetadata[]) {
+  /**
+   * Turns a list of content of source code file and their respective filetypes and produces one 
+   * piece of text using Markdown code-block syntax to delinante the content of each source file.
+   */
+  private mergeSourceCodeFilesContentIntoMarkdownText(sourceFileMetadataList: SourceFileShortInfo[]) {
     const markdownParts: string[] = [];
 
     for (const fileMetadata of sourceFileMetadataList) {

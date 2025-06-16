@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient, Collection, Double, Sort } from "mongodb";
 import { ISourcesRepository } from "./interfaces/sources.repository.interface";
-import { SourceFileRecord, SourceFileMetadata, SourceFileSummaryInfo } from "./models/source.model";
+import { SourceFileRecord, SourceFileShortInfo, SourceFileSummaryInfo } from "./models/source.model";
 import { TOKENS } from "../di/tokens";
 import { databaseConfig } from "../config";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
@@ -11,10 +11,14 @@ import { logErrorMsgAndDetail } from "../utils/error-utils";
  */
 @injectable()
 export default class SourcesRepository implements ISourcesRepository {
+  // Private fields
   private readonly collection: Collection<SourceFileRecord>;
 
-  constructor(@inject(TOKENS.MongoClient) private readonly mongoClient: MongoClient) {
-    const db = this.mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
+  /**
+   * Constructor.
+   */
+  constructor(@inject(TOKENS.MongoClient) mongoClient: MongoClient) {
+    const db = mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
     this.collection = db.collection<SourceFileRecord>(databaseConfig.SOURCES_COLLCTN_NAME);
   }
 
@@ -168,7 +172,7 @@ export default class SourcesRepository implements ISourcesRepository {
     queryVector: Double[], 
     numCandidates: number, 
     limit: number
-  ): Promise<SourceFileMetadata[]> {
+  ): Promise<SourceFileShortInfo[]> {
     const pipeline = [
       {
         $vectorSearch: {
@@ -198,7 +202,7 @@ export default class SourcesRepository implements ISourcesRepository {
     ];
 
     try {
-      return await this.collection.aggregate<SourceFileMetadata>(pipeline).toArray();
+      return await this.collection.aggregate<SourceFileShortInfo>(pipeline).toArray();
     } catch (error: unknown) {
       logErrorMsgAndDetail(
         `Problem performing Atlas Vector Search aggregation - ensure the vector index is defined for the '${databaseConfig.SOURCES_COLLCTN_NAME}' collection`, 

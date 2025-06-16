@@ -9,8 +9,12 @@ export { default as AppSummariesRepository } from "./app-summaries.repository";
 // Data models
 export type { 
   SourceFileRecord, 
-  SourceFileMetadata, 
+  SourceFileShortInfo, 
   SourceFileSummaryInfo,
-  DatabaseSummary 
+  SourceFileSummary, 
 } from "./models/source.model";
-export type { AppSummaryRecord, AppSummaryUpdate } from "./models/app-summary.model"; 
+export type {
+  AppSummaryRecord,
+  AppSummaryNameDesc as AppSummaryUpdate,
+  AppSummaryShortInfo,
+ } from "./models/app-summary.model"; 

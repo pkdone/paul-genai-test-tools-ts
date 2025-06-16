@@ -8,7 +8,9 @@ import { PromptBuilder } from "../../promptTemplating/prompt-builder";
 import { transformJSToTSFilePath } from "../../utils/path-utils";
 import type { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
 import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
+import type { AppSummaryUpdate } from "../../repositories/models/app-summary.model";
 import { TOKENS } from "../../di/tokens";
+
 
 /**
  * Generates metadata in database collections to capture application information,
@@ -49,11 +51,8 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       );
     }
 
-    await this.createAppSummaryRecordInDB({ llmProvider: this.llmProviderDescription });
-    const categories = [
-      reportingConfig.APP_DESCRIPTION_KEY,
-      ...reportingConfig.APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS,
-    ];
+    await this.appSummariesRepository.createOrReplaceAppSummary(this.projectName, { llmProvider: this.llmProviderDescription });
+    const categories = Object.keys(reportingConfig.APP_SUMMARIES_CATEGORY_TITLES);
     await Promise.all(
       categories.map(async (category) => this.generateDataForCategory(category, sourceFileSummaries))
     );
@@ -64,7 +63,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    * dataset under a named field of the main application summary record.
    */
   private async generateDataForCategory(category: string, sourceFileSummaries: string[]) {
-    const categoryLabel = reportingConfig.CATEGORY_TITLES[category as keyof typeof reportingConfig.CATEGORY_TITLES];
+    const categoryLabel = reportingConfig.APP_SUMMARIES_CATEGORY_TITLES[category as keyof typeof reportingConfig.APP_SUMMARIES_CATEGORY_TITLES];
 
     try {
       console.log(`Processing ${categoryLabel}`);
@@ -74,15 +73,15 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       const content = joinArrayWithSeparators(sourceFileSummaries);
       const contentToReplaceList = [{ label: promptsConfig.PROMPT_CONTENT_BLOCK_LABEL, content }];
       const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
-      const keysValuesObject = await this.llmRouter.executeCompletion(
+      const keyValueObject = await this.llmRouter.executeCompletion(
         promptFilePath,
         prompt,
         true,
         { resource: resourceName, requireJSON: true }
       );
 
-      if (keysValuesObject && typeof keysValuesObject === "object" && Object.hasOwn(keysValuesObject, category)) {
-        await this.updateAppSummaryRecord(keysValuesObject as Record<string, unknown>);
+      if (keyValueObject && typeof keyValueObject === "object" && Object.hasOwn(keyValueObject, category)) {
+        await this.appSummariesRepository.updateAppSummary(this.projectName, keyValueObject as AppSummaryUpdate);
         console.log(`Captured main ${categoryLabel} details into database`);
       } else {
         console.warn(`WARNING: Unable to generate and persist ${categoryLabel} metadata. No valid LLM output found.` );
@@ -90,21 +89,6 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     } catch (error: unknown) {
       logErrorMsgAndDetail(`Unable to generate ${categoryLabel} details into database`, error);
     }
-  }
-
-  /**
-   * Inserts or replaces a single 'app summary' skeleton record in the collection,
-   * keyed by the project name.
-   */
-  private async createAppSummaryRecordInDB(fieldValuesToInclude: Record<string, unknown> = {}) {
-    await this.appSummariesRepository.createOrReplaceAppSummary(this.projectName, fieldValuesToInclude);
-  }
-
-  /**
-   * Updates the existing 'app summary' record with the specified key-value pairs.
-   */
-  private async updateAppSummaryRecord(keysValuesObject: Record<string, unknown> ) {
-    await this.appSummariesRepository.updateAppSummary(this.projectName, keysValuesObject);
   }
 }
 

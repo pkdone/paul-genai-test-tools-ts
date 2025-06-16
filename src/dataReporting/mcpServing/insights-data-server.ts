@@ -1,12 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import type { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
+import type { AppSummaryNameDescArray } from "../../repositories/models/app-summary.model";
 import { TOKENS } from "../../di/tokens";
-
-// Interface for business process item
-interface BusinessProcess {
-  name: string;
-  description: string;
-}
 
 /**
  * Class to handle analysis data server operations.
@@ -25,23 +20,16 @@ export default class InsightsDataServer {
   /**
    * Retrieves a list of business processes from the database.
    */
-  async getBusinessProcesses(): Promise<BusinessProcess[]> {
-    const busProcesses = await this.appSummariesRepository.getAppSummaryField<BusinessProcess[]>(this.projectName, "busprocesses");
+  async getBusinessProcesses(): Promise<{ name: string; description: string }[]> {
+    const busProcesses = await this.appSummariesRepository.getAppSummaryField<AppSummaryNameDescArray>(this.projectName, "busprocesses");
     
     if (!busProcesses || !Array.isArray(busProcesses)) {
       return [];
     }
     
-    return busProcesses.map(item => {
-      if ('name' in item && 'description' in item) {
-        const nameValue = item.name;
-        const descValue = item.description;
-        return {
-          name: (typeof nameValue === 'string' || typeof nameValue === 'number') ? String(nameValue) : '',
-          description: (typeof descValue === 'string' || typeof descValue === 'number') ? String(descValue) : ''
-        };
-      }
-      return { name: '', description: '' };
-    });
+    return busProcesses.map(item => ({
+      name: item.name || '',
+      description: item.description || ''
+    }));
   }
 }

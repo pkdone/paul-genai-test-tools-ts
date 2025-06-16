@@ -4,6 +4,7 @@ import { joinArrayWithSeparators } from "../../utils/text-utils";
 import DBCodeMetadataQueryer from "../../dbMetadataQueryer/db-code-metadata-queryer";
 import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
 import type { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
+import type { AppSummaryNameDescArray } from "../../repositories/models/app-summary.model";
 import { TOKENS } from "../../di/tokens";
 
 /**
@@ -37,21 +38,21 @@ export default class AppReportGenerator {
     html.push("<hr/>");
     html.push(...await this.generateAppStatisticsAsHTML());
 
-    for (const category of reportingConfig.APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS) {
-      html.push(...await this.generateHTMLTableForCategory(category, reportingConfig.CATEGORY_TITLES[category]));
+    const categoryKeys = Object.keys(reportingConfig.APP_SUMMARIES_CATEGORY_TITLES).filter(key => key !== reportingConfig.APP_DESCRIPTION_KEY);
+    for (const category of categoryKeys) {
+      html.push(...await this.generateHTMLTableForCategory(category, reportingConfig.APP_SUMMARIES_CATEGORY_TITLES[category as keyof typeof reportingConfig.APP_SUMMARIES_CATEGORY_TITLES]));
     }
 
     html.push(...await this.generateDBIntegrationsListsAsHTML());
     html.push(reportingConfig.HTML_SUFFIX);
     return joinArrayWithSeparators(html, "");
   }
-
   
   /**
    * Generate HTML paragraph containing the previously captured app summary.
    */
   async generateAppStatisticsAsHTML() {    
-    const appSummaryRecord = await this.appSummariesRepository.getAppSummaryInfo(this.projectName);
+    const appSummaryRecord = await this.appSummariesRepository.getAppSummaryShortInfo(this.projectName);
     if (!appSummaryRecord) throw new Error("Unable to generate app statistics for a report because no app summary data exists - ensure you first run the scripts to process the source data and generate insights");
     const html: string[] = [];
     html.push(`\n<h2>Application Statistics</h2>\n`);
@@ -72,7 +73,7 @@ export default class AppReportGenerator {
   async generateHTMLTableForCategory(category: string, label: string) {
     const html: string[] = [];
     html.push(`\n<h2>${label}</h2>\n`);
-    const componentList = await this.appSummariesRepository.getAppSummaryField<Record<string, unknown>[]>(this.projectName, category);    
+    const componentList = await this.appSummariesRepository.getAppSummaryField<AppSummaryNameDescArray>(this.projectName, category);    
     html.push(...this.generateHTMLTableFromArrayOfObjects(componentList));
     console.log(`Generated ${label} table`);
     return html;

@@ -1,4 +1,4 @@
-import { AppSummaryRecord, AppSummaryUpdate } from "../models/app-summary.model";
+import { AppSummaryRecord, AppSummaryShortInfo, AppSummaryUpdate } from "../models/app-summary.model";
 
 /**
  * Interface for the App Summaries repository
@@ -20,22 +20,9 @@ export interface IAppSummariesRepository {
   getAppSummary(projectName: string): Promise<AppSummaryRecord | null>;
 
   /**
-   * Get all app summaries
-   */
-  getAllAppSummaries(): Promise<AppSummaryRecord[]>;
-
-  /**
-   * Delete an app summary record
-   */
-  deleteAppSummary(projectName: string): Promise<void>;
-
-  /**
    * Get app summary info for reporting (description and LLM provider)
    */
-  getAppSummaryInfo(projectName: string): Promise<{
-    appdescription?: string;
-    llmProvider?: string;
-  } | null>;
+  getAppSummaryShortInfo(projectName: string): Promise<AppSummaryShortInfo | null>;
 
   /**
    * Get specific field data from app summary

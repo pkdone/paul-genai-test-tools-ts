@@ -5,13 +5,7 @@ export const reportingConfig = {
   OUTPUT_SUMMARY_HTML_FILE: "codebase-report.html",
   APP_DESCRIPTION_KEY: "appdescription",
   LLM_PROVIDERS_KEY: "llmProvider",  
-  APP_SUMMARY_ARRAY_FIELDS_TO_GENERATE_KEYS: [
-    "technologies",
-    "boundedcontexts",
-    "busentities",
-    "busprocesses"
-  ] as const,
-  CATEGORY_TITLES: {
+  APP_SUMMARIES_CATEGORY_TITLES: {
     appdescription: "Application Description",
     technologies: "Technology Stack",
     boundedcontexts: "Bounded Contexts",
