@@ -1,7 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import type LLMRouter from "../../llm/llm-router";
-import { promptsConfig, reportingConfig } from "../../config";
-import DBCodeMetadataQueryer from "../../dbMetadataQueryer/db-code-metadata-queryer";
+import { fileSystemConfig, promptsConfig, reportingConfig } from "../../config";
 import { logErrorMsgAndDetail } from "../../utils/error-utils";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
 import { PromptBuilder } from "../../promptTemplating/prompt-builder";
@@ -20,7 +19,6 @@ import { TOKENS } from "../../di/tokens";
 export default class DBCodeInsightsBackIntoDBGenerator {
   private readonly promptBuilder = new PromptBuilder();
   private readonly llmProviderDescription: string;
-  private readonly codeMetadataQueryer: DBCodeMetadataQueryer;
 
   /**
    * Creates a new SummariesGenerator.
@@ -28,21 +26,19 @@ export default class DBCodeInsightsBackIntoDBGenerator {
   constructor(
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-    @inject(TOKENS.SourcesRepository) sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     private readonly projectName: string,
   ) {
-    // Create DBCodeMetadataQueryer with injected repository
-    this.codeMetadataQueryer = new DBCodeMetadataQueryer(sourcesRepository, projectName);
     this.llmProviderDescription = llmRouter.getModelsUsedDescription();
   }
 
-  /**
+    /**
    * Gathers metadata about all classes in an application and uses an LLM to identify
    * the business entities and processes for the application, storing the results
    * in the database.
    */
   async generateSummariesDataInDB() {
-    const sourceFileSummaries = await this.codeMetadataQueryer.buildSourceFileListSummaryList();
+    const sourceFileSummaries = await this.buildSourceFileListSummaryList();
 
     if (sourceFileSummaries.length === 0) {
       throw new Error(
@@ -56,6 +52,28 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     await Promise.all(
       categories.map(async (category) => this.generateDataForCategory(category, sourceFileSummaries))
     );
+  }
+
+  /**
+   * Returns a list of source file summaries with basic info.
+   */
+  async buildSourceFileListSummaryList() {
+    const srcFilesList: string[] = [];
+    const records = await this.sourcesRepository.getSourceFileSummaries(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+
+    for (const record of records) {
+      const { summary } = record;
+
+      if (!summary || Object.keys(summary).length === 0) {
+        console.log(`No source code summary exists for file: ${record.filepath}. Skipping.`);
+        continue;
+      }
+
+      const fileLabel = summary.classpath ?? record.filepath;
+      srcFilesList.push(`* ${fileLabel}: ${summary.purpose ?? ""} ${summary.implementation ?? ""}`);
+    }
+    
+    return srcFilesList;
   }
 
   /**

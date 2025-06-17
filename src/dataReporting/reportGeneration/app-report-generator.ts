@@ -1,11 +1,49 @@
 import { injectable, inject } from "tsyringe";
-import { reportingConfig } from "../../config";
+import { fileSystemConfig, reportingConfig } from "../../config";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
-import DBCodeMetadataQueryer from "../../dbMetadataQueryer/db-code-metadata-queryer";
 import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
 import type { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
 import type { AppSummaryNameDescArray } from "../../repositories/models/app-summary.model";
 import { TOKENS } from "../../di/tokens";
+
+// Enum for stored procedure complexity levels
+enum Complexity {
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+}
+
+// Interface for the database interaction list
+interface ProcsAndTriggers {
+  procs: {
+    total: number;
+    low: number;
+    medium: number;
+    high: number;
+    list: {
+      path: string;
+      type: string;
+      functionName: string;
+      complexity: Complexity;
+      linesOfCode: number;
+      purpose: string;
+    }[];
+  };
+  trigs: {
+    total: number;
+    low: number;
+    medium: number;
+    high: number;
+    list: {
+      path: string;
+      type: string;
+      functionName: string;
+      complexity: Complexity;
+      linesOfCode: number;
+      purpose: string;
+    }[];
+  };
+}
 
 /**
  * Class responsible for generating the HTML report for the application.
@@ -14,7 +52,6 @@ import { TOKENS } from "../../di/tokens";
 export default class AppReportGenerator {
   // Private fields
   private readonly currentDate;
-  private readonly codeMetadataQueryer;
 
   /**
    * Constructor
@@ -25,11 +62,10 @@ export default class AppReportGenerator {
     private readonly projectName: string
   ) { 
     this.currentDate = new Date().toLocaleString();
-    this.codeMetadataQueryer = new DBCodeMetadataQueryer(sourcesRepository, this.projectName);
   }
 
   /**
-   * Gnerate the HTML satic file report.
+   * Generate the HTML static file report.
    */
   async generateHTMLReport() {
     const html: string[] = [];
@@ -64,6 +100,64 @@ export default class AppReportGenerator {
     html.push(`\n<h2>Application Description</h2>\n`);
     html.push(`\n<p>${appSummaryRecord.appdescription ?? "No description available"}</p>\n`);
     return html;
+  }
+
+  /**
+   * Returns a list of database integrations.
+   */
+  async buildDBInteractionList() {
+    return await this.sourcesRepository.getDatabaseIntegrations(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+  }
+
+  /**
+   * Returns an aggregated summary of stored procedures and triggers.
+   */
+  async buildDBStoredProcsTriggersSummaryList() {
+    const procsAndTriggers: ProcsAndTriggers = {
+      procs: { total: 0, low: 0, medium: 0, high: 0, list: [] },
+      trigs: { total: 0, low: 0, medium: 0, high: 0, list: [] },
+    };
+    
+    const records = await this.sourcesRepository.getStoredProceduresAndTriggers(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+
+    for (const record of records) {
+      const { summary } = record;
+      
+      if (!summary) {
+        console.log(`No stored procs / triggers summary exists for file: ${record.filepath}. Skipping.`);
+        continue;
+      }
+
+      // Process stored procedures
+      for (const sp of summary.storedProcedures ?? []) {
+        procsAndTriggers.procs.total++;
+        this.incrementComplexityCount(procsAndTriggers.procs, sp.complexity as Complexity);
+        procsAndTriggers.procs.list.push({
+          path: record.filepath,
+          type: "STORED PROCEDURE",
+          functionName: sp.name,
+          complexity: sp.complexity as Complexity,
+          linesOfCode: sp.linesOfCode,
+          purpose: sp.purpose,
+        });
+      }
+
+      // Process triggers
+      for (const trig of summary.triggers ?? []) {
+        procsAndTriggers.trigs.total++;
+        this.incrementComplexityCount(procsAndTriggers.trigs, trig.complexity as Complexity);
+        procsAndTriggers.trigs.list.push({
+          path: record.filepath,
+          type: "TRIGGER",
+          functionName: trig.name,
+          complexity: trig.complexity as Complexity,
+          linesOfCode: trig.linesOfCode,
+          purpose: trig.purpose,
+        });
+      }
+    }
+
+    return procsAndTriggers;
   }
 
   /*
@@ -125,6 +219,26 @@ export default class AppReportGenerator {
     return html;
   }
 
+  /**
+   * Increment the complexity count on a procs/trigs section.
+   */
+  private incrementComplexityCount(
+    section: ProcsAndTriggers["procs"] | ProcsAndTriggers["trigs"],
+    complexity: Complexity
+  ) {
+    switch (complexity) {
+      case Complexity.LOW:
+        section.low++;
+        break;
+      case Complexity.MEDIUM:
+        section.medium++;
+        break;
+      case Complexity.HIGH:
+        section.high++;
+        break;
+    }
+  }
+
   /*
    * Generate HTML tables for the lists of DB interactions and the list of StoredProcs/Triggers.
    */
@@ -140,7 +254,7 @@ export default class AppReportGenerator {
    * a summary HTML snippet.
    */
  private  async generateDBInteractionsAsHTML() {    
-    const dbIntegrationsList = await this.codeMetadataQueryer.buildDBInteractionList();
+    const dbIntegrationsList = await this.buildDBInteractionList();
     const html: string[] = [];
     html.push(`\n<h2>Database Interactions</h2>\n`);
 
@@ -161,7 +275,7 @@ export default class AppReportGenerator {
    * and put them in a summary HTML snippet.
    */
   private async getStoredProceduresAndTriggersAsHTML() {    
-    const procsAndTriggers = await this.codeMetadataQueryer.buildDBStoredProcsTriggersSummaryList();
+    const procsAndTriggers = await this.buildDBStoredProcsTriggersSummaryList();
     console.log(procsAndTriggers);
     const html: string[] = [];
     html.push(`\n<h2>Database Stored Procedures & Triggers</h2>\n`);
@@ -181,7 +295,6 @@ export default class AppReportGenerator {
     return html;
   }
 
-
   /**
    * Generate a paragraph key-value pair with optional extra info in brackets
    */
@@ -189,5 +302,4 @@ export default class AppReportGenerator {
     const extraContent = extraInfo ? `&nbsp;&nbsp;&nbsp;&nbsp;${extraInfo}` : "";
     return `<p>${key}: <b>${value}</b>${extraContent}</p>`;
   }
-
 }
