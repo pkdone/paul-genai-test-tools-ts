@@ -15,6 +15,7 @@ export type {
 } from "./models/source.model";
 export type {
   AppSummaryRecord,
-  AppSummaryNameDesc as AppSummaryUpdate,
+  AppSummaryNameDesc,
   AppSummaryShortInfo,
  } from "./models/app-summary.model"; 
+ 

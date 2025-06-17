@@ -17,8 +17,6 @@ export type AppSummaryUpdate = Record<string, AppSummaryNameDescArray | string>;
  * Interface representing an application summary record in the database
  */
 export interface AppSummaryRecord {
-  // TODO: remove?
-  //readonly [key: string]: unknown; // Allow for additional fields 
   readonly _id?: string;
   readonly projectName: string;
   readonly llmProvider?: string;

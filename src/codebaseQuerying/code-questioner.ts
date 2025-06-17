@@ -1,10 +1,9 @@
 import { injectable, inject } from "tsyringe";
 import type LLMRouter from "../llm/llm-router";
-import { fileSystemConfig, promptsConfig } from "../config";
+import { fileSystemConfig, promptsConfig, llmConfig } from "../config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
 import { transformJSToTSFilePath } from "../utils/path-utils";
-import { llmConfig } from "../config";
 import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import type { SourceFileShortInfo } from "../repositories/models/source.model";
 import { TOKENS } from "../di/tokens";
