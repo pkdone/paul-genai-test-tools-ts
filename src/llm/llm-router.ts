@@ -21,7 +21,6 @@ export default class LLMRouter {
   // Private fields
   private readonly llmStats: LLMStats;
   private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
-  private readonly retryConfig: LLMRetryConfig;
   private readonly promptAdapter: PromptAdapter;
 
   /**
@@ -32,11 +31,10 @@ export default class LLMRouter {
    */
   constructor(
     private readonly llm: LLMProviderImpl,
-    retryConfig: LLMRetryConfig = {}
+    private readonly retryConfig: LLMRetryConfig = {}
   ) {
     this.llmStats = new LLMStats();
     this.modelsMetadata = llm.getModelsMetadata();
-    this.retryConfig = retryConfig;
     this.promptAdapter = new PromptAdapter();
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }

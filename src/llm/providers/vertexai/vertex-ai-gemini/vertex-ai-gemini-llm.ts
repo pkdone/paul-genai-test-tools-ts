@@ -35,8 +35,8 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
     modelsKeys: LLMModelKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
-    readonly project: string,
-    readonly location: string,
+    project: string,
+    location: string,
     providerSpecificConfig: LLMProviderSpecificConfig = {}
   ) {
     super(modelsKeys, modelsMetadata, errorPatterns, providerSpecificConfig); 

@@ -18,7 +18,7 @@ export default class OpenAILLM extends BaseOpenAILLM {
     modelsKeys: LLMModelKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
-    readonly apiKey: string
+    apiKey: string
   ) { 
     super(modelsKeys, modelsMetadata, errorPatterns);
     this.client = new OpenAI({ apiKey });

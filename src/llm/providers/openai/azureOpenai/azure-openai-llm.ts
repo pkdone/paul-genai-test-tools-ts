@@ -21,11 +21,11 @@ export default class AzureOpenAILLM extends BaseOpenAILLM {
     modelsKeys: LLMModelKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
-    readonly apiKey: string,
-    readonly endpoint: string,
-    readonly embeddingsDeployment: string,
-    readonly primaryCompletionsDeployment: string,
-    readonly secondaryCompletionsDeployment: string,
+    apiKey: string,
+    endpoint: string,
+    embeddingsDeployment: string,
+    primaryCompletionsDeployment: string,
+    secondaryCompletionsDeployment: string,
     providerSpecificConfig: LLMProviderSpecificConfig = {}
   ) { 
     super(modelsKeys, modelsMetadata, errorPatterns, providerSpecificConfig);
