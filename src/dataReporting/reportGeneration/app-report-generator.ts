@@ -131,7 +131,10 @@ export default class AppReportGenerator {
       // Process stored procedures
       for (const sp of summary.storedProcedures ?? []) {
         procsAndTriggers.procs.total++;
-        this.incrementComplexityCount(procsAndTriggers.procs, sp.complexity as Complexity);
+        
+        // Call incrementComplexityCount unconditionally since it now handles null/undefined internally
+        this.incrementComplexityCount(procsAndTriggers.procs, sp.complexity);
+        
         procsAndTriggers.procs.list.push({
           path: record.filepath,
           type: "STORED PROCEDURE",
@@ -145,7 +148,10 @@ export default class AppReportGenerator {
       // Process triggers
       for (const trig of summary.triggers ?? []) {
         procsAndTriggers.trigs.total++;
-        this.incrementComplexityCount(procsAndTriggers.trigs, trig.complexity as Complexity);
+        
+        // Call incrementComplexityCount unconditionally since it now handles null/undefined internally
+        this.incrementComplexityCount(procsAndTriggers.trigs, trig.complexity);
+        
         procsAndTriggers.trigs.list.push({
           path: record.filepath,
           type: "TRIGGER",
@@ -224,18 +230,24 @@ export default class AppReportGenerator {
    */
   private incrementComplexityCount(
     section: ProcsAndTriggers["procs"] | ProcsAndTriggers["trigs"],
-    complexity: Complexity
+    complexity: Complexity | string
   ) {
-    switch (complexity) {
-      case Complexity.LOW:
-        section.low++;
-        break;
-      case Complexity.MEDIUM:
-        section.medium++;
-        break;
-      case Complexity.HIGH:
-        section.high++;
-        break;
+    if (!complexity) {
+      console.warn('Missing complexity value. Cannot increment complexity count.');
+      return;
+    }
+    
+    const normalizedComplexity = (typeof complexity === 'string' ? complexity : String(complexity)).toLowerCase();
+    
+    if (normalizedComplexity === "low") {
+      section.low++;
+    } else if (normalizedComplexity === "medium") {
+      section.medium++;
+    } else if (normalizedComplexity === "high") {
+      section.high++;
+    } else {
+      console.warn(`Unexpected complexity value encountered: ${complexity}`);
+      // Don't increment any counter for unrecognized values
     }
   }
 

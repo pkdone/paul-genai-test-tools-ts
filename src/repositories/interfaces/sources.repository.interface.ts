@@ -6,6 +6,11 @@ import { SourceFileRecord, SourceFileShortInfo, SourceFileSummaryInfo } from "..
  */
 export interface ISourcesRepository {
   /**
+   * Ensure required indexes exist for the sources collection
+   */
+  ensureIndexes(numDimensions: number): Promise<void>;
+
+  /**
    * Insert a source file record into the database
    */
   insertSourceFile(sourceFileData: Omit<SourceFileRecord, "_id">): Promise<void>;

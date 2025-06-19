@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { MongoClient, Collection } from "mongodb";
+import { MongoClient, Collection, IndexSpecification } from "mongodb";
 import { IAppSummariesRepository } from "./interfaces/app-summaries.repository.interface";
 import { AppSummaryRecord, AppSummaryShortInfo, AppSummaryUpdate } from "./models/app-summary.model";
 import { TOKENS } from "../di/tokens";
@@ -19,6 +19,13 @@ export default class AppSummariesRepository implements IAppSummariesRepository {
   constructor(@inject(TOKENS.MongoClient) mongoClient: MongoClient) {
     const db = mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
     this.collection = db.collection<AppSummaryRecord>(databaseConfig.SUMMARIES_COLLCTN_NAME);
+  }
+
+  /**
+   * Ensure required indexes exist for the app summaries collection
+   */
+  async ensureIndexes(): Promise<void> {
+    await this.createNormalIndexIfNotExists({ projectName: 1 });
   }
 
   /**
@@ -85,5 +92,13 @@ export default class AppSummariesRepository implements IAppSummariesRepository {
     };
     const record = await this.collection.findOne<Record<string, T>>(query, options);
     return record?.[fieldName] ?? null;
+  }
+
+  /**
+   * Create normal MongoDB collection indexes if they don't yet exist.
+   */
+  private async createNormalIndexIfNotExists(indexSpec: IndexSpecification, isUnique = false): Promise<void> {
+    await this.collection.createIndex(indexSpec, { unique: isUnique });
+    console.log(`Ensured normal indexes exist for the MongoDB database collection: '${this.collection.dbName}.${this.collection.collectionName}'`);
   }
 } 
