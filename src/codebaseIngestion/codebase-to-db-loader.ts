@@ -1,17 +1,17 @@
 import { injectable, inject } from "tsyringe";
-import type LLMRouter from "../../llm/llm-router";
+import type LLMRouter from "../llm/llm-router";
 import path from "path";
-import { fileSystemConfig, mcpConfig } from "../../config";
-import { readFile, buildDirDescendingListOfFiles } from "../../utils/fs-utils";
-import { getFileSuffix } from "../../utils/path-utils";
-import { countLines } from "../../utils/text-utils";
-import { promiseAllThrottled } from "../../utils/control-utils";
-import { logErrorMsgAndDetail } from "../../utils/error-utils";
+import { fileSystemConfig, mcpConfig } from "../config";
+import { readFile, buildDirDescendingListOfFiles } from "../utils/fs-utils";
+import { getFileSuffix } from "../utils/path-utils";
+import { countLines } from "../utils/text-utils";
+import { promiseAllThrottled } from "../utils/control-utils";
+import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { BaseFileSummary, JavaScriptFileSummary } from "./types";
 import { FileSummarizer } from "./file-summarizer";
-import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
-import type { SourceFileRecord } from "../../repositories/models/source.model";
-import { TOKENS } from "../../di/tokens";
+import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import type { SourceFileRecord } from "../repositories/models/source.model";
+import { TOKENS } from "../di/tokens";
 
 /** 
  * Loads each source file into a class to represent it.

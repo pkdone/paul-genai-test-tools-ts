@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { getProjectNameFromPath } from "../utils/path-utils";
-import CodebaseToDBLoader from "../dataCapture/codebaseToDBIngestion/codebase-to-db-loader";
+import CodebaseToDBLoader from "../codebaseIngestion/codebase-to-db-loader";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";

@@ -1,14 +1,14 @@
 import { injectable, inject } from "tsyringe";
-import type LLMRouter from "../../llm/llm-router";
-import { fileSystemConfig, promptsConfig, reportingConfig } from "../../config";
-import { logErrorMsgAndDetail } from "../../utils/error-utils";
-import { joinArrayWithSeparators } from "../../utils/text-utils";
-import { PromptBuilder } from "../../promptTemplating/prompt-builder";
-import { transformJSToTSFilePath } from "../../utils/path-utils";
-import type { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
-import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
-import type { AppSummaryUpdate } from "../../repositories/models/app-summary.model";
-import { TOKENS } from "../../di/tokens";
+import type LLMRouter from "../llm/llm-router";
+import { fileSystemConfig, promptsConfig, reportingConfig } from "../config";
+import { logErrorMsgAndDetail } from "../utils/error-utils";
+import { joinArrayWithSeparators } from "../utils/text-utils";
+import { PromptBuilder } from "../promptTemplating/prompt-builder";
+import { transformJSToTSFilePath } from "../utils/path-utils";
+import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
+import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import type { AppSummaryUpdate } from "../repositories/models/app-summary.model";
+import { TOKENS } from "../di/tokens";
 
 
 /**

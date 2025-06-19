@@ -1,11 +1,11 @@
 import path from "path";
-import LLMRouter from "../../llm/llm-router";
-import { promptsConfig } from "../../config";
-import { transformJSToTSFilePath } from "../../utils/path-utils";
-import { logErrorMsgAndDetail, getErrorText } from "../../utils/error-utils";
-import { PromptBuilder } from "../../promptTemplating/prompt-builder";
+import LLMRouter from "../llm/llm-router";
+import { promptsConfig } from "../config";
+import { transformJSToTSFilePath } from "../utils/path-utils";
+import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
+import { PromptBuilder } from "../promptTemplating/prompt-builder";
 import { BaseFileSummary, JavaScriptFileSummary } from "./types";
-import { convertTextToJSON } from "../../utils/json-tools";
+import { convertTextToJSON } from "../utils/json-tools";
 
 /**
  * Responsible for LLM-based file summarization including prompt building, LLM interaction, and JSON
