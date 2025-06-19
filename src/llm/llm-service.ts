@@ -1,3 +1,5 @@
+import "reflect-metadata";
+import { injectable, inject } from "tsyringe";
 import path from 'path';
 import { fileSystemConfig } from "../config";
 import { LLMProviderImpl, LLMModelKeysSet as LLMModelsKeysSet, LLMModelMetadata, ResolvedLLMModelMetadata } from "../types/llm.types";
@@ -6,10 +8,12 @@ import { BadConfigurationLLMError } from "../types/llm-errors.types";
 import { LLMProviderManifest } from "./providers/llm-provider.types";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { readDirContents } from "../utils/fs-utils";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service for managing a single LLM provider
  */
+@injectable()
 export class LLMService {
   private manifest?: LLMProviderManifest;
   private readonly modelFamily: string;
@@ -18,7 +22,7 @@ export class LLMService {
   /**
    * Constructor for dependency injection pattern
    */
-  constructor(modelFamily: string) { 
+  constructor(@inject(TOKENS.LLMModelFamily) modelFamily: string) { 
     this.modelFamily = modelFamily;
   }
 

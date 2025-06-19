@@ -12,10 +12,18 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
   console.log('Registering LLM dependencies...');  
   
   if (!container.isRegistered(TOKENS.LLMService)) {
-    const llmService = new LLMService(envVars.LLM);
+    // Register the model family string that LLMService depends on
+    container.registerInstance(TOKENS.LLMModelFamily, envVars.LLM);
+    
+    // Register LLMService singleton - tsyringe will handle the injection
+    container.registerSingleton(TOKENS.LLMService, LLMService);
+    
+    // Resolve and initialize the LLMService
+    const llmService = container.resolve<LLMService>(TOKENS.LLMService);
     await llmService.initialize();
-    container.registerInstance(TOKENS.LLMService, llmService);
     console.log(`LLM Service initialized for model family: ${envVars.LLM}`);
+    
+    // Create and register LLMRouter
     const llmProvider = llmService.getLLMProvider(envVars);
     const llmManifest = llmService.getLLMManifest();
     const retryConfig = llmManifest.providerSpecificConfig;

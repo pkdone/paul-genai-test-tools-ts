@@ -8,6 +8,7 @@ export const TOKENS = {
   MongoDBClientFactory: Symbol.for('MongoDBClientFactory'),
   LLMRouter: Symbol.for('LLMRouter'),
   LLMService: Symbol.for('LLMService'),
+  LLMModelFamily: Symbol.for('LLMModelFamily'),
   EnvVars: Symbol.for('EnvVars'),
   
   // Configuration
