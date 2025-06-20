@@ -28,4 +28,10 @@ export const TOKENS = {
   MDBConnectionTestService: Symbol.for('MDBConnectionTestService'),
   McpServerService: Symbol.for('McpServerService'),
   ReportGenerationService: Symbol.for('ReportGenerationService'),
+  
+  // Utility/Helper Classes
+  PromptBuilder: Symbol.for('PromptBuilder'),
+  FileSummarizer: Symbol.for('FileSummarizer'),
+  LLMStats: Symbol.for('LLMStats'),
+  PromptAdapter: Symbol.for('PromptAdapter'),
 } as const; 

@@ -1,4 +1,5 @@
 import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
+import { injectable } from "tsyringe";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { redactUrl } from "./mdb-utils";
 
@@ -6,6 +7,7 @@ import { redactUrl } from "./mdb-utils";
  * A factory class for creating and managing MongoDB client connections.
  * This replaces the singleton pattern with dependency injection.
  */
+@injectable()
 export class MongoDBClientFactory {
   private readonly clients = new Map<string, MongoClient>();
 

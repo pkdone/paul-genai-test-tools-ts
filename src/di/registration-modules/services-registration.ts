@@ -8,6 +8,10 @@ import { MDBConnectionTestService } from "../../services/mdb-connection-test.ser
 import { PluggableLLMsTestService } from "../../services/test-pluggable-llms.service";
 import { McpServerService } from "../../services/mcp-server.service";
 import { ReportGenerationService } from "../../services/report-generation-service";
+import { PromptBuilder } from "../../promptTemplating/prompt-builder";
+import { FileSummarizer } from "../../codebaseIngestion/file-summarizer";
+import LLMStats from "../../llm/routerTracking/llm-stats";
+import { PromptAdapter } from "../../llm/responseProcessing/llm-prompt-adapter";
 
 /**
  * Register application services as singletons using tsyringe's built-in singleton management.
@@ -18,9 +22,24 @@ export function registerServices(): void {
   container.registerSingleton(TOKENS.CodebaseQueryService, CodebaseQueryService);
   container.registerSingleton(TOKENS.InsightsFromDBGenerationService, InsightsFromDBGenerationService);
   container.registerSingleton(TOKENS.OneShotGenerateInsightsService, OneShotGenerateInsightsService);
-  container.registerSingleton(TOKENS.MDBConnectionTestService, MDBConnectionTestService);
   container.registerSingleton(TOKENS.PluggableLLMsTestService, PluggableLLMsTestService);
   container.registerSingleton(TOKENS.McpServerService, McpServerService);
   container.registerSingleton(TOKENS.ReportGenerationService, ReportGenerationService);
-  console.log('Application services registered as singletons');
+  
+  // Register utility/helper classes
+  container.registerSingleton(TOKENS.PromptBuilder, PromptBuilder);
+  container.registerSingleton(TOKENS.FileSummarizer, FileSummarizer);
+  container.registerSingleton(TOKENS.LLMStats, LLMStats);
+  container.registerSingleton(TOKENS.PromptAdapter, PromptAdapter);
+  
+  console.log('Application services and utilities registered as singletons');
+}
+
+/**
+ * Register MongoDB-dependent services. Should only be called when MongoDB is required.
+ */
+export function registerMongoDBServices(): void {
+  console.log('Registering MongoDB-dependent services as singletons...');
+  container.registerSingleton(TOKENS.MDBConnectionTestService, MDBConnectionTestService);
+  console.log('MongoDB-dependent services registered as singletons');
 } 

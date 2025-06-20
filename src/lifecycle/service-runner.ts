@@ -20,16 +20,14 @@ export async function runService(serviceToken: symbol): Promise<void> {
   
   try {    
     console.log(`START: ${new Date().toISOString()}`);
-    
-    // Get service configuration from centralized configuration management
     const config = getServiceConfiguration(serviceToken);
-    console.log(`Service configuration resolved:`, config);
-    
+    console.log(`Service configuration resolved:`, config);    
     await registerDependencies(config);
     
     if (config.requiresMongoDB) {
       mongoDBClientFactory = container.resolve<MongoDBClientFactory>(TOKENS.MongoDBClientFactory);
     }
+    
     if (config.requiresLLM) {
       llmRouter = container.resolve<LLMRouter>(TOKENS.LLMRouter);
     }

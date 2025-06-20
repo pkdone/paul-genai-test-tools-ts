@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { PromptBuilder, PromptLabelContentBlocks } from './prompt-builder';

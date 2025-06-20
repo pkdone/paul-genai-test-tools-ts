@@ -1,4 +1,5 @@
 import path from "path";
+import { injectable, inject } from "tsyringe";
 import LLMRouter from "../llm/llm-router";
 import { promptsConfig } from "../config";
 import { transformJSToTSFilePath } from "../utils/path-utils";
@@ -6,19 +7,21 @@ import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";
 import { BaseFileSummary, JavaScriptFileSummary } from "./types";
 import { convertTextToJSON } from "../utils/json-tools";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Responsible for LLM-based file summarization including prompt building, LLM interaction, and JSON
  * parsing of summary responses.
  */
+@injectable()
 export class FileSummarizer {
-  // Private fields
-  private readonly promptBuilder = new PromptBuilder();
-
   /**
    * Constructor.
    */
-  constructor(private readonly llmRouter: LLMRouter) {}
+  constructor(
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
+    @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder
+  ) {}
 
   /**
    * Generate a summary for the given file content using LLM, returning the response as JSON.

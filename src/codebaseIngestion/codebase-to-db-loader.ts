@@ -19,7 +19,6 @@ import { TOKENS } from "../di/tokens";
 @injectable()
 export default class CodebaseToDBLoader {
   // Private fields
-  private readonly fileSummarizer: FileSummarizer;
   private doneCheckingAlreadyCapturedFiles = false;
   
   /**
@@ -28,12 +27,11 @@ export default class CodebaseToDBLoader {
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
+    @inject(TOKENS.FileSummarizer) private readonly fileSummarizer: FileSummarizer,
     private readonly projectName: string, 
     private readonly srcDirPath: string, 
     private readonly ignoreIfAlreadyCaptured: boolean
-  ) {
-    this.fileSummarizer = new FileSummarizer(llmRouter);
-  }
+  ) {}
 
   /**
    * Generate the set of representations of source files including each one's content and metadata.

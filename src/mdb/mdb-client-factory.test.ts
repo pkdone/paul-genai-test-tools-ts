@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { MongoClient, MongoClientOptions, MongoError } from "mongodb";
 import { MongoDBClientFactory } from "./mdb-client-factory";
 import { logErrorMsgAndDetail } from "../utils/error-utils";

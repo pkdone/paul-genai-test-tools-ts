@@ -5,25 +5,35 @@ import { TOKENS } from './tokens';
 // Mock the LLM-related modules to avoid environment dependencies in tests
 jest.mock('../llm/llm-service');
 jest.mock('../llm/llm-router');
-jest.mock('../mdb/mdb-client-factory', () => ({
-  MongoDBClientFactory: jest.fn().mockImplementation(() => ({
-    connect: jest.fn().mockResolvedValue({
-      db: () => ({
-        collection: () => ({
-          find: () => ({
-            map: () => ({ toArray: () => [] })
+jest.mock('../mdb/mdb-client-factory', () => {
+  return {
+    MongoDBClientFactory: jest.fn().mockImplementation(() => {
+      const mockClient = {
+        db: jest.fn().mockReturnValue({
+          collection: jest.fn().mockReturnValue({
+            find: jest.fn().mockReturnValue({
+              map: jest.fn().mockReturnValue({
+                toArray: jest.fn().mockResolvedValue([])
+              })
+            })
           })
-        })
-      })
+        }),
+        close: jest.fn().mockResolvedValue(undefined)
+      };
+      
+      return {
+        connect: jest.fn().mockResolvedValue(mockClient)
+      };
     })
-  }))
-}));
+  };
+});
 
 describe('Dependency Registration', () => {
   
   beforeEach(() => {
     // Clear the container before each test
     container.clearInstances();
+    container.reset();
     
     // Mock environment variables
     process.env.MONGODB_URL = 'mongodb://test:27017/test';

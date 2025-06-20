@@ -12,8 +12,8 @@ export async function registerMongoDBDependencies(envVars: EnvVars): Promise<voi
   console.log('Registering MongoDB dependencies...');  
   
   if (!container.isRegistered(TOKENS.MongoDBClientFactory)) {
-    const mongoDBClientFactory = new MongoDBClientFactory();
-    container.registerInstance(TOKENS.MongoDBClientFactory, mongoDBClientFactory);
+    container.registerSingleton(TOKENS.MongoDBClientFactory, MongoDBClientFactory);
+    const mongoDBClientFactory = container.resolve<MongoDBClientFactory>(TOKENS.MongoDBClientFactory);
     console.log('MongoDB Client Factory initialized and registered as singleton');
     const mongoClient = await mongoDBClientFactory.connect(databaseConfig.DEFAULT_MONGO_SVC, 
                                                            envVars.MONGODB_URL );

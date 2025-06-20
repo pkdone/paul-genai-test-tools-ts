@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import CodebaseToDBLoader from "../codebaseIngestion/codebase-to-db-loader";
+import { FileSummarizer } from "../codebaseIngestion/file-summarizer";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
@@ -22,7 +23,8 @@ export class CodebaseCaptureService implements Service {
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars,
-    @inject(TOKENS.ProjectName) private readonly projectName: string
+    @inject(TOKENS.ProjectName) private readonly projectName: string,
+    @inject(TOKENS.FileSummarizer) private readonly fileSummarizer: FileSummarizer
   ) {}
 
   /**
@@ -44,7 +46,7 @@ export class CodebaseCaptureService implements Service {
     await this.appSummariesRepository.ensureIndexes();
     
     this.llmRouter.displayLLMStatusSummary();
-    const codebaseToDBLoader = new CodebaseToDBLoader(this.sourcesRepository, this.llmRouter, this.projectName, 
+    const codebaseToDBLoader = new CodebaseToDBLoader(this.sourcesRepository, this.llmRouter, this.fileSummarizer, this.projectName, 
                                                       srcDirPath, ignoreIfAlreadyCaptured
     );
     await codebaseToDBLoader.loadIntoDB();      

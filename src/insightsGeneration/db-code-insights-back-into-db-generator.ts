@@ -17,7 +17,6 @@ import { TOKENS } from "../di/tokens";
  */
 @injectable()
 export default class DBCodeInsightsBackIntoDBGenerator {
-  private readonly promptBuilder = new PromptBuilder();
   private readonly llmProviderDescription: string;
 
   /**
@@ -27,6 +26,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder,
     private readonly projectName: string,
   ) {
     this.llmProviderDescription = llmRouter.getModelsUsedDescription();

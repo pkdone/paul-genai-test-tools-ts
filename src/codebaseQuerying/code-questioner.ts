@@ -13,15 +13,13 @@ import { TOKENS } from "../di/tokens";
  */
 @injectable()
 export default class CodeQuestioner {
-  // Private fields
-  private readonly promptBuilder = new PromptBuilder();
-  
   /**
    * Constructor.
    */
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
-    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter, 
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
+    @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder,
     private readonly projectName: string
   ) { 
   }

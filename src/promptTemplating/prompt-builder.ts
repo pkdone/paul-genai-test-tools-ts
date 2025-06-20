@@ -1,3 +1,4 @@
+import { injectable } from "tsyringe";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { readFile } from "../utils/fs-utils";
 
@@ -18,6 +19,7 @@ export type PromptLabelContentBlocks = PromptLabelContentBlock[];
 /**
  * Class for building a prompt from a template with expanded vairables.
  */
+@injectable()
 export class PromptBuilder {
   // Private fields
   private readonly promptFileCache = new Map<string, Promise<string>>();

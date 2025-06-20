@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import DBCodeInsightsBackIntoDBGenerator from "../insightsGeneration/db-code-insights-back-into-db-generator";
+import { PromptBuilder } from "../promptTemplating/prompt-builder";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
@@ -19,7 +20,8 @@ export class InsightsFromDBGenerationService implements Service {
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
-    @inject(TOKENS.ProjectName) private readonly projectName: string
+    @inject(TOKENS.ProjectName) private readonly projectName: string,
+    @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder
   ) {}
 
   /**
@@ -39,6 +41,7 @@ export class InsightsFromDBGenerationService implements Service {
       this.appSummariesRepository, 
       this.llmRouter, 
       this.sourcesRepository,
+      this.promptBuilder,
       this.projectName
     );
     await summariesGenerator.generateSummariesDataInDB();    

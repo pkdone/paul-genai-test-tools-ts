@@ -19,23 +19,23 @@ import { LLMRetryConfig } from "./providers/llm-provider.types";
  */
 export default class LLMRouter {
   // Private fields
-  private readonly llmStats: LLMStats;
   private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
-  private readonly promptAdapter: PromptAdapter;
 
   /**
    * Constructor.
    * 
    * @param llm The initialized LLM provider implementation
+   * @param llmStats The LLM statistics tracker
+   * @param promptAdapter The prompt adapter for handling token limits
    * @param retryConfig Provider-specific retry and timeout configuration
    */
   constructor(
     private readonly llm: LLMProviderImpl,
+    private readonly llmStats: LLMStats,
+    private readonly promptAdapter: PromptAdapter,
     private readonly retryConfig: LLMRetryConfig = {}
   ) {
-    this.llmStats = new LLMStats();
     this.modelsMetadata = llm.getModelsMetadata();
-    this.promptAdapter = new PromptAdapter();
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
 

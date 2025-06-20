@@ -4,7 +4,7 @@ import { ServiceRunnerConfig } from "../types/service.types";
 import { EnvVars } from "../types/env.types";
 import { TOKENS } from "./tokens";
 import { registerEnvDependencies, registerLLMDependencies, registerMongoDBDependencies, 
-         registerServices } from "./registration-modules";
+         registerServices, registerMongoDBServices } from "./registration-modules";
 import { registerRepositories } from "./registration-modules/repositories-registration";
 
 /**
@@ -19,6 +19,7 @@ export async function registerDependencies(config: ServiceRunnerConfig): Promise
   if (config.requiresMongoDB) {
     await registerMongoDBDependencies(envVars);
     registerRepositories();
+    registerMongoDBServices();
   }
   registerServices();  
   console.log('Dependency registration completed');

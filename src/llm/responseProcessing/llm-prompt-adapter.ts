@@ -1,3 +1,4 @@
+import { injectable } from "tsyringe";
 import { llmConfig } from "../../config";
 import { LLMResponseTokensUsage, LLMFunctionResponse, ResolvedLLMModelMetadata } from "../../types/llm.types";
 import { BadResponseMetadataLLMError } from "../../types/llm-errors.types";
@@ -44,6 +45,7 @@ export class TokenLimitReductionStrategy implements PromptAdaptationStrategy {
  * Dedicated class for handling prompt adaptation strategies.
  * This class decouples prompt modification logic from the core routing and retry mechanisms.
  */
+@injectable()
 export class PromptAdapter {
   constructor(private strategy: PromptAdaptationStrategy = new TokenLimitReductionStrategy()) {}
 

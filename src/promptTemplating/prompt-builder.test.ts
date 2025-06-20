@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { PromptBuilder, PromptLabelContentBlocks } from './prompt-builder';
 import * as fsUtils from '../utils/fs-utils';
 import * as errorUtils from '../utils/error-utils';
