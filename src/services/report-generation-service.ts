@@ -7,10 +7,6 @@ import { fileSystemConfig, reportingConfig } from "../config";
 import { clearDirectory, writeFile } from "../utils/fs-utils";
 import path from "path";
 import AppReportGenerator from "../dataReporting/reportGeneration/app-report-generator";
-import { container } from "tsyringe";
-import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
-import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
-import type { HtmlReportFormatter } from "../dataReporting/reportGeneration/html-report-formatter";
 
 /**
  * Service to generate a report of an application's composition.
@@ -22,7 +18,8 @@ export class ReportGenerationService implements Service {
    */  
   constructor(
     @inject(TOKENS.EnvVars) private readonly env: EnvVars,
-    @inject(TOKENS.ProjectName) private readonly projectName: string
+    @inject(TOKENS.ProjectName) private readonly projectName: string,
+    @inject(TOKENS.AppReportGenerator) private readonly appReportGenerator: AppReportGenerator
   ) {}
 
   /**
@@ -44,19 +41,7 @@ export class ReportGenerationService implements Service {
     console.log(`Creating report for project: ${this.projectName}`);
     const htmlFilePath = path.join(fileSystemConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
     
-    // Create AppReportGenerator using container and pass projectName manually
-    const sourcesRepository = container.resolve<ISourcesRepository>(TOKENS.SourcesRepository);
-    const appSummariesRepository = container.resolve<IAppSummariesRepository>(TOKENS.AppSummariesRepository);
-    const htmlFormatter = container.resolve<HtmlReportFormatter>(TOKENS.HtmlReportFormatter);
-    
-    const appReportGenerator = new AppReportGenerator(
-      sourcesRepository, 
-      appSummariesRepository, 
-      htmlFormatter,
-      this.projectName
-    );
-    
-    await writeFile(htmlFilePath, await appReportGenerator.generateHTMLReport());      
+    await writeFile(htmlFilePath, await this.appReportGenerator.generateHTMLReport(this.projectName));      
     console.log(`View generated report in a browser: file://${path.resolve(htmlFilePath)}`);
   }
 }

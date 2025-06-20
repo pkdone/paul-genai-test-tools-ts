@@ -27,34 +27,31 @@ export default class CodebaseToDBLoader {
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-    @inject(TOKENS.FileSummarizer) private readonly fileSummarizer: FileSummarizer,
-    private readonly projectName: string, 
-    private readonly srcDirPath: string, 
-    private readonly ignoreIfAlreadyCaptured: boolean
+    @inject(TOKENS.FileSummarizer) private readonly fileSummarizer: FileSummarizer
   ) {}
 
   /**
    * Generate the set of representations of source files including each one's content and metadata.
    */
-  async loadIntoDB(): Promise<void> {
-    const srcFilepaths = await buildDirDescendingListOfFiles(this.srcDirPath);
-    await this.insertSourceContentIntoDB(srcFilepaths);
+  async loadIntoDB(projectName: string, srcDirPath: string, ignoreIfAlreadyCaptured: boolean): Promise<void> {
+    const srcFilepaths = await buildDirDescendingListOfFiles(srcDirPath);
+    await this.insertSourceContentIntoDB(srcFilepaths, projectName, srcDirPath, ignoreIfAlreadyCaptured);
   }
 
   /**
    * Loops through a list of file paths, loads each file's content, and prints the content.
    */
-  private async insertSourceContentIntoDB(filepaths: string[]) {
+  private async insertSourceContentIntoDB(filepaths: string[], projectName: string, srcDirPath: string, ignoreIfAlreadyCaptured: boolean) {
     console.log(`Creating metadata for ${filepaths.length} files to the MongoDB database sources collection`);
     
-    if (!this.ignoreIfAlreadyCaptured) {
+    if (!ignoreIfAlreadyCaptured) {
       console.log(`Deleting older version of the project's metadata files from the database to enable the metadata to be re-generated - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to avoid re-processing of all files`);
-      await this.sourcesRepository.deleteSourceFilesByProject(this.projectName);
+      await this.sourcesRepository.deleteSourceFilesByProject(projectName);
     }
 
     const jobs = filepaths.map(filepath => async () => {
       try {
-        await this.captureSrcFileMetadataToRepository(filepath);
+        await this.captureSrcFileMetadataToRepository(filepath, projectName, srcDirPath, ignoreIfAlreadyCaptured);
       } catch (error: unknown) {
         logErrorMsgAndDetail(`Problem introspecting and processing source file: ${filepath}`, error);
       }
@@ -66,12 +63,12 @@ export default class CodebaseToDBLoader {
   /**
    * Capture metadata for a file using the LLM.
    */
-  private async captureSrcFileMetadataToRepository(fullFilepath: string) {    
+  private async captureSrcFileMetadataToRepository(fullFilepath: string, projectName: string, srcDirPath: string, ignoreIfAlreadyCaptured: boolean) {    
     const type = getFileSuffix(fullFilepath).toLowerCase();
-    const filepath = fullFilepath.replace(`${this.srcDirPath}/`, "");    
+    const filepath = fullFilepath.replace(`${srcDirPath}/`, "");    
     if ((fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST as readonly string[]).includes(type)) return;  // Skip file if it has binary content
 
-    if ((this.ignoreIfAlreadyCaptured) && (await this.sourcesRepository.doesSourceFileExist(this.projectName, filepath))) {
+    if (ignoreIfAlreadyCaptured && (await this.sourcesRepository.doesSourceFileExist(projectName, filepath))) {
       if (!this.doneCheckingAlreadyCapturedFiles) {
         console.log(`Not capturing some of the metadata files into the database because they've already been captured by a previous run - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to force re-processing of all files`);
         this.doneCheckingAlreadyCapturedFiles = true;
@@ -105,7 +102,7 @@ export default class CodebaseToDBLoader {
     
     // Build the source file record with conditional optional fields
     const sourceFileRecord: Omit<SourceFileRecord, "_id"> = {
-      projectName: this.projectName,
+      projectName: projectName,
       filename,
       filepath,
       type,

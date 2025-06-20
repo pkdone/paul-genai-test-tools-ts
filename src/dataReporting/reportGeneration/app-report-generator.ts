@@ -23,8 +23,7 @@ export default class AppReportGenerator {
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
-    @inject(TOKENS.HtmlReportFormatter) private readonly htmlFormatter: HtmlReportFormatter,
-    private readonly projectName: string
+    @inject(TOKENS.HtmlReportFormatter) private readonly htmlFormatter: HtmlReportFormatter
   ) { 
     this.currentDate = new Date().toLocaleString();
   }
@@ -32,18 +31,18 @@ export default class AppReportGenerator {
   /**
    * Generate the HTML static file report using the HtmlReportFormatter.
    */
-  async generateHTMLReport(): Promise<string> {
+  async generateHTMLReport(projectName: string): Promise<string> {
     // Collect app statistics
-    const appStats = await this.getAppStatistics();
+    const appStats = await this.getAppStatistics(projectName);
     
     // Collect categorized data
-    const categorizedData = await this.getCategorizedData();
+    const categorizedData = await this.getCategorizedData(projectName);
     
     // Collect database integrations
-    const dbInteractions = await this.buildDBInteractionList();
+    const dbInteractions = await this.buildDBInteractionList(projectName);
     
     // Collect stored procedures and triggers
-    const procsAndTriggers = await this.buildDBStoredProcsTriggersSummaryList();
+    const procsAndTriggers = await this.buildDBStoredProcsTriggersSummaryList(projectName);
     
     // Use formatter to generate HTML
     return this.htmlFormatter.generateCompleteHTMLReport(
@@ -57,20 +56,20 @@ export default class AppReportGenerator {
   /**
    * Returns a list of database integrations.
    */
-  async buildDBInteractionList() {
-    return await this.sourcesRepository.getDatabaseIntegrations(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+  async buildDBInteractionList(projectName: string) {
+    return await this.sourcesRepository.getDatabaseIntegrations(projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
   }
 
   /**
    * Returns an aggregated summary of stored procedures and triggers.
    */
-  async buildDBStoredProcsTriggersSummaryList() {
+  async buildDBStoredProcsTriggersSummaryList(projectName: string) {
     const procsAndTriggers: ProcsAndTriggers = {
       procs: { total: 0, low: 0, medium: 0, high: 0, list: [] },
       trigs: { total: 0, low: 0, medium: 0, high: 0, list: [] },
     };
     
-    const records = await this.sourcesRepository.getStoredProceduresAndTriggers(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+    const records = await this.sourcesRepository.getStoredProceduresAndTriggers(projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
 
     for (const record of records) {
       const { summary } = record;
@@ -121,16 +120,16 @@ export default class AppReportGenerator {
   /**
    * Collect app statistics data
    */
-  private async getAppStatistics(): Promise<AppStatistics> {
-    const appSummaryRecord = await this.appSummariesRepository.getAppSummaryShortInfo(this.projectName);
+  private async getAppStatistics(projectName: string): Promise<AppStatistics> {
+    const appSummaryRecord = await this.appSummariesRepository.getAppSummaryShortInfo(projectName);
     if (!appSummaryRecord) throw new Error("Unable to generate app statistics for a report because no app summary data exists - ensure you first run the scripts to process the source data and generate insights");
     
     return {
-      projectName: this.projectName,
+      projectName: projectName,
       currentDate: this.currentDate,
       llmProvider: appSummaryRecord.llmProvider ?? "Unknown",
-      fileCount: await this.sourcesRepository.getFileCount(this.projectName),
-      linesOfCode: await this.sourcesRepository.getTotalLinesOfCode(this.projectName),
+      fileCount: await this.sourcesRepository.getFileCount(projectName),
+      linesOfCode: await this.sourcesRepository.getTotalLinesOfCode(projectName),
       appDescription: appSummaryRecord.appdescription ?? "No description available"
     };
   }
@@ -138,13 +137,13 @@ export default class AppReportGenerator {
   /**
    * Collect categorized data for all categories
    */
-  private async getCategorizedData(): Promise<{ category: string; label: string; data: AppSummaryNameDescArray }[]> {
+  private async getCategorizedData(projectName: string): Promise<{ category: string; label: string; data: AppSummaryNameDescArray }[]> {
     const categoryKeys = Object.keys(reportingConfig.APP_SUMMARIES_CATEGORY_TITLES).filter(key => key !== reportingConfig.APP_DESCRIPTION_KEY);
     const categorizedData = [];
     
     for (const category of categoryKeys) {
       const label = reportingConfig.APP_SUMMARIES_CATEGORY_TITLES[category as keyof typeof reportingConfig.APP_SUMMARIES_CATEGORY_TITLES];
-      const data = await this.appSummariesRepository.getAppSummaryField<AppSummaryNameDescArray>(this.projectName, category);
+      const data = await this.appSummariesRepository.getAppSummaryField<AppSummaryNameDescArray>(projectName, category);
       // Handle null data by providing empty array
       categorizedData.push({ category, label, data: data ?? [] });
       console.log(`Generated ${label} table`);

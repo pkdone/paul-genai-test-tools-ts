@@ -11,6 +11,9 @@ import { ReportGenerationService } from "../../services/report-generation-servic
 import { PromptBuilder } from "../../promptTemplating/prompt-builder";
 import { FileSummarizer } from "../../codebaseIngestion/file-summarizer";
 import { HtmlReportFormatter } from "../../dataReporting/reportGeneration/html-report-formatter";
+import AppReportGenerator from "../../dataReporting/reportGeneration/app-report-generator";
+import CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
+import CodeQuestioner from "../../codebaseQuerying/code-questioner";
 
 /**
  * Register application services as singletons using tsyringe's built-in singleton management.
@@ -30,6 +33,11 @@ export function registerServices(): void {
   container.registerSingleton(TOKENS.FileSummarizer, FileSummarizer);
   container.registerSingleton(TOKENS.HtmlReportFormatter, HtmlReportFormatter);
   // Note: LLMStats and PromptAdapter are registered in llm-registration.ts
+  
+  // Register service dependencies
+  container.registerSingleton(TOKENS.AppReportGenerator, AppReportGenerator);
+  container.registerSingleton(TOKENS.CodebaseToDBLoader, CodebaseToDBLoader);
+  container.registerSingleton(TOKENS.CodeQuestioner, CodeQuestioner);
   
   console.log('Application services and utilities registered as singletons');
 }

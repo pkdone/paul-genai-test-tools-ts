@@ -19,8 +19,7 @@ export default class CodeQuestioner {
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-    @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder,
-    private readonly projectName: string
+    @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder
   ) { 
   }
 
@@ -28,12 +27,12 @@ export default class CodeQuestioner {
    * Query the codebase, by first querying Vector Search and then using the results for RAG 
    * interacton with the LLM.
    */ 
-  async queryCodebaseWithQuestion(question: string) {
+  async queryCodebaseWithQuestion(question: string, projectName: string) {
     const queryVector = await this.llmRouter.generateEmbeddings("Human question", question);
     if (queryVector === null || queryVector.length <= 0) return "No vector was generated for the question - unable to answer question";
     const queryVectorDoubles = convertArrayOfNumbersToArrayOfDoubles(queryVector);  // HACK, see: https://jira.mongodb.org/browse/NODE-5714
     const bestMatchFiles = await this.sourcesRepository.vectorSearchContent(
-      this.projectName,
+      projectName,
       fileSystemConfig.JAVA_FILE_TYPE,
       queryVectorDoubles,
       llmConfig.VECTOR_SEARCH_NUM_CANDIDATES,
