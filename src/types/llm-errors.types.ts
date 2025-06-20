@@ -24,8 +24,9 @@ export class BadResponseContentLLMError extends LLMError {
    * Constructor.
    */
   constructor(message: string, content: unknown = null) {
-    super(BadResponseContentLLMError.name, `${message}. Content: ${stringify(content)}`);
-    this.content = stringify(content);    
+    const stringifiedContent = JSON.stringify(content);
+    super(BadResponseContentLLMError.name, `${message}. Content: ${stringifiedContent}`);
+    this.content = stringifiedContent;
   }
 }
 
@@ -43,8 +44,9 @@ export class BadResponseMetadataLLMError extends LLMError {
    * Constructor.
    */
   constructor(message: string, metadata: unknown = null) {
-    super(BadResponseMetadataLLMError.name, `${message}. Metadata: ${stringify(metadata)}`);
-    this.metadata = stringify(metadata);    
+    const stringifiedMetadata = JSON.stringify(metadata);
+    super(BadResponseMetadataLLMError.name, `${message}. Metadata: ${stringifiedMetadata}`);
+    this.metadata = stringifiedMetadata;
   }
 }
 
@@ -61,8 +63,9 @@ export class BadConfigurationLLMError extends LLMError {
    * Constructor.
    */
   constructor(message: string, config: unknown = null) {
-    super(BadConfigurationLLMError.name, `${message}. Config: ${stringify(config)}`);
-    this.config = stringify(config);    
+    const stringifiedConfig = JSON.stringify(config);
+    super(BadConfigurationLLMError.name, `${message}. Config: ${stringifiedConfig}`);
+    this.config = stringifiedConfig;
   }
 }
 
@@ -79,14 +82,8 @@ export class RejectionResponseLLMError extends LLMError {
    * Constructor.
    */
   constructor(message: string, reason: unknown = null) {
-    super(RejectionResponseLLMError.name, `${message}. Reason: ${stringify(reason)}`);
-    this.reason = stringify(reason);    
+    const stringifiedReason = JSON.stringify(reason);
+    super(RejectionResponseLLMError.name, `${message}. Reason: ${stringifiedReason}`);
+    this.reason = stringifiedReason;
   }
-}
-
-/**
- * Convert a variable to a string.
- */
-function stringify(myvar: unknown) {
-  return JSON.stringify(myvar);
 }
