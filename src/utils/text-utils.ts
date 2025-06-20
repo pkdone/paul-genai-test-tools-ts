@@ -9,7 +9,6 @@ export function countLines(text: string): number {
  *  Merges an array of string seperated by newlines unless a different sepeator specified.
  */
 export function joinArrayWithSeparators(lines: string[], suffix = "\n", prefix = ""): string {
-  // The map operation correctly handles an empty prefix string, making the 'if' redundant.
   return lines.map(line => `${prefix}${line}`).join(suffix);
 }
 

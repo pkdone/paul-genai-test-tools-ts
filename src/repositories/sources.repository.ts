@@ -1,26 +1,23 @@
 import { injectable, inject } from "tsyringe";
-import { MongoClient, Collection, Double, Sort, IndexSpecification } from "mongodb";
+import { MongoClient, Double, Sort } from "mongodb";
 import { ISourcesRepository } from "./interfaces/sources.repository.interface";
 import { SourceFileRecord, SourceFileShortInfo, SourceFileSummaryInfo } from "./models/source.model";
 import { TOKENS } from "../di/tokens";
 import { databaseConfig, llmConfig } from "../config";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { createVectorSearchIndexDefinition } from "../mdb/mdb-utils";
+import { BaseRepository } from "./base.repository";
 
 /**
  * MongoDB implementation of the Sources repository
  */
 @injectable()
-export default class SourcesRepository implements ISourcesRepository {
-  // Private fields
-  private readonly collection: Collection<SourceFileRecord>;
-
+export default class SourcesRepository extends BaseRepository<SourceFileRecord> implements ISourcesRepository {
   /**
    * Constructor.
    */
   constructor(@inject(TOKENS.MongoClient) mongoClient: MongoClient) {
-    const db = mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
-    this.collection = db.collection<SourceFileRecord>(databaseConfig.SOURCES_COLLCTN_NAME);
+    super(mongoClient, databaseConfig.SOURCES_COLLCTN_NAME);
   }
 
   /**
@@ -271,13 +268,7 @@ export default class SourcesRepository implements ISourcesRepository {
     await this.createNormalIndexIfNotExists({ projectName: 1, type: 1, "summary.classpath": 1 });
   }
 
-  /**
-   * Create normal MongoDB collection indexes if they don't yet exist.
-   */
-  private async createNormalIndexIfNotExists(indexSpec: IndexSpecification, isUnique = false): Promise<void> {
-    await this.collection.createIndex(indexSpec, { unique: isUnique });
-    console.log(`Ensured normal indexes exist for the MongoDB database collection: '${this.collection.dbName}.${this.collection.collectionName}'`);
-  }
+
 
   /**
    * Create Atlas Vector Search indexes if they don't yet exist.
