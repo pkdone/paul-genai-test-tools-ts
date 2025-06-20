@@ -1,11 +1,12 @@
 import "reflect-metadata";
 import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMContext, LLMProviderImpl, 
          LLMModelQuality, ResolvedLLMModelMetadata, LLMResponseTokensUsage } from "../types/llm.types";
-import { BadResponseMetadataLLMError, RejectionResponseLLMError, BadConfigurationLLMError } from "../types/llm-errors.types";
+import { BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { z } from "zod";
 import LLMRouter from "./llm-router";
 import LLMStats from "./routerTracking/llm-stats";
 import { PromptAdapter } from "./responseProcessing/llm-prompt-adapter";
+import { LLMCandidateFunction } from "../types/llm.types";
 
 // Mock the dependencies
 jest.mock("./responseProcessing/llm-response-tools", () => ({
@@ -101,10 +102,38 @@ describe("LLM Router tests", () => {
   // Helper function to create LLMRouter instance
   const createLLMRouter = (retryConfig: Record<string, unknown> = {}) => {
     const mockProvider = createMockLLMProvider();
+    
+    // Create completion candidates that dynamically reference the current mock functions
+    const completionCandidates: LLMCandidateFunction[] = [
+      {
+        func: async (prompt: string, asJson: boolean, context: LLMContext) => {
+          return mockProvider.executeCompletionPrimary(prompt, asJson, context);
+        },
+        modelQuality: LLMModelQuality.PRIMARY,
+        description: "Primary completion model"
+      },
+      {
+        func: async (prompt: string, asJson: boolean, context: LLMContext) => {
+          return mockProvider.executeCompletionSecondary(prompt, asJson, context);
+        },
+        modelQuality: LLMModelQuality.SECONDARY,
+        description: "Secondary completion model (fallback)"
+      }
+    ];
+    
+    // Use test-friendly retry configuration by default
+    const testRetryConfig = {
+      maxRetryAttempts: 2,
+      minRetryDelayMillis: 10,
+      maxRetryAdditionalDelayMillis: 10,
+      requestTimeoutMillis: 1000,
+      ...retryConfig
+    };
+    
     // Create real instances for dependency injection testing
     const mockLLMStats = new LLMStats();
     const mockPromptAdapter = new PromptAdapter();
-    const router = new LLMRouter(mockProvider, mockLLMStats, mockPromptAdapter, retryConfig);
+    const router = new LLMRouter(mockProvider, mockLLMStats, mockPromptAdapter, completionCandidates, testRetryConfig);
     return { router, mockProvider };
   };
 
@@ -130,7 +159,7 @@ describe("LLM Router tests", () => {
     test("should return correct models description", () => {
       const { router } = createLLMRouter();
       const description = router.getModelsUsedDescription();
-      expect(description).toBe("OpenAI (embeddings: text-embedding-ada-002, completions-primary: gpt-4, completions-secondary: gpt-3.5-turbo)");
+      expect(description).toBe("OpenAI (embeddings: text-embedding-ada-002, completions: primary: Primary completion model, secondary: Secondary completion model (fallback))");
     });
 
     test("should return embedded model dimensions", () => {
@@ -844,50 +873,6 @@ describe("LLM Router tests", () => {
     });
   });
 
-  describe("getModelQualityCompletionFunctions method", () => {
-    type LLMFunction = (prompt: string, asJson: boolean, context: LLMContext) => Promise<LLMFunctionResponse>;
-
-    test("should return primary completion function for primary quality", () => {
-      const { router } = createLLMRouter();
-      
-      const result = (router as unknown as { getModelQualityCompletionFunctions: (qualities: LLMModelQuality[]) => LLMFunction[] })
-        .getModelQualityCompletionFunctions([LLMModelQuality.PRIMARY]);
-      
-      expect(result).toHaveLength(1);
-      expect(typeof result[0]).toBe('function');
-    });
-
-    test("should return secondary completion function for secondary quality", () => {
-      const { router } = createLLMRouter();
-      
-      const result = (router as unknown as { getModelQualityCompletionFunctions: (qualities: LLMModelQuality[]) => LLMFunction[] })
-        .getModelQualityCompletionFunctions([LLMModelQuality.SECONDARY]);
-      
-      expect(result).toHaveLength(1);
-      expect(typeof result[0]).toBe('function');
-    });
-
-    test("should return both functions for both qualities", () => {
-      const { router } = createLLMRouter();
-      
-      const result = (router as unknown as { getModelQualityCompletionFunctions: (qualities: LLMModelQuality[]) => LLMFunction[] })
-        .getModelQualityCompletionFunctions([LLMModelQuality.PRIMARY, LLMModelQuality.SECONDARY]);
-      
-      expect(result).toHaveLength(2);
-      expect(typeof result[0]).toBe('function');
-      expect(typeof result[1]).toBe('function');
-    });
-
-    test("should throw error for empty qualities array", () => {
-      const { router } = createLLMRouter();
-      
-      expect(() => {
-        (router as unknown as { getModelQualityCompletionFunctions: (qualities: LLMModelQuality[]) => LLMFunction[] })
-          .getModelQualityCompletionFunctions([]);
-      }).toThrow(BadConfigurationLLMError);
-    });
-  });
-
   describe("Error handling and edge cases", () => {
     test("should handle LLM provider throwing unexpected errors", async () => {
       const { router, mockProvider } = createLLMRouter();
@@ -961,7 +946,12 @@ describe("LLM Router tests", () => {
 
   describe("Integration tests", () => {
     test("should handle complete workflow with model switching", async () => {
-      const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
+      const { router, mockProvider } = createLLMRouter({ 
+        maxRetryAttempts: 2,
+        minRetryDelayMillis: 10,
+        maxRetryAdditionalDelayMillis: 10,
+        requestTimeoutMillis: 1000
+      });
       
       // Primary fails with overloaded
       mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
@@ -989,7 +979,12 @@ describe("LLM Router tests", () => {
     });
 
     test("should handle complete workflow with prompt cropping", async () => {
-      const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
+      const { router, mockProvider } = createLLMRouter({ 
+        maxRetryAttempts: 2,
+        minRetryDelayMillis: 10,
+        maxRetryAdditionalDelayMillis: 10,
+        requestTimeoutMillis: 1000
+      });
       
       // Simplified test: primary returns exceeded, fallback to secondary succeeds
       mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({

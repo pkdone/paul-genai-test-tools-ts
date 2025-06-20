@@ -1,7 +1,7 @@
 import { llmConfig } from "../config";
 import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse,
-         ResolvedLLMModelMetadata } from "../types/llm.types";
+         ResolvedLLMModelMetadata, LLMCandidateFunction } from "../types/llm.types";
 import { RetryFunc } from "../types/control.types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { withRetry } from "../utils/control-utils";
@@ -20,6 +20,7 @@ import { LLMRetryConfig } from "./providers/llm-provider.types";
 export default class LLMRouter {
   // Private fields
   private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
+  private readonly completionCandidates: LLMCandidateFunction[];
 
   /**
    * Constructor.
@@ -27,15 +28,23 @@ export default class LLMRouter {
    * @param llm The initialized LLM provider implementation
    * @param llmStats The LLM statistics tracker
    * @param promptAdapter The prompt adapter for handling token limits
+   * @param completionCandidates List of candidate completion functions in order of preference
    * @param retryConfig Provider-specific retry and timeout configuration
    */
   constructor(
     private readonly llm: LLMProviderImpl,
     private readonly llmStats: LLMStats,
     private readonly promptAdapter: PromptAdapter,
+    completionCandidates: LLMCandidateFunction[],
     private readonly retryConfig: LLMRetryConfig = {}
   ) {
     this.modelsMetadata = llm.getModelsMetadata();
+    this.completionCandidates = completionCandidates;
+    
+    if (this.completionCandidates.length === 0) {
+      throw new BadConfigurationLLMError("At least one completion candidate function must be provided");
+    }
+    
     log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
   }
 
@@ -57,8 +66,11 @@ export default class LLMRouter {
    * Get the description of models the chosen plug-in provides.
    */
   getModelsUsedDescription(): string {
-    const [ embeddings, primary, secondary ] = this.llm.getModelsNames();
-    return `${this.llm.getModelFamily()} (embeddings: ${embeddings}, completions-primary: ${primary}, completions-secondary: ${secondary})`;
+    const [ embeddings ] = this.llm.getModelsNames();
+    const candidateDescriptions = this.completionCandidates
+      .map(candidate => `${candidate.modelQuality}: ${candidate.description}`)
+      .join(', ');
+    return `${this.llm.getModelFamily()} (embeddings: ${embeddings}, completions: ${candidateDescriptions})`;
   }  
 
 
@@ -77,8 +89,7 @@ export default class LLMRouter {
    */
   async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}): Promise<number[] | null> {
     context.purpose = LLMPurpose.EMBEDDINGS;
-    const llmFunc = this.llm.generateEmbeddings;
-    const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [llmFunc]);
+    const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [this.llm.generateEmbeddings]);
 
     if (contentResponse !== null && !(Array.isArray(contentResponse) && contentResponse.every(item => typeof item === 'number'))) {
       throw new BadResponseMetadataLLMError("LLM response for embeddings was not an array of numbers", contentResponse);
@@ -90,8 +101,8 @@ export default class LLMRouter {
   /**
    * Send the prompt to the LLM for and retrieve the LLM's answer.
    * 
-   * If a particilar LLM quality is not defined, will try to use the primary LLM quality and 
-   * failover to the secondary LLM quality if the primary fails.
+   * If a particular LLM quality is not specified, will try to use the completion candidates
+   * in the order they were configured during construction.
    *
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
@@ -100,12 +111,25 @@ export default class LLMRouter {
                           context: LLMContext = {},
                           modelQualityOverride: LLMModelQuality | null = null
                          ): Promise<LLMGeneratedContent | null> {                            
-    const availableModelQualities = modelQualityOverride? [modelQualityOverride] : this.llm.getAvailableCompletionModelQualities();
-    if (availableModelQualities.length === 0) throw new BadConfigurationLLMError("No available completion model qualities found for the provider.");
-    const modelQualityCompletionFunctions = this.getModelQualityCompletionFunctions(availableModelQualities);
+    
+    // Filter candidates based on model quality override if specified
+    const candidatesToUse = modelQualityOverride 
+      ? this.completionCandidates.filter(candidate => candidate.modelQuality === modelQualityOverride)
+      : this.completionCandidates;
+    
+    if (candidatesToUse.length === 0) {
+      throw new BadConfigurationLLMError(
+        modelQualityOverride 
+          ? `No completion candidates found for model quality: ${modelQualityOverride}`
+          : "No completion candidates available"
+      );
+    }
+    
+    const candidateFunctions = candidatesToUse.map(candidate => candidate.func);
     context.purpose = LLMPurpose.COMPLETIONS;
-    context.modelQuality = availableModelQualities[0];
-    const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, modelQualityCompletionFunctions, asJson);
+    context.modelQuality = candidatesToUse[0].modelQuality;
+    
+    const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, candidateFunctions, asJson, candidatesToUse);
 
     if ((typeof contentResponse !== 'object') && (typeof contentResponse !== 'string')) {
       throw new BadResponseMetadataLLMError("LLM response for completion was not an object or string", contentResponse);
@@ -136,12 +160,12 @@ export default class LLMRouter {
    * Context is just an optional object of key value pairs which will be retained with the LLM
    * request and subsequent response for convenient debugging and error logging context.
    */
-  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[], asJson = false) {
+  private async invokeLLMWithRetriesAndAdaptation(resourceName: string, prompt: string, context: LLMContext, llmFuncs: LLMFunction[], asJson = false, candidates?: LLMCandidateFunction[]) {
     let result: LLMGeneratedContent | null = null;
     const currentPrompt = prompt;
 
     try {
-      result = await this.iterateOverLLMFunctions(resourceName, currentPrompt, context, llmFuncs, asJson);
+      result = await this.iterateOverLLMFunctions(resourceName, currentPrompt, context, llmFuncs, asJson, candidates);
 
       if (!result) {
         log(`Given-up on trying to process the following resource with an LLM: '${resourceName}'`);
@@ -165,7 +189,8 @@ export default class LLMRouter {
     initialPrompt: string, 
     context: LLMContext, 
     llmFuncs: LLMFunction[], 
-    asJson: boolean
+    asJson: boolean,
+    candidates?: LLMCandidateFunction[]
   ): Promise<LLMGeneratedContent | null> {
     let currentPrompt = initialPrompt;
     let llmFuncIndex = 0;
@@ -195,7 +220,10 @@ export default class LLMRouter {
       }
       
       if (nextAction.shouldSwitchToNextLLM) {
-        context.modelQuality = LLMModelQuality.SECONDARY;
+        // Update context with the next candidate's model quality if available
+        if (candidates && llmFuncIndex + 1 < candidates.length) {
+          context.modelQuality = candidates[llmFuncIndex + 1].modelQuality;
+        }
         this.llmStats.recordSwitch();
         llmFuncIndex++;
       }
@@ -275,18 +303,5 @@ export default class LLMRouter {
       maxRetryAdditionalDelayMillis: this.retryConfig.maxRetryAdditionalDelayMillis ?? llmConfig.DEFAULT_MAX_RETRY_ADDITIONAL_MILLIS,
       requestTimeoutMillis: this.retryConfig.requestTimeoutMillis ?? llmConfig.DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS,
     };
-  }
-
-  /**
-   * Retrieve the specific LLM's embedding/completion functions to be used based on the desired
-   * model qualities.
-   */
-  private getModelQualityCompletionFunctions(availableModelQualities: LLMModelQuality[]) {
-    if (availableModelQualities.length <= 0) throw new BadConfigurationLLMError("No LLM implementation completions models provided");
-    return availableModelQualities.map(quality => 
-      quality === LLMModelQuality.PRIMARY 
-        ? this.llm.executeCompletionPrimary
-        : this.llm.executeCompletionSecondary
-    );    
   }
 }

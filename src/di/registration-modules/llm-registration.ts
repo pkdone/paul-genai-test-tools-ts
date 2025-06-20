@@ -4,6 +4,7 @@ import { LLMService } from "../../llm/llm-service";
 import LLMRouter from "../../llm/llm-router";
 import LLMStats from "../../llm/routerTracking/llm-stats";
 import { PromptAdapter } from "../../llm/responseProcessing/llm-prompt-adapter";
+import { LLMCandidateFunction, LLMModelQuality } from "../../types/llm.types";
 import type { EnvVars } from "../../types/env.types";
 
 /**
@@ -38,11 +39,31 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
     const llmManifest = llmService.getLLMManifest();
     const retryConfig = llmManifest.providerSpecificConfig;
     
+    // Configure completion candidates in order of preference
+    const completionCandidates: LLMCandidateFunction[] = [];
+    
+    // Add primary completion model as first candidate
+    completionCandidates.push({
+      func: llmProvider.executeCompletionPrimary,
+      modelQuality: LLMModelQuality.PRIMARY,
+      description: "Primary completion model"
+    });
+    
+    // Add secondary completion model as fallback if available
+    const availableQualities = llmProvider.getAvailableCompletionModelQualities();
+    if (availableQualities.includes(LLMModelQuality.SECONDARY)) {
+      completionCandidates.push({
+        func: llmProvider.executeCompletionSecondary,
+        modelQuality: LLMModelQuality.SECONDARY,
+        description: "Secondary completion model (fallback)"
+      });
+    }
+    
     // Resolve the dependencies that LLMRouter needs
     const llmStats = container.resolve<LLMStats>(TOKENS.LLMStats);
     const promptAdapter = container.resolve<PromptAdapter>(TOKENS.PromptAdapter);
     
-    const llmRouter = new LLMRouter(llmProvider, llmStats, promptAdapter, retryConfig);
+    const llmRouter = new LLMRouter(llmProvider, llmStats, promptAdapter, completionCandidates, retryConfig);
     container.registerInstance(TOKENS.LLMRouter, llmRouter);
     console.log('LLM Router initialized and registered as singleton');
   } else {

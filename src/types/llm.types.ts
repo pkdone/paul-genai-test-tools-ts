@@ -126,6 +126,15 @@ export interface LLMFunctionResponse {
 export type LLMFunction = (content: string, asJson: boolean, context: LLMContext) => Promise<LLMFunctionResponse>;
 
 /**
+ * Type to define a candidate LLM function with its associated metadata
+ */
+export interface LLMCandidateFunction {
+  readonly func: LLMFunction;
+  readonly modelQuality: LLMModelQuality;
+  readonly description: string;
+}
+
+/**
  * Type definitions for a partucular status
  */
 export interface LLMStatsCategoryStatus {
