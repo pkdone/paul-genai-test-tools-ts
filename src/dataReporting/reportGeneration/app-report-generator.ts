@@ -5,7 +5,8 @@ import type { IAppSummariesRepository } from "../../repositories/interfaces/app-
 import type { AppSummaryNameDescArray } from "../../repositories/models/app-summary.model";
 import { TOKENS } from "../../di/tokens";
 import { HtmlReportFormatter } from "./html-report-formatter";
-import type { AppStatistics, ProcsAndTriggers, Complexity } from "./types";
+import type { AppStatistics, ProcsAndTriggers } from "./types";
+import { Complexity } from "./types";
 
 /**
  * Class responsible for aggregating data for HTML report generation.
@@ -164,17 +165,21 @@ export default class AppReportGenerator {
       return;
     }
     
-    const normalizedComplexity = (typeof complexity === 'string' ? complexity : String(complexity)).toLowerCase();
+    const normalizedComplexity = (typeof complexity === 'string' ? complexity : String(complexity)).toLowerCase() as Complexity;
     
-    if (normalizedComplexity === "low") {
-      section.low++;
-    } else if (normalizedComplexity === "medium") {
-      section.medium++;
-    } else if (normalizedComplexity === "high") {
-      section.high++;
-    } else {
-      console.warn(`Unexpected complexity value encountered: ${complexity}`);
-      // Don't increment any counter for unrecognized values
+    switch (normalizedComplexity) {
+      case Complexity.LOW:
+        section.low++;
+        break;
+      case Complexity.MEDIUM:
+        section.medium++;
+        break;
+      case Complexity.HIGH:
+        section.high++;
+        break;
+      default:
+        console.warn(`Unexpected complexity value encountered: ${complexity}`);
+        // Don't increment any counter for unrecognized values
     }
   }
 
