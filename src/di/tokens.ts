@@ -40,4 +40,5 @@ export const TOKENS = {
   AppReportGenerator: Symbol.for('AppReportGenerator'),
   CodebaseToDBLoader: Symbol.for('CodebaseToDBLoader'),
   CodeQuestioner: Symbol.for('CodeQuestioner'),
+  DBCodeInsightsBackIntoDBGenerator: Symbol.for('DBCodeInsightsBackIntoDBGenerator'),
 } as const; 

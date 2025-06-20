@@ -27,7 +27,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder,
-    private readonly projectName: string,
+    @inject(TOKENS.ProjectName) private readonly projectName: string,
   ) {
     this.llmProviderDescription = llmRouter.getModelsUsedDescription();
   }

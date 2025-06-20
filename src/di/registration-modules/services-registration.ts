@@ -14,6 +14,7 @@ import { HtmlReportFormatter } from "../../dataReporting/reportGeneration/html-r
 import AppReportGenerator from "../../dataReporting/reportGeneration/app-report-generator";
 import CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
 import CodeQuestioner from "../../codebaseQuerying/code-questioner";
+import DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-code-insights-back-into-db-generator";
 
 /**
  * Register application services as singletons using tsyringe's built-in singleton management.
@@ -38,6 +39,7 @@ export function registerServices(): void {
   container.registerSingleton(TOKENS.AppReportGenerator, AppReportGenerator);
   container.registerSingleton(TOKENS.CodebaseToDBLoader, CodebaseToDBLoader);
   container.registerSingleton(TOKENS.CodeQuestioner, CodeQuestioner);
+  container.registerSingleton(TOKENS.DBCodeInsightsBackIntoDBGenerator, DBCodeInsightsBackIntoDBGenerator);
   
   console.log('Application services and utilities registered as singletons');
 }
