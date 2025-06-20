@@ -1,8 +1,6 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { getProjectNameFromPath } from "../utils/path-utils";
 import { Service } from "../types/service.types";
-import type { EnvVars } from "../types/env.types";
 import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import { TOKENS } from "../di/tokens";
 
@@ -16,19 +14,18 @@ export class MDBConnectionTestService implements Service {
    */  
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
-    @inject(TOKENS.EnvVars) private readonly env: EnvVars
+    @inject(TOKENS.ProjectName) private readonly projectName: string
   ) {}
 
   /**
    * Execute the service - tests the MongoDB connection.
    */
   async execute(): Promise<void> {
-    await this.testConnection(this.env.CODEBASE_DIR_PATH);
+    await this.testConnection();
   }
 
-  private async testConnection(srcDirPath: string): Promise<void> {
-    const projectName = getProjectNameFromPath(srcDirPath);     
-    const result = await this.sourcesRepository.getFilePaths(projectName);
+  private async testConnection(): Promise<void> {
+    const result = await this.sourcesRepository.getFilePaths(this.projectName);
     console.log("Result:", JSON.stringify(result, null, 2));
   }
 } 

@@ -10,6 +10,7 @@ export const TOKENS = {
   LLMService: Symbol.for('LLMService'),
   LLMModelFamily: Symbol.for('LLMModelFamily'),
   EnvVars: Symbol.for('EnvVars'),
+  ProjectName: Symbol.for('ProjectName'),
   
   // Configuration
   ServiceRunnerConfig: Symbol.for('ServiceRunnerConfig'),

@@ -1,10 +1,8 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import DBCodeInsightsBackIntoDBGenerator from "../insightsGeneration/db-code-insights-back-into-db-generator";
-import { getProjectNameFromPath } from "../utils/path-utils";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
-import type { EnvVars } from "../types/env.types";
 import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
 import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import { TOKENS } from "../di/tokens";
@@ -21,28 +19,27 @@ export class InsightsFromDBGenerationService implements Service {
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
-    @inject(TOKENS.EnvVars) private readonly env: EnvVars
+    @inject(TOKENS.ProjectName) private readonly projectName: string
   ) {}
 
   /**
    * Execute the service - generates insights.
    */
   async execute(): Promise<void> {
-    await this.generateInsights(this.env.CODEBASE_DIR_PATH);
+    await this.generateInsights();
   }
 
   /**
    * Generates insights.
    */
-  private async generateInsights(srcDirPath: string): Promise<void> {
-    const projectName = getProjectNameFromPath(srcDirPath);     
-    console.log(`Generating insights for project: ${projectName}`);
+  private async generateInsights(): Promise<void> {
+    console.log(`Generating insights for project: ${this.projectName}`);
     this.llmRouter.displayLLMStatusSummary();
     const summariesGenerator = new DBCodeInsightsBackIntoDBGenerator(
       this.appSummariesRepository, 
       this.llmRouter, 
       this.sourcesRepository,
-      projectName
+      this.projectName
     );
     await summariesGenerator.generateSummariesDataInDB();    
     console.log("Finished generating insights for the project");

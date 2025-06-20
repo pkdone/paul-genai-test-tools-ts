@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { getProjectNameFromPath } from "../utils/path-utils";
 import CodebaseToDBLoader from "../codebaseIngestion/codebase-to-db-loader";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
@@ -22,7 +21,8 @@ export class CodebaseCaptureService implements Service {
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
-    @inject(TOKENS.EnvVars) private readonly env: EnvVars
+    @inject(TOKENS.EnvVars) private readonly env: EnvVars,
+    @inject(TOKENS.ProjectName) private readonly projectName: string
   ) {}
 
   /**
@@ -36,8 +36,7 @@ export class CodebaseCaptureService implements Service {
    * Captures the codebase.
    */
   private async captureCodebase(srcDirPath: string, ignoreIfAlreadyCaptured: boolean): Promise<void> {
-    const projectName = getProjectNameFromPath(srcDirPath);     
-    console.log(`Processing source files for project: ${projectName}`);
+    console.log(`Processing source files for project: ${this.projectName}`);
     
     // Ensure required indexes exist
     const numDimensions = this.llmRouter.getEmbeddedModelDimensions() ?? llmConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT;
@@ -45,7 +44,7 @@ export class CodebaseCaptureService implements Service {
     await this.appSummariesRepository.ensureIndexes();
     
     this.llmRouter.displayLLMStatusSummary();
-    const codebaseToDBLoader = new CodebaseToDBLoader(this.sourcesRepository, this.llmRouter, projectName, 
+    const codebaseToDBLoader = new CodebaseToDBLoader(this.sourcesRepository, this.llmRouter, this.projectName, 
                                                       srcDirPath, ignoreIfAlreadyCaptured
     );
     await codebaseToDBLoader.loadIntoDB();      

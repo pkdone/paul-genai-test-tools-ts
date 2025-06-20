@@ -5,7 +5,6 @@ import type { EnvVars } from "../types/env.types";
 import { TOKENS } from "../di/tokens";
 import { fileSystemConfig, reportingConfig } from "../config";
 import { clearDirectory, writeFile } from "../utils/fs-utils";
-import { getProjectNameFromPath } from "../utils/path-utils";
 import path from "path";
 import AppReportGenerator from "../dataReporting/reportGeneration/app-report-generator";
 import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
@@ -22,7 +21,8 @@ export class ReportGenerationService implements Service {
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
-    @inject(TOKENS.EnvVars) private readonly env: EnvVars
+    @inject(TOKENS.EnvVars) private readonly env: EnvVars,
+    @inject(TOKENS.ProjectName) private readonly projectName: string
   ) {}
 
   /**
@@ -41,10 +41,9 @@ export class ReportGenerationService implements Service {
     const cleanSrcDirPath = srcDirPath.replace(fileSystemConfig.TRAILING_SLASH_PATTERN, "");
     console.log(cleanSrcDirPath);
     await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
-    const projectName = getProjectNameFromPath(srcDirPath);      
-    console.log(`Creating report for project: ${projectName}`);
+    console.log(`Creating report for project: ${this.projectName}`);
     const htmlFilePath = path.join(fileSystemConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
-    const appReportGenerator = new AppReportGenerator(this.sourcesRepository, this.appSummariesRepository, projectName);
+    const appReportGenerator = new AppReportGenerator(this.sourcesRepository, this.appSummariesRepository, this.projectName);
     await writeFile(htmlFilePath, await appReportGenerator.generateHTMLReport());      
     console.log(`View generated report in a browser: file://${path.resolve(htmlFilePath)}`);
   }

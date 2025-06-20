@@ -4,9 +4,7 @@ import { mcpConfig } from "../config";
 import McpHttpServer from "../dataReporting/mcpServing/mcp-http-server";
 import McpDataServer from "../dataReporting/mcpServing/mcp-data-server";
 import InsightsDataServer from "../dataReporting/mcpServing/insights-data-server";
-import { getProjectNameFromPath } from "../utils/path-utils";
 import { Service } from "../types/service.types";
-import type { EnvVars } from "../types/env.types";
 import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
 import { TOKENS } from "../di/tokens";
 import type { MongoDBClientFactory } from "../mdb/mdb-client-factory";
@@ -23,7 +21,7 @@ export class McpServerService implements Service {
   constructor(
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     @inject(TOKENS.MongoDBClientFactory) private readonly mongoDBClientFactory: MongoDBClientFactory,
-    @inject(TOKENS.EnvVars) private readonly env: EnvVars
+    @inject(TOKENS.ProjectName) private readonly projectName: string
   ) {}
 
   /**
@@ -37,9 +35,7 @@ export class McpServerService implements Service {
    * Starts the MCP insights server and returns a Promise that resolves when the server closes.
    */
   private async startMcpServer(): Promise<void> {
-    const srcDirPath = this.env.CODEBASE_DIR_PATH;
-    const projectName = getProjectNameFromPath(srcDirPath);     
-    const analysisDataServer = new InsightsDataServer(this.appSummariesRepository, projectName);
+    const analysisDataServer = new InsightsDataServer(this.appSummariesRepository, this.projectName);
     const mcpDataServer = new McpDataServer(analysisDataServer);
     const mcpServer = mcpDataServer.configure();
     const mcpHttpServer = new McpHttpServer(mcpServer, mcpConfig.DEFAULT_MCP_HOSTNAME);

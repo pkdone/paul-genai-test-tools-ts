@@ -7,6 +7,7 @@ import { z } from "zod";
 import { baseEnvVarsSchema } from "../../types/env.types";
 import { BadConfigurationLLMError } from "../../types/llm-errors.types";
 import { getErrorStack } from "../../utils/error-utils";
+import { getProjectNameFromPath } from "../../utils/path-utils";
 import dotenv from "dotenv";
 
 /**
@@ -23,6 +24,16 @@ export async function registerEnvDependencies(requiresLLM: boolean): Promise<voi
     console.log('Environment variables loaded and registered as singleton');
   } else {
     console.log('Environment variables already registered - skipping registration');
+  }
+
+  // Register ProjectName derived from CODEBASE_DIR_PATH
+  if (!container.isRegistered(TOKENS.ProjectName)) {
+    const envVars = container.resolve<EnvVars>(TOKENS.EnvVars);
+    const projectName = getProjectNameFromPath(envVars.CODEBASE_DIR_PATH);
+    container.registerInstance(TOKENS.ProjectName, projectName);
+    console.log(`Project name '${projectName}' derived and registered as singleton`);
+  } else {
+    console.log('Project name already registered - skipping registration');
   }
 }
 
