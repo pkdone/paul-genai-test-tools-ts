@@ -13,6 +13,14 @@ import type { EnvVars } from "../../types/env.types";
 export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
   console.log('Registering LLM dependencies...');  
   
+  // Register utility classes that LLM dependencies need
+  if (!container.isRegistered(TOKENS.LLMStats)) {
+    container.registerSingleton(TOKENS.LLMStats, LLMStats);
+  }
+  if (!container.isRegistered(TOKENS.PromptAdapter)) {
+    container.registerSingleton(TOKENS.PromptAdapter, PromptAdapter);
+  }
+  
   if (!container.isRegistered(TOKENS.LLMService)) {
     // Register the model family string that LLMService depends on
     container.registerInstance(TOKENS.LLMModelFamily, envVars.LLM);

@@ -19,8 +19,8 @@ export default class LLMStats {
   /**
    * Constructor.
    */
-  constructor(doPrintEventTicks = true) {
-    this.doPrintEventTicks = doPrintEventTicks;
+  constructor() {
+    this.doPrintEventTicks = true;
   }
 
   /**

@@ -47,7 +47,11 @@ export class TokenLimitReductionStrategy implements PromptAdaptationStrategy {
  */
 @injectable()
 export class PromptAdapter {
-  constructor(private strategy: PromptAdaptationStrategy = new TokenLimitReductionStrategy()) {}
+  private strategy: PromptAdaptationStrategy;
+  
+  constructor() {
+    this.strategy = new TokenLimitReductionStrategy();
+  }
 
   /**
    * Adapts a prompt based on LLM response feedback (typically when token limits are exceeded).
