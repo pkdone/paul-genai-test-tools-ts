@@ -16,11 +16,3 @@ export async function runApplication(serviceToken: symbol): Promise<void> {
   // Phase 2: Run - Execute the service using the bootstrapped container
   await runService(serviceToken);
 }
-
-/**
- * Legacy function for backward compatibility
- * @deprecated Use runApplication instead for better separation of concerns
- */
-export async function legacyRunService(serviceToken: symbol): Promise<void> {
-  await runApplication(serviceToken);
-} 

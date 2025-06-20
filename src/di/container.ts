@@ -25,7 +25,4 @@ export async function bootstrapContainer(config: ServiceRunnerConfig): Promise<v
   console.log('Container bootstrap completed');
 }
 
-// Legacy function name - deprecated, use bootstrapContainer instead
-export const registerDependencies = bootstrapContainer;
-
 export { container }; 

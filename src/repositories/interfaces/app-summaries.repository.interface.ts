@@ -32,5 +32,5 @@ export interface IAppSummariesRepository {
   /**
    * Get specific field data from app summary
    */
-  getAppSummaryField<T = string>(projectName: string, fieldName: string): Promise<T | null>;
+  getAppSummaryField<T>(projectName: string, fieldName: string): Promise<T | null>;
 } 

@@ -1,4 +1,4 @@
-import { registerDependencies, container } from './container';
+import { bootstrapContainer, container } from './container';
 import { ServiceRunnerConfig } from '../types/service.types';
 import { TOKENS } from './tokens';
 
@@ -40,14 +40,14 @@ describe('Dependency Registration', () => {
     process.env.CODEBASE_DIR_PATH = '/test/path';
   });
   
-  describe('registerDependencies function', () => {
+  describe('bootstrapContainer function', () => {
     it('should register basic dependencies without LLM or MongoDB', async () => {
       const config: ServiceRunnerConfig = {
         requiresLLM: false,
         requiresMongoDB: false
       };
       
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       
       // Verify that environment variables and services are registered
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
@@ -65,7 +65,7 @@ describe('Dependency Registration', () => {
         requiresMongoDB: true
       };
       
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       
       // Verify that MongoDB dependencies are registered along with basic dependencies
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
@@ -84,10 +84,10 @@ describe('Dependency Registration', () => {
       };
       
       // First registration
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       
       // Second registration should not throw errors
-      await expect(registerDependencies(config)).resolves.not.toThrow();
+      await expect(bootstrapContainer(config)).resolves.not.toThrow();
       
       // Dependencies should still be registered
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
@@ -101,11 +101,11 @@ describe('Dependency Registration', () => {
       };
       
       // First registration
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(true);
       
       // Second registration should not throw errors
-      await expect(registerDependencies(config)).resolves.not.toThrow();
+      await expect(bootstrapContainer(config)).resolves.not.toThrow();
       
       // Dependencies should still be registered
       expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(true);
@@ -120,7 +120,7 @@ describe('Dependency Registration', () => {
         requiresMongoDB: false
       };
       
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       
       // Should be able to resolve environment variables
       const envVars = container.resolve(TOKENS.EnvVars);
@@ -135,7 +135,7 @@ describe('Dependency Registration', () => {
         requiresMongoDB: true
       };
       
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       
       // Should be able to resolve MongoDB dependencies
       const mongoFactory = container.resolve(TOKENS.MongoDBClientFactory);
@@ -151,7 +151,7 @@ describe('Dependency Registration', () => {
         requiresMongoDB: true
       };
       
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       
       // Should be able to resolve MongoDB-dependent service
       const mongoConnectionTestService = container.resolve(TOKENS.MDBConnectionTestService);
@@ -165,7 +165,7 @@ describe('Dependency Registration', () => {
         requiresMongoDB: true
       };
       
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       
       // Resolve the same dependencies multiple times
       const mongoFactory1 = container.resolve(TOKENS.MongoDBClientFactory);
@@ -186,7 +186,7 @@ describe('Dependency Registration', () => {
         requiresMongoDB: true
       };
       
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       
       // Check that correct dependencies are now registered
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
@@ -203,11 +203,11 @@ describe('Dependency Registration', () => {
       };
       
       // First registration
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       expect(container.isRegistered(TOKENS.CodebaseQueryService)).toBe(true);
       
       // Second registration should not cause issues
-      await registerDependencies(config);
+      await bootstrapContainer(config);
       expect(container.isRegistered(TOKENS.CodebaseQueryService)).toBe(true);
       
       // Test that registration is idempotent - verify service tokens are registered
@@ -222,7 +222,7 @@ describe('Dependency Registration', () => {
         requiresMongoDB: false
       };
       
-      await registerDependencies(config1);
+      await bootstrapContainer(config1);
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
       expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(false);
       
@@ -232,7 +232,7 @@ describe('Dependency Registration', () => {
         requiresMongoDB: true
       };
       
-      await registerDependencies(config2);
+      await bootstrapContainer(config2);
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
       expect(container.isRegistered(TOKENS.MongoDBClientFactory)).toBe(true);
     });
