@@ -7,8 +7,10 @@ import { fileSystemConfig, reportingConfig } from "../config";
 import { clearDirectory, writeFile } from "../utils/fs-utils";
 import path from "path";
 import AppReportGenerator from "../dataReporting/reportGeneration/app-report-generator";
+import { container } from "tsyringe";
 import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
+import type { HtmlReportFormatter } from "../dataReporting/reportGeneration/html-report-formatter";
 
 /**
  * Service to generate a report of an application's composition.
@@ -19,8 +21,6 @@ export class ReportGenerationService implements Service {
    * Constructor with dependency injection.
    */  
   constructor(
-    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
-    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars,
     @inject(TOKENS.ProjectName) private readonly projectName: string
   ) {}
@@ -43,7 +43,19 @@ export class ReportGenerationService implements Service {
     await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
     console.log(`Creating report for project: ${this.projectName}`);
     const htmlFilePath = path.join(fileSystemConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
-    const appReportGenerator = new AppReportGenerator(this.sourcesRepository, this.appSummariesRepository, this.projectName);
+    
+    // Create AppReportGenerator using container and pass projectName manually
+    const sourcesRepository = container.resolve<ISourcesRepository>(TOKENS.SourcesRepository);
+    const appSummariesRepository = container.resolve<IAppSummariesRepository>(TOKENS.AppSummariesRepository);
+    const htmlFormatter = container.resolve<HtmlReportFormatter>(TOKENS.HtmlReportFormatter);
+    
+    const appReportGenerator = new AppReportGenerator(
+      sourcesRepository, 
+      appSummariesRepository, 
+      htmlFormatter,
+      this.projectName
+    );
+    
     await writeFile(htmlFilePath, await appReportGenerator.generateHTMLReport());      
     console.log(`View generated report in a browser: file://${path.resolve(htmlFilePath)}`);
   }

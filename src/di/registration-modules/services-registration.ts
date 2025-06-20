@@ -10,6 +10,7 @@ import { McpServerService } from "../../services/mcp-server.service";
 import { ReportGenerationService } from "../../services/report-generation-service";
 import { PromptBuilder } from "../../promptTemplating/prompt-builder";
 import { FileSummarizer } from "../../codebaseIngestion/file-summarizer";
+import { HtmlReportFormatter } from "../../dataReporting/reportGeneration/html-report-formatter";
 
 /**
  * Register application services as singletons using tsyringe's built-in singleton management.
@@ -27,6 +28,7 @@ export function registerServices(): void {
   // Register utility/helper classes
   container.registerSingleton(TOKENS.PromptBuilder, PromptBuilder);
   container.registerSingleton(TOKENS.FileSummarizer, FileSummarizer);
+  container.registerSingleton(TOKENS.HtmlReportFormatter, HtmlReportFormatter);
   // Note: LLMStats and PromptAdapter are registered in llm-registration.ts
   
   console.log('Application services and utilities registered as singletons');

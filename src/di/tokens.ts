@@ -34,4 +34,5 @@ export const TOKENS = {
   FileSummarizer: Symbol.for('FileSummarizer'),
   LLMStats: Symbol.for('LLMStats'),
   PromptAdapter: Symbol.for('PromptAdapter'),
+  HtmlReportFormatter: Symbol.for('HtmlReportFormatter'),
 } as const; 
