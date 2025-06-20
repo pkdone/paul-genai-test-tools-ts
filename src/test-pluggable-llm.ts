@@ -1,5 +1,4 @@
-import "reflect-metadata";
-import { runService } from "./lifecycle/service-runner";
+import { runApplication } from "./index";
 import { TOKENS } from "./di/tokens";
 
-runService(TOKENS.PluggableLLMsTestService).catch(console.error);
+runApplication(TOKENS.PluggableLLMsTestService).catch(console.error);

@@ -1,5 +1,4 @@
-import "reflect-metadata";
-import { runService } from "./lifecycle/service-runner";
+import { runApplication } from "./index";
 import { TOKENS } from "./di/tokens";
 
-runService(TOKENS.OneShotGenerateInsightsService).catch(console.error);
+runApplication(TOKENS.OneShotGenerateInsightsService).catch(console.error);

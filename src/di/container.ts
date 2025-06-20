@@ -8,11 +8,11 @@ import { registerEnvDependencies, registerLLMDependencies, registerMongoDBDepend
 import { registerRepositories } from "./registration-modules/repositories-registration";
 
 /**
- * Register dependencies based on service configuration.
+ * Bootstrap the DI container based on service configuration.
  * Leverages tsyringe's built-in singleton management and isRegistered checks.
  */
-export async function registerDependencies(config: ServiceRunnerConfig): Promise<void> {
-  console.log(`Registering dependencies for service with config:`, config);
+export async function bootstrapContainer(config: ServiceRunnerConfig): Promise<void> {
+  console.log(`Bootstrapping container for service with config:`, config);
   await registerEnvDependencies(config.requiresLLM);  
   const envVars = container.resolve<EnvVars>(TOKENS.EnvVars);
   if (config.requiresLLM) await registerLLMDependencies(envVars);
@@ -22,7 +22,10 @@ export async function registerDependencies(config: ServiceRunnerConfig): Promise
     registerMongoDBServices();
   }
   registerServices();  
-  console.log('Dependency registration completed');
+  console.log('Container bootstrap completed');
 }
+
+// Legacy function name - deprecated, use bootstrapContainer instead
+export const registerDependencies = bootstrapContainer;
 
 export { container }; 
