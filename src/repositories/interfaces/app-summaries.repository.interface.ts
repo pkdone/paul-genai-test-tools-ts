@@ -5,11 +5,6 @@ import { AppSummaryRecord, AppSummaryShortInfo, AppSummaryUpdate } from "../mode
  */
 export interface IAppSummariesRepository {
   /**
-   * Ensure required indexes exist for the app summaries collection
-   */
-  ensureIndexes(): Promise<void>;
-
-  /**
    * Create or replace an app summary record
    */
   createOrReplaceAppSummary(projectName: string, data: Partial<AppSummaryRecord>): Promise<void>;

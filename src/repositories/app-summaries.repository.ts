@@ -19,13 +19,6 @@ export default class AppSummariesRepository extends BaseRepository<AppSummaryRec
   }
 
   /**
-   * Ensure required indexes exist for the app summaries collection
-   */
-  async ensureIndexes(): Promise<void> {
-    await this.createNormalIndexIfNotExists({ projectName: 1 });
-  }
-
-  /**
    * Create or replace an app summary record
    */
   async createOrReplaceAppSummary(projectName: string, data: Partial<AppSummaryRecord>): Promise<void> {
@@ -90,6 +83,4 @@ export default class AppSummariesRepository extends BaseRepository<AppSummaryRec
     const record = await this.collection.findOne<Record<string, T>>(query, options);
     return record?.[fieldName] ?? null;
   }
-
-
 } 

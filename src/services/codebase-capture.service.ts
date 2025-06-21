@@ -4,8 +4,7 @@ import CodebaseToDBLoader from "../codebaseIngestion/codebase-to-db-loader";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
-import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
-import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
+import type { DBInitializerService } from "./db-initializer.service";
 import { llmConfig } from "../config";
 import { TOKENS } from "../di/tokens";
 
@@ -19,8 +18,7 @@ export class CodebaseCaptureService implements Service {
    */
   constructor(
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
-    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
+    @inject(TOKENS.DBInitializerService) private readonly dbInitializerService: DBInitializerService,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars,
     @inject(TOKENS.ProjectName) private readonly projectName: string,
     @inject(TOKENS.CodebaseToDBLoader) private readonly codebaseToDBLoader: CodebaseToDBLoader
@@ -39,10 +37,9 @@ export class CodebaseCaptureService implements Service {
   private async captureCodebase(srcDirPath: string, ignoreIfAlreadyCaptured: boolean): Promise<void> {
     console.log(`Processing source files for project: ${this.projectName}`);
     
-    // Ensure required indexes exist
+    // Ensure required database indexes exist
     const numDimensions = this.llmRouter.getEmbeddedModelDimensions() ?? llmConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT;
-    await this.sourcesRepository.ensureIndexes(numDimensions);
-    await this.appSummariesRepository.ensureIndexes();
+    await this.dbInitializerService.ensureAllIndexes(numDimensions);
     
     this.llmRouter.displayLLMStatusSummary();
     await this.codebaseToDBLoader.loadIntoDB(this.projectName, srcDirPath, ignoreIfAlreadyCaptured);      

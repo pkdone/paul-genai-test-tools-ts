@@ -8,6 +8,7 @@ import { MDBConnectionTestService } from "../../services/mdb-connection-test.ser
 import { PluggableLLMsTestService } from "../../services/test-pluggable-llms.service";
 import { McpServerService } from "../../services/mcp-server.service";
 import { ReportGenerationService } from "../../services/report-generation-service";
+import { DBInitializerService } from "../../services/db-initializer.service";
 import { PromptBuilder } from "../../promptTemplating/prompt-builder";
 import { FileSummarizer } from "../../codebaseIngestion/file-summarizer";
 import { HtmlReportFormatter } from "../../dataReporting/reportGeneration/html-report-formatter";
@@ -28,12 +29,12 @@ export function registerServices(): void {
   container.registerSingleton(TOKENS.PluggableLLMsTestService, PluggableLLMsTestService);
   container.registerSingleton(TOKENS.McpServerService, McpServerService);
   container.registerSingleton(TOKENS.ReportGenerationService, ReportGenerationService);
+  container.registerSingleton(TOKENS.DBInitializerService, DBInitializerService);
   
   // Register utility/helper classes
   container.registerSingleton(TOKENS.PromptBuilder, PromptBuilder);
   container.registerSingleton(TOKENS.FileSummarizer, FileSummarizer);
   container.registerSingleton(TOKENS.HtmlReportFormatter, HtmlReportFormatter);
-  // Note: LLMStats and PromptAdapter are registered in llm-registration.ts
   
   // Register service dependencies
   container.registerSingleton(TOKENS.AppReportGenerator, AppReportGenerator);

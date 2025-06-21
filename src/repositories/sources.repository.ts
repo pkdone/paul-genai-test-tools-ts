@@ -3,9 +3,8 @@ import { MongoClient, Double, Sort } from "mongodb";
 import { ISourcesRepository } from "./interfaces/sources.repository.interface";
 import { SourceFileRecord, SourceFileShortInfo, SourceFileSummaryInfo } from "./models/source.model";
 import { TOKENS } from "../di/tokens";
-import { databaseConfig, llmConfig } from "../config";
+import { databaseConfig } from "../config";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { createVectorSearchIndexDefinition } from "../mdb/mdb-utils";
 import { BaseRepository } from "./base.repository";
 
 /**
@@ -18,14 +17,6 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
    */
   constructor(@inject(TOKENS.MongoClient) mongoClient: MongoClient) {
     super(mongoClient, databaseConfig.SOURCES_COLLCTN_NAME);
-  }
-
-  /**
-   * Ensure required indexes exist for the sources collection
-   */
-  async ensureIndexes(numDimensions: number): Promise<void> {
-    await this.createNormalIndexes();
-    await this.createVectorSearchIndexes(numDimensions);
   }
 
   /**
@@ -259,72 +250,5 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
 
     const result = await this.collection.aggregate<{ count: number }>(pipeline).toArray();
     return result.length > 0 && result[0] ? result[0].count : 0;
-  }
-
-  /**
-   * Create normal MongoDB collection indexes if they don't yet exist.
-   */
-  private async createNormalIndexes(): Promise<void> {
-    await this.createNormalIndexIfNotExists({ projectName: 1, type: 1, "summary.classpath": 1 });
-  }
-
-
-
-  /**
-   * Create Atlas Vector Search indexes if they don't yet exist.
-   */
-  private async createVectorSearchIndexes(numDimensions: number): Promise<void> {
-    let unknownErrorOccurred = false;
-    const vectorSearchIndexes = [];
-    vectorSearchIndexes.push(this.createFileContentVectorIndexDefinition(databaseConfig.CONTENT_VECTOR_INDEX, numDimensions));
-    vectorSearchIndexes.push(this.createFileContentVectorIndexDefinition(databaseConfig.SUMMARY_VECTOR_INDEX, numDimensions));
-
-    try {
-      await this.collection.createSearchIndexes(vectorSearchIndexes);
-    } catch (error: unknown) {
-      const isDuplicateIndexError = typeof error === "object" && error !== null && "codeName" in error && (error as { codeName: string }).codeName === "IndexAlreadyExists";
-
-      if (!isDuplicateIndexError) {
-        logErrorMsgAndDetail(
-          `Issue when creating Vector Search indexes, therefore you must create these Vector Search indexes manually (see README) for the MongoDB database collection: '${this.collection.dbName}.${this.collection.collectionName}'`,
-          error
-        );    
-        unknownErrorOccurred = true;
-      }
-    }
-
-    if (!unknownErrorOccurred) {
-      console.log(`Ensured Vector Search indexes exist for the MongoDB database collection: '${this.collection.dbName}.${this.collection.collectionName}'`);
-    } 
-  }
-
-  /**
-   * Create a vector search index with a project and file type filter for a particular metadata 
-   * field extracted from a file.
-   */
-  private createFileContentVectorIndexDefinition(fieldToIndex: string, numDimensions: number) {
-    const indexName = fieldToIndex === databaseConfig.CONTENT_VECTOR_INDEX 
-      ? databaseConfig.CONTENT_VECTOR_INDEX_NAME 
-      : databaseConfig.SUMMARY_VECTOR_INDEX_NAME;
-    
-    const filters = [
-      {
-        type: "filter",
-        path: "projectName"
-      },
-      {
-        type: "filter",
-        path: "type"
-      }
-    ];
-
-    return createVectorSearchIndexDefinition(
-      indexName,
-      fieldToIndex,
-      numDimensions,
-      llmConfig.VECTOR_SIMILARITY_TYPE,
-      llmConfig.VECTOR_QUANTIZATION_TYPE,
-      filters
-    );
   }
 } 

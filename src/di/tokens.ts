@@ -28,6 +28,7 @@ export const TOKENS = {
   MDBConnectionTestService: Symbol.for('MDBConnectionTestService'),
   McpServerService: Symbol.for('McpServerService'),
   ReportGenerationService: Symbol.for('ReportGenerationService'),
+  DBInitializerService: Symbol.for('DBInitializerService'),
   
   // Utility/Helper Classes
   PromptBuilder: Symbol.for('PromptBuilder'),
