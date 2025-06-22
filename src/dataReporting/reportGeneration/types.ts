@@ -5,6 +5,13 @@ export enum Complexity {
   HIGH = "high",
 }
 
+/**
+ * Type guard to check if a value is a valid Complexity enum value
+ */
+export function isComplexity(value: unknown): value is Complexity {
+  return typeof value === 'string' && Object.values(Complexity).includes(value.toLowerCase() as Complexity);
+}
+
 // Interface for the database interaction list
 export interface ProcsAndTriggers {
   procs: {
@@ -45,4 +52,4 @@ export interface AppStatistics {
   fileCount: number;
   linesOfCode: number;
   appDescription: string;
-} 
+}

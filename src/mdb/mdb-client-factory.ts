@@ -65,7 +65,8 @@ export class MongoDBClientFactory {
    * Closes all MongoDB connections managed by this factory.
    */
   async closeAll(): Promise<void> {
-    for (const [id, client] of this.clients.entries()) {
+    // Iterating directly over the map yields [key, value] pairs
+    for (const [id, client] of this.clients) {
       try {
         await client.close();
         console.log(`Closed MongoDB connection for id '${id}'.`);

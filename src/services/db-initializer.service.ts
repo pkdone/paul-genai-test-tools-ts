@@ -81,7 +81,11 @@ export class DBInitializerService implements Service {
     try {
       await this.sourcesCollection.createSearchIndexes(vectorSearchIndexes);
     } catch (error: unknown) {
-      const isDuplicateIndexError = typeof error === "object" && error !== null && "codeName" in error && (error as { codeName: string }).codeName === "IndexAlreadyExists";
+      const isDuplicateIndexError = 
+        typeof error === "object" &&
+        error !== null &&
+        Object.hasOwn(error, "codeName") &&
+        (error as { codeName: unknown }).codeName === "IndexAlreadyExists";
 
       if (!isDuplicateIndexError) {
         logErrorMsgAndDetail(

@@ -1,12 +1,12 @@
 import "reflect-metadata";
 import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMContext, LLMProviderImpl, 
-         LLMModelQuality, ResolvedLLMModelMetadata, LLMResponseTokensUsage } from "../types/llm.types";
+         LLMModelQuality, ResolvedLLMModelMetadata, LLMResponseTokensUsage, LLMCandidateFunction } 
+       from "../types/llm.types";
 import { BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { z } from "zod";
 import LLMRouter from "./llm-router";
 import LLMStats from "./routerTracking/llm-stats";
 import { PromptAdapter } from "./responseProcessing/llm-prompt-adapter";
-import { LLMCandidateFunction } from "../types/llm.types";
 
 // Mock the dependencies
 jest.mock("./responseProcessing/llm-response-tools", () => ({

@@ -30,14 +30,12 @@ export const TOKENS = {
   ReportGenerationService: Symbol.for('ReportGenerationService'),
   DBInitializerService: Symbol.for('DBInitializerService'),
   
-  // Utility/Helper Classes
+  // Internal Helper Components
   PromptBuilder: Symbol.for('PromptBuilder'),
   FileSummarizer: Symbol.for('FileSummarizer'),
   LLMStats: Symbol.for('LLMStats'),
   PromptAdapter: Symbol.for('PromptAdapter'),
   HtmlReportFormatter: Symbol.for('HtmlReportFormatter'),
-  
-  // Service Dependencies
   AppReportGenerator: Symbol.for('AppReportGenerator'),
   CodebaseToDBLoader: Symbol.for('CodebaseToDBLoader'),
   CodeQuestioner: Symbol.for('CodeQuestioner'),

@@ -45,7 +45,7 @@ export default class LLMRouter {
       throw new BadConfigurationLLMError("At least one completion candidate function must be provided");
     }
     
-    log(`Initiated LLMs for: ${this.getModelsUsedDescription()}`);
+    log(`Router LLMs to be used: ${this.getModelsUsedDescription()}`);
   }
 
   /**

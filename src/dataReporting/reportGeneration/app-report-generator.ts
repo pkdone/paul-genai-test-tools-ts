@@ -6,7 +6,7 @@ import type { AppSummaryNameDescArray } from "../../repositories/models/app-summ
 import { TOKENS } from "../../di/tokens";
 import { HtmlReportFormatter } from "./html-report-formatter";
 import type { AppStatistics, ProcsAndTriggers } from "./types";
-import { Complexity } from "./types";
+import { Complexity, isComplexity } from "./types";
 
 /**
  * Class responsible for aggregating data for HTML report generation.
@@ -90,7 +90,7 @@ export default class AppReportGenerator {
           path: record.filepath,
           type: "STORED PROCEDURE",
           functionName: sp.name,
-          complexity: sp.complexity as Complexity,
+          complexity: isComplexity(sp.complexity) ? sp.complexity : Complexity.LOW,
           linesOfCode: sp.linesOfCode,
           purpose: sp.purpose,
         });
@@ -107,7 +107,7 @@ export default class AppReportGenerator {
           path: record.filepath,
           type: "TRIGGER",
           functionName: trig.name,
-          complexity: trig.complexity as Complexity,
+          complexity: isComplexity(trig.complexity) ? trig.complexity : Complexity.LOW,
           linesOfCode: trig.linesOfCode,
           purpose: trig.purpose,
         });
@@ -157,16 +157,15 @@ export default class AppReportGenerator {
    */
   private incrementComplexityCount(
     section: ProcsAndTriggers["procs"] | ProcsAndTriggers["trigs"],
-    complexity: Complexity | string
+    complexity: unknown // Accept unknown for robust checking
   ) {
-    if (!complexity) {
-      console.warn('Missing complexity value. Cannot increment complexity count.');
+    if (!isComplexity(complexity)) {
+      console.warn(`Unexpected or missing complexity value encountered: ${String(complexity)}`);
       return;
     }
     
-    const normalizedComplexity = (typeof complexity === 'string' ? complexity : String(complexity)).toLowerCase() as Complexity;
-    
-    switch (normalizedComplexity) {
+    // 'complexity' is now safely typed as Complexity
+    switch (complexity) {
       case Complexity.LOW:
         section.low++;
         break;
@@ -176,9 +175,7 @@ export default class AppReportGenerator {
       case Complexity.HIGH:
         section.high++;
         break;
-      default:
-        console.warn(`Unexpected complexity value encountered: ${complexity}`);
-        // Don't increment any counter for unrecognized values
+      // No default needed due to exhaustive check
     }
   }
 
