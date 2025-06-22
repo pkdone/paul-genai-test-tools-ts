@@ -46,7 +46,7 @@ export default class CodebaseToDBLoader {
     
     if (!ignoreIfAlreadyCaptured) {
       console.log(`Deleting older version of the project's metadata files from the database to enable the metadata to be re-generated - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to avoid re-processing of all files`);
-      await this.sourcesRepository.deleteSourceFilesByProject(projectName);
+      await this.sourcesRepository.deleteSourcesByProject(projectName);
     }
 
     const jobs = filepaths.map(filepath => async () => {
@@ -68,7 +68,7 @@ export default class CodebaseToDBLoader {
     const filepath = fullFilepath.replace(`${srcDirPath}/`, "");    
     if ((fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST as readonly string[]).includes(type)) return;  // Skip file if it has binary content
 
-    if (ignoreIfAlreadyCaptured && (await this.sourcesRepository.doesSourceFileExist(projectName, filepath))) {
+    if (ignoreIfAlreadyCaptured && (await this.sourcesRepository.doesProjectSourceExist(projectName, filepath))) {
       if (!this.doneCheckingAlreadyCapturedFiles) {
         console.log(`Not capturing some of the metadata files into the database because they've already been captured by a previous run - change env var 'IGNORE_ALREADY_PROCESSED_FILES' to force re-processing of all files`);
         this.doneCheckingAlreadyCapturedFiles = true;
@@ -114,7 +114,7 @@ export default class CodebaseToDBLoader {
       ...(contentVector !== undefined && { contentVector }),
     };
     
-    await this.sourcesRepository.insertSourceFile(sourceFileRecord);
+    await this.sourcesRepository.insertSource(sourceFileRecord);
   }
 
   /**

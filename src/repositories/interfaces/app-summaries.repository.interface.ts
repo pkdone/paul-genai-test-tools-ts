@@ -15,17 +15,12 @@ export interface IAppSummariesRepository {
   updateAppSummary(projectName: string, updates: AppSummaryUpdate): Promise<void>;
 
   /**
-   * Get an app summary record by project name
-   */
-  getAppSummary(projectName: string): Promise<AppSummaryRecord | null>;
-
-  /**
    * Get app summary info for reporting (description and LLM provider)
    */
-  getAppSummaryShortInfo(projectName: string): Promise<AppSummaryShortInfo | null>;
+  getProjectAppSummaryDescAndLLMProvider(projectName: string): Promise<AppSummaryShortInfo | null>;
 
   /**
    * Get specific field data from app summary
    */
-  getAppSummaryField<T>(projectName: string, fieldName: string): Promise<T | null>;
+  getProjectAppSummaryField<T>(projectName: string, fieldName: string): Promise<T | null>;
 } 

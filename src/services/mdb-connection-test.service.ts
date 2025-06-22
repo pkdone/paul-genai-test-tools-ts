@@ -25,7 +25,7 @@ export class MDBConnectionTestService implements Service {
   }
 
   private async testConnection(): Promise<void> {
-    const result = await this.sourcesRepository.getFilePaths(this.projectName);
+    const result = await this.sourcesRepository.getProjectFilesPaths(this.projectName);
     console.log("Result:", JSON.stringify(result, null, 2));
   }
 } 

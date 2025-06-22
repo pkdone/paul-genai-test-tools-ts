@@ -59,7 +59,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    */
   async buildSourceFileListSummaryList() {
     const srcFilesList: string[] = [];
-    const records = await this.sourcesRepository.getSourceFileSummaries(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+    const records = await this.sourcesRepository.getProjectSourcesSummaries(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
 
     for (const record of records) {
       const { summary } = record;

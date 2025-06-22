@@ -57,7 +57,7 @@ export default class AppReportGenerator {
    * Returns a list of database integrations.
    */
   async buildDBInteractionList(projectName: string) {
-    return await this.sourcesRepository.getDatabaseIntegrations(projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+    return await this.sourcesRepository.getProjectDatabaseIntegrations(projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
   }
 
   /**
@@ -69,7 +69,7 @@ export default class AppReportGenerator {
       trigs: { total: 0, low: 0, medium: 0, high: 0, list: [] },
     };
     
-    const records = await this.sourcesRepository.getStoredProceduresAndTriggers(projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+    const records = await this.sourcesRepository.getProjectStoredProceduresAndTriggers(projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
 
     for (const record of records) {
       const { summary } = record;
@@ -121,15 +121,15 @@ export default class AppReportGenerator {
    * Collect app statistics data
    */
   private async getAppStatistics(projectName: string): Promise<AppStatistics> {
-    const appSummaryRecord = await this.appSummariesRepository.getAppSummaryShortInfo(projectName);
+    const appSummaryRecord = await this.appSummariesRepository.getProjectAppSummaryDescAndLLMProvider(projectName);
     if (!appSummaryRecord) throw new Error("Unable to generate app statistics for a report because no app summary data exists - ensure you first run the scripts to process the source data and generate insights");
     
     return {
       projectName: projectName,
       currentDate: this.currentDate,
       llmProvider: appSummaryRecord.llmProvider ?? "Unknown",
-      fileCount: await this.sourcesRepository.getFileCount(projectName),
-      linesOfCode: await this.sourcesRepository.getTotalLinesOfCode(projectName),
+      fileCount: await this.sourcesRepository.getProjectFilesCount(projectName),
+      linesOfCode: await this.sourcesRepository.getProjectTotalLinesOfCode(projectName),
       appDescription: appSummaryRecord.appdescription ?? "No description available"
     };
   }
@@ -143,7 +143,7 @@ export default class AppReportGenerator {
     
     for (const category of categoryKeys) {
       const label = reportingConfig.APP_SUMMARIES_CATEGORY_TITLES[category as keyof typeof reportingConfig.APP_SUMMARIES_CATEGORY_TITLES];
-      const data = await this.appSummariesRepository.getAppSummaryField<AppSummaryNameDescArray>(projectName, category);
+      const data = await this.appSummariesRepository.getProjectAppSummaryField<AppSummaryNameDescArray>(projectName, category);
       // Handle null data by providing empty array
       categorizedData.push({ category, label, data: data ?? [] });
       console.log(`Generated ${label} table`);

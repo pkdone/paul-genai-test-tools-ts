@@ -48,16 +48,9 @@ export default class AppSummariesRepository extends BaseRepository<AppSummaryRec
   }
 
   /**
-   * Get an app summary record by project name
-   */
-  async getAppSummary(projectName: string): Promise<AppSummaryRecord | null> {
-    return await this.collection.findOne({ projectName });
-  }
-
-  /**
    * Get app summary info for reporting (description and LLM provider)
    */
-  async getAppSummaryShortInfo(projectName: string): Promise<AppSummaryShortInfo | null> {
+  async getProjectAppSummaryDescAndLLMProvider(projectName: string): Promise<AppSummaryShortInfo | null> {
     const query = { projectName };
     const options = {
       projection: { _id: 0, appdescription: 1, llmProvider: 1 },
@@ -75,7 +68,7 @@ export default class AppSummariesRepository extends BaseRepository<AppSummaryRec
    * For custom object arrays:
    *  getAppSummaryField<BusinessProcess[]>(projectName, 'busprocesses')
    */
-  async getAppSummaryField<T = string>(projectName: string, fieldName: string): Promise<T | null> {
+  async getProjectAppSummaryField<T = string>(projectName: string, fieldName: string): Promise<T | null> {
     const query = { projectName };
     const options = {
       projection: { _id: 0, [fieldName]: 1 },

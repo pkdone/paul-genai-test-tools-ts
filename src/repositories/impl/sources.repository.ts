@@ -22,21 +22,21 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Insert a source file record into the database
    */
-  async insertSourceFile(sourceFileData: Omit<SourceFileRecord, "_id">): Promise<void> {
+  async insertSource(sourceFileData: Omit<SourceFileRecord, "_id">): Promise<void> {
     await this.collection.insertOne(sourceFileData);
   }
 
   /**
    * Delete all source files for a specific project
    */
-  async deleteSourceFilesByProject(projectName: string): Promise<void> {
+  async deleteSourcesByProject(projectName: string): Promise<void> {
     await this.collection.deleteMany({ projectName });
   }
 
   /**
    * Check if a source file already exists for a project
    */
-  async doesSourceFileExist(projectName: string, filepath: string): Promise<boolean> {
+  async doesProjectSourceExist(projectName: string, filepath: string): Promise<boolean> {
     const query = { 
       projectName, 
       filepath,
@@ -51,7 +51,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Get source file summaries for a project
    */
-  async getSourceFileSummaries(projectName: string, fileTypes: string[]): Promise<SourceFileSummaryInfo[]> {
+  async getProjectSourcesSummaries(projectName: string, fileTypes: string[]): Promise<SourceFileSummaryInfo[]> {
     const query = {
       projectName,
       type: { $in: fileTypes },
@@ -87,7 +87,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Get database integration information for a project
    */
-  async getDatabaseIntegrations(projectName: string, fileTypes: string[]): Promise<{
+  async getProjectDatabaseIntegrations(projectName: string, fileTypes: string[]): Promise<{
     path: string;
     mechanism: string;
     description: string;
@@ -130,7 +130,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Get stored procedures and triggers information for a project
    */
-  async getStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<SourceFileSummaryInfo[]> {
+  async getProjectStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<SourceFileSummaryInfo[]> {
     const query = {
       $and: [
         { projectName },
@@ -163,7 +163,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Perform vector search on source file content
    */
-  async vectorSearchContent(
+  async vectorSearchProjectSourcesRawContent(
     projectName: string, 
     fileType: string, 
     queryVector: Double[], 
@@ -174,7 +174,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
       {
         $vectorSearch: {
           index: databaseConfig.CONTENT_VECTOR_INDEX_NAME,
-          path: databaseConfig.CONTENT_VECTOR_INDEX,
+          path: databaseConfig.CONTENT_VECTOR_FIELD,
           filter: {
             $and: [
               { projectName: { $eq: projectName } },
@@ -212,7 +212,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Get file paths for a specific project (used for testing)
    */
-  async getFilePaths(projectName: string): Promise<string[]> {
+  async getProjectFilesPaths(projectName: string): Promise<string[]> {
     const query = { projectName };
     const options = { projection: { filepath: 1 } };
     
@@ -229,7 +229,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Get file count for a project
    */
-  async getFileCount(projectName: string): Promise<number> {
+  async getProjectFilesCount(projectName: string): Promise<number> {
     const pipeline = [
       { $match: { projectName } },
       { $group: { _id: "", count: { $sum: 1 } } }
@@ -242,7 +242,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Get total lines of code for a project
    */
-  async getTotalLinesOfCode(projectName: string): Promise<number> {
+  async getProjectTotalLinesOfCode(projectName: string): Promise<number> {
     const pipeline = [
       { $match: { projectName } },
       { $group: { _id: "", count: { $sum: "$linesCount" } } }

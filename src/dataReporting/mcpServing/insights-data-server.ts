@@ -21,7 +21,7 @@ export default class InsightsDataServer {
    * Retrieves a list of business processes from the database.
    */
   async getBusinessProcesses(): Promise<{ name: string; description: string }[]> {
-    const busProcesses = await this.appSummariesRepository.getAppSummaryField<AppSummaryNameDescArray>(this.projectName, "busprocesses");
+    const busProcesses = await this.appSummariesRepository.getProjectAppSummaryField<AppSummaryNameDescArray>(this.projectName, "busprocesses");
     
     if (!busProcesses || !Array.isArray(busProcesses)) {
       return [];

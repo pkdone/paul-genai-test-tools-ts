@@ -75,8 +75,8 @@ export class DBInitializerService implements Service {
   private async createSourcesVectorSearchIndexes(numDimensions: number): Promise<void> {
     let unknownErrorOccurred = false;
     const vectorSearchIndexes = [];
-    vectorSearchIndexes.push(this.createFileContentVectorIndexDefinition(databaseConfig.CONTENT_VECTOR_INDEX, numDimensions));
-    vectorSearchIndexes.push(this.createFileContentVectorIndexDefinition(databaseConfig.SUMMARY_VECTOR_INDEX, numDimensions));
+    vectorSearchIndexes.push(this.createFileContentVectorIndexDefinition(databaseConfig.CONTENT_VECTOR_FIELD, numDimensions));
+    vectorSearchIndexes.push(this.createFileContentVectorIndexDefinition(databaseConfig.SUMMARY_VECTOR_FIELD, numDimensions));
 
     try {
       await this.sourcesCollection.createSearchIndexes(vectorSearchIndexes);
@@ -110,7 +110,7 @@ export class DBInitializerService implements Service {
    * field extracted from a file.
    */
   private createFileContentVectorIndexDefinition(fieldToIndex: string, numDimensions: number) {
-    const indexName = fieldToIndex === databaseConfig.CONTENT_VECTOR_INDEX 
+    const indexName = fieldToIndex === databaseConfig.CONTENT_VECTOR_FIELD 
       ? databaseConfig.CONTENT_VECTOR_INDEX_NAME 
       : databaseConfig.SUMMARY_VECTOR_INDEX_NAME;
     
