@@ -3,6 +3,7 @@ import { reportingConfig } from "../../config";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
 import type { AppSummaryNameDescArray } from "../../repositories/models/app-summary.model";
 import type { AppStatistics, ProcsAndTriggers } from "./types";
+import { DatabaseIntegrationInfo } from "../../repositories/models/source.model";
 
 /**
  * Class responsible for formatting data into HTML presentation format.
@@ -16,7 +17,7 @@ export class HtmlReportFormatter {
   generateCompleteHTMLReport(
     appStats: AppStatistics,
     categorizedData: { category: string; label: string; data: AppSummaryNameDescArray }[],
-    dbInteractions: Record<string, unknown>[],
+    dbInteractions: DatabaseIntegrationInfo[],
     procsAndTriggers: ProcsAndTriggers
   ): string {
     const html: string[] = [];
@@ -63,7 +64,7 @@ export class HtmlReportFormatter {
   /**
    * Format database integrations and stored procedures/triggers as HTML
    */
-  formatDBIntegrationsListsAsHTML(dbInteractions: Record<string, unknown>[], procsAndTriggers: ProcsAndTriggers): string[] {
+  formatDBIntegrationsListsAsHTML(dbInteractions: DatabaseIntegrationInfo[], procsAndTriggers: ProcsAndTriggers): string[] {
     const html: string[] = [];
     html.push(...this.formatDBInteractionsAsHTML(dbInteractions));
     html.push(...this.formatStoredProceduresAndTriggersAsHTML(procsAndTriggers));
@@ -73,12 +74,12 @@ export class HtmlReportFormatter {
   /**
    * Format database interactions as HTML
    */
-  formatDBInteractionsAsHTML(dbInteractions: Record<string, unknown>[]): string[] {
+  formatDBInteractionsAsHTML(dbInteractions: DatabaseIntegrationInfo[]): string[] {
     const html: string[] = [];
     html.push(`\n<h2>Database Interactions</h2>\n`);
 
     if (dbInteractions.length > 0) {
-      const dbInteractionsHTML = this.generateHTMLTableFromArrayOfObjects(dbInteractions);
+      const dbInteractionsHTML = this.generateHTMLTableFromArrayOfObjects(dbInteractions as unknown as Record<string, unknown>[]);
       html.push(...dbInteractionsHTML);
     } else {
       html.push("None Found");
@@ -159,4 +160,4 @@ export class HtmlReportFormatter {
     const extraContent = extraInfo ? `&nbsp;&nbsp;&nbsp;&nbsp;${extraInfo}` : "";
     return `<p>${key}: <b>${value}</b>${extraContent}</p>`;
   }
-} 
+}

@@ -1,5 +1,5 @@
 import { Double } from "mongodb";
-import { SourceRecord, SourceMetataContentAndSummary, SourceFilePathAndSummary } from "../models/source.model";
+import { SourceRecord, SourceMetataContentAndSummary, SourceFilePathAndSummary, DatabaseIntegrationInfo } from "../models/source.model";
 
 /**
  * Interface for the Sources repository
@@ -8,7 +8,7 @@ export interface ISourcesRepository {
   /**
    * Insert a source file record into the database
    */
-  insertSource(sourceFileData: Omit<SourceRecord, "_id">): Promise<void>;
+  insertSource(sourceFileData: SourceRecord): Promise<void>;
 
   /**
    * Delete all source files for a specific project
@@ -28,11 +28,7 @@ export interface ISourcesRepository {
   /**
    * Get database integration information for a project
    */
-  getProjectDatabaseIntegrations(projectName: string, fileTypes: string[]): Promise<{
-    path: string;
-    mechanism: string;
-    description: string;
-  }[]>;
+  getProjectDatabaseIntegrations(projectName: string, fileTypes: string[]): Promise<DatabaseIntegrationInfo[]>;
 
   /**
    * Get stored procedures and triggers information for a project

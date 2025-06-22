@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient, Double, Sort } from "mongodb";
 import { ISourcesRepository } from "../interfaces/sources.repository.interface";
-import { SourceRecord, SourceMetataContentAndSummary, SourceFilePathAndSummary } from "../models/source.model";
+import { SourceRecord, SourceMetataContentAndSummary, SourceFilePathAndSummary, DatabaseIntegrationInfo } from "../models/source.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config";
 import { logErrorMsgAndDetail } from "../../utils/error-utils";
@@ -22,7 +22,7 @@ export default class SourcesRepository extends BaseRepository<SourceRecord> impl
   /**
    * Insert a source file record into the database
    */
-  async insertSource(sourceFileData: Omit<SourceRecord, "_id">): Promise<void> {
+  async insertSource(sourceFileData: SourceRecord): Promise<void> {
     await this.collection.insertOne(sourceFileData);
   }
 
@@ -87,11 +87,7 @@ export default class SourcesRepository extends BaseRepository<SourceRecord> impl
   /**
    * Get database integration information for a project
    */
-  async getProjectDatabaseIntegrations(projectName: string, fileTypes: string[]): Promise<{
-    path: string;
-    mechanism: string;
-    description: string;
-  }[]> {
+  async getProjectDatabaseIntegrations(projectName: string, fileTypes: string[]): Promise<DatabaseIntegrationInfo[]> {
     const query = {
       projectName,
       type: { $in: fileTypes },

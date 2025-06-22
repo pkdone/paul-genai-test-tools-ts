@@ -26,6 +26,15 @@ export interface SourceFileSummary {
 }
 
 /**
+ * Interface representing database integration information
+ */
+export interface DatabaseIntegrationInfo {
+  readonly path: string;
+  readonly mechanism: string;
+  readonly description: string;
+}
+
+/**
  * Interface representing a source file record in the database
  */
 export interface SourceRecord {
