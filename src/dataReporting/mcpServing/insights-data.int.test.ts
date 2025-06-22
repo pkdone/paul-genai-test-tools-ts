@@ -4,7 +4,7 @@ import { databaseConfig } from "../../config";
 import { loadBaseEnvVarsOnly } from "../../lifecycle/env";
 import { getProjectNameFromPath } from "../../utils/path-utils";
 import { MongoDBClientFactory } from "../../mdb/mdb-client-factory";
-import AppSummariesRepository from "../../repositories/app-summaries.repository";
+import AppSummariesRepository from "../../repositories/impl/app-summaries.repository";
 
 describe("AnalysisDataServer", () => {
   it("should return an array of objects where each object has keys 'name' and 'description'", async () => {

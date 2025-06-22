@@ -1,10 +1,10 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient, Double, Sort } from "mongodb";
-import { ISourcesRepository } from "./interfaces/sources.repository.interface";
-import { SourceFileRecord, SourceFileShortInfo, SourceFileSummaryInfo } from "./models/source.model";
-import { TOKENS } from "../di/tokens";
-import { databaseConfig } from "../config";
-import { logErrorMsgAndDetail } from "../utils/error-utils";
+import { ISourcesRepository } from "../interfaces/sources.repository.interface";
+import { SourceFileRecord, SourceFileShortInfo, SourceFileSummaryInfo } from "../models/source.model";
+import { TOKENS } from "../../di/tokens";
+import { databaseConfig } from "../../config";
+import { logErrorMsgAndDetail } from "../../utils/error-utils";
 import { BaseRepository } from "./base.repository";
 
 /**

@@ -1,7 +1,7 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import SourcesRepository from "../../repositories/sources.repository";
-import AppSummariesRepository from "../../repositories/app-summaries.repository";
+import SourcesRepository from "../../repositories/impl/sources.repository";
+import AppSummariesRepository from "../../repositories/impl/app-summaries.repository";
 import { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
 import { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
 

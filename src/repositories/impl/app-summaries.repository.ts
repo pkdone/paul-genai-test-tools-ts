@@ -1,9 +1,9 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient } from "mongodb";
-import { IAppSummariesRepository } from "./interfaces/app-summaries.repository.interface";
-import { AppSummaryRecord, AppSummaryShortInfo, AppSummaryUpdate } from "./models/app-summary.model";
-import { TOKENS } from "../di/tokens";
-import { databaseConfig } from "../config";
+import { IAppSummariesRepository } from "../interfaces/app-summaries.repository.interface";
+import { AppSummaryRecord, AppSummaryShortInfo, AppSummaryUpdate } from "../models/app-summary.model";
+import { TOKENS } from "../../di/tokens";
+import { databaseConfig } from "../../config";
 import { BaseRepository } from "./base.repository";
 
 /**

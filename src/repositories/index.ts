@@ -3,9 +3,9 @@ export type { ISourcesRepository } from "./interfaces/sources.repository.interfa
 export type { IAppSummariesRepository } from "./interfaces/app-summaries.repository.interface";
 
 // Repository implementations
-export { BaseRepository } from "./base.repository";
-export { default as SourcesRepository } from "./sources.repository";
-export { default as AppSummariesRepository } from "./app-summaries.repository";
+export { BaseRepository } from "./impl/base.repository";
+export { default as SourcesRepository } from "./impl/sources.repository";
+export { default as AppSummariesRepository } from "./impl/app-summaries.repository";
 
 // Data models
 export type { 
