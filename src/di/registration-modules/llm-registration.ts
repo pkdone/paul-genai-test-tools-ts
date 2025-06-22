@@ -12,8 +12,6 @@ import type { EnvVars } from "../../types/env.types";
  * Uses tsyringe's isRegistered check to prevent duplicate registrations.
  */
 export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
-  console.log('Registering LLM dependencies...');  
-  
   // Register utility classes that LLM dependencies need
   if (!container.isRegistered(TOKENS.LLMStats)) {
     container.registerSingleton(TOKENS.LLMStats, LLMStats);

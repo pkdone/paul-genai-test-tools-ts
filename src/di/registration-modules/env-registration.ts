@@ -15,8 +15,6 @@ import dotenv from "dotenv";
  * Uses conditional registration with tsyringe's isRegistered check to prevent duplicates.
  */
 export async function registerEnvDependencies(requiresLLM: boolean): Promise<void> {
-  console.log(`Registering environment variables - LLM required: ${requiresLLM}...`);
-  
   // Check if EnvVars is already registered
   if (!container.isRegistered(TOKENS.EnvVars)) {
     const envVars = await loadEnvironmentVars(requiresLLM);

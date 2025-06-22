@@ -26,7 +26,6 @@ export class ReportGenerationService implements Service {
    * Execute the service - generates a report for the codebase.
    */
   async execute(): Promise<void> {
-    console.log('Connecting to MongoDB...');
     await this.generateReport(this.env.CODEBASE_DIR_PATH);
   }
 

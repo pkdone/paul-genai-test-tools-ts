@@ -9,19 +9,12 @@ import { PluggableLLMsTestService } from "../../services/test-pluggable-llms.ser
 import { McpServerService } from "../../services/mcp-server.service";
 import { ReportGenerationService } from "../../services/report-generation-service";
 import { DBInitializerService } from "../../services/db-initializer.service";
-import { PromptBuilder } from "../../promptTemplating/prompt-builder";
-import { FileSummarizer } from "../../codebaseIngestion/file-summarizer";
-import { HtmlReportFormatter } from "../../dataReporting/reportGeneration/html-report-formatter";
-import AppReportGenerator from "../../dataReporting/reportGeneration/app-report-generator";
-import CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
-import CodeQuestioner from "../../codebaseQuerying/code-questioner";
-import DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-code-insights-back-into-db-generator";
 
 /**
- * Register application services as singletons using tsyringe's built-in singleton management.
+ * Register main executable services as singletons using tsyringe's built-in singleton management.
+ * These services represent the primary entry points for application functionality.
  */
 export function registerServices(): void {
-  console.log('Registering application services as singletons...');  
   container.registerSingleton(TOKENS.CodebaseCaptureService, CodebaseCaptureService);
   container.registerSingleton(TOKENS.CodebaseQueryService, CodebaseQueryService);
   container.registerSingleton(TOKENS.InsightsFromDBGenerationService, InsightsFromDBGenerationService);
@@ -29,20 +22,8 @@ export function registerServices(): void {
   container.registerSingleton(TOKENS.PluggableLLMsTestService, PluggableLLMsTestService);
   container.registerSingleton(TOKENS.McpServerService, McpServerService);
   container.registerSingleton(TOKENS.ReportGenerationService, ReportGenerationService);
-  container.registerSingleton(TOKENS.DBInitializerService, DBInitializerService);
-  
-  // Register utility/helper classes
-  container.registerSingleton(TOKENS.PromptBuilder, PromptBuilder);
-  container.registerSingleton(TOKENS.FileSummarizer, FileSummarizer);
-  container.registerSingleton(TOKENS.HtmlReportFormatter, HtmlReportFormatter);
-  
-  // Register service dependencies
-  container.registerSingleton(TOKENS.AppReportGenerator, AppReportGenerator);
-  container.registerSingleton(TOKENS.CodebaseToDBLoader, CodebaseToDBLoader);
-  container.registerSingleton(TOKENS.CodeQuestioner, CodeQuestioner);
-  container.registerSingleton(TOKENS.DBCodeInsightsBackIntoDBGenerator, DBCodeInsightsBackIntoDBGenerator);
-  
-  console.log('Application services and utilities registered as singletons');
+  container.registerSingleton(TOKENS.DBInitializerService, DBInitializerService);  
+  console.log('Main executable services registered as singletons');
 }
 
 /**

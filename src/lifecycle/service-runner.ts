@@ -24,7 +24,6 @@ export async function runService(serviceToken: symbol): Promise<void> {
   try {    
     console.log(`START: ${new Date().toISOString()}`);
     const config = getServiceConfiguration(serviceToken);
-    console.log(`Service configuration resolved:`, config);    
     
     if (config.requiresMongoDB) {
       mongoDBClientFactory = container.resolve<MongoDBClientFactory>(TOKENS.MongoDBClientFactory);
