@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient, Double, Sort } from "mongodb";
 import { ISourcesRepository } from "../interfaces/sources.repository.interface";
-import { SourceFileRecord, SourceFileShortInfo, SourceFileSummaryInfo } from "../models/source.model";
+import { SourceRecord, SourceMetataContentAndSummary, SourceFilePathAndSummary } from "../models/source.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config";
 import { logErrorMsgAndDetail } from "../../utils/error-utils";
@@ -11,7 +11,7 @@ import { BaseRepository } from "./base.repository";
  * MongoDB implementation of the Sources repository
  */
 @injectable()
-export default class SourcesRepository extends BaseRepository<SourceFileRecord> implements ISourcesRepository {
+export default class SourcesRepository extends BaseRepository<SourceRecord> implements ISourcesRepository {
   /**
    * Constructor.
    */
@@ -22,7 +22,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Insert a source file record into the database
    */
-  async insertSource(sourceFileData: Omit<SourceFileRecord, "_id">): Promise<void> {
+  async insertSource(sourceFileData: Omit<SourceRecord, "_id">): Promise<void> {
     await this.collection.insertOne(sourceFileData);
   }
 
@@ -51,7 +51,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Get source file summaries for a project
    */
-  async getProjectSourcesSummaries(projectName: string, fileTypes: string[]): Promise<SourceFileSummaryInfo[]> {
+  async getProjectSourcesSummaries(projectName: string, fileTypes: string[]): Promise<SourceFilePathAndSummary[]> {
     const query = {
       projectName,
       type: { $in: fileTypes },
@@ -68,7 +68,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
     };
     
     const cursor = this.collection.find(query, options);
-    const results: SourceFileSummaryInfo[] = [];
+    const results: SourceFilePathAndSummary[] = [];
     
     for await (const record of cursor) {
       results.push({
@@ -130,7 +130,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
   /**
    * Get stored procedures and triggers information for a project
    */
-  async getProjectStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<SourceFileSummaryInfo[]> {
+  async getProjectStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<SourceFilePathAndSummary[]> {
     const query = {
       $and: [
         { projectName },
@@ -148,7 +148,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
     };
 
     const cursor = this.collection.find(query, options);
-    const results: SourceFileSummaryInfo[] = [];
+    const results: SourceFilePathAndSummary[] = [];
     
     for await (const record of cursor) {
       results.push({
@@ -169,7 +169,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
     queryVector: Double[], 
     numCandidates: number, 
     limit: number
-  ): Promise<SourceFileShortInfo[]> {
+  ): Promise<SourceMetataContentAndSummary[]> {
     const pipeline = [
       {
         $vectorSearch: {
@@ -199,7 +199,7 @@ export default class SourcesRepository extends BaseRepository<SourceFileRecord> 
     ];
 
     try {
-      return await this.collection.aggregate<SourceFileShortInfo>(pipeline).toArray();
+      return await this.collection.aggregate<SourceMetataContentAndSummary>(pipeline).toArray();
     } catch (error: unknown) {
       logErrorMsgAndDetail(
         `Problem performing Atlas Vector Search aggregation - ensure the vector index is defined for the '${databaseConfig.SOURCES_COLLCTN_NAME}' collection`, 

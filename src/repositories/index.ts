@@ -9,14 +9,14 @@ export { default as AppSummariesRepository } from "./impl/app-summaries.reposito
 
 // Data models
 export type { 
-  SourceFileRecord, 
-  SourceFileShortInfo, 
-  SourceFileSummaryInfo,
+  SourceRecord as SourceFileRecord, 
+  SourceMetataContentAndSummary as SourceFileShortInfo, 
+  SourceFilePathAndSummary as SourceFileSummaryInfo,
   SourceFileSummary, 
 } from "./models/source.model";
 export type {
   AppSummaryRecord,
   AppSummaryNameDesc,
-  AppSummaryShortInfo,
+  AppSummaryDescAndLLMProvider as AppSummaryShortInfo,
  } from "./models/app-summary.model"; 
  

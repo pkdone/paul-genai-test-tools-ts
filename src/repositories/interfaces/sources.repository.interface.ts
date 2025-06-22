@@ -1,5 +1,5 @@
 import { Double } from "mongodb";
-import { SourceFileRecord, SourceFileShortInfo, SourceFileSummaryInfo } from "../models/source.model";
+import { SourceRecord, SourceMetataContentAndSummary, SourceFilePathAndSummary } from "../models/source.model";
 
 /**
  * Interface for the Sources repository
@@ -8,7 +8,7 @@ export interface ISourcesRepository {
   /**
    * Insert a source file record into the database
    */
-  insertSource(sourceFileData: Omit<SourceFileRecord, "_id">): Promise<void>;
+  insertSource(sourceFileData: Omit<SourceRecord, "_id">): Promise<void>;
 
   /**
    * Delete all source files for a specific project
@@ -23,7 +23,7 @@ export interface ISourcesRepository {
   /**
    * Get source file summaries for a project
    */
-  getProjectSourcesSummaries(projectName: string, fileTypes: string[]): Promise<SourceFileSummaryInfo[]>;
+  getProjectSourcesSummaries(projectName: string, fileTypes: string[]): Promise<SourceFilePathAndSummary[]>;
 
   /**
    * Get database integration information for a project
@@ -37,7 +37,7 @@ export interface ISourcesRepository {
   /**
    * Get stored procedures and triggers information for a project
    */
-  getProjectStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<SourceFileSummaryInfo[]>;
+  getProjectStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<SourceFilePathAndSummary[]>;
 
   /**
    * Perform vector search on source file content
@@ -48,7 +48,7 @@ export interface ISourcesRepository {
     queryVector: Double[], 
     numCandidates: number, 
     limit: number
-  ): Promise<SourceFileShortInfo[]>;
+  ): Promise<SourceMetataContentAndSummary[]>;
 
   /**
    * Get file paths for a specific project (used for testing)

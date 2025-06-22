@@ -1,9 +1,9 @@
 /**
- * Summary interface that includes all possible properties from the database
+ * Summary interface that includes all possible properties from for the LLM summarized source file
  */
 export interface SourceFileSummary {
-  readonly purpose?: string;
-  readonly implementation?: string;
+  readonly purpose: string;
+  readonly implementation: string;
   readonly classpath?: string;
   readonly internalReferences?: readonly string[];
   readonly externalReferences?: readonly string[];
@@ -28,7 +28,7 @@ export interface SourceFileSummary {
 /**
  * Interface representing a source file record in the database
  */
-export interface SourceFileRecord {
+export interface SourceRecord {
   readonly _id?: string;
   readonly projectName: string;
   readonly filename: string;
@@ -43,20 +43,13 @@ export interface SourceFileRecord {
 }
 
 /**
- * Interface for source file metadata used in queries
+ * Type for source file metadata, including project name, type, filepath, and content
  */
-export interface SourceFileShortInfo {
-  readonly projectName: string;
-  readonly type: string;
-  readonly filepath: string;
-  readonly content: string;
-  readonly summary?: SourceFileSummary;
-}
+export type SourceMetataContentAndSummary = Pick<SourceRecord,
+  "projectName" | "type" | "filepath" | "content" | "summary">;
 
 /**
- * Interface for source file summary information
+ * Type for source file's filepath and summary, excluding content
  */
-export interface SourceFileSummaryInfo {
-  readonly filepath: string;
-  readonly summary?: SourceFileSummary;
-} 
+export type SourceFilePathAndSummary = Pick<SourceRecord,
+  "filepath" | "summary">;

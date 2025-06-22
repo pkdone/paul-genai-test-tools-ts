@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient } from "mongodb";
 import { IAppSummariesRepository } from "../interfaces/app-summaries.repository.interface";
-import { AppSummaryRecord, AppSummaryShortInfo, AppSummaryUpdate } from "../models/app-summary.model";
+import { AppSummaryRecord, AppSummaryDescAndLLMProvider, PartialAppSummaryRecord } from "../models/app-summary.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config";
 import { BaseRepository } from "./base.repository";
@@ -21,10 +21,9 @@ export default class AppSummariesRepository extends BaseRepository<AppSummaryRec
   /**
    * Create or replace an app summary record
    */
-  async createOrReplaceAppSummary(projectName: string, data: Partial<AppSummaryRecord>): Promise<void> {
-    const record = { projectName, ...data };
+  async createOrReplaceAppSummary(record: AppSummaryRecord): Promise<void> {
     await this.collection.replaceOne(
-      { projectName },
+      { projectName: record.projectName },
       record,
       { upsert: true }
     );
@@ -33,7 +32,7 @@ export default class AppSummariesRepository extends BaseRepository<AppSummaryRec
   /**
    * Update an existing app summary record
    */
-  async updateAppSummary(projectName: string, updates: AppSummaryUpdate): Promise<void> {
+  async updateAppSummary(projectName: string, updates: PartialAppSummaryRecord): Promise<void> {
     const result = await this.collection.updateOne(
       { projectName },
       { $set: updates }
@@ -50,7 +49,7 @@ export default class AppSummariesRepository extends BaseRepository<AppSummaryRec
   /**
    * Get app summary info for reporting (description and LLM provider)
    */
-  async getProjectAppSummaryDescAndLLMProvider(projectName: string): Promise<AppSummaryShortInfo | null> {
+  async getProjectAppSummaryDescAndLLMProvider(projectName: string): Promise<AppSummaryDescAndLLMProvider | null> {
     const query = { projectName };
     const options = {
       projection: { _id: 0, appdescription: 1, llmProvider: 1 },

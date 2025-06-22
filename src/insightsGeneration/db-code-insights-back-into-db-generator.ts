@@ -7,7 +7,7 @@ import { PromptBuilder } from "../promptTemplating/prompt-builder";
 import { transformJSToTSFilePath } from "../utils/path-utils";
 import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
 import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
-import type { AppSummaryUpdate } from "../repositories/models/app-summary.model";
+import type { PartialAppSummaryRecord } from "../repositories/models/app-summary.model";
 import { TOKENS } from "../di/tokens";
 
 
@@ -32,7 +32,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     this.llmProviderDescription = llmRouter.getModelsUsedDescription();
   }
 
-    /**
+  /**
    * Gathers metadata about all classes in an application and uses an LLM to identify
    * the business entities and processes for the application, storing the results
    * in the database.
@@ -47,7 +47,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       );
     }
 
-    await this.appSummariesRepository.createOrReplaceAppSummary(this.projectName, { llmProvider: this.llmProviderDescription });
+    await this.appSummariesRepository.createOrReplaceAppSummary({ projectName: this.projectName, llmProvider: this.llmProviderDescription });
     const categories = Object.keys(reportingConfig.APP_SUMMARIES_CATEGORY_TITLES);
     await Promise.all(
       categories.map(async (category) => this.generateDataForCategory(category, sourceFileSummaries))
@@ -70,7 +70,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       }
 
       const fileLabel = summary.classpath ?? record.filepath;
-      srcFilesList.push(`* ${fileLabel}: ${summary.purpose ?? ""} ${summary.implementation ?? ""}`);
+      srcFilesList.push(`* ${fileLabel}: ${summary.purpose} ${summary.implementation}`);
     }
     
     return srcFilesList;
@@ -99,7 +99,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       );
 
       if (keyValueObject && typeof keyValueObject === "object" && Object.hasOwn(keyValueObject, category)) {
-        await this.appSummariesRepository.updateAppSummary(this.projectName, keyValueObject as AppSummaryUpdate);
+        await this.appSummariesRepository.updateAppSummary(this.projectName, keyValueObject as PartialAppSummaryRecord);
         console.log(`Captured main ${categoryLabel} details into database`);
       } else {
         console.warn(`WARNING: Unable to generate and persist ${categoryLabel} metadata. No valid LLM output found.` );

@@ -9,17 +9,12 @@ export type AppSummaryNameDesc = Record<string, string>;
 export type AppSummaryNameDescArray = AppSummaryNameDesc[];
 
 /**
- * Type for app summary updates (from LLM responses)
- */
-export type AppSummaryUpdate = Record<string, AppSummaryNameDescArray | string>;
-
-/**
  * Interface representing an application summary record in the database
  */
 export interface AppSummaryRecord {
   readonly _id?: string;
   readonly projectName: string;
-  readonly llmProvider?: string;
+  readonly llmProvider: string;
   readonly appDescription?: string;
   readonly businessEntities?: AppSummaryNameDescArray;
   readonly businessProcesses?: AppSummaryNameDescArray;
@@ -32,9 +27,11 @@ export interface AppSummaryRecord {
 }
 
 /**
+ * Type for arrays of name-description pairs used in app summaries
+ */
+export type PartialAppSummaryRecord = Partial<AppSummaryRecord>; 
+
+/**
  * Interface for source file summary information
  */
-export interface AppSummaryShortInfo {
-  appdescription?: string;
-  llmProvider?: string;
-} 
+export type AppSummaryDescAndLLMProvider = Pick<PartialAppSummaryRecord, "appDescription" | "llmProvider">;

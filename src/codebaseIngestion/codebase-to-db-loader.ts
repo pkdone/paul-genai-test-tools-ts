@@ -10,7 +10,7 @@ import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { BaseFileSummary, JavaScriptFileSummary } from "./types";
 import { FileSummarizer } from "./file-summarizer";
 import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
-import type { SourceFileRecord } from "../repositories/models/source.model";
+import type { SourceRecord } from "../repositories/models/source.model";
 import { TOKENS } from "../di/tokens";
 
 /** 
@@ -101,7 +101,7 @@ export default class CodebaseToDBLoader {
     const contentVector = contentVectorResult ?? undefined;
     
     // Build the source file record with conditional optional fields
-    const sourceFileRecord: Omit<SourceFileRecord, "_id"> = {
+    const sourceFileRecord: Omit<SourceRecord, "_id"> = {
       projectName: projectName,
       filename,
       filepath,
