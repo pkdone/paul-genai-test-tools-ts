@@ -34,4 +34,5 @@ export type PartialAppSummaryRecord = Partial<AppSummaryRecord>;
 /**
  * Interface for source file summary information
  */
-export type AppSummaryDescAndLLMProvider = Pick<PartialAppSummaryRecord, "appDescription" | "llmProvider">;
+export type AppSummaryDescAndLLMProvider = Pick<PartialAppSummaryRecord,
+ "appDescription" | "llmProvider">;
