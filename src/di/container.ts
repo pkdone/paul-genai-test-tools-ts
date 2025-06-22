@@ -4,8 +4,8 @@ import { ServiceRunnerConfig } from "../types/service.types";
 import { EnvVars } from "../types/env.types";
 import { TOKENS } from "./tokens";
 import { registerEnvDependencies, registerLLMDependencies, registerMongoDBDependencies, 
-         registerServices, registerMongoDBServices, registerComponents } from "./registration-modules";
-import { registerRepositories } from "./registration-modules/repositories-registration";
+         registerServices, registerMongoDBServices, registerComponents, registerRepositories } 
+       from "./registration-modules";
 
 /**
  * Bootstrap the DI container based on service configuration.

@@ -30,7 +30,7 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
     // Resolve and initialize the LLMService
     const llmService = container.resolve<LLMService>(TOKENS.LLMService);
     await llmService.initialize();
-    console.log(`LLM Service initialized for model family: ${envVars.LLM}`);
+    console.log("LLM Service registered as singleton");
     
     // Create and register LLMRouter with injected dependencies
     const llmProvider = llmService.getLLMProvider(envVars);
@@ -59,11 +59,10 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
     
     // Resolve the dependencies that LLMRouter needs
     const llmStats = container.resolve<LLMStats>(TOKENS.LLMStats);
-    const promptAdapter = container.resolve<PromptAdapter>(TOKENS.PromptAdapter);
-    
+    const promptAdapter = container.resolve<PromptAdapter>(TOKENS.PromptAdapter);    
     const llmRouter = new LLMRouter(llmProvider, llmStats, promptAdapter, completionCandidates, retryConfig);
     container.registerInstance(TOKENS.LLMRouter, llmRouter);
-    console.log('LLM Router initialized and registered as singleton');
+    console.log('LLM Router egistered as singleton');
   } else {
     console.log('LLM dependencies already registered - skipping registration');
   }
