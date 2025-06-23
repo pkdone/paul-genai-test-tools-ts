@@ -1,20 +1,20 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import SourcesRepository from "../../repositories/impl/sources.repository";
-import AppSummariesRepository from "../../repositories/impl/app-summaries.repository";
-import { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
-import { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
+import SourcesRepositoryImpl from "../../repositories/impl/sources.repository";
+import AppSummariesRepositoryImpl from "../../repositories/impl/app-summaries.repository";
+import { SourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
+import { AppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
 
 /**
  * Registers repositories in the DI container
  */
 export function registerRepositories(): void {
   // Register repositories
-  container.register<ISourcesRepository>(TOKENS.SourcesRepository, {
-    useClass: SourcesRepository,
+  container.register<SourcesRepository>(TOKENS.SourcesRepository, {
+    useClass: SourcesRepositoryImpl,
   });
 
-  container.register<IAppSummariesRepository>(TOKENS.AppSummariesRepository, {
-    useClass: AppSummariesRepository,
+  container.register<AppSummariesRepository>(TOKENS.AppSummariesRepository, {
+    useClass: AppSummariesRepositoryImpl,
   });
 } 

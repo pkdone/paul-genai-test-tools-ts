@@ -3,7 +3,7 @@ import { AppSummaryRecord, AppSummaryDescAndLLMProvider, PartialAppSummaryRecord
 /**
  * Interface for the App Summaries repository
  */
-export interface IAppSummariesRepository {
+export interface AppSummariesRepository {
   /**
    * Create or replace an app summary record
    */

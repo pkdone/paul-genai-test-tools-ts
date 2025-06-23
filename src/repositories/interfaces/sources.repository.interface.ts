@@ -4,7 +4,7 @@ import { SourceRecord, SourceMetataContentAndSummary, SourceFilePathAndSummary, 
 /**
  * Interface for the Sources repository
  */
-export interface ISourcesRepository {
+export interface SourcesRepository {
   /**
    * Insert a source file record into the database
    */

@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { fileSystemConfig, reportingConfig } from "../../config";
-import type { ISourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
-import type { IAppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
+import type { SourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
+import type { AppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
 import type { AppSummaryNameDescArray } from "../../repositories/models/app-summary.model";
 import { TOKENS } from "../../di/tokens";
 import { HtmlReportFormatter } from "./html-report-formatter";
@@ -21,8 +21,8 @@ export default class AppReportGenerator {
    * Constructor
    */
   constructor(
-    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
-    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
+    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: AppSummariesRepository,
     @inject(TOKENS.HtmlReportFormatter) private readonly htmlFormatter: HtmlReportFormatter
   ) { 
     this.currentDate = new Date().toLocaleString();

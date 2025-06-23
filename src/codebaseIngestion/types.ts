@@ -4,7 +4,7 @@
 export interface BaseFileSummary {
   readonly purpose: string;
   readonly implementation: string;
-  readonly databaseIntegration: {
+  databaseIntegration: {
     readonly mechanism: string;
     readonly description: string;
   };
@@ -14,6 +14,6 @@ export interface BaseFileSummary {
  * Enhanced file summary for JavaScript/TypeScript files with additional reference information
  */
 export interface JavaScriptFileSummary extends BaseFileSummary {
-  readonly internalReferences: readonly string[];
-  readonly externalReferences: readonly string[];
+  readonly internalReferences: string[];
+  readonly externalReferences: string[];
 } 

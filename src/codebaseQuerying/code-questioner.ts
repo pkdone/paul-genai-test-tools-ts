@@ -4,7 +4,7 @@ import { fileSystemConfig, promptsConfig, llmConfig } from "../config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
 import { transformJSToTSFilePath } from "../utils/path-utils";
-import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import type { SourceMetataContentAndSummary } from "../repositories/models/source.model";
 import { TOKENS } from "../di/tokens";
 
@@ -17,7 +17,7 @@ export default class CodeQuestioner {
    * Constructor.
    */
   constructor(
-    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder
   ) { 

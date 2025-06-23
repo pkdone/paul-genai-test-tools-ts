@@ -9,7 +9,7 @@ import { promiseAllThrottled } from "../utils/control-utils";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { BaseFileSummary, JavaScriptFileSummary } from "./types";
 import { FileSummarizer } from "./file-summarizer";
-import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import type { SourceRecord } from "../repositories/models/source.model";
 import { TOKENS } from "../di/tokens";
 
@@ -25,7 +25,7 @@ export default class CodebaseToDBLoader {
    * Constructor.
    */
   constructor(
-    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.FileSummarizer) private readonly fileSummarizer: FileSummarizer
   ) {}
@@ -101,7 +101,7 @@ export default class CodebaseToDBLoader {
     const contentVector = contentVectorResult ?? undefined;
     
     // Build the source file record with conditional optional fields
-    const sourceFileRecord: Omit<SourceRecord, "_id"> = {
+    const sourceFileRecord: SourceRecord = {
       projectName: projectName,
       filename,
       filepath,

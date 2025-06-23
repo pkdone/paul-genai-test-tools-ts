@@ -5,7 +5,7 @@ import McpHttpServer from "../dataReporting/mcpServing/mcp-http-server";
 import McpDataServer from "../dataReporting/mcpServing/mcp-data-server";
 import InsightsDataServer from "../dataReporting/mcpServing/insights-data-server";
 import { Service } from "../types/service.types";
-import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
+import type { AppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
 import { TOKENS } from "../di/tokens";
 import type { MongoDBClientFactory } from "../mdb/mdb-client-factory";
 import { gracefulShutdown } from "../lifecycle/env";
@@ -19,7 +19,7 @@ export class McpServerService implements Service {
    * Constructor with dependency injection.
    */
   constructor(
-    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
+    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: AppSummariesRepository,
     @inject(TOKENS.MongoDBClientFactory) private readonly mongoDBClientFactory: MongoDBClientFactory,
     @inject(TOKENS.ProjectName) private readonly projectName: string
   ) {}

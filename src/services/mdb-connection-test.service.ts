@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { Service } from "../types/service.types";
-import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import { TOKENS } from "../di/tokens";
 
 /**
@@ -13,7 +13,7 @@ export class MDBConnectionTestService implements Service {
    * Constructor with dependency injection.
    */  
   constructor(
-    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
     @inject(TOKENS.ProjectName) private readonly projectName: string
   ) {}
 

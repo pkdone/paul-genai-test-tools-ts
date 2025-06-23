@@ -4,7 +4,7 @@ import { databaseConfig } from "../../config";
 import { loadBaseEnvVarsOnly } from "../../lifecycle/env";
 import { getProjectNameFromPath } from "../../utils/path-utils";
 import { MongoDBClientFactory } from "../../mdb/mdb-client-factory";
-import AppSummariesRepository from "../../repositories/impl/app-summaries.repository";
+import AppSummariesRepositoryImpl from "../../repositories/impl/app-summaries.repository";
 
 describe("AnalysisDataServer", () => {
   it("should return an array of objects where each object has keys 'name' and 'description'", async () => {
@@ -15,7 +15,7 @@ describe("AnalysisDataServer", () => {
       const srcDirPath = env.CODEBASE_DIR_PATH;
       const projectName = getProjectNameFromPath(srcDirPath);     
       const mongoClient = await mongoDBClientFactory.connect(databaseConfig.DEFAULT_MONGO_SVC, env.MONGODB_URL);
-      const appSummariesRepository = new AppSummariesRepository(mongoClient);
+      const appSummariesRepository = new AppSummariesRepositoryImpl(mongoClient);
       const analysisDataServer = new InsightsDataServer(appSummariesRepository, projectName); 
       const result = await analysisDataServer.getBusinessProcesses();
       expect(Array.isArray(result)).toBe(true);

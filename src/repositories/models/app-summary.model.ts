@@ -1,30 +1,21 @@
+import { z } from 'zod';
+import { appSummaryNameDescSchema, appSummaryNameDescArraySchema, appSummaryRecordSchema }
+       from "../dbschemas/app-summary.dbschema";
+
 /**
  * Type for name-description pair use in app summaries
  */
-export type AppSummaryNameDesc = Record<string, string>;
+export type AppSummaryNameDesc = z.infer<typeof appSummaryNameDescSchema>;
 
 /**
  * Type for arrays of name-description pairs used in app summaries
  */
-export type AppSummaryNameDescArray = AppSummaryNameDesc[];
+export type AppSummaryNameDescArray = z.infer<typeof appSummaryNameDescArraySchema>;
 
 /**
  * Interface representing an application summary record in the database
  */
-export interface AppSummaryRecord {
-  readonly _id?: string;
-  readonly projectName: string;
-  readonly llmProvider: string;
-  readonly appDescription?: string;
-  readonly businessEntities?: AppSummaryNameDescArray;
-  readonly businessProcesses?: AppSummaryNameDescArray;
-  readonly businessRules?: AppSummaryNameDescArray;
-  readonly dataFlow?: AppSummaryNameDescArray;
-  readonly integrationPoints?: AppSummaryNameDescArray;
-  readonly qualityIssues?: AppSummaryNameDescArray;
-  readonly recommendedImprovements?: AppSummaryNameDescArray;
-  readonly securityConsiderations?: AppSummaryNameDescArray;
-}
+export type AppSummaryRecord = z.infer<typeof appSummaryRecordSchema>;
 
 /**
  * Type for arrays of name-description pairs used in app summaries

@@ -5,8 +5,8 @@ import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { joinArrayWithSeparators } from "../utils/text-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";
 import { transformJSToTSFilePath } from "../utils/path-utils";
-import type { IAppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
-import type { ISourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import type { AppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
+import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import type { PartialAppSummaryRecord } from "../repositories/models/app-summary.model";
 import { TOKENS } from "../di/tokens";
 
@@ -23,9 +23,9 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    * Creates a new SummariesGenerator.
    */
   constructor(
-    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: IAppSummariesRepository,
+    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: AppSummariesRepository,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: ISourcesRepository,
+    @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
     @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder,
     @inject(TOKENS.ProjectName) private readonly projectName: string,
   ) {

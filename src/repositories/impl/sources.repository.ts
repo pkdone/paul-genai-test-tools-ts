@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient, Double, Sort } from "mongodb";
-import { ISourcesRepository } from "../interfaces/sources.repository.interface";
+import { SourcesRepository } from "../interfaces/sources.repository.interface";
 import { SourceRecord, SourceMetataContentAndSummary, SourceFilePathAndSummary, DatabaseIntegrationInfo } from "../models/source.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config";
@@ -11,7 +11,7 @@ import { BaseRepository } from "./base.repository";
  * MongoDB implementation of the Sources repository
  */
 @injectable()
-export default class SourcesRepository extends BaseRepository<SourceRecord> implements ISourcesRepository {
+export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> implements SourcesRepository {
   /**
    * Constructor.
    */
