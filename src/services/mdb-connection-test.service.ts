@@ -3,7 +3,8 @@ import { injectable, inject } from "tsyringe";
 import { Service } from "../types/service.types";
 import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import { TOKENS } from "../di/tokens";
-import { getJSONSchema } from "../repositories/dbschemas/app-summary.dbschema";
+import { getJSONSchema as getAppSummarySchema } from "../repositories/dbschemas/app-summary.dbschema";
+import { getJSONSchema as getSourceSchema } from "../repositories/dbschemas/source.dbschema";
 
 /**
  * Service to test the MongoDB connection.
@@ -29,7 +30,7 @@ export class MDBConnectionTestService implements Service {
     const result = await this.sourcesRepository.getProjectFilesPaths(this.projectName);
     console.log("Result:", JSON.stringify(result, null, 2));
     // TODO: resolve
-    console.log(JSON.stringify(getJSONSchema(), null, 2));
-    console.log(JSON.stringify(getJSONSchema(), null, 2));
+    console.log(JSON.stringify(getAppSummarySchema(), null, 2));
+    console.log(JSON.stringify(getSourceSchema(), null, 2));
   }
 } 
