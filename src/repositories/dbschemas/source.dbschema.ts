@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { generateMDBJSONSchema, zBsonObjectId } from '../../mdb/zod-to-mdb-json-schema';
 
 /**
  * Schema for database integration information
@@ -36,7 +37,7 @@ export const sourceFileSummarySchema = z.object({
  * Schema for source file record in the database
  */
 export const sourceRecordSchema = z.object({
-  _id: z.string().optional(),
+  _id: zBsonObjectId.optional(),
   projectName: z.string(),
   filename: z.string(),
   filepath: z.string(),
@@ -48,3 +49,7 @@ export const sourceRecordSchema = z.object({
   content: z.string(),
   contentVector: z.array(z.number()).optional(),
 });
+
+export function getJSONSchema() {
+  return generateMDBJSONSchema(sourceRecordSchema);  
+}
