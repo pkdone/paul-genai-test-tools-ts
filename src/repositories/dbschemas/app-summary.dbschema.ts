@@ -30,7 +30,7 @@ export const appSummaryRecordSchema = z.object({
   qualityIssues: appSummaryNameDescArraySchema.optional(),
   recommendedImprovements: appSummaryNameDescArraySchema.optional(),
   securityConsiderations: appSummaryNameDescArraySchema.optional(),
-}).passthrough();  // passthrough() allows additional properties
+}).passthrough();  // passthrough() sets "additionalProperties": true
 
 /**
  * Schema for MongoDB projected document with app description and LLM provider fields

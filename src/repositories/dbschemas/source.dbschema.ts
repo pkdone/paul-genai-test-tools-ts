@@ -48,7 +48,7 @@ export const sourceRecordSchema = z.object({
   summaryVector: z.array(z.number()).optional(),
   content: z.string(),
   contentVector: z.array(z.number()).optional(),
-}).passthrough();  // passthrough() allows additional properties
+}).passthrough();  // passthrough() sets "additionalProperties": true
 
 /**
  * Schema for MongoDB projected document with just filepath
