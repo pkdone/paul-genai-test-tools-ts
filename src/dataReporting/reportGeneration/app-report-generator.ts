@@ -72,7 +72,7 @@ export default class AppReportGenerator {
     const records = await this.sourcesRepository.getProjectStoredProceduresAndTriggers(projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
 
     for (const record of records) {
-      const { summary } = record;
+      const summary = record.summary;
       
       if (!summary) {
         console.log(`No stored procs / triggers summary exists for file: ${record.filepath}. Skipping.`);

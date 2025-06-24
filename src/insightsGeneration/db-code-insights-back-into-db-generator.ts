@@ -10,7 +10,6 @@ import type { SourcesRepository } from "../repositories/interfaces/sources.repos
 import type { PartialAppSummaryRecord } from "../repositories/models/app-summary.model";
 import { TOKENS } from "../di/tokens";
 
-
 /**
  * Generates metadata in database collections to capture application information,
  * such as business entities and processes, for a given project.
@@ -62,15 +61,13 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     const records = await this.sourcesRepository.getProjectSourcesSummaries(this.projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
 
     for (const record of records) {
-      const { summary } = record;
-
-      if (!summary || Object.keys(summary).length === 0) {
+      if (!record.summary || Object.keys(record.summary).length === 0) {
         console.log(`No source code summary exists for file: ${record.filepath}. Skipping.`);
         continue;
       }
 
-      const fileLabel = summary.classpath ?? record.filepath;
-      srcFilesList.push(`* ${fileLabel}: ${summary.purpose} ${summary.implementation}`);
+      const fileLabel = record.summary.classpath ?? record.filepath;
+      srcFilesList.push(`* ${fileLabel}: ${record.summary.purpose} ${record.summary.implementation}`);
     }
     
     return srcFilesList;

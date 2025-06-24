@@ -1,5 +1,5 @@
 import { Double } from "mongodb";
-import { SourceRecord, SourceMetataContentAndSummary, SourceFilePathAndSummary, DatabaseIntegrationInfo } from "../models/source.model";
+import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrationInfo, ProjectedSourceFilePathAndSummary, ProjectedSourceSummaryFields } from "../models/source.model";
 
 /**
  * Interface for the Sources repository
@@ -23,7 +23,7 @@ export interface SourcesRepository {
   /**
    * Get source file summaries for a project
    */
-  getProjectSourcesSummaries(projectName: string, fileTypes: string[]): Promise<SourceFilePathAndSummary[]>;
+  getProjectSourcesSummaries(projectName: string, fileTypes: string[]): Promise<ProjectedSourceSummaryFields[]>;
 
   /**
    * Get database integration information for a project
@@ -33,7 +33,7 @@ export interface SourcesRepository {
   /**
    * Get stored procedures and triggers information for a project
    */
-  getProjectStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<SourceFilePathAndSummary[]>;
+  getProjectStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<ProjectedSourceFilePathAndSummary[]>;
 
   /**
    * Perform vector search on source file content
@@ -44,7 +44,7 @@ export interface SourcesRepository {
     queryVector: Double[], 
     numCandidates: number, 
     limit: number
-  ): Promise<SourceMetataContentAndSummary[]>;
+  ): Promise<ProjectedSourceMetataContentAndSummary[]>;
 
   /**
    * Get file paths for a specific project (used for testing)

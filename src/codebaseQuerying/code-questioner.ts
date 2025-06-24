@@ -5,7 +5,7 @@ import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";    
 import { transformJSToTSFilePath } from "../utils/path-utils";
 import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
-import type { SourceMetataContentAndSummary } from "../repositories/models/source.model";
+import type { ProjectedSourceMetataContentAndSummary } from "../repositories/models/source.model";
 import { TOKENS } from "../di/tokens";
 
 /**
@@ -67,7 +67,7 @@ export default class CodeQuestioner {
    * Turns a list of content of source code file and their respective filetypes and produces one 
    * piece of text using Markdown code-block syntax to delinante the content of each source file.
    */
-  private mergeSourceCodeFilesContentIntoMarkdownText(sourceFileMetadataList: SourceMetataContentAndSummary[]) {
+  private mergeSourceCodeFilesContentIntoMarkdownText(sourceFileMetadataList: ProjectedSourceMetataContentAndSummary[]) {
     const markdownParts: string[] = [];
 
     for (const fileMetadata of sourceFileMetadataList) {

@@ -1,33 +1,39 @@
 import { z } from 'zod';
-import { sourceRecordSchema } from "../dbschemas/source.dbschema";
-
+import { sourceRecordSchema, projectedFilePathSchema, projectedSourceFilePathAndSummarySchema,
+         projectedSourceMetataContentAndSummarySchema, projectedSourceSummaryFieldsSchema,
+         projectedDatabaseIntegrationFieldsSchema} from "../dbschemas/source.dbschema";
 
 /**
  * Interface representing a source file record in the database
+ * (making it optional for _id)
  */
-export type SourceRecord = z.infer<typeof sourceRecordSchema>;
-/*
-// Get the base types from the schemas
-type SourceRecordBase = z.infer<typeof sourceRecordSchema>;
-export type SourceFileSummary = z.infer<typeof sourceFileSummarySchema>;
-
-// Create the correct type with optional _id while preserving all other fields
-export type SourceRecord = Omit<SourceRecordBase, '_id'> & {
-  _id?: SourceRecordBase['_id'];
-};
-*/
+type SourceRecordTmp = z.infer<typeof sourceRecordSchema>;
+export type SourceRecord = Omit<SourceRecordTmp, "_id"> & Partial<Pick<SourceRecordTmp, "_id">>; 
 
 /**
- * Type for source file metadata, including project name, type, filepath, and content
+ * Type for MongoDB projected document with just filepath
  */
-export type SourceMetataContentAndSummary = Pick<SourceRecord,
-  "projectName" | "type" | "filepath" | "content" | "summary">;
+export type ProjectedFilePath = z.infer<typeof projectedFilePathSchema>;
 
 /**
- * Type for source file's filepath and summary, excluding content
+ * Type for MongoDB projected document with filepath and summary fields
  */
-export type SourceFilePathAndSummary = Pick<SourceRecord,
-  "filepath" | "summary">;
+export type ProjectedSourceFilePathAndSummary = z.infer<typeof projectedSourceFilePathAndSummarySchema>;
+
+/**
+ * Type for MongoDB projected document with filepath, summary, and partial summary fields
+ */
+export type ProjectedSourceSummaryFields = z.infer<typeof projectedSourceSummaryFieldsSchema>;
+
+/**
+ * Type for MongoDB projected document with database integration fields
+ */
+export type ProjectedDatabaseIntegrationFields = z.infer<typeof projectedDatabaseIntegrationFieldsSchema>;
+
+/**
+ * Type for MongoDB projected document with metadata, content and summary for vector search
+ */
+export type ProjectedSourceMetataContentAndSummary = z.infer<typeof projectedSourceMetataContentAndSummarySchema>;
 
 /**
  * Interface representing database integration information
