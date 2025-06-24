@@ -30,6 +30,16 @@ export const appSummaryRecordSchema = z.object({
   qualityIssues: appSummaryNameDescArraySchema.optional(),
   recommendedImprovements: appSummaryNameDescArraySchema.optional(),
   securityConsiderations: appSummaryNameDescArraySchema.optional(),
+}).passthrough();  // passthrough() allows additional properties
+
+/**
+ * Schema for MongoDB projected document with app description and LLM provider fields
+ * Note: For non-simple projects, and especially for partial projections of nested fields, we need
+ * to create a custom schema since MongoDB projections revert to returning field types of 'unknown'.
+ */
+export const projectedAppSummaryDescAndLLMProviderSchema = appSummaryRecordSchema.pick({
+  appDescription: true,
+  llmProvider: true,
 });
 
 /**

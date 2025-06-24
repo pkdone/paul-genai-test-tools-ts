@@ -52,9 +52,9 @@ export default class AppSummariesRepositoryImpl extends BaseRepository<AppSummar
   async getProjectAppSummaryDescAndLLMProvider(projectName: string): Promise<AppSummaryDescAndLLMProvider | null> {
     const query = { projectName };
     const options = {
-      projection: { _id: 0, appdescription: 1, llmProvider: 1 },
+      projection: { _id: 0, appDescription: 1, llmProvider: 1 },
     };
-    return await this.collection.findOne(query, options);
+    return await this.collection.findOne<AppSummaryDescAndLLMProvider>(query, options);
   }
 
   /**

@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { appSummaryNameDescSchema, appSummaryNameDescArraySchema, appSummaryRecordSchema }
+import { appSummaryNameDescSchema, appSummaryNameDescArraySchema, appSummaryRecordSchema,
+         projectedAppSummaryDescAndLLMProviderSchema }
        from "../dbschemas/app-summary.dbschema";
 
 /**
@@ -25,7 +26,6 @@ export type AppSummaryRecord = Omit<AppSummaryRecordTmp, "_id"> & Partial<Pick<A
 export type PartialAppSummaryRecord = Partial<AppSummaryRecord>; 
 
 /**
- * Interface for source file summary information
+ * Type for MongoDB projected document with app description and LLM provider fields
  */
-export type AppSummaryDescAndLLMProvider = Pick<PartialAppSummaryRecord,
- "appDescription" | "llmProvider">;
+export type AppSummaryDescAndLLMProvider = z.infer<typeof projectedAppSummaryDescAndLLMProviderSchema>;
