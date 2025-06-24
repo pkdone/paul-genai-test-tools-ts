@@ -114,7 +114,12 @@ export default class CodebaseToDBLoader {
       ...(contentVector !== undefined && { contentVector }),
     };
     
-    await this.sourcesRepository.insertSource(sourceFileRecord);
+    try {
+      await this.sourcesRepository.insertSource(sourceFileRecord);
+      console.log("DONE"); // TODO: remove
+    } catch (error: unknown) {
+      logErrorMsgAndDetail(`Problem inserting source file metadata into the database: ${filepath}`, error);
+    }
   }
 
   /**

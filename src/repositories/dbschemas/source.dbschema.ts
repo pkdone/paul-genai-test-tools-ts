@@ -48,8 +48,11 @@ export const sourceRecordSchema = z.object({
   summaryVector: z.array(z.number()).optional(),
   content: z.string(),
   contentVector: z.array(z.number()).optional(),
-});
+}).passthrough();  // TODO: use this?
 
+/**
+ * Generate JSON schema for source file records
+ */
 export function getJSONSchema() {
   return generateMDBJSONSchema(sourceRecordSchema);  
 }

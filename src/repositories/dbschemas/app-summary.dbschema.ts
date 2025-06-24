@@ -18,7 +18,7 @@ export const appSummaryNameDescArraySchema = z.array(appSummaryNameDescSchema);
  * Zod schema for application summary records in the database
  */
 export const appSummaryRecordSchema = z.object({
-  _id: zBsonObjectId.optional(),
+  _id: zBsonObjectId,//.optional(),
   projectName: z.string(),
   llmProvider: z.string(),
   appDescription: z.string().optional(),
@@ -32,7 +32,9 @@ export const appSummaryRecordSchema = z.object({
   securityConsiderations: appSummaryNameDescArraySchema.optional(),
 });
 
-
+/**
+ * Generate JSON schema for application summary records
+ */
 export function getJSONSchema() {
   return generateMDBJSONSchema(appSummaryRecordSchema);  
 }

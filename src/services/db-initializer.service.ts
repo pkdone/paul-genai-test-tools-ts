@@ -1,11 +1,13 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { MongoClient, Collection, IndexSpecification } from "mongodb";
+import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { TOKENS } from "../di/tokens";
 import { databaseConfig, llmConfig } from "../config";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { createVectorSearchIndexDefinition } from "../mdb/mdb-utils";
 import { Service } from "../types/service.types";
+import * as sourceSchema from "../repositories/dbschemas/source.dbschema";
+import * as appSummarySchema from "../repositories/dbschemas/app-summary.dbschema";
 
 /**
  * Service responsible for database schema initialization and management.
@@ -13,6 +15,7 @@ import { Service } from "../types/service.types";
  */
 @injectable()
 export class DBInitializerService implements Service {
+  private readonly db: Db;
   private readonly sourcesCollection: Collection;
   private readonly appSummariesCollection: Collection;
 
@@ -20,53 +23,53 @@ export class DBInitializerService implements Service {
    * Constructor with dependency injection.
    */
   constructor(@inject(TOKENS.MongoClient) private readonly mongoClient: MongoClient) {
-    const db = this.mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
-    this.sourcesCollection = db.collection(databaseConfig.SOURCES_COLLCTN_NAME);
-    this.appSummariesCollection = db.collection(databaseConfig.SUMMARIES_COLLCTN_NAME);
+    this.db = this.mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
+    this.sourcesCollection = this.db.collection(databaseConfig.SOURCES_COLLCTN_NAME);
+    this.appSummariesCollection = this.db.collection(databaseConfig.SUMMARIES_COLLCTN_NAME);
   }
 
   /**
    * Execute the service - initializes database schema.
    */
   async execute(): Promise<void> {
-    const numDimensions = llmConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT;
-    await this.ensureAllIndexes(numDimensions);
+    await this.ensureCollectionsReady(llmConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT);
   }
 
   /**
-   * Ensure all required indexes exist for both collections.
+   * Ensures that the necessary collections and indexes are ready in the database.
    */
-  async ensureAllIndexes(numDimensions: number): Promise<void> {
-    await this.ensureSourcesIndexes(numDimensions);
-    await this.ensureAppSummariesIndexes();
-  }
-
-  /**
-   * Ensure required indexes exist for the sources collection.
-   */
-  private async ensureSourcesIndexes(numDimensions: number): Promise<void> {
-    await this.createSourcesNormalIndexes();
+  async ensureCollectionsReady(numDimensions: number) {
+    await this.createCollectionWithValidator(this.sourcesCollection.collectionName, sourceSchema.getJSONSchema());
+    await this.createCollectionWithValidator(this.appSummariesCollection.collectionName, appSummarySchema.getJSONSchema());
+    await this.createNormalIndexIfNotExists(this.sourcesCollection, { projectName: 1, type: 1, "summary.classpath": 1 });
     await this.createSourcesVectorSearchIndexes(numDimensions);
+    await this.createNormalIndexIfNotExists(this.appSummariesCollection, { projectName: 1 });
   }
 
   /**
-   * Ensure required indexes exist for the app summaries collection.
+   * Creates a collection with a JSON schema validator if it doesn't already exist.
    */
-  private async ensureAppSummariesIndexes(): Promise<void> {
-    await this.createNormalIndexIfNotExists(
-      this.appSummariesCollection,
-      { projectName: 1 }
-    );
-  }
+  private async createCollectionWithValidator(
+    collectionName: string,
+    jsonSchema: ReturnType<typeof sourceSchema.getJSONSchema>
+  ): Promise<void> {
+    try {
+      const collections = await this.db.listCollections({ name: collectionName }).toArray();
+      const validationOptions = { validator: { $jsonSchema: jsonSchema }, validationLevel: "strict", validationAction: "error" };
 
-  /**
-   * Create normal MongoDB collection indexes for sources collection.
-   */
-  private async createSourcesNormalIndexes(): Promise<void> {
-    await this.createNormalIndexIfNotExists(
-      this.sourcesCollection,
-      { projectName: 1, type: 1, "summary.classpath": 1 }
-    );
+      // TODO: remove
+      console.log(JSON.stringify(validationOptions, null, 2));
+      
+      if (collections.length === 0) {
+        await this.db.createCollection(collectionName, validationOptions);
+        console.log(`Created collection '${this.db.databaseName}.${collectionName}' with JSON schema validator`);
+      } else {
+        await this.db.command({ collMod: collectionName, ...validationOptions });
+        console.log(`Updated JSON schema validator for collection '${this.db.databaseName}.${collectionName}'`);
+      }
+    } catch (error: unknown) {
+      logErrorMsgAndDetail(`Failed to create or update collection '${collectionName}' with validator`, error);
+    }
   }
 
   /**
@@ -138,4 +141,4 @@ export class DBInitializerService implements Service {
       filters
     );
   }
-} 
+}

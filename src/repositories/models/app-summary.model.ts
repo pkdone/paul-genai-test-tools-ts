@@ -15,7 +15,9 @@ export type AppSummaryNameDescArray = z.infer<typeof appSummaryNameDescArraySche
 /**
  * Interface representing an application summary record in the database
  */
-export type AppSummaryRecord = z.infer<typeof appSummaryRecordSchema>;
+//export type AppSummaryRecord = z.infer<typeof appSummaryRecordSchema>;
+type AppSummaryRecordTmp = z.infer<typeof appSummaryRecordSchema>;
+export type AppSummaryRecord = Omit<AppSummaryRecordTmp, "_id"> & Partial<Pick<AppSummaryRecordTmp, "_id">>; 
 
 /**
  * Type for arrays of name-description pairs used in app summaries

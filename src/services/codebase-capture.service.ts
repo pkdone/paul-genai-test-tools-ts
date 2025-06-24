@@ -36,11 +36,8 @@ export class CodebaseCaptureService implements Service {
    */
   private async captureCodebase(srcDirPath: string, ignoreIfAlreadyCaptured: boolean): Promise<void> {
     console.log(`Processing source files for project: ${this.projectName}`);
-    
-    // Ensure required database indexes exist
     const numDimensions = this.llmRouter.getEmbeddedModelDimensions() ?? llmConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT;
-    await this.dbInitializerService.ensureAllIndexes(numDimensions);
-    
+    await this.dbInitializerService.ensureCollectionsReady(numDimensions);    
     this.llmRouter.displayLLMStatusSummary();
     await this.codebaseToDBLoader.loadIntoDB(this.projectName, srcDirPath, ignoreIfAlreadyCaptured);      
     console.log("Finished capturing project files metadata into database");
