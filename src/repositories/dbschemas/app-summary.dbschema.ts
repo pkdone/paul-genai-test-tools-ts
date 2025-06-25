@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { generateMDBJSONSchema, zBsonObjectId } from '../../mdb/zod-to-mdb-json-schema';
+ // passthrough() sets "additionalProperties": true
 
 /**
  * Schema for name-description pair used in app summaries
@@ -7,7 +8,7 @@ import { generateMDBJSONSchema, zBsonObjectId } from '../../mdb/zod-to-mdb-json-
 export const appSummaryNameDescSchema = z.object({
   name: z.string(),
   description: z.string(),
-});
+}).passthrough();
 
 /**
  * Schema for arrays of name-description pairs used in app summaries
@@ -21,7 +22,7 @@ export const appSummaryRecordSchema = z.object({
   _id: zBsonObjectId,
   projectName: z.string(),
   llmProvider: z.string(),
-  appDescription: z.string().optional(),
+  appdescription: z.string().optional(),
   businessEntities: appSummaryNameDescArraySchema.optional(),
   businessProcesses: appSummaryNameDescArraySchema.optional(),
   businessRules: appSummaryNameDescArraySchema.optional(),
@@ -30,7 +31,7 @@ export const appSummaryRecordSchema = z.object({
   qualityIssues: appSummaryNameDescArraySchema.optional(),
   recommendedImprovements: appSummaryNameDescArraySchema.optional(),
   securityConsiderations: appSummaryNameDescArraySchema.optional(),
-}).passthrough();  // passthrough() sets "additionalProperties": true
+}).passthrough();
 
 /**
  * Schema for MongoDB projected document with app description and LLM provider fields
@@ -38,7 +39,7 @@ export const appSummaryRecordSchema = z.object({
  * to create a custom schema since MongoDB projections revert to returning field types of 'unknown'.
  */
 export const projectedAppSummaryDescAndLLMProviderSchema = appSummaryRecordSchema.pick({
-  appDescription: true,
+  appdescription: true,
   llmProvider: true,
 });
 

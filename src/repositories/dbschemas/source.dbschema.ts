@@ -1,5 +1,14 @@
 import { z } from 'zod';
 import { generateMDBJSONSchema, zBsonObjectId } from '../../mdb/zod-to-mdb-json-schema';
+// Note, `.passthrough()` sets "additionalProperties": true
+
+/**
+ * Schema for database integration information
+ */
+export const tablesSchema = z.object({
+  name: z.string(),
+  command: z.string(),
+}).passthrough();
 
 /**
  * Schema for database integration information
@@ -7,7 +16,7 @@ import { generateMDBJSONSchema, zBsonObjectId } from '../../mdb/zod-to-mdb-json-
 export const databaseIntegrationSchema = z.object({
   mechanism: z.string(),
   description: z.string(),
-});
+}).passthrough();
 
 /**
  * Schema for stored procedures and triggers
@@ -15,9 +24,29 @@ export const databaseIntegrationSchema = z.object({
 export const procedureTriggerSchema = z.object({
   name: z.string(),
   purpose: z.string(),
-  complexity: z.enum(["low", "medium", "high"]),
+  complexity: z.enum(["LOW", "MEDIUM", "HIGH"]),
   linesOfCode: z.number(),
-});
+}).passthrough();
+
+/**
+ * Schema for public constants
+ */
+export const publicConstantSchema = z.object({
+  name: z.string(),
+  value: z.string(),
+  type: z.string(),
+}).passthrough();
+
+/**
+ * Schema for public methods
+ */
+export const publicMethodSchema = z.object({
+  name: z.string(),
+  purpose: z.string(),
+  parameters: z.array(z.record(z.string(), z.any())).optional(),
+  returnType: z.string(),
+  description: z.string(),
+}).passthrough();
 
 /**
  * Schema for source file summary
@@ -25,13 +54,21 @@ export const procedureTriggerSchema = z.object({
 export const sourceFileSummarySchema = z.object({
   purpose: z.string(),
   implementation: z.string(),
+  classname: z.string().optional(),
   classpath: z.string().optional(),
+  type: z.enum(["class", "interface"]).optional(),
   internalReferences: z.array(z.string()).optional(),
   externalReferences: z.array(z.string()).optional(),
   databaseIntegration: databaseIntegrationSchema.optional(),
   storedProcedures: z.array(procedureTriggerSchema).optional(),
   triggers: z.array(procedureTriggerSchema).optional(),
-});
+  tables: z.array(tablesSchema).optional(),
+  externalSystemActivities: z.array(z.string()).optional(),
+  deployableModules: z.array(z.string()).optional(),
+  dataInputFields: z.array(z.string()).optional(),
+  publicConstants: z.array(publicConstantSchema).optional(),
+  publicMethods: z.array(publicMethodSchema).optional(),
+}).passthrough();
 
 /**
  * Schema for source file record in the database
@@ -48,7 +85,7 @@ export const sourceRecordSchema = z.object({
   summaryVector: z.array(z.number()).optional(),
   content: z.string(),
   contentVector: z.array(z.number()).optional(),
-}).passthrough();  // passthrough() sets "additionalProperties": true
+}).passthrough();
 
 /**
  * Schema for MongoDB projected document with just filepath

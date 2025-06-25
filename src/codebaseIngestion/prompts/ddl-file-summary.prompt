@@ -25,14 +25,14 @@ In the JSON response, do not include any explanations - only provide an RFC8259 
     {
       "name": "<name>",
       "purpose": "<purpose>",
-      "linesOfCode": "<value>",
+      "linesOfCode": <value>,
       "complexity"> "<LOW | MEDIUM | HIGH>"
 
     },
     {
       "name": "<name>",
       "purpose": "<purpose>",
-      "linesOfCode": "<value>",
+      "linesOfCode": <value>,
       "complexity"> "<LOW | MEDIUM | HIGH>"
 
     }
@@ -41,20 +41,20 @@ In the JSON response, do not include any explanations - only provide an RFC8259 
     {
       "name": "<name>",
       "purpose": "<purpose>",
-      "linesOfCode": "<value>",
+      "linesOfCode": <value>,
       "complexity"> "<LOW | MEDIUM | HIGH>"
 
     },
     {
       "name": "<name>",
       "purpose": "<purpose>",
-      "linesOfCode": "<value>",
+      "linesOfCode": <value>,
       "complexity"> "<LOW | MEDIUM | HIGH>"
 
     }
   ],
   "databaseIntegration": {
-    "mechanism": "<NONE, DDL | DML | SQL | STORED-PROCEDURE | TRIGGER>",
+    "mechanism": "<NONE | DDL | DML | SQL | STORED-PROCEDURE | TRIGGER>",
     "description": "<description>"
   }
 }

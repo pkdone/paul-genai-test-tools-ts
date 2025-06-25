@@ -1,15 +1,15 @@
 // Enum for stored procedure complexity levels
 export enum Complexity {
-  LOW = "low",
-  MEDIUM = "medium",
-  HIGH = "high",
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
 }
 
 /**
  * Type guard to check if a value is a valid Complexity enum value
  */
 export function isComplexity(value: unknown): value is Complexity {
-  return typeof value === 'string' && Object.values(Complexity).includes(value.toLowerCase() as Complexity);
+  return typeof value === 'string' && Object.values(Complexity).includes(value.toUpperCase() as Complexity);
 }
 
 // Interface for the database interaction list
@@ -51,5 +51,5 @@ export interface AppStatistics {
   llmProvider: string;
   fileCount: number;
   linesOfCode: number;
-  appDescription: string;
+  appdescription: string;
 }

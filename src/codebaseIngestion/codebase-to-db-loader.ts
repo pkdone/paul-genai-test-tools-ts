@@ -116,9 +116,9 @@ export default class CodebaseToDBLoader {
     
     try {
       await this.sourcesRepository.insertSource(sourceFileRecord);
-      console.log("DONE"); // TODO: remove
     } catch (error: unknown) {
       logErrorMsgAndDetail(`Problem inserting source file metadata into the database: ${filepath}`, error);
+      throw error;
     }
   }
 

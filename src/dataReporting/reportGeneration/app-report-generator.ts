@@ -32,19 +32,10 @@ export default class AppReportGenerator {
    * Generate the HTML static file report using the HtmlReportFormatter.
    */
   async generateHTMLReport(projectName: string): Promise<string> {
-    // Collect app statistics
     const appStats = await this.getAppStatistics(projectName);
-    
-    // Collect categorized data
     const categorizedData = await this.getCategorizedData(projectName);
-    
-    // Collect database integrations
     const dbInteractions = await this.buildDBInteractionList(projectName);
-    
-    // Collect stored procedures and triggers
     const procsAndTriggers = await this.buildDBStoredProcsTriggersSummaryList(projectName);
-    
-    // Use formatter to generate HTML
     return this.htmlFormatter.generateCompleteHTMLReport(
       appStats,
       categorizedData,
@@ -130,7 +121,7 @@ export default class AppReportGenerator {
       llmProvider: appSummaryRecord.llmProvider,
       fileCount: await this.sourcesRepository.getProjectFilesCount(projectName),
       linesOfCode: await this.sourcesRepository.getProjectTotalLinesOfCode(projectName),
-      appDescription: appSummaryRecord.appDescription ?? "No description available"
+      appdescription: appSummaryRecord.appdescription ?? "No description available"
     };
   }
 
