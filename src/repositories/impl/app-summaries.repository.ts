@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient } from "mongodb";
 import { AppSummariesRepository } from "../interfaces/app-summaries.repository.interface";
-import { AppSummaryRecord, AppSummaryDescAndLLMProvider, PartialAppSummaryRecord } from "../models/app-summary.model";
+import { AppSummaryRecord, ProjectedAppSummaryDescAndLLMProvider, PartialAppSummaryRecord } from "../models/app-summary.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config";
 import { BaseRepository } from "./base.repository";
@@ -49,12 +49,12 @@ export default class AppSummariesRepositoryImpl extends BaseRepository<AppSummar
   /**
    * Get app summary info for reporting (description and LLM provider)
    */
-  async getProjectAppSummaryDescAndLLMProvider(projectName: string): Promise<AppSummaryDescAndLLMProvider | null> {
+  async getProjectAppSummaryDescAndLLMProvider(projectName: string): Promise<ProjectedAppSummaryDescAndLLMProvider | null> {
     const query = { projectName };
     const options = {
       projection: { _id: 0, appdescription: 1, llmProvider: 1 },
     };
-    return await this.collection.findOne<AppSummaryDescAndLLMProvider>(query, options);
+    return await this.collection.findOne<ProjectedAppSummaryDescAndLLMProvider>(query, options);
   }
 
   /**

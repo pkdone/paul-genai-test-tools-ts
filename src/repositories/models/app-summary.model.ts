@@ -28,4 +28,4 @@ export type PartialAppSummaryRecord = Partial<AppSummaryRecord>;
 /**
  * Type for MongoDB projected document with app description and LLM provider fields
  */
-export type AppSummaryDescAndLLMProvider = z.infer<typeof projectedAppSummaryDescAndLLMProviderSchema>;
+export type ProjectedAppSummaryDescAndLLMProvider = z.infer<typeof projectedAppSummaryDescAndLLMProviderSchema>;

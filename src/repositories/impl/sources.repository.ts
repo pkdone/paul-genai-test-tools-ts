@@ -72,14 +72,7 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
     const results: ProjectedSourceSummaryFields[] = [];
     
     for await (const record of cursor) {
-      results.push({
-        filepath: record.filepath,
-        summary: record.summary ? {
-          classpath: record.summary.classpath,
-          purpose: record.summary.purpose,
-          implementation: record.summary.implementation,
-        } : undefined,
-      });
+      results.push(record);
     }
     
     return results;
@@ -146,10 +139,7 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
     const results: ProjectedSourceFilePathAndSummary[] = [];
     
     for await (const record of cursor) {
-      results.push({
-        filepath: record.filepath,
-        summary: record.summary,
-      });
+      results.push(record);
     }
     
     return results;
@@ -209,7 +199,7 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
    */
   async getProjectFilesPaths(projectName: string): Promise<string[]> {
     const query = { projectName };
-    const options = { projection: { filepath: 1 } };    
+    const options = { projection: { _id: 0, filepath: 1 } };    
     const cursor = this.collection.find<ProjectedFilePath>(query, options);
     const results: string[] = [];
     
