@@ -57,9 +57,6 @@ export class DBInitializerService implements Service {
       const collections = await this.db.listCollections({ name: collectionName }).toArray();
       const validationOptions = { validator: { $jsonSchema: jsonSchema }, validationLevel: "strict", validationAction: "error" };
 
-      // TODO: remove
-      console.log(JSON.stringify(validationOptions, null, 2));
-      
       if (collections.length === 0) {
         await this.db.createCollection(collectionName, validationOptions);
         console.log(`Created collection '${this.db.databaseName}.${collectionName}' with JSON schema validator`);
