@@ -52,7 +52,7 @@ export default class AppSummariesRepositoryImpl extends BaseRepository<AppSummar
   async getProjectAppSummaryDescAndLLMProvider(projectName: string): Promise<ProjectedAppSummaryDescAndLLMProvider | null> {
     const query = { projectName };
     const options = {
-      projection: { _id: 0, appdescription: 1, llmProvider: 1 },
+      projection: { _id: 0, appDescription: 1, llmProvider: 1 },
     };
     return await this.collection.findOne<ProjectedAppSummaryDescAndLLMProvider>(query, options);
   }
@@ -65,7 +65,7 @@ export default class AppSummariesRepositoryImpl extends BaseRepository<AppSummar
    * For array fields:
    *  getAppSummaryField<string[]>(projectName, 'businessProcesses')
    * For custom object arrays:
-   *  getAppSummaryField<BusinessProcess[]>(projectName, 'busprocesses')
+   *  getAppSummaryField<BusinessProcess[]>(projectName, 'businessProcesses')
    */
   async getProjectAppSummaryField<T = string>(projectName: string, fieldName: string): Promise<T | null> {
     const query = { projectName };

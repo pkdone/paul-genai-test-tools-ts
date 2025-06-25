@@ -2,7 +2,7 @@ Act as a programmer analyzing the code in a legacy application. Take the list of
 
 In the JSON response, do not include any explanations - only provide an RFC8259 compliant JSON response following this format without deviation:
 {
-  "busentities": [
+  "businessEntities": [
     {"name": "<name>", "description": "<description>"},
     {"name": "<name>", "description": "<description>"}
   ]

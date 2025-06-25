@@ -47,7 +47,7 @@ export class HtmlReportFormatter {
     html.push(this.generateHTMLKeyValueParagraph("Number of files", String(appStats.fileCount)));
     html.push(this.generateHTMLKeyValueParagraph("Lines of code", String(appStats.linesOfCode)));
     html.push(`\n<h2>Application Description</h2>\n`);
-    html.push(`\n<p>${appStats.appdescription}</p>\n`);
+    html.push(`\n<p>${appStats.appDescription}</p>\n`);
     return html;
   }
 

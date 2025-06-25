@@ -51,5 +51,5 @@ export interface AppStatistics {
   llmProvider: string;
   fileCount: number;
   linesOfCode: number;
-  appdescription: string;
+  appDescription: string;
 }

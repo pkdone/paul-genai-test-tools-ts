@@ -121,7 +121,7 @@ export default class AppReportGenerator {
       llmProvider: appSummaryRecord.llmProvider,
       fileCount: await this.sourcesRepository.getProjectFilesCount(projectName),
       linesOfCode: await this.sourcesRepository.getProjectTotalLinesOfCode(projectName),
-      appdescription: appSummaryRecord.appdescription ?? "No description available"
+      appDescription: appSummaryRecord.appDescription ?? "No description available"
     };
   }
 

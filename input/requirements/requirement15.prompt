@@ -1,0 +1,9 @@
+Concurrent Batch Job Control. Act as a senior programmer analyzing the code in a TypeScript application where the content of each file in the application's codebase is shown below in a code block. 
+
+In the file `src/utils/control-utils.ts` there are two different functions, used for different purposes, each of which I think could be done better, so please provide recommendations:
+
+ 1. The utility funciton promiseAllThrottled() is used to enable subsets of batch jobs to be run concurrently. Is there a better and more robust way to do that?.
+
+ 2. The utility function withRetry() provides logic to retry running a function if it fails under certain conditions (e.g. network timeout) and has a backoff for each try. Is there a better and more robust way to do that?.
+ 
+Provide references to the specific part(s) of the code that needs these improvements with suggestions on how to improve (including calling code if relevant). Include the list or relative file paths of each source file affected.

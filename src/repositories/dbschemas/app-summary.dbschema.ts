@@ -22,7 +22,7 @@ export const appSummaryRecordSchema = z.object({
   _id: zBsonObjectId,
   projectName: z.string(),
   llmProvider: z.string(),
-  appdescription: z.string().optional(),
+  appDescription: z.string().optional(),
   businessEntities: appSummaryNameDescArraySchema.optional(),
   businessProcesses: appSummaryNameDescArraySchema.optional(),
   businessRules: appSummaryNameDescArraySchema.optional(),
@@ -39,7 +39,7 @@ export const appSummaryRecordSchema = z.object({
  * to create a custom schema since MongoDB projections revert to returning field types of 'unknown'.
  */
 export const projectedAppSummaryDescAndLLMProviderSchema = appSummaryRecordSchema.pick({
-  appdescription: true,
+  appDescription: true,
   llmProvider: true,
 });
 
