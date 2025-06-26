@@ -89,7 +89,7 @@ export default class CodebaseToDBLoader {
     if ('error' in summaryResult && typeof summaryResult.error === 'string') {
       summaryError = summaryResult.error;
     } else if (typeof summaryResult === 'object' && !('error' in summaryResult)) {
-      summary = summaryResult as object;
+      summary = summaryResult;
       const summaryVectorResult = await this.getContentEmbeddings(filepath, JSON.stringify(summary), "summary");
       summaryVector = summaryVectorResult ?? undefined;
     } else {
@@ -128,10 +128,6 @@ export default class CodebaseToDBLoader {
   private async getContentEmbeddings(filepath: string, content: string, type: string) {
     return await this.llmRouter.generateEmbeddings(filepath, content, {resource: filepath, type});      
   }
-
-
-
-
 }
 
 

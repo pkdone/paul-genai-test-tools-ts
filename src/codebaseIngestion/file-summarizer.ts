@@ -1,16 +1,16 @@
 import path from "path";
 import { injectable, inject } from "tsyringe";
 import LLMRouter from "../llm/llm-router";
-import { promptsConfig } from "../config";
-import { transformJSToTSFilePath } from "../utils/path-utils";
 import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
-import { PromptBuilder } from "../promptTemplating/prompt-builder";
-import { convertTextToJSON } from "../utils/json-tools";
 import { TOKENS } from "../di/tokens";
+import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
+import * as summaryPrompts from './prompts';
+import * as summarySchemas from './schemas';
 
 /**
  * Responsible for LLM-based file summarization including prompt building, LLM interaction, and JSON
- * parsing of summary responses.
+ * parsing of summary responses with Zod validation.
  */
 @injectable()
 export class FileSummarizer {
@@ -18,84 +18,163 @@ export class FileSummarizer {
    * Constructor.
    */
   constructor(
-    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-    @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter
+    // Note: PromptBuilder is no longer needed
   ) {}
 
   /**
-   * Generate a summary for the given file content using LLM, returning the response as JSON.
+   * Generate a summary for the given file content using LLM, returning the response as validated JSON.
    */
-  async getSummaryAsJSON(filepath: string, type: string, content: string): Promise<object | {content: string} | {error: string}> {
-    if (content.length <= 0) return { content: "<empty-file>" };
-    
-    const promptFileName = this.getPromptTemplateFileName(filepath, type);
+  async getSummaryAsJSON(filepath: string, type: string, content: string): Promise<object | { error: string }> {
+    if (content.trim().length <= 0) return { error: "File is empty" };
 
+    const { promptCreator, schema } = this.getPromptAndSchemaForType(filepath, type);
+    
     try {
-      const contentToReplaceList = [{ label: promptsConfig.PROMPT_CONTENT_BLOCK_LABEL, content }];
-      const promptFilePath = transformJSToTSFilePath(__dirname, promptsConfig.PROMPTS_FOLDER_NAME, promptFileName);
-      const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
-      const llmResponse = await this.llmRouter.executeCompletion(filepath, prompt, true, {resource: filepath, requireJSON: true});
+      // Initial attempt
+      const filledPrompt = promptCreator(content);
+      const llmResponse = await this.llmRouter.executeCompletion(filepath, filledPrompt, true, { resource: filepath, requireJSON: true });
 
       if (llmResponse === null) {
-        logErrorMsgAndDetail(`LLM returned null response for summary of file '${filepath}'`, null);
-        return { error: "LLM returned null response" };
+        const errorMsg = `LLM returned null response for file '${filepath}'`;
+        logErrorMsgAndDetail(errorMsg, llmResponse);
+        return { error: errorMsg };
       }
 
-      return this.parseLLMResponse(llmResponse, filepath);
+      // When asJson=true, LLM router returns parsed object, not string
+      let parsedJson: unknown;
+      if (typeof llmResponse === 'string') {
+        // Fallback: if somehow we get a string, parse it
+        try {
+          parsedJson = JSON.parse(llmResponse);
+        } catch (parseError: unknown) {
+          const errorMsg = `Failed to parse LLM response as JSON for file '${filepath}'`;
+          logErrorMsgAndDetail(errorMsg, parseError);
+          return { error: `${errorMsg}: ${getErrorText(parseError)}` };
+        }
+      } else if (typeof llmResponse === 'object') {
+        // Expected case: LLM router already parsed the JSON
+        parsedJson = llmResponse;
+      } else {
+        const errorMsg = `LLM returned unexpected response type for file '${filepath}': ${typeof llmResponse}`;
+        logErrorMsgAndDetail(errorMsg, llmResponse);
+        return { error: errorMsg };
+      }
+
+      let validationResult = schema.safeParse(parsedJson);
+
+      // Retry logic if validation fails
+      if (!validationResult.success) {
+        console.warn(`Initial validation failed for ${filepath}. Attempting to self-correct...`);
+        logErrorMsgAndDetail(`Zod validation failed for file '${filepath}'`, validationResult.error.format());
+        
+        const fixItPrompt = `The previous JSON response had validation errors. Please fix the following JSON to strictly match the provided schema.
+---
+ORIGINAL JSON:
+${JSON.stringify(parsedJson)}
+---
+SCHEMA:
+${JSON.stringify(zodToJsonSchema(schema), null, 2)}
+---
+VALIDATION ERRORS:
+${JSON.stringify(validationResult.error.format())}
+---
+Return ONLY the corrected, valid JSON object.`;
+        
+        const retryResponse = await this.llmRouter.executeCompletion(`${filepath}-fix`, fixItPrompt, true, { resource: filepath, requireJSON: true });
+        
+        if (retryResponse === null) {
+          return { error: "LLM failed to provide a corrected response." };
+        }
+
+        // Handle retry response (should be object when asJson=true)
+        if (typeof retryResponse === 'string') {
+          try {
+            parsedJson = JSON.parse(retryResponse);
+          } catch (retryParseError: unknown) {
+            logErrorMsgAndDetail(`Error parsing self-corrected response for '${filepath}'`, retryParseError);
+            return { error: getErrorText(retryParseError) };
+          }
+        } else if (typeof retryResponse === 'object') {
+          parsedJson = retryResponse;
+        } else {
+          return { error: `LLM retry returned unexpected response type: ${typeof retryResponse}` };
+        }
+
+        validationResult = schema.safeParse(parsedJson);
+      }
+
+      if (validationResult.success) {
+        return validationResult.data as object; // Type-safe data with explicit cast
+      } else {
+        const errorMsg = `Zod validation failed for file '${filepath}' after retry.`;
+        logErrorMsgAndDetail(errorMsg, validationResult.error.format());
+        return { error: `${errorMsg}: ${validationResult.error.message}` };
+      }
+
     } catch (error: unknown) {
       logErrorMsgAndDetail(`No summary generated for file '${filepath}' due to processing error`, error);
-      return {error: getErrorText(error)};
+      return { error: getErrorText(error) };
     }
   }
 
   /**
-   * Parse the LLM response into the appropriate summary type.
+   * Get the appropriate prompt creator function and Zod schema based on file type.
    */
-  private parseLLMResponse(llmResponse: unknown, filepath: string): object | { error: string } {
-    let summaryData: object | { error: string };
-
-    if (typeof llmResponse === 'string') {
-      try {
-        summaryData = convertTextToJSON<object>(llmResponse);
-      } catch (jsonError: unknown) {
-        logErrorMsgAndDetail(`Failed to parse LLM string response to JSON for file '${filepath}'`, jsonError);
-        return { error: `Failed to parse LLM JSON: ${getErrorText(jsonError)}` };
-      }
-    } else if (!Array.isArray(llmResponse)) {
-      summaryData = llmResponse as object;
-    } else {
-      logErrorMsgAndDetail(`Unexpected LLM response type for summary of file '${filepath}'. Expected string or object, got ${typeof llmResponse}`, llmResponse);
-      return { error: `Unexpected LLM response type: ${typeof llmResponse}` };
-    }
-
-    return summaryData;
-  }
-
-  /**
-   * Determine the appropriate prompt template file name based on the file path and type.
-   */
-  private getPromptTemplateFileName(filepath: string, type: string): string {
-    let promptFileName: string | undefined;
-    
+  private getPromptAndSchemaForType(filepath: string, type: string): { 
+    promptCreator: (codeContent: string) => string; 
+    schema: z.ZodType 
+  } {
+    // Check for README files first
     if (path.basename(filepath).toUpperCase() === "README") {
-      promptFileName = promptsConfig.MARKDOWN_FILE_SUMMARY_PROMPTS;
-    } else {
-      promptFileName = this.getSummaryPromptTemplateFileName(type);
+      return { 
+        promptCreator: summaryPrompts.createMarkdownSummaryPrompt, 
+        schema: summarySchemas.markdownFileSummarySchema 
+      };
     }
 
-    return promptFileName ?? promptsConfig.DEFAULT_FILE_SUMMARY_PROMPTS;
-  }
-
-  /**
-   * Helper function to get the summary template prompt file name based on the file type.
-   */
-  private getSummaryPromptTemplateFileName(type: string): string | undefined {
-    // Check if the type exists as a key in the FILE_SUMMARY_PROMPTS
-    if (Object.hasOwn(promptsConfig.FILE_SUMMARY_PROMPTS, type)) {
-      // Use type assertion only after confirming the key exists
-      return promptsConfig.FILE_SUMMARY_PROMPTS[type as keyof typeof promptsConfig.FILE_SUMMARY_PROMPTS];
+    // Map file types to appropriate prompt creators and schemas
+    switch (type.toLowerCase()) {
+      case 'java':
+        return { 
+          promptCreator: summaryPrompts.createJavaSummaryPrompt, 
+          schema: summarySchemas.javaFileSummarySchema 
+        };
+      case 'js':
+      case 'ts':
+      case 'javascript':
+      case 'typescript':
+        return { 
+          promptCreator: summaryPrompts.createJsSummaryPrompt, 
+          schema: summarySchemas.jsFileSummarySchema 
+        };
+      case 'ddl':
+      case 'sql':
+        return { 
+          promptCreator: summaryPrompts.createDdlSummaryPrompt, 
+          schema: summarySchemas.ddlFileSummarySchema 
+        };
+      case 'xml':
+        return { 
+          promptCreator: summaryPrompts.createXmlSummaryPrompt, 
+          schema: summarySchemas.xmlFileSummarySchema 
+        };
+      case 'jsp':
+        return { 
+          promptCreator: summaryPrompts.createJspSummaryPrompt, 
+          schema: summarySchemas.jspFileSummarySchema 
+        };
+      case 'markdown':
+      case 'md':
+        return { 
+          promptCreator: summaryPrompts.createMarkdownSummaryPrompt, 
+          schema: summarySchemas.markdownFileSummarySchema 
+        };
+      default:
+        return { 
+          promptCreator: summaryPrompts.createDefaultSummaryPrompt, 
+          schema: summarySchemas.defaultFileSummarySchema 
+        };
     }
-    
-    return undefined;
   }
 } 

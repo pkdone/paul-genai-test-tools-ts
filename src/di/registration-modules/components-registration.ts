@@ -1,6 +1,5 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { PromptBuilder } from "../../promptTemplating/prompt-builder";
 import { FileSummarizer } from "../../codebaseIngestion/file-summarizer";
 import { HtmlReportFormatter } from "../../dataReporting/reportGeneration/html-report-formatter";
 import AppReportGenerator from "../../dataReporting/reportGeneration/app-report-generator";
@@ -13,7 +12,6 @@ import DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-code-
  * These components are used by services but aren't main executable services themselves.
  */
 export function registerComponents(): void {  
-  container.registerSingleton(TOKENS.PromptBuilder, PromptBuilder);
   container.registerSingleton(TOKENS.FileSummarizer, FileSummarizer);
   container.registerSingleton(TOKENS.HtmlReportFormatter, HtmlReportFormatter);
   container.registerSingleton(TOKENS.AppReportGenerator, AppReportGenerator);

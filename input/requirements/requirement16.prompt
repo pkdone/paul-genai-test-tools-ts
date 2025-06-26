@@ -4,11 +4,15 @@ Act as a senior TypeScript software architect. Your task is to analyze the provi
 
 This approach must be replaced with the following modern technologies and patterns:
 
-    1. **Zod:** For defining a strict schema for the expected JSON output from the LLM. This schema will serve as the single source of truth for both runtime validation and static TypeScript types.  
-
-    2. **`type-safe-prompt` (or a similar lightweight library):** For creating and managing prompt templates in a type-safe manner, ensuring that all required variables are provided at compile time.
+1. **Zod:** For defining a strict schema for the expected JSON output from the LLM. This schema will serve as the single source of truth for both runtime validation and static TypeScript types.  
+2. **`type-safe-prompt` (or a similar lightweight library):** For creating and managing prompt templates in a type-safe manner, ensuring that all required variables are provided at compile time.
 
 You must not suggest using large, all-encompassing frameworks like LangChain. The focus is on a targeted, lightweight solution using Zod and a type-safe prompting library.
+
+There are two main areas in the application that contain logic that uses the poor templating approach that must be addressed:
+
+* \`src/codebaseIngestion/file-summarizer.ts\` and all the different prompt files it uses in \`src/codebaseIngestion/prompts\`.  
+* \`src/insightsGeneration/[db-code-insights-back-into-db-generator.ts](http://db-code-insights-back-into-db-generator.ts)\` and all the different prompt files it uses in \`src/insightsGeneration/prompts\`.
 
 **Your Response:** Your response must be a comprehensive refactoring plan formatted as a Markdown document. The plan must be based on the project’s code provided below under the "APPLICATION SOURCE CODE" section. The plan must include the following sections:
 
@@ -25,17 +29,20 @@ You must not suggest using large, all-encompassing frameworks like LangChain. Th
   * Show how to infer a static TypeScript type from this Zod schema using `z.infer`.  
 * **Step 3.2: Create Type-Safe Prompt Templates.**  
   * Demonstrate how to replace the file-based text templates with in-code template strings using `type-safe-prompt`.  
+  * Ensure you cater for all existing \`\*.prompt\` files and they JSON example content.  
   * Show how the library enforces that all placeholders (e.g., `{CONTENT_BLOCK}`) are correctly provided when building a prompt.  
   * Explain how to combine the Zod schema from the previous step with each prompt, ideally by converting the Zod schema to a JSON Schema and embedding that in the prompt's instructions. This replaces the old, brittle text example of the JSON structure.  
-* **Step 3.3: Refactor the LLM Invocation Logic.**  
-  * Show a "before" and "after" of the code that calls the LLM.  
+* **Step 3.3: Refactor the poor LLM Invocation Logic.**  
+  * Show a "before" and "after" of each code compoennt that calls the LLM.  
   * The "after" code must use the new type-safe prompt builder.  
   * Critically, after receiving the response from the LLM, show how to use the Zod schema's `.safeParse()` method to validate the response.  
 * **Step 3.4: Implement Robust Error Handling.**  
   * Demonstrate how to handle potential parsing errors from Zod's `.safeParse()`.  
   * Suggest a strategy for resilience, such as a retry mechanism where the Zod validation error is sent back to the LLM in a subsequent call, asking it to "fix" its previous output.
 
-**4\. Final Code Example:** Provide a complete, consolidated code example showing the final, refactored solution. This should include the Zod schema, the `type-safe-prompt` setup, and the new LLM invocation function, all working together.
+	In the plan, you must cater to the functional requirements underpinning the need for the \`src/codebaseIngestion/prompts/\*.prompt\` templates for the \`codebaseIngestion\` part of the project and \`src/insightsGeneration/prompts/\*.prompt\`templates for the \`insightsGeneration\` part of the project.
+
+**4\. Final Code Example:** Provide a complete, consolidated code example showing the final, refactored solution. This should include the Zod schemas, the `type-safe-prompt` setup, and the new LLM invocation code, all working together.
 
 **5\. Test & Validation Plan:** Describe how to test the modified code compiles, lints, and the unit tests run, and the need to fix any errors that appear for these.
 
