@@ -5,7 +5,6 @@ import { promptsConfig } from "../config";
 import { transformJSToTSFilePath } from "../utils/path-utils";
 import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
 import { PromptBuilder } from "../promptTemplating/prompt-builder";
-import { BaseFileSummary, JavaScriptFileSummary } from "./types";
 import { convertTextToJSON } from "../utils/json-tools";
 import { TOKENS } from "../di/tokens";
 
@@ -26,7 +25,7 @@ export class FileSummarizer {
   /**
    * Generate a summary for the given file content using LLM, returning the response as JSON.
    */
-  async getSummaryAsJSON(filepath: string, type: string, content: string): Promise<BaseFileSummary | JavaScriptFileSummary | {content: string} | {error: string}> {
+  async getSummaryAsJSON(filepath: string, type: string, content: string): Promise<object | {content: string} | {error: string}> {
     if (content.length <= 0) return { content: "<empty-file>" };
     
     const promptFileName = this.getPromptTemplateFileName(filepath, type);
@@ -42,7 +41,7 @@ export class FileSummarizer {
         return { error: "LLM returned null response" };
       }
 
-      return this.parseLLMResponse(llmResponse, filepath, type);
+      return this.parseLLMResponse(llmResponse, filepath);
     } catch (error: unknown) {
       logErrorMsgAndDetail(`No summary generated for file '${filepath}' due to processing error`, error);
       return {error: getErrorText(error)};
@@ -52,26 +51,18 @@ export class FileSummarizer {
   /**
    * Parse the LLM response into the appropriate summary type.
    */
-  private parseLLMResponse(llmResponse: unknown, filepath: string, type: string): BaseFileSummary | JavaScriptFileSummary | { error: string } {
-    let summaryData: BaseFileSummary | JavaScriptFileSummary | { error: string };
+  private parseLLMResponse(llmResponse: unknown, filepath: string): object | { error: string } {
+    let summaryData: object | { error: string };
 
     if (typeof llmResponse === 'string') {
       try {
-        if (type === 'js' || type === 'ts') {
-          summaryData = convertTextToJSON<JavaScriptFileSummary>(llmResponse);
-        } else {
-          summaryData = convertTextToJSON<BaseFileSummary>(llmResponse);
-        }
+        summaryData = convertTextToJSON<object>(llmResponse);
       } catch (jsonError: unknown) {
         logErrorMsgAndDetail(`Failed to parse LLM string response to JSON for file '${filepath}'`, jsonError);
         return { error: `Failed to parse LLM JSON: ${getErrorText(jsonError)}` };
       }
     } else if (!Array.isArray(llmResponse)) {
-      if (type === 'js' || type === 'ts') {
-        summaryData = llmResponse as JavaScriptFileSummary;
-      } else {
-        summaryData = llmResponse as BaseFileSummary;
-      }
+      summaryData = llmResponse as object;
     } else {
       logErrorMsgAndDetail(`Unexpected LLM response type for summary of file '${filepath}'. Expected string or object, got ${typeof llmResponse}`, llmResponse);
       return { error: `Unexpected LLM response type: ${typeof llmResponse}` };

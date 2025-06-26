@@ -7,7 +7,6 @@ import { getFileSuffix } from "../utils/path-utils";
 import { countLines } from "../utils/text-utils";
 import { promiseAllThrottled } from "../utils/control-utils";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { BaseFileSummary, JavaScriptFileSummary } from "./types";
 import { FileSummarizer } from "./file-summarizer";
 import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import type { SourceRecord } from "../repositories/models/source.model";
@@ -83,14 +82,14 @@ export default class CodebaseToDBLoader {
     const filename = path.basename(filepath);
     const linesCount = countLines(content);    
     const summaryResult = await this.fileSummarizer.getSummaryAsJSON(filepath, type, content);
-    let summary: BaseFileSummary | JavaScriptFileSummary | undefined;
+    let summary: object | undefined;
     let summaryError: string | undefined;
     let summaryVector: number[] | undefined;
 
     if ('error' in summaryResult && typeof summaryResult.error === 'string') {
       summaryError = summaryResult.error;
     } else if (typeof summaryResult === 'object' && !('error' in summaryResult)) {
-      summary = summaryResult as BaseFileSummary | JavaScriptFileSummary;
+      summary = summaryResult as object;
       const summaryVectorResult = await this.getContentEmbeddings(filepath, JSON.stringify(summary), "summary");
       summaryVector = summaryVectorResult ?? undefined;
     } else {
