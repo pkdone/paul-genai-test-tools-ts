@@ -1,5 +1,44 @@
-Prompt Templating For Invoking LLMs. Act as a senior programmer analyzing the code in a TypeScript application where the content of each file in the application's codebase is shown below in a code block. 
+Act as a senior TypeScript software architect. Your task is to analyze the provided source code of a modern TypeScript application and create a detailed, step-by-step refactoring plan.
 
-The applicaiton uses prompt templating For Invoking LLMs. How could it do it better?
- 
-Provide references to the specific part(s) of the code that needs these improvements with suggestions on how to improve (including calling code if relevant). Include the list or relative file paths of each source file affected.
+**Primary Goal:** The goal is to migrate the application's current LLM prompting mechanism to a more robust, type-safe, and maintainable architecture. The current system relies on reading raw text file templates from the filesystem, performing simple string replacement for placeholders, and including text-based JSON examples within the prompt to guide the LLM's output.
+
+This approach must be replaced with the following modern technologies and patterns:
+
+    1. **Zod:** For defining a strict schema for the expected JSON output from the LLM. This schema will serve as the single source of truth for both runtime validation and static TypeScript types.  
+
+    2. **`type-safe-prompt` (or a similar lightweight library):** For creating and managing prompt templates in a type-safe manner, ensuring that all required variables are provided at compile time.
+
+You must not suggest using large, all-encompassing frameworks like LangChain. The focus is on a targeted, lightweight solution using Zod and a type-safe prompting library.
+
+**Your Response:** Your response must be a comprehensive refactoring plan formatted as a Markdown document. The plan must be based on the project’s code provided below under the "APPLICATION SOURCE CODE" section. The plan must include the following sections:
+
+**1\. Executive Summary:** Briefly summarize the current architecture's weaknesses (e.g., brittleness, lack of type safety, maintainability issues) and how the proposed refactoring with Zod and `type-safe-prompt` will address them.
+
+**2\. Prerequisite: Dependency Installation:** Provide the necessary npm command to install `zod` and `type-safe-prompt`, where needed.
+
+**3\. Step-by-Step Refactoring Plan:** This is the core of your response. Provide a detailed, sequential guide to refactoring the codebase. For each step, you must provide specific code examples derived *directly* from the user's provided source code.
+
+* **Step 3.1: Define the Zod Schema.**  
+  * Analyze the JSON examples in the prompt templates (`.prompt` files).  
+  * Create a Zod schema that precisely matches this structure for each. This schema should be the new "single source of truth."  
+  * Use Zod's `.describe()` method on each field to document its purpose, as these descriptions can be used to generate a JSON schema to guide the LLM.  
+  * Show how to infer a static TypeScript type from this Zod schema using `z.infer`.  
+* **Step 3.2: Create Type-Safe Prompt Templates.**  
+  * Demonstrate how to replace the file-based text templates with in-code template strings using `type-safe-prompt`.  
+  * Show how the library enforces that all placeholders (e.g., `{CONTENT_BLOCK}`) are correctly provided when building a prompt.  
+  * Explain how to combine the Zod schema from the previous step with each prompt, ideally by converting the Zod schema to a JSON Schema and embedding that in the prompt's instructions. This replaces the old, brittle text example of the JSON structure.  
+* **Step 3.3: Refactor the LLM Invocation Logic.**  
+  * Show a "before" and "after" of the code that calls the LLM.  
+  * The "after" code must use the new type-safe prompt builder.  
+  * Critically, after receiving the response from the LLM, show how to use the Zod schema's `.safeParse()` method to validate the response.  
+* **Step 3.4: Implement Robust Error Handling.**  
+  * Demonstrate how to handle potential parsing errors from Zod's `.safeParse()`.  
+  * Suggest a strategy for resilience, such as a retry mechanism where the Zod validation error is sent back to the LLM in a subsequent call, asking it to "fix" its previous output.
+
+**4\. Final Code Example:** Provide a complete, consolidated code example showing the final, refactored solution. This should include the Zod schema, the `type-safe-prompt` setup, and the new LLM invocation function, all working together.
+
+**5\. Test & Validation Plan:** Describe how to test the modified code compiles, lints, and the unit tests run, and the need to fix any errors that appear for these.
+
+**6\. Conclusion:** Summarize the benefits of the new architecture, emphasizing improved developer experience, type safety, and application reliability.
+
+**APPLICATION SOURCE CODE:**
