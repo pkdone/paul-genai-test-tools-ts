@@ -19,7 +19,6 @@ export class FileSummarizer {
    */
   constructor(
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter
-    // Note: PromptBuilder is no longer needed
   ) {}
 
   /**

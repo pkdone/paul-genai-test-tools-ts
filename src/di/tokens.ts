@@ -31,7 +31,6 @@ export const TOKENS = {
   DBInitializerService: Symbol.for('DBInitializerService'),
   
   // Internal Helper Components
-  PromptBuilder: Symbol.for('PromptBuilder'),
   FileSummarizer: Symbol.for('FileSummarizer'),
   LLMStats: Symbol.for('LLMStats'),
   PromptAdapter: Symbol.for('PromptAdapter'),

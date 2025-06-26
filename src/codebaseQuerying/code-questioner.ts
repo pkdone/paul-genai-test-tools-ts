@@ -1,12 +1,11 @@
 import { injectable, inject } from "tsyringe";
 import type LLMRouter from "../llm/llm-router";
-import { fileSystemConfig, promptsConfig, llmConfig } from "../config";
+import { fileSystemConfig, llmConfig } from "../config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
-import { PromptBuilder } from "../promptTemplating/prompt-builder";    
-import { transformJSToTSFilePath } from "../utils/path-utils";
 import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import type { ProjectedSourceMetataContentAndSummary } from "../repositories/models/source.model";
 import { TOKENS } from "../di/tokens";
+import { createCodebaseQueryPrompt } from "./prompts";
 
 /**
  * Provides ability to query the codebase, using Vector Search under the covers.
@@ -18,8 +17,7 @@ export default class CodeQuestioner {
    */
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
-    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-    @inject(TOKENS.PromptBuilder) private readonly promptBuilder: PromptBuilder
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter
   ) { 
   }
 
@@ -45,14 +43,12 @@ export default class CodeQuestioner {
     }
 
     const codeBlocksAsText = this.mergeSourceCodeFilesContentIntoMarkdownText(bestMatchFiles);
-    const promptFilePath = transformJSToTSFilePath(__dirname, promptsConfig.PROMPTS_FOLDER_NAME, promptsConfig.CODEBASE_QUERY_PROMPT);
-    const resourceName = `Codebase query using prompt from ${promptFilePath}`;
-    const contentToReplaceList = [
-      { label: promptsConfig.PROMPT_QUESTION_BLOCK_LABEL, content: question },
-      { label: promptsConfig.PROMPT_CONTENT_BLOCK_LABEL, content: codeBlocksAsText },
-    ];
-    const prompt = await this.promptBuilder.buildPrompt(promptFilePath, contentToReplaceList);
-    const response = await this.llmRouter.executeCompletion(promptFilePath, prompt, false, {resource: resourceName, requireJSON: false});      
+    const resourceName = `Codebase query`;
+    
+    // Create the prompt using type-safe prompt
+    const prompt = createCodebaseQueryPrompt(question, codeBlocksAsText);
+    
+    const response = await this.llmRouter.executeCompletion(resourceName, prompt, false, {resource: resourceName, requireJSON: false});      
 
     if (response) {
       const referencesText = bestMatchFiles.map(match => ` * ${match.filepath}`).join("\n");
@@ -71,7 +67,7 @@ export default class CodeQuestioner {
     const markdownParts: string[] = [];
 
     for (const fileMetadata of sourceFileMetadataList) {
-      markdownParts.push(`${promptsConfig.CODE_BLOCK_MARKDOWN}${fileMetadata.type}\n${fileMetadata.content}\n${promptsConfig.CODE_BLOCK_MARKDOWN}\n\n`);
+      markdownParts.push(`\`\`\`${fileMetadata.type}\n${fileMetadata.content}\n\`\`\`\n\n`);
     }
 
     return markdownParts.join("");
