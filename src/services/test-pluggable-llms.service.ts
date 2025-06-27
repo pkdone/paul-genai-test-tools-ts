@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { promptsConfig } from "../config";
+import { fileSystemConfig } from "../config";
 import { readFile } from "../utils/fs-utils";
 import { LLMModelQuality } from "../types/llm.types";
 import type LLMRouter from "../llm/llm-router";
@@ -30,7 +30,7 @@ export class PluggableLLMsTestService implements Service {
    * Tests the LLM functionality.
    */
   private async testPluggableLLMs(): Promise<void> {
-    const prompt = await readFile(promptsConfig.SAMPLE_PROMPT_FILEPATH);
+    const prompt = await readFile(fileSystemConfig.SAMPLE_PROMPT_FILEPATH);
     console.log("\n---PROMPT---");
     console.log(prompt);
     

@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { getTextLines } from "../utils/fs-utils";
 import CodeQuestioner from "../codebaseQuerying/code-questioner";
-import { promptsConfig } from "../config";
+import { fileSystemConfig } from "../config";
 import { Service } from "../types/service.types";
 import { TOKENS } from "../di/tokens";
 
@@ -31,7 +31,7 @@ export class CodebaseQueryService implements Service {
    */
   private async queryCodebase(): Promise<void> {
     console.log(`Performing vector search then invoking LLM for optimal results for project: ${this.projectName}`);
-    const questions = await getTextLines(promptsConfig.QUESTIONS_PROMPTS_FILEPATH);
+    const questions = await getTextLines(fileSystemConfig.QUESTIONS_PROMPTS_FILEPATH);
 
     for (const question of questions) {
       const result = await this.codeQuestioner.queryCodebaseWithQuestion(question, this.projectName);

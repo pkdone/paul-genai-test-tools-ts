@@ -1,9 +1,0 @@
-Act as a programmer analyzing the code in a legacy application. Take the list of paths and descriptions of its source flles shown below in the section marked 'SOURCES', and based on that list, return a JSON response that contains the detailed description outlining the application's purpose and implementation. You must write at most 25 sentences for this description.
-
-In the JSON response, do not include any explanations - only provide an RFC8259 compliant JSON response following this format without deviation:
-{
-  "appDescription": "<detailed-description>",
-}
-
-SOURCES:
-{CONTENT_BLOCK}

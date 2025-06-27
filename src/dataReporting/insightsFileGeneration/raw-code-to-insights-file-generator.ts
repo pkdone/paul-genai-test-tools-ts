@@ -1,6 +1,6 @@
 import path from "path";
 import { promises as fs } from "fs";
-import { fileSystemConfig, mcpConfig, promptsConfig } from "../../config";
+import { fileSystemConfig, mcpConfig } from "../../config";
 import { readFile, writeFile, readDirContents } from "../../utils/fs-utils";
 import { getFileSuffix } from "../../utils/path-utils";
 import { promiseAllThrottled } from "../../utils/control-utils";
@@ -46,13 +46,13 @@ export class RawCodeToInsightsFileGenerator {
    * Load prompts from files in the input folder
    */
   async loadPrompts(): Promise<FileRequirementPrompt[]> {
-    const inputDir = promptsConfig.REQUIREMENTS_PROMPTS_FOLDERPATH;
+    const inputDir = fileSystemConfig.REQUIREMENTS_PROMPTS_FOLDERPATH;
     const prompts: FileRequirementPrompt[] = [];
     
     try {
       await fs.mkdir(inputDir, { recursive: true });
       const files = await readDirContents(inputDir);
-      const promptFiles = files.filter(file => promptsConfig.REQS_FILE_REGEX.test(file.name));
+      const promptFiles = files.filter(file => fileSystemConfig.REQS_FILE_REGEX.test(file.name));
       
       for (const file of promptFiles) {
         const filePath = path.join(inputDir, file.name);
