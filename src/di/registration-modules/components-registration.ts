@@ -6,6 +6,7 @@ import AppReportGenerator from "../../dataReporting/reportGeneration/app-report-
 import CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
 import CodeQuestioner from "../../codebaseQuerying/code-questioner";
 import DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-code-insights-back-into-db-generator";
+import { LLMStructuredResponseInvoker } from "../../llmClient/llm-structured-response-invoker";
 
 /**
  * Register internal helper components as singletons.
@@ -18,5 +19,6 @@ export function registerComponents(): void {
   container.registerSingleton(TOKENS.CodebaseToDBLoader, CodebaseToDBLoader);
   container.registerSingleton(TOKENS.CodeQuestioner, CodeQuestioner);
   container.registerSingleton(TOKENS.DBCodeInsightsBackIntoDBGenerator, DBCodeInsightsBackIntoDBGenerator);
+  container.registerSingleton(TOKENS.LLMStructuredResponseInvoker, LLMStructuredResponseInvoker);
   console.log('Internal helper components registered as singletons');
 }

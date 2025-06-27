@@ -39,4 +39,5 @@ export const TOKENS = {
   CodebaseToDBLoader: Symbol.for('CodebaseToDBLoader'),
   CodeQuestioner: Symbol.for('CodeQuestioner'),
   DBCodeInsightsBackIntoDBGenerator: Symbol.for('DBCodeInsightsBackIntoDBGenerator'),
+  LLMStructuredResponseInvoker: Symbol.for('LLMStructuredResponseInvoker'),
 } as const; 

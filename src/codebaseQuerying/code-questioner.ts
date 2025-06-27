@@ -44,10 +44,7 @@ export default class CodeQuestioner {
 
     const codeBlocksAsText = this.mergeSourceCodeFilesContentIntoMarkdownText(bestMatchFiles);
     const resourceName = `Codebase query`;
-    
-    // Create the prompt using type-safe prompt
     const prompt = createCodebaseQueryPrompt(question, codeBlocksAsText);
-    
     const response = await this.llmRouter.executeCompletion(resourceName, prompt, false, {resource: resourceName, requireJSON: false});      
 
     if (response) {

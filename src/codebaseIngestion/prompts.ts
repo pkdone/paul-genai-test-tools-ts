@@ -1,12 +1,6 @@
 import { fillPrompt } from 'type-safe-prompt';
-import { zodToJsonSchema } from 'zod-to-json-schema';
-import { z } from 'zod';
 import * as schemas from './schemas';
-
-// Helper to convert a Zod schema to a JSON string for the prompt
-const schemaToJsonString = (schema: z.ZodType): string => {
-  return JSON.stringify(zodToJsonSchema(schema), null, 2);
-};
+import { schemaToJsonString } from '../utils/schema-utils';
 
 // Base instructions for all prompts
 const baseInstructions = `

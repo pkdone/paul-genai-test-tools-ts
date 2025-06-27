@@ -81,19 +81,17 @@ export default class CodebaseToDBLoader {
     if (!content) return;  // Skip empty files
     const filename = path.basename(filepath);
     const linesCount = countLines(content);    
-    const summaryResult = await this.fileSummarizer.getSummaryAsJSON(filepath, type, content);
+    const summaryResult = await this.fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
     let summary: object | undefined;
     let summaryError: string | undefined;
     let summaryVector: number[] | undefined;
 
-    if ('error' in summaryResult && typeof summaryResult.error === 'string') {
-      summaryError = summaryResult.error;
-    } else if (typeof summaryResult === 'object' && !('error' in summaryResult)) {
-      summary = summaryResult;
+    if (summaryResult.success) {
+      summary = summaryResult.data;
       const summaryVectorResult = await this.getContentEmbeddings(filepath, JSON.stringify(summary), "summary");
       summaryVector = summaryVectorResult ?? undefined;
     } else {
-      summaryError = "Unexpected summary result structure";
+      summaryError = summaryResult.error;
     }
     
     const contentVectorResult = await this.getContentEmbeddings(filepath, content, "content");
