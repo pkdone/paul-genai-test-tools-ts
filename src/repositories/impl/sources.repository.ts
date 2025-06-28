@@ -68,14 +68,7 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
       },
       sort: { "summary.classpath": 1 } as Sort,
     };    
-    const cursor = this.collection.find<ProjectedSourceSummaryFields>(query, options);
-    const results: ProjectedSourceSummaryFields[] = [];
-    
-    for await (const record of cursor) {
-      results.push(record);
-    }
-    
-    return results;
+    return this.collection.find<ProjectedSourceSummaryFields>(query, options).toArray();
   }
 
   /**
@@ -100,20 +93,23 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
         "summary.classpath": 1,
       } as Sort,
     };
-    const cursor = this.collection.find<ProjectedDatabaseIntegrationFields>(query, options);
-    const results: { path: string; mechanism: string; description: string }[] = [];
+    const records = await this.collection.find<ProjectedDatabaseIntegrationFields>(query, options).toArray();
     
-    for await (const record of cursor) {
-      if (record.summary?.databaseIntegration) {
-        results.push({
-          path: record.summary.classpath ?? record.filepath,
-          mechanism: record.summary.databaseIntegration.mechanism,
-          description: record.summary.databaseIntegration.description,
-        });
-      }
-    }
-    
-    return results;
+    return records
+      .filter(record => record.summary?.databaseIntegration)
+      .map(record => {
+        const { summary, filepath } = record;
+        const databaseIntegration = summary?.databaseIntegration;
+        if (summary && databaseIntegration) {
+          return {
+            path: summary.classpath ?? filepath,
+            mechanism: databaseIntegration.mechanism,
+            description: databaseIntegration.description,
+          };
+        }
+        // This should not happen due to the filter above, but satisfies TypeScript
+        throw new Error('Record missing required summary or databaseIntegration');
+      });
   }
 
   /**
@@ -135,14 +131,7 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
     const options = {
       projection: { _id: 0, summary: 1, filepath: 1 },
     };
-    const cursor = this.collection.find<ProjectedSourceFilePathAndSummary>(query, options);
-    const results: ProjectedSourceFilePathAndSummary[] = [];
-    
-    for await (const record of cursor) {
-      results.push(record);
-    }
-    
-    return results;
+    return this.collection.find<ProjectedSourceFilePathAndSummary>(query, options).toArray();
   }
 
   /**
@@ -199,15 +188,8 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
    */
   async getProjectFilesPaths(projectName: string): Promise<string[]> {
     const query = { projectName };
-    const options = { projection: { _id: 0, filepath: 1 } };    
-    const cursor = this.collection.find<ProjectedFilePath>(query, options);
-    const results: string[] = [];
-    
-    for await (const record of cursor) {
-      results.push(record.filepath);
-    }
-    
-    return results;
+    const options = { projection: { _id: 0, filepath: 1 } };
+    return this.collection.find<ProjectedFilePath>(query, options).map(record => record.filepath).toArray();
   }
 
   /**
