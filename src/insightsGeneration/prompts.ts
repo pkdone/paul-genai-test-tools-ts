@@ -1,6 +1,5 @@
-import { fillPrompt } from 'type-safe-prompt';
 import * as schemas from './schemas';
-import { schemaToJsonString } from '../utils/schema-utils';
+import { buildPrompt } from '../utils/prompt-utils';
 
 // Base instructions for all prompts
 const baseInstructions = `
@@ -74,36 +73,21 @@ SOURCES:
 
 // Exported prompt functions
 export const createAppDescriptionPrompt = (codeContent: string): string => {
-  return fillPrompt(appDescriptionTemplate, {
-    jsonSchema: schemaToJsonString(schemas.appDescriptionSchema),
-    codeContent,
-  });
+  return buildPrompt(appDescriptionTemplate, schemas.appDescriptionSchema, codeContent);
 };
 
 export const createBoundedContextsPrompt = (codeContent: string): string => {
-  return fillPrompt(boundedContextsTemplate, {
-    jsonSchema: schemaToJsonString(schemas.boundedContextsSchema),
-    codeContent,
-  });
+  return buildPrompt(boundedContextsTemplate, schemas.boundedContextsSchema, codeContent);
 };
 
 export const createBusinessEntitiesPrompt = (codeContent: string): string => {
-  return fillPrompt(businessEntitiesTemplate, {
-    jsonSchema: schemaToJsonString(schemas.businessEntitiesSchema),
-    codeContent,
-  });
+  return buildPrompt(businessEntitiesTemplate, schemas.businessEntitiesSchema, codeContent);
 };
 
 export const createBusinessProcessesPrompt = (codeContent: string): string => {
-  return fillPrompt(businessProcessesTemplate, {
-    jsonSchema: schemaToJsonString(schemas.businessProcessesSchema),
-    codeContent,
-  });
+  return buildPrompt(businessProcessesTemplate, schemas.businessProcessesSchema, codeContent);
 };
 
 export const createTechnologiesPrompt = (codeContent: string): string => {
-  return fillPrompt(technologiesTemplate, {
-    jsonSchema: schemaToJsonString(schemas.technologiesSchema),
-    codeContent,
-  });
+  return buildPrompt(technologiesTemplate, schemas.technologiesSchema, codeContent);
 }; 

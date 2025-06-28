@@ -20,8 +20,14 @@ jest.mock('type-safe-prompt', () => ({
   }),
 }));
 
-jest.mock('../utils/schema-utils', () => ({
+jest.mock('../utils/prompt-utils', () => ({
   schemaToJsonString: jest.fn(() => JSON.stringify({ mocked: 'schema', type: 'unknown' }, null, 2)),
+  buildPrompt: jest.fn((template: string, _schema: unknown, content: string) => {
+    // Simple mock that replaces template variables
+    return template
+      .replace('{{jsonSchema}}', JSON.stringify({ mocked: 'schema', type: 'unknown' }, null, 2))
+      .replace('{{codeContent}}', content);
+  }),
 }));
 
 describe('Prompts', () => {

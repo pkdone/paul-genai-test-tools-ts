@@ -1,6 +1,5 @@
-import { fillPrompt } from 'type-safe-prompt';
 import * as schemas from './schemas';
-import { schemaToJsonString } from '../utils/schema-utils';
+import { buildPrompt } from '../utils/prompt-utils';
 
 // Base instructions for all prompts
 const baseInstructions = `
@@ -109,50 +108,29 @@ CODE:
 
 // Exported prompt functions
 export const createJavaSummaryPrompt = (codeContent: string): string => {
-  return fillPrompt(javaSummaryTemplate, {
-    jsonSchema: schemaToJsonString(schemas.javaFileSummarySchema),
-    codeContent,
-  });
+  return buildPrompt(javaSummaryTemplate, schemas.javaFileSummarySchema, codeContent);
 };
 
 export const createJsSummaryPrompt = (codeContent: string): string => {
-  return fillPrompt(jsSummaryTemplate, {
-    jsonSchema: schemaToJsonString(schemas.jsFileSummarySchema),
-    codeContent,
-  });
+  return buildPrompt(jsSummaryTemplate, schemas.jsFileSummarySchema, codeContent);
 };
 
 export const createDefaultSummaryPrompt = (codeContent: string): string => {
-  return fillPrompt(defaultSummaryTemplate, {
-    jsonSchema: schemaToJsonString(schemas.defaultFileSummarySchema),
-    codeContent,
-  });
+  return buildPrompt(defaultSummaryTemplate, schemas.defaultFileSummarySchema, codeContent);
 };
 
 export const createDdlSummaryPrompt = (codeContent: string): string => {
-  return fillPrompt(ddlSummaryTemplate, {
-    jsonSchema: schemaToJsonString(schemas.ddlFileSummarySchema),
-    codeContent,
-  });
+  return buildPrompt(ddlSummaryTemplate, schemas.ddlFileSummarySchema, codeContent);
 };
 
 export const createXmlSummaryPrompt = (codeContent: string): string => {
-  return fillPrompt(genericSummaryTemplate, {
-    jsonSchema: schemaToJsonString(schemas.xmlFileSummarySchema),
-    codeContent,
-  });
+  return buildPrompt(genericSummaryTemplate, schemas.xmlFileSummarySchema, codeContent);
 };
 
 export const createJspSummaryPrompt = (codeContent: string): string => {
-  return fillPrompt(genericSummaryTemplate, {
-    jsonSchema: schemaToJsonString(schemas.jspFileSummarySchema),
-    codeContent,
-  });
+  return buildPrompt(genericSummaryTemplate, schemas.jspFileSummarySchema, codeContent);
 };
 
 export const createMarkdownSummaryPrompt = (codeContent: string): string => {
-  return fillPrompt(genericSummaryTemplate, {
-    jsonSchema: schemaToJsonString(schemas.markdownFileSummarySchema),
-    codeContent,
-  });
+  return buildPrompt(genericSummaryTemplate, schemas.markdownFileSummarySchema, codeContent);
 }; 

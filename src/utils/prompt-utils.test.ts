@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { schemaToJsonString } from './schema-utils';
+import { schemaToJsonString, buildPrompt } from './prompt-utils';
 
-describe('schema-utils', () => {
+describe('prompt-utils', () => {
   describe('schemaToJsonString', () => {
     it('should convert a simple string schema to JSON string', () => {
       const schema = z.string();
@@ -80,6 +80,54 @@ describe('schema-utils', () => {
       expect(() => {
         JSON.parse(result);
       }).not.toThrow();
+    });
+  });
+  
+  describe('buildPrompt', () => {
+    it('should build a prompt with template, schema, and content', () => {
+      const template = 'Generate JSON following this schema: {{jsonSchema}}\n\nContent: {{codeContent}}';
+      const schema = z.object({
+        name: z.string(),
+        age: z.number(),
+      });
+      const content = 'test content';
+      
+      const result = buildPrompt(template, schema, content);
+      
+      expect(result).toContain('Generate JSON following this schema:');
+      expect(result).toContain('"type": "object"');
+      expect(result).toContain('"properties"');
+      expect(result).toContain('test content');
+    });
+    
+    it('should handle empty content', () => {
+      const template = 'Schema: {{jsonSchema}}\nContent: {{codeContent}}';
+      const schema = z.string();
+      const content = '';
+      
+      const result = buildPrompt(template, schema, content);
+      
+      expect(result).toContain('"type": "string"');
+      expect(result).toContain('Content: ');
+    });
+    
+    it('should handle complex nested schemas', () => {
+      const template = '{{jsonSchema}}\n{{codeContent}}';
+      const schema = z.object({
+        user: z.object({
+          profile: z.object({
+            settings: z.array(z.string()),
+          }),
+        }),
+      });
+      const content = 'complex nested data';
+      
+      const result = buildPrompt(template, schema, content);
+      
+      expect(result).toContain('"type": "object"');
+      expect(result).toContain('"properties"');
+      expect(result).toContain('"user"');
+      expect(result).toContain('complex nested data');
     });
   });
 }); 
