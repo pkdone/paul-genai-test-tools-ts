@@ -13,6 +13,9 @@ import type LLMRouter from "../../llm/llm-router";
 import type { EnvVars } from "../../types/env.types";
 import type CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
 import type DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-code-insights-back-into-db-generator";
+import type CodeQuestioner from "../../codebaseQuerying/code-questioner";
+import type McpHttpServer from "../../api/mcpServing/mcp-http-server";
+import type { MongoDBClientFactory } from "../../mdb/mdb-client-factory";
 
 /**
  * Register main executable services as singletons using tsyringe's built-in singleton management.
@@ -20,8 +23,6 @@ import type DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-
  */
 export function registerServices(): void {
   // Register services that don't depend on LLMRouter as regular singletons
-  container.registerSingleton(TOKENS.CodebaseQueryService, CodebaseQueryService);
-  container.registerSingleton(TOKENS.McpServerService, McpServerService);
   container.registerSingleton(TOKENS.ReportGenerationService, ReportGenerationService);
   container.registerSingleton(TOKENS.DBInitializerService, DBInitializerService);
   container.registerSingleton(TOKENS.MDBConnectionTestService, MDBConnectionTestService);
@@ -43,8 +44,26 @@ function registerLLMDependentServices(): void {
       const dbInitializerService = c.resolve<DBInitializerService>(TOKENS.DBInitializerService);
       const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
       const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const codebaseToDBLoader = c.resolve<CodebaseToDBLoader>(TOKENS.CodebaseToDBLoader);
+      const codebaseToDBLoader = await c.resolve<Promise<CodebaseToDBLoader>>(TOKENS.CodebaseToDBLoader);
       return new CodebaseCaptureService(llmRouter, dbInitializerService, envVars, projectName, codebaseToDBLoader);
+    },
+  });
+
+  // CodebaseQueryService
+  container.register(TOKENS.CodebaseQueryService, {
+    useFactory: async (c) => {
+      const projectName = c.resolve<string>(TOKENS.ProjectName);
+      const codeQuestioner = await c.resolve<Promise<CodeQuestioner>>(TOKENS.CodeQuestioner);
+      return new CodebaseQueryService(projectName, codeQuestioner);
+    },
+  });
+
+  // McpServerService
+  container.register(TOKENS.McpServerService, {
+    useFactory: (c) => {
+      const mcpHttpServer = c.resolve<McpHttpServer>(TOKENS.McpHttpServer);
+      const mongoDBClientFactory = c.resolve<MongoDBClientFactory>(TOKENS.MongoDBClientFactory);
+      return new McpServerService(mcpHttpServer, mongoDBClientFactory);
     },
   });
 
@@ -53,7 +72,7 @@ function registerLLMDependentServices(): void {
     useFactory: async (c) => {
       const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
       const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const dbCodeInsightsGenerator = c.resolve<DBCodeInsightsBackIntoDBGenerator>(TOKENS.DBCodeInsightsBackIntoDBGenerator);
+      const dbCodeInsightsGenerator = await c.resolve<Promise<DBCodeInsightsBackIntoDBGenerator>>(TOKENS.DBCodeInsightsBackIntoDBGenerator);
       return new InsightsFromDBGenerationService(llmRouter, projectName, dbCodeInsightsGenerator);
     },
   });
