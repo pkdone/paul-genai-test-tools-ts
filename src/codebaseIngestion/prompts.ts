@@ -1,5 +1,5 @@
 import * as schemas from './schemas';
-import { buildPrompt } from '../utils/prompt-utils';
+import { buildPrompt } from '../llm/common/prompt-utils';
 import { promptConfig } from '../config';
 import { z } from 'zod';
 

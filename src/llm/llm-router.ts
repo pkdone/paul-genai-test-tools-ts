@@ -4,9 +4,9 @@ import { LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse,
          ResolvedLLMModelMetadata } from "../types/llm.types";
 import type { LLMProviderImpl, LLMCandidateFunction } from "../types/llm.types";
-import { RetryFunc } from "../types/control.types";
+import { RetryFunc } from "../common/control/control.types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
-import { withRetry } from "../utils/control-utils";
+import { withRetry } from "../common/control/control-utils";
 import type { PromptAdapter } from "./common/responseProcessing/llm-prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "./common/routerTracking/llm-router-logging";
 import type LLMStats from "./common/routerTracking/llm-stats";

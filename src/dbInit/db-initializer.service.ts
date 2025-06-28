@@ -4,7 +4,7 @@ import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { TOKENS } from "../di/tokens";
 import { databaseConfig, llmConfig } from "../config";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { createVectorSearchIndexDefinition } from "./mdb-utils";
+import { createVectorSearchIndexDefinition } from "../mdb/mdb-utils";
 import { Service } from "../types/service.types";
 import * as sourceSchema from "../repositories/models/source.model";
 import * as appSummarySchema from "../repositories/models/app-summary.model";

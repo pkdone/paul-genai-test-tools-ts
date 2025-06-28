@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import * as schemas from './schemas';
-import { buildPrompt } from '../utils/prompt-utils';
+import { buildPrompt } from '../llm/common/prompt-utils';
 import { promptConfig } from '../config';
 
 // Base template for all insights generation prompts
