@@ -201,7 +201,7 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
       { $group: { _id: "", count: { $sum: 1 } } }
     ];
     const result = await this.collection.aggregate<{ count: number }>(pipeline).toArray();
-    return result.length > 0 && result[0] ? result[0].count : 0;
+    return result[0]?.count ?? 0;    
   }
 
   /**
@@ -213,6 +213,6 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
       { $group: { _id: "", count: { $sum: "$linesCount" } } }
     ];
     const result = await this.collection.aggregate<{ count: number }>(pipeline).toArray();
-    return result.length > 0 && result[0] ? result[0].count : 0;
+    return result[0]?.count ?? 0;
   }
 } 

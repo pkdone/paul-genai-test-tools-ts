@@ -5,10 +5,15 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function convertTextToJSON<T = Record<string, unknown>>(content: string): T {
-  const startJSONIndex = content.indexOf("{");
-  const endJSONIndex = content.lastIndexOf("}");
-  if (startJSONIndex === -1 || endJSONIndex === -1) throw new Error(`Invalid input: No JSON content found for text: ${content}`);
-  const trimmedContent = content.substring(startJSONIndex, endJSONIndex + 1);
-  // The sanitization line has been removed. JSON.parse handles valid JSON strings correctly.
-  return JSON.parse(trimmedContent) as T;
+  // This regex finds the first '{' or '[' and matches until the corresponding '}' or ']'.
+  // It's more robust than simple indexOf/lastIndexOf.
+  const jsonRegex = /({[\s\S]*}|\[[\s\S]*\])/;
+  const match = jsonRegex.exec(content);
+
+  if (!match) {
+    throw new Error(`Invalid input: No JSON content found for text: ${content}`);
+  }
+
+  const jsonString = match[0];
+  return JSON.parse(jsonString) as T;
 }
