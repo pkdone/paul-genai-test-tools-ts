@@ -1,5 +1,5 @@
 import { Double } from "mongodb";
-import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrationInfo, ProjectedSourceFilePathAndSummary, ProjectedSourceSummaryFields } from "../models/source.model";
+import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrationInfo, ProjectedSourceFilePathAndSummary, ProjectedSourceSummaryFields } from "./source.model";
 
 /**
  * Interface for the Sources repository

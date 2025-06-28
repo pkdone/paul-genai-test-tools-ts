@@ -6,8 +6,8 @@ import { databaseConfig, llmConfig } from "../config";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { createVectorSearchIndexDefinition } from "../mdb/mdb-utils";
 import { Service } from "../types/service.types";
-import * as sourceSchema from "../repositories/models/source.model";
-import * as appSummarySchema from "../repositories/models/app-summary.model";
+import * as sourceSchema from "../repositories/source/source.model";
+import * as appSummarySchema from "../repositories/app-summary/app-summary.model";
 
 /**
  * Service responsible for database schema initialization and management.

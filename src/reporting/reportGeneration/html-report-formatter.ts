@@ -1,9 +1,9 @@
 import { injectable } from "tsyringe";
 import { reportingConfig } from "../../config";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
-import type { AppSummaryNameDescArray } from "../../repositories/models/app-summary.model";
+import type { AppSummaryNameDescArray } from "../../repositories/app-summary/app-summary.model";
 import type { AppStatistics, ProcsAndTriggers } from "./types";
-import { DatabaseIntegrationInfo } from "../../repositories/models/source.model";
+import { DatabaseIntegrationInfo } from "../../repositories/source/source.model";
 
 /**
  * Class responsible for formatting data into HTML presentation format.

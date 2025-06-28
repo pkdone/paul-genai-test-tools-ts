@@ -3,8 +3,8 @@ import { fillPrompt } from "type-safe-prompt";
 import type LLMRouter from "../llm/llm-router";
 import { fileSystemConfig, llmConfig } from "../config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
-import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
-import type { ProjectedSourceMetataContentAndSummary } from "../repositories/models/source.model";
+import type { SourcesRepository } from "../repositories/source/sources.repository.interface";
+import type { ProjectedSourceMetataContentAndSummary } from "../repositories/source/source.model";
 import { TOKENS } from "../di/tokens";
 
 /**

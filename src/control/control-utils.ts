@@ -1,6 +1,6 @@
 import pRetry from 'p-retry';
 import { RetryFunc, CheckResultFunc, LogRetryEventFunc } from "./control.types";
-import { controlConfig } from "../../config";
+import { controlConfig } from "../config";
 
 interface FailedAttemptError extends Error {
   readonly attemptNumber: number;

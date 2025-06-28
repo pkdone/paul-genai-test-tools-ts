@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { Service } from "../types/service.types";
-import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
+import type { SourcesRepository } from "../repositories/source/sources.repository.interface";
 import { TOKENS } from "../di/tokens";
 
 /**

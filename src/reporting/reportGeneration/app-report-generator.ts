@@ -1,8 +1,8 @@
 import { injectable, inject } from "tsyringe";
 import { fileSystemConfig, reportingConfig } from "../../config";
-import type { SourcesRepository } from "../../repositories/interfaces/sources.repository.interface";
-import type { AppSummariesRepository } from "../../repositories/interfaces/app-summaries.repository.interface";
-import type { AppSummaryNameDescArray } from "../../repositories/models/app-summary.model";
+import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
+import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
+import type { AppSummaryNameDescArray } from "../../repositories/app-summary/app-summary.model";
 import { TOKENS } from "../../di/tokens";
 import { HtmlReportFormatter } from "./html-report-formatter";
 import type { AppStatistics, ProcsAndTriggers } from "./types";

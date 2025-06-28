@@ -1,10 +1,10 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient } from "mongodb";
-import { AppSummariesRepository } from "../interfaces/app-summaries.repository.interface";
-import { AppSummaryRecord, ProjectedAppSummaryDescAndLLMProvider, PartialAppSummaryRecord } from "../models/app-summary.model";
+import { AppSummariesRepository } from "./app-summaries.repository.interface";
+import { AppSummaryRecord, ProjectedAppSummaryDescAndLLMProvider, PartialAppSummaryRecord } from "./app-summary.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config";
-import { BaseRepository } from "./base.repository";
+import { BaseRepository } from "../base.repository";
 
 /**
  * MongoDB implementation of the App Summaries repository

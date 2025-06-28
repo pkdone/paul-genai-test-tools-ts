@@ -4,9 +4,9 @@ import { fileSystemConfig, reportingConfig } from "../config";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { joinArrayWithSeparators } from "../utils/text-utils";
 import { LLMStructuredResponseInvoker } from "../llm/llm-structured-response-invoker";
-import type { AppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
-import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
-import type { PartialAppSummaryRecord } from "../repositories/models/app-summary.model";
+import type { AppSummariesRepository } from "../repositories/app-summary/app-summaries.repository.interface";
+import type { SourcesRepository } from "../repositories/source/sources.repository.interface";
+import type { PartialAppSummaryRecord } from "../repositories/app-summary/app-summary.model";
 import { TOKENS } from "../di/tokens";
 import { categoryPromptSchemaMappings, type AppSummaryCategory } from './category-mappings';
 

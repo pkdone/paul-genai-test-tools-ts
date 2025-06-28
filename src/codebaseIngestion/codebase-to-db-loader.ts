@@ -8,8 +8,8 @@ import { countLines } from "../utils/text-utils";
 import pLimit from 'p-limit';
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { FileSummarizer } from "./file-summarizer";
-import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
-import type { SourceRecord } from "../repositories/models/source.model";
+import type { SourcesRepository } from "../repositories/source/sources.repository.interface";
+import type { SourceRecord } from "../repositories/source/source.model";
 import { TOKENS } from "../di/tokens";
 
 /** 

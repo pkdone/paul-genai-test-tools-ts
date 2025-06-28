@@ -1,4 +1,4 @@
-import { AppSummaryRecord, ProjectedAppSummaryDescAndLLMProvider, PartialAppSummaryRecord } from "../models/app-summary.model";
+import { AppSummaryRecord, ProjectedAppSummaryDescAndLLMProvider, PartialAppSummaryRecord } from "./app-summary.model";
 
 /**
  * Interface for the App Summaries repository

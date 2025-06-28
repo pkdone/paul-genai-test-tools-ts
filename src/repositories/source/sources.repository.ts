@@ -1,13 +1,13 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient, Double, Sort } from "mongodb";
-import { SourcesRepository } from "../interfaces/sources.repository.interface";
+import { SourcesRepository } from "./sources.repository.interface";
 import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrationInfo, 
          ProjectedSourceFilePathAndSummary, ProjectedSourceSummaryFields,
-         ProjectedDatabaseIntegrationFields, ProjectedFilePath } from "../models/source.model";
+         ProjectedDatabaseIntegrationFields, ProjectedFilePath } from "./source.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config";
 import { logErrorMsgAndDetail } from "../../utils/error-utils";
-import { BaseRepository } from "./base.repository";
+import { BaseRepository } from "../base.repository";
 
 /**
  * MongoDB implementation of the Sources repository
