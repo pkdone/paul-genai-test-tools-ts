@@ -1,19 +1,12 @@
 import { z } from 'zod';
 import { generateMDBJSONSchema, zBsonObjectId } from '../../mdb/zod-to-mdb-json-schema';
+import { nameDescSchema } from '../../schemas/common.schemas';
  // passthrough() sets "additionalProperties": true
-
-/**
- * Schema for name-description pair used in app summaries
- */
-export const appSummaryNameDescSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-}).passthrough();
 
 /**
  * Schema for arrays of name-description pairs used in app summaries
  */
-export const appSummaryNameDescArraySchema = z.array(appSummaryNameDescSchema);
+export const appSummaryNameDescArraySchema = z.array(nameDescSchema);
 
 /**
  * Zod schema for application summary records in the database

@@ -1,13 +1,21 @@
 import { z } from 'zod';
-
-// Base schema for database integration, shared across multiple summaries
-const databaseIntegrationSchema = z.object({
-  mechanism: z.string().describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
-  description: z.string().describe("A detailed description of the database integration."),
-}).describe("Information about how the file interacts with a database.");
+import { sourceFileSummarySchema } from '../schemas/source-summary.schema';
+import { databaseIntegrationSchema } from '../schemas/common.schemas';
 
 // Schema for `java-file-summary.prompt`
-export const javaFileSummarySchema = z.object({
+export const javaFileSummarySchema = sourceFileSummarySchema.pick({
+  classname: true,
+  type: true,
+  classpath: true,
+  purpose: true,
+  implementation: true,
+  internalReferences: true,
+  externalReferences: true,
+  publicConstants: true,
+  publicMethods: true,
+  databaseIntegration: true,
+}).extend({
+  // Add descriptions for LLM prompts
   classname: z.string().describe("The name of the main public class or interface."),
   type: z.enum(["class", "interface"]).describe("The type of the main entity."),
   classpath: z.string().describe("The fully qualified classpath."),
@@ -27,30 +35,55 @@ export const javaFileSummarySchema = z.object({
     returnType: z.string(),
     description: z.string().describe("Detailed description of the method's implementation."),
   })).describe("A list of public methods."),
-  databaseIntegration: databaseIntegrationSchema,
+  databaseIntegration: databaseIntegrationSchema.extend({
+    mechanism: z.string().describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
+    description: z.string().describe("A detailed description of the database integration."),
+  }).describe("Information about how the file interacts with a database."),
 });
 export type JavaFileSummary = z.infer<typeof javaFileSummarySchema>;
 
 // Schema for `js-file-summary.prompt`
-export const jsFileSummarySchema = z.object({
+export const jsFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  internalReferences: true,
+  externalReferences: true,
+  databaseIntegration: true,
+}).extend({
   purpose: z.string().describe("A detailed definition of its purpose (at least 6 sentences)."),
   implementation: z.string().describe("A detailed definition of its implementation (at least 6 sentences)."),
   internalReferences: z.array(z.string()).describe("A list of internal modules referenced."),
   externalReferences: z.array(z.string()).describe("A list of external modules referenced."),
-  databaseIntegration: databaseIntegrationSchema,
+  databaseIntegration: databaseIntegrationSchema.extend({
+    mechanism: z.string().describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
+    description: z.string().describe("A detailed description of the database integration."),
+  }).describe("Information about how the file interacts with a database."),
 });
 export type JsFileSummary = z.infer<typeof jsFileSummarySchema>;
 
 // Schema for `default-file-summary.prompt`
-export const defaultFileSummarySchema = z.object({
+export const defaultFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  databaseIntegration: true,
+}).extend({
   purpose: z.string().describe("A detailed definition of its purpose (at least 4 sentences)."),
   implementation: z.string().describe("A detailed definition of its implementation (at least 3 sentences)."),
-  databaseIntegration: databaseIntegrationSchema,
+  databaseIntegration: databaseIntegrationSchema.extend({
+    mechanism: z.string().describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
+    description: z.string().describe("A detailed description of the database integration."),
+  }).describe("Information about how the file interacts with a database."),
 });
 export type DefaultFileSummary = z.infer<typeof defaultFileSummarySchema>;
 
 // Schema for `ddl-file-summary.prompt`
-export const ddlFileSummarySchema = z.object({
+export const ddlFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  tables: true,
+  storedProcedures: true,
+  triggers: true,
+}).extend({
   purpose: z.string().describe("A detailed definition of its purpose (at least 2 sentences)."),
   implementation: z.string().describe("A detailed definition of its implementation (at least 2 sentences)."),
   tables: z.array(z.object({
@@ -76,28 +109,51 @@ export const ddlFileSummarySchema = z.object({
 });
 export type DdlFileSummary = z.infer<typeof ddlFileSummarySchema>;
 
-// Schema for `xml-file-summary.prompt` (assuming similar structure to default)
-export const xmlFileSummarySchema = z.object({
+// Schema for `xml-file-summary.prompt`
+export const xmlFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  databaseIntegration: true,
+}).extend({
   purpose: z.string().describe("A detailed definition of its purpose."),
   implementation: z.string().describe("A detailed definition of its implementation."),
-  databaseIntegration: databaseIntegrationSchema,
+  databaseIntegration: databaseIntegrationSchema.extend({
+    mechanism: z.string().describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
+    description: z.string().describe("A detailed description of the database integration."),
+  }).describe("Information about how the file interacts with a database."),
 });
 export type XmlFileSummary = z.infer<typeof xmlFileSummarySchema>;
 
-// Schema for `jsp-file-summary.prompt` (assuming similar structure to JS)
-export const jspFileSummarySchema = z.object({
+// Schema for `jsp-file-summary.prompt`
+export const jspFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  internalReferences: true,
+  externalReferences: true,
+  databaseIntegration: true,
+}).extend({
   purpose: z.string().describe("A detailed definition of its purpose."),
   implementation: z.string().describe("A detailed definition of its implementation."),
   internalReferences: z.array(z.string()).describe("A list of internal references."),
   externalReferences: z.array(z.string()).describe("A list of external references."),
-  databaseIntegration: databaseIntegrationSchema,
+  databaseIntegration: databaseIntegrationSchema.extend({
+    mechanism: z.string().describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
+    description: z.string().describe("A detailed description of the database integration."),
+  }).describe("Information about how the file interacts with a database."),
 });
 export type JspFileSummary = z.infer<typeof jspFileSummarySchema>;
 
-// Schema for `markdown-file-summary.prompt` (assuming similar structure to default)
-export const markdownFileSummarySchema = z.object({
+// Schema for `markdown-file-summary.prompt`
+export const markdownFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  databaseIntegration: true,
+}).extend({
   purpose: z.string().describe("A detailed definition of its purpose."),
   implementation: z.string().describe("A detailed definition of its implementation."),
-  databaseIntegration: databaseIntegrationSchema,
+  databaseIntegration: databaseIntegrationSchema.extend({
+    mechanism: z.string().describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
+    description: z.string().describe("A detailed description of the database integration."),
+  }).describe("Information about how the file interacts with a database."),
 });
 export type MarkdownFileSummary = z.infer<typeof markdownFileSummarySchema>; 

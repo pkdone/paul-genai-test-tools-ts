@@ -1,12 +1,13 @@
 import { z } from 'zod';
-import { appSummaryNameDescSchema, appSummaryNameDescArraySchema, appSummaryRecordSchema,
+import { nameDescSchema } from '../../schemas/common.schemas';
+import { appSummaryNameDescArraySchema, appSummaryRecordSchema,
          projectedAppSummaryDescAndLLMProviderSchema }
        from "../dbschemas/app-summary.dbschema";
 
 /**
  * Type for name-description pair use in app summaries
  */
-export type AppSummaryNameDesc = z.infer<typeof appSummaryNameDescSchema>;
+export type AppSummaryNameDesc = z.infer<typeof nameDescSchema>;
 
 /**
  * Type for arrays of name-description pairs used in app summaries
