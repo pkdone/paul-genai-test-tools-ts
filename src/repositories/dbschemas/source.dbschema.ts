@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { generateMDBJSONSchema, zBsonObjectId } from '../../mdb/zod-to-mdb-json-schema';
 import { sourceFileSummarySchema } from '../../schemas/source-summary.schema';
-import { databaseIntegrationSchema } from '../../schemas/common.schemas';
 // Note, `.passthrough()` sets "additionalProperties": true
 
 /**
@@ -60,10 +59,10 @@ export const projectedSourceMetataContentAndSummarySchema = sourceRecordSchema.p
  */
 export const projectedSourceSummaryFieldsSchema = z.object({
   filepath: z.string(),
-  summary: z.object({
-    classpath: z.string().optional(),
-    purpose: z.string(),
-    implementation: z.string(),
+  summary: sourceFileSummarySchema.pick({
+    classpath: true,
+    purpose: true,
+    implementation: true,
   }).optional(),
 });
 
@@ -74,9 +73,9 @@ export const projectedSourceSummaryFieldsSchema = z.object({
  */
 export const projectedDatabaseIntegrationFieldsSchema = z.object({
   filepath: z.string(),
-  summary: z.object({
-    classpath: z.string().optional(),
-    databaseIntegration: databaseIntegrationSchema.optional(),
+  summary: sourceFileSummarySchema.pick({
+    classpath: true,
+    databaseIntegration: true,
   }).optional(),
 });
 
