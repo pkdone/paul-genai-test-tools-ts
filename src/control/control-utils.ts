@@ -51,7 +51,6 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
         minTimeout: minRetryDelay,
         onFailedAttempt: (error: FailedAttemptError) => {
           if (logRetryEventFunc) logRetryEventFunc();
-          console.log(`Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`);
         },
       } as RetryOptions
     );
