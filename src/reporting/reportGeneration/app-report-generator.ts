@@ -129,18 +129,17 @@ export default class AppReportGenerator {
    * Collect categorized data for all categories
    */
   private async getCategorizedData(projectName: string): Promise<{ category: string; label: string; data: AppSummaryNameDescArray }[]> {
-    const categoryKeys = Object.keys(reportingConfig.APP_SUMMARIES_CATEGORY_TITLES).filter(key => key !== reportingConfig.APP_DESCRIPTION_KEY);
-    const categorizedData = [];
-    
-    for (const category of categoryKeys) {
-      const label = reportingConfig.APP_SUMMARIES_CATEGORY_TITLES[category as keyof typeof reportingConfig.APP_SUMMARIES_CATEGORY_TITLES];
+    const categoryKeys = Object.keys(reportingConfig.APP_SUMMARIES_CATEGORY_TITLES)
+      .filter((key): key is keyof typeof reportingConfig.APP_SUMMARIES_CATEGORY_TITLES => key !== reportingConfig.APP_DESCRIPTION_KEY);
+
+    const promises = categoryKeys.map(async (category) => {
+      const label = reportingConfig.APP_SUMMARIES_CATEGORY_TITLES[category];
       const data = await this.appSummariesRepository.getProjectAppSummaryField<AppSummaryNameDescArray>(projectName, category);
-      // Handle null data by providing empty array
-      categorizedData.push({ category, label, data: data ?? [] });
       console.log(`Generated ${label} table`);
-    }
-    
-    return categorizedData;
+      return { category, label, data: data ?? [] };
+    });
+
+    return Promise.all(promises);
   }
 
   /**

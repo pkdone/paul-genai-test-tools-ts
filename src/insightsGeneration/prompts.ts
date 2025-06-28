@@ -25,14 +25,6 @@ function createSpecificInsightsPrompt(details: string, schema: z.ZodType, codeCo
 }
 
 /**
- * Interface for insights prompt template configuration
- */
-export interface InsightsPromptTemplate {
-  details: string;
-  schema: z.ZodType;
-}
-
-/**
  * Data-driven mapping of insights prompt types to their specific details and schemas
  */
 export const insightsPromptTemplates = {
