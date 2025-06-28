@@ -46,12 +46,21 @@ export const publicConstantSchema = z.object({
 }).passthrough();
 
 /**
+ * Schema for method parameters
+ * Provides type safety for method parameter definitions
+ */
+export const methodParameterSchema = z.object({
+  name: z.string(),
+  type: z.string(),
+}).passthrough();
+
+/**
  * Schema for public methods
  */
 export const publicMethodSchema = z.object({
   name: z.string(),
   purpose: z.string(),
-  parameters: z.array(z.record(z.string(), z.any())).optional(),
+  parameters: z.array(methodParameterSchema).optional(),
   returnType: z.string(),
   description: z.string(),
 }).passthrough(); 

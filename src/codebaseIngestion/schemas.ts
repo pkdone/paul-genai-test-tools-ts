@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { sourceFileSummarySchema } from '../schemas/source-summary.schema';
-import { databaseIntegrationSchema } from '../schemas/common.schemas';
+import { databaseIntegrationSchema, methodParameterSchema } from '../schemas/common.schemas';
 
 // Schema for `java-file-summary.prompt`
 export const javaFileSummarySchema = sourceFileSummarySchema.pick({
@@ -31,7 +31,7 @@ export const javaFileSummarySchema = sourceFileSummarySchema.pick({
   publicMethods: z.array(z.object({
     name: z.string(),
     purpose: z.string().describe("Detailed purpose of the method (at least 6 sentences)."),
-    parameters: z.array(z.record(z.string(), z.any())).optional(),
+    parameters: z.array(methodParameterSchema).optional(),
     returnType: z.string(),
     description: z.string().describe("Detailed description of the method's implementation."),
   })).describe("A list of public methods."),

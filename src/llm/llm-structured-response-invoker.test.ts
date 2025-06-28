@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import 'reflect-metadata';
 import { z } from 'zod';
 import { LLMStructuredResponseInvoker } from './llm-structured-response-invoker';
