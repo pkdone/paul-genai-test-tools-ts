@@ -1,8 +1,49 @@
 import { z } from 'zod';
+import { generateMDBJSONSchema, zBsonObjectId } from '../../mdb/zod-to-mdb-json-schema';
 import { nameDescSchema } from '../../schemas/common.schemas';
-import { appSummaryNameDescArraySchema, appSummaryRecordSchema,
-         projectedAppSummaryDescAndLLMProviderSchema }
-       from "../dbschemas/app-summary.dbschema";
+ // passthrough() sets "additionalProperties": true
+
+/**
+ * Schema for arrays of name-description pairs used in app summaries
+ */
+export const appSummaryNameDescArraySchema = z.array(nameDescSchema);
+
+/**
+ * Zod schema for application summary records in the database
+ */
+export const appSummaryRecordSchema = z.object({
+  _id: zBsonObjectId,
+  projectName: z.string(),
+  llmProvider: z.string(),
+  appDescription: z.string().optional(),
+  businessEntities: appSummaryNameDescArraySchema.optional(),
+  businessProcesses: appSummaryNameDescArraySchema.optional(),
+  businessRules: appSummaryNameDescArraySchema.optional(),
+  dataFlow: appSummaryNameDescArraySchema.optional(),
+  integrationPoints: appSummaryNameDescArraySchema.optional(),
+  qualityIssues: appSummaryNameDescArraySchema.optional(),
+  recommendedImprovements: appSummaryNameDescArraySchema.optional(),
+  securityConsiderations: appSummaryNameDescArraySchema.optional(),
+}).passthrough();
+
+/**
+ * Schema for MongoDB projected document with app description and LLM provider fields
+ * Note: For non-simple projects, and especially for partial projections of nested fields, we need
+ * to create a custom schema since MongoDB projections revert to returning field types of 'unknown'.
+ */
+export const projectedAppSummaryDescAndLLMProviderSchema = appSummaryRecordSchema.pick({
+  appDescription: true,
+  llmProvider: true,
+});
+
+/**
+ * Generate JSON schema for application summary records
+ */
+export function getJSONSchema() {
+  return generateMDBJSONSchema(appSummaryRecordSchema);  
+}
+
+// TypeScript types inferred from schemas
 
 /**
  * Type for name-description pair use in app summaries
@@ -29,4 +70,4 @@ export type PartialAppSummaryRecord = Partial<AppSummaryRecord>;
 /**
  * Type for MongoDB projected document with app description and LLM provider fields
  */
-export type ProjectedAppSummaryDescAndLLMProvider = z.infer<typeof projectedAppSummaryDescAndLLMProviderSchema>;
+export type ProjectedAppSummaryDescAndLLMProvider = z.infer<typeof projectedAppSummaryDescAndLLMProviderSchema>; 
