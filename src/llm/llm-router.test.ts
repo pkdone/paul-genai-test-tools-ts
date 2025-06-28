@@ -1,12 +1,14 @@
 import "reflect-metadata";
 import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMContext, LLMProviderImpl, 
-         LLMModelQuality, ResolvedLLMModelMetadata, LLMResponseTokensUsage, LLMCandidateFunction } 
+         LLMModelQuality, ResolvedLLMModelMetadata, LLMResponseTokensUsage } 
        from "../types/llm.types";
 import { BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { z } from "zod";
 import LLMRouter from "./llm-router";
 import LLMStats from "./common/routerTracking/llm-stats";
 import { PromptAdapter } from "./common/responseProcessing/llm-prompt-adapter";
+import { LLMService } from "./llm-service";
+import type { EnvVars } from "../types/env.types";
 
 // Mock the dependencies
 jest.mock("./common/responseProcessing/llm-response-tools", () => ({
@@ -73,9 +75,27 @@ const llmModelMetadataSchema = z.object({
 describe("LLM Router tests", () => {
   // Helper function to create a mock LLM provider
   const createMockLLMProvider = (): LLMProviderImpl => ({
-    generateEmbeddings: jest.fn(),
-    executeCompletionPrimary: jest.fn(),
-    executeCompletionSecondary: jest.fn(),
+    generateEmbeddings: jest.fn().mockResolvedValue({
+      status: LLMResponseStatus.COMPLETED,
+      generated: [0.1, 0.2, 0.3, 0.4],
+      request: "default test content",
+      modelKey: "GPT_EMBEDDINGS_ADA002",
+      context: {}
+    }),
+    executeCompletionPrimary: jest.fn().mockResolvedValue({
+      status: LLMResponseStatus.COMPLETED,
+      generated: "Default test completion",
+      request: "default test prompt",
+      modelKey: "GPT_COMPLETIONS_GPT4",
+      context: {}
+    }),
+    executeCompletionSecondary: jest.fn().mockResolvedValue({
+      status: LLMResponseStatus.COMPLETED,
+      generated: "Default secondary completion",
+      request: "default test prompt",
+      modelKey: "GPT_COMPLETIONS_GPT35",
+      context: {}
+    }),
     getModelsNames: jest.fn(() => ["text-embedding-ada-002", "gpt-4", "gpt-3.5-turbo"]),
     getAvailableCompletionModelQualities: jest.fn(() => [LLMModelQuality.PRIMARY, LLMModelQuality.SECONDARY]),
     getEmbeddedModelDimensions: jest.fn(() => 1536),
@@ -103,24 +123,6 @@ describe("LLM Router tests", () => {
   const createLLMRouter = (retryConfig: Record<string, unknown> = {}) => {
     const mockProvider = createMockLLMProvider();
     
-    // Create completion candidates that dynamically reference the current mock functions
-    const completionCandidates: LLMCandidateFunction[] = [
-      {
-        func: async (prompt: string, asJson: boolean, context: LLMContext) => {
-          return mockProvider.executeCompletionPrimary(prompt, asJson, context);
-        },
-        modelQuality: LLMModelQuality.PRIMARY,
-        description: "Primary completion model"
-      },
-      {
-        func: async (prompt: string, asJson: boolean, context: LLMContext) => {
-          return mockProvider.executeCompletionSecondary(prompt, asJson, context);
-        },
-        modelQuality: LLMModelQuality.SECONDARY,
-        description: "Secondary completion model (fallback)"
-      }
-    ];
-    
     // Use test-friendly retry configuration by default
     const testRetryConfig = {
       maxRetryAttempts: 2,
@@ -129,11 +131,27 @@ describe("LLM Router tests", () => {
       requestTimeoutMillis: 1000,
       ...retryConfig
     };
+
+    // Create mock LLMService
+    const mockLLMService: Partial<LLMService> = {
+      getLLMProvider: jest.fn().mockReturnValue(mockProvider),
+      getLLMManifest: jest.fn().mockReturnValue({
+        modelFamily: "OpenAI",
+        providerName: "Mock OpenAI",
+        providerSpecificConfig: testRetryConfig
+      })
+    };
+
+    // Create mock EnvVars
+    const mockEnvVars: Partial<EnvVars> = {
+      LLM: "openai",
+      // Add other required env vars as needed for tests
+    };
     
     // Create real instances for dependency injection testing
     const mockLLMStats = new LLMStats();
     const mockPromptAdapter = new PromptAdapter();
-    const router = new LLMRouter(mockProvider, mockLLMStats, mockPromptAdapter, completionCandidates, testRetryConfig);
+    const router = new LLMRouter(mockLLMService as LLMService, mockEnvVars as EnvVars, mockLLMStats, mockPromptAdapter);
     return { router, mockProvider };
   };
 
@@ -426,7 +444,7 @@ describe("LLM Router tests", () => {
     test("should execute completion successfully", async () => {
       const { router, mockProvider } = createLLMRouter();
       const mockCompletion = "This is a test completion";
-      mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -443,7 +461,7 @@ describe("LLM Router tests", () => {
     test("should execute completion with JSON response", async () => {
       const { router, mockProvider } = createLLMRouter();
       const mockCompletion = { key: "value", number: 42 };
-      mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -460,7 +478,7 @@ describe("LLM Router tests", () => {
     test("should use model quality override", async () => {
       const { router, mockProvider } = createLLMRouter();
       const mockCompletion = "This is a test completion";
-      mockProvider.executeCompletionSecondary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionSecondary as jest.MockedFunction<typeof mockProvider.executeCompletionSecondary>).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -476,15 +494,25 @@ describe("LLM Router tests", () => {
 
     test("should handle null response", async () => {
       const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
-      mockProvider.executeCompletionPrimary = jest.fn()
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>)
         .mockResolvedValueOnce({
           status: LLMResponseStatus.OVERLOADED,
           request: "test prompt",
           modelKey: "GPT_COMPLETIONS_GPT4",
           context: {}
         })
-        .mockResolvedValue(null);
-      mockProvider.executeCompletionSecondary = jest.fn().mockResolvedValue(null);
+        .mockResolvedValue({
+          status: LLMResponseStatus.OVERLOADED,
+          request: "test prompt",
+          modelKey: "GPT_COMPLETIONS_GPT4",
+          context: {}
+        });
+      (mockProvider.executeCompletionSecondary as jest.MockedFunction<typeof mockProvider.executeCompletionSecondary>).mockResolvedValue({
+        status: LLMResponseStatus.OVERLOADED,
+        request: "test prompt", 
+        modelKey: "GPT_COMPLETIONS_GPT35",
+        context: {}
+      });
 
       const result = await router.executeCompletion("test-resource", "test prompt");
 
@@ -493,15 +521,16 @@ describe("LLM Router tests", () => {
 
     test("should throw error for invalid completion response", async () => {
       const { router, mockProvider } = createLLMRouter();
-      mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
-        generated: 12345, // Invalid response type
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+        generated: 12345 as any, // Invalid response type - number instead of string/object
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT4",
         context: {}
       });
 
-      await expect(router.executeCompletion("test-resource", "test prompt"))
+            await expect(router.executeCompletion("test-resource", "test prompt"))
         .rejects.toThrow(BadResponseMetadataLLMError);
     });
   });
@@ -876,7 +905,8 @@ describe("LLM Router tests", () => {
   describe("Error handling and edge cases", () => {
     test("should handle LLM provider throwing unexpected errors", async () => {
       const { router, mockProvider } = createLLMRouter();
-      mockProvider.executeCompletionPrimary = jest.fn().mockRejectedValue(new Error("Unexpected LLM error"));
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>).mockRejectedValue(new Error("Unexpected LLM error"));
+      (mockProvider.executeCompletionSecondary as jest.MockedFunction<typeof mockProvider.executeCompletionSecondary>).mockRejectedValue(new Error("Unexpected LLM error"));
       
       const result = await router.executeCompletion("test-resource", "test prompt");
       
@@ -887,7 +917,7 @@ describe("LLM Router tests", () => {
       const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
       
       // First call returns EXCEEDED status
-      mockProvider.executeCompletionPrimary = jest.fn()
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>)
         .mockResolvedValueOnce({
           status: LLMResponseStatus.EXCEEDED,
           request: "test prompt",
@@ -899,7 +929,12 @@ describe("LLM Router tests", () => {
             maxTotalTokens: 8192
           } as LLMResponseTokensUsage
         });
-      mockProvider.executeCompletionSecondary = jest.fn().mockResolvedValue(null);
+      (mockProvider.executeCompletionSecondary as jest.MockedFunction<typeof mockProvider.executeCompletionSecondary>).mockResolvedValue({
+        status: LLMResponseStatus.OVERLOADED,
+        request: "test prompt", 
+        modelKey: "GPT_COMPLETIONS_GPT35",
+        context: {}
+      });
       
       // Mock the prompt adapter to return empty string after cropping
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
@@ -912,7 +947,7 @@ describe("LLM Router tests", () => {
 
     test("should handle completion with null generated content", async () => {
       const { router, mockProvider } = createLLMRouter();
-      mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: null,
         request: "test prompt",
@@ -927,7 +962,7 @@ describe("LLM Router tests", () => {
     test("should properly handle context modification during execution", async () => {
       const { router, mockProvider } = createLLMRouter();
       const mockCompletion = "Test completion";
-      mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -954,7 +989,7 @@ describe("LLM Router tests", () => {
       });
       
       // Primary fails with overloaded
-      mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>).mockResolvedValue({
         status: LLMResponseStatus.OVERLOADED,
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT4",
@@ -963,7 +998,7 @@ describe("LLM Router tests", () => {
 
       // Secondary succeeds
       const mockCompletion = "Secondary completion success";
-      mockProvider.executeCompletionSecondary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionSecondary as jest.MockedFunction<typeof mockProvider.executeCompletionSecondary>).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -987,7 +1022,7 @@ describe("LLM Router tests", () => {
       });
       
       // Simplified test: primary returns exceeded, fallback to secondary succeeds
-      mockProvider.executeCompletionPrimary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as jest.MockedFunction<typeof mockProvider.executeCompletionPrimary>).mockResolvedValue({
         status: LLMResponseStatus.EXCEEDED,
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT4",
@@ -998,7 +1033,7 @@ describe("LLM Router tests", () => {
           maxTotalTokens: 8192
         } as LLMResponseTokensUsage
       });
-      mockProvider.executeCompletionSecondary = jest.fn().mockResolvedValue({
+      (mockProvider.executeCompletionSecondary as jest.MockedFunction<typeof mockProvider.executeCompletionSecondary>).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: "Secondary completion success",
         request: "test prompt",
@@ -1017,7 +1052,7 @@ describe("LLM Router tests", () => {
       const { router, mockProvider } = createLLMRouter();
       const mockEmbeddings = [0.1, 0.2, 0.3];
       
-      mockProvider.generateEmbeddings = jest.fn().mockResolvedValue({
+      (mockProvider.generateEmbeddings as jest.MockedFunction<typeof mockProvider.generateEmbeddings>).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockEmbeddings,
         request: "test content",

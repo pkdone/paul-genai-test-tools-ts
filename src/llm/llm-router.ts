@@ -11,6 +11,8 @@ import type { PromptAdapter } from "./common/responseProcessing/llm-prompt-adapt
 import { log, logErrWithContext, logWithContext } from "./common/routerTracking/llm-router-logging";
 import type LLMStats from "./common/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "./providers/llm-provider.types";
+import { LLMService } from "./llm-service";
+import type { EnvVars } from "../types/env.types";
 import { TOKENS } from "../di/tokens";
 
 /**
@@ -23,27 +25,35 @@ import { TOKENS } from "../di/tokens";
 @injectable()
 export default class LLMRouter {
   // Private fields
+  private readonly llm: LLMProviderImpl;
   private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
   private readonly completionCandidates: LLMCandidateFunction[];
+  private readonly retryConfig: LLMRetryConfig;
 
   /**
    * Constructor.
    * 
-   * @param llm The initialized LLM provider implementation
+   * @param llmService The LLM service for provider management
+   * @param envVars Environment variables
    * @param llmStats The LLM statistics tracker
    * @param promptAdapter The prompt adapter for handling token limits
-   * @param completionCandidates List of candidate completion functions in order of preference
-   * @param retryConfig Provider-specific retry and timeout configuration
    */
   constructor(
-    @inject(TOKENS.LLMProvider) private readonly llm: LLMProviderImpl,
+    @inject(TOKENS.LLMService) private readonly llmService: LLMService,
+    @inject(TOKENS.EnvVars) private readonly envVars: EnvVars,
     @inject(TOKENS.LLMStats) private readonly llmStats: LLMStats,
-    @inject(TOKENS.PromptAdapter) private readonly promptAdapter: PromptAdapter,
-    @inject(TOKENS.CompletionCandidates) completionCandidates: LLMCandidateFunction[],
-    @inject(TOKENS.RetryConfig) private readonly retryConfig: LLMRetryConfig = {}
+    @inject(TOKENS.PromptAdapter) private readonly promptAdapter: PromptAdapter
   ) {
-    this.modelsMetadata = llm.getModelsMetadata();
-    this.completionCandidates = completionCandidates;
+    // Derive the LLM provider and related configuration from the service
+    this.llm = this.llmService.getLLMProvider(this.envVars);
+    this.modelsMetadata = this.llm.getModelsMetadata();
+    
+    // Get the retry configuration from the manifest
+    const llmManifest = this.llmService.getLLMManifest();
+    this.retryConfig = llmManifest.providerSpecificConfig ?? {};
+    
+    // Configure completion candidates in order of preference
+    this.completionCandidates = this.buildCompletionCandidates();
     
     if (this.completionCandidates.length === 0) {
       throw new BadConfigurationLLMError("At least one completion candidate function must be provided");
@@ -93,7 +103,7 @@ export default class LLMRouter {
    */
   async generateEmbeddings(resourceName: string, content: string, context: LLMContext = {}): Promise<number[] | null> {
     context.purpose = LLMPurpose.EMBEDDINGS;
-    const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [this.llm.generateEmbeddings]);
+    const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, content, context, [this.llm.generateEmbeddings.bind(this.llm)]);
 
     if (contentResponse !== null && !(Array.isArray(contentResponse) && contentResponse.every(item => typeof item === 'number'))) {
       throw new BadResponseMetadataLLMError("LLM response for embeddings was not an array of numbers", contentResponse);
@@ -153,6 +163,32 @@ export default class LLMRouter {
    */
   displayLLMStatusDetails(): void {
     console.table(this.llmStats.getStatusTypesStatistics(true));
+  }
+
+  /**
+   * Build completion candidates from the LLM provider.
+   */
+  private buildCompletionCandidates(): LLMCandidateFunction[] {
+    const candidates: LLMCandidateFunction[] = [];
+    
+    // Add primary completion model as first candidate
+    candidates.push({
+      func: this.llm.executeCompletionPrimary.bind(this.llm),
+      modelQuality: LLMModelQuality.PRIMARY,
+      description: "Primary completion model"
+    });
+    
+    // Add secondary completion model as fallback if available
+    const availableQualities = this.llm.getAvailableCompletionModelQualities();
+    if (availableQualities.includes(LLMModelQuality.SECONDARY)) {
+      candidates.push({
+        func: this.llm.executeCompletionSecondary.bind(this.llm),
+        modelQuality: LLMModelQuality.SECONDARY,
+        description: "Secondary completion model (fallback)"
+      });
+    }
+    
+    return candidates;
   }
 
   /**
