@@ -49,7 +49,7 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
       {
         retries: maxAttempts - 1, // p-retry uses `retries` (number of retries, not total attempts)
         minTimeout: minRetryDelay,
-        onFailedAttempt: (error: FailedAttemptError) => {
+        onFailedAttempt: () => {
           if (logRetryEventFunc) logRetryEventFunc();
         },
       } as RetryOptions
