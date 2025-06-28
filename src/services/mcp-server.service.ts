@@ -2,10 +2,7 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { mcpConfig } from "../config";
 import McpHttpServer from "../dataReporting/mcpServing/mcp-http-server";
-import McpDataServer from "../dataReporting/mcpServing/mcp-data-server";
-import InsightsDataServer from "../dataReporting/mcpServing/insights-data-server";
 import { Service } from "../types/service.types";
-import type { AppSummariesRepository } from "../repositories/interfaces/app-summaries.repository.interface";
 import { TOKENS } from "../di/tokens";
 import type { MongoDBClientFactory } from "../mdb/mdb-client-factory";
 import { gracefulShutdown } from "../lifecycle/env";
@@ -19,9 +16,8 @@ export class McpServerService implements Service {
    * Constructor with dependency injection.
    */
   constructor(
-    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: AppSummariesRepository,
-    @inject(TOKENS.MongoDBClientFactory) private readonly mongoDBClientFactory: MongoDBClientFactory,
-    @inject(TOKENS.ProjectName) private readonly projectName: string
+    @inject(TOKENS.McpHttpServer) private readonly mcpHttpServer: McpHttpServer,
+    @inject(TOKENS.MongoDBClientFactory) private readonly mongoDBClientFactory: MongoDBClientFactory
   ) {}
 
   /**
@@ -35,11 +31,7 @@ export class McpServerService implements Service {
    * Starts the MCP insights server and returns a Promise that resolves when the server closes.
    */
   private async startMcpServer(): Promise<void> {
-    const analysisDataServer = new InsightsDataServer(this.appSummariesRepository, this.projectName);
-    const mcpDataServer = new McpDataServer(analysisDataServer);
-    const mcpServer = mcpDataServer.configure();
-    const mcpHttpServer = new McpHttpServer(mcpServer, mcpConfig.DEFAULT_MCP_HOSTNAME);
-    const httpServer = mcpHttpServer.configure();
+    const httpServer = this.mcpHttpServer.configure();
     
     // Return a Promise that keeps the server running until it's closed
     await new Promise<void>((resolve) => {

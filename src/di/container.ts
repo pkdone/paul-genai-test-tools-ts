@@ -4,7 +4,7 @@ import { ServiceRunnerConfig } from "../types/service.types";
 import { EnvVars } from "../types/env.types";
 import { TOKENS } from "./tokens";
 import { registerEnvDependencies, registerLLMDependencies, registerMongoDBDependencies, 
-         registerServices, registerMongoDBServices, registerComponents, registerRepositories } 
+         registerServices, registerComponents, registerRepositories } 
        from "./registration-modules";
 
 /**
@@ -19,7 +19,6 @@ export async function bootstrapContainer(config: ServiceRunnerConfig): Promise<v
   if (config.requiresMongoDB) {
     await registerMongoDBDependencies(envVars);
     registerRepositories();
-    registerMongoDBServices();
   }
 
   registerComponents();

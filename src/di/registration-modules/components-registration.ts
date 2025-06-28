@@ -7,6 +7,9 @@ import CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
 import CodeQuestioner from "../../codebaseQuerying/code-questioner";
 import DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-code-insights-back-into-db-generator";
 import { LLMStructuredResponseInvoker } from "../../llmClient/llm-structured-response-invoker";
+import InsightsDataServer from "../../dataReporting/mcpServing/insights-data-server";
+import McpDataServer from "../../dataReporting/mcpServing/mcp-data-server";
+import McpHttpServer from "../../dataReporting/mcpServing/mcp-http-server";
 
 /**
  * Register internal helper components as singletons.
@@ -20,5 +23,8 @@ export function registerComponents(): void {
   container.registerSingleton(TOKENS.CodeQuestioner, CodeQuestioner);
   container.registerSingleton(TOKENS.DBCodeInsightsBackIntoDBGenerator, DBCodeInsightsBackIntoDBGenerator);
   container.registerSingleton(TOKENS.LLMStructuredResponseInvoker, LLMStructuredResponseInvoker);
+  container.registerSingleton(TOKENS.InsightsDataServer, InsightsDataServer);
+  container.registerSingleton(TOKENS.McpDataServer, McpDataServer);
+  container.registerSingleton(TOKENS.McpHttpServer, McpHttpServer);  
   console.log('Internal helper components registered as singletons');
 }

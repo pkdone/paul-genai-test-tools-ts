@@ -9,6 +9,9 @@ export const TOKENS = {
   LLMRouter: Symbol.for('LLMRouter'),
   LLMService: Symbol.for('LLMService'),
   LLMModelFamily: Symbol.for('LLMModelFamily'),
+  LLMProvider: Symbol.for('LLMProvider'),
+  CompletionCandidates: Symbol.for('CompletionCandidates'),
+  RetryConfig: Symbol.for('RetryConfig'),
   EnvVars: Symbol.for('EnvVars'),
   ProjectName: Symbol.for('ProjectName'),
   
@@ -40,4 +43,9 @@ export const TOKENS = {
   CodeQuestioner: Symbol.for('CodeQuestioner'),
   DBCodeInsightsBackIntoDBGenerator: Symbol.for('DBCodeInsightsBackIntoDBGenerator'),
   LLMStructuredResponseInvoker: Symbol.for('LLMStructuredResponseInvoker'),
+  
+  // MCP Server Components
+  InsightsDataServer: Symbol.for('InsightsDataServer'),
+  McpDataServer: Symbol.for('McpDataServer'),
+  McpHttpServer: Symbol.for('McpHttpServer'),
 } as const; 

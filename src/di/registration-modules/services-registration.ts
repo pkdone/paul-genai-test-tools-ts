@@ -22,15 +22,7 @@ export function registerServices(): void {
   container.registerSingleton(TOKENS.PluggableLLMsTestService, PluggableLLMsTestService);
   container.registerSingleton(TOKENS.McpServerService, McpServerService);
   container.registerSingleton(TOKENS.ReportGenerationService, ReportGenerationService);
-  container.registerSingleton(TOKENS.DBInitializerService, DBInitializerService);  
-  console.log('Main executable services registered as singletons');
-}
-
-/**
- * Register MongoDB-dependent services. Should only be called when MongoDB is required.
- */
-export function registerMongoDBServices(): void {
-  console.log('Registering MongoDB-dependent services as singletons...');
+  container.registerSingleton(TOKENS.DBInitializerService, DBInitializerService);
   container.registerSingleton(TOKENS.MDBConnectionTestService, MDBConnectionTestService);
-  console.log('MongoDB-dependent services registered as singletons');
+  console.log('Main executable services registered as singletons');
 } 

@@ -13,7 +13,7 @@ export default class InsightsDataServer {
    */
   constructor(
     @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: AppSummariesRepository,
-    private readonly projectName: string
+    @inject(TOKENS.ProjectName) private readonly projectName: string
   ) {
   }
 

@@ -1,14 +1,17 @@
+import { injectable, inject } from "tsyringe";
 import { llmConfig } from "../config";
-import { LLMProviderImpl, LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
+import { LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse,
-         ResolvedLLMModelMetadata, LLMCandidateFunction } from "../types/llm.types";
+         ResolvedLLMModelMetadata } from "../types/llm.types";
+import type { LLMProviderImpl, LLMCandidateFunction } from "../types/llm.types";
 import { RetryFunc } from "../types/control.types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { withRetry } from "../utils/control-utils";
-import { PromptAdapter } from "./responseProcessing/llm-prompt-adapter";
+import type { PromptAdapter } from "./responseProcessing/llm-prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "./routerTracking/llm-router-logging";
-import LLMStats from "./routerTracking/llm-stats";
-import { LLMRetryConfig } from "./providers/llm-provider.types";
+import type LLMStats from "./routerTracking/llm-stats";
+import type { LLMRetryConfig } from "./providers/llm-provider.types";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -17,6 +20,7 @@ import { LLMRetryConfig } from "./providers/llm-provider.types";
  * 
  * See the `README` for the LLM non-functional behaviours abstraction / protection applied.
  */
+@injectable()
 export default class LLMRouter {
   // Private fields
   private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
@@ -32,11 +36,11 @@ export default class LLMRouter {
    * @param retryConfig Provider-specific retry and timeout configuration
    */
   constructor(
-    private readonly llm: LLMProviderImpl,
-    private readonly llmStats: LLMStats,
-    private readonly promptAdapter: PromptAdapter,
-    completionCandidates: LLMCandidateFunction[],
-    private readonly retryConfig: LLMRetryConfig = {}
+    @inject(TOKENS.LLMProvider) private readonly llm: LLMProviderImpl,
+    @inject(TOKENS.LLMStats) private readonly llmStats: LLMStats,
+    @inject(TOKENS.PromptAdapter) private readonly promptAdapter: PromptAdapter,
+    @inject(TOKENS.CompletionCandidates) completionCandidates: LLMCandidateFunction[],
+    @inject(TOKENS.RetryConfig) private readonly retryConfig: LLMRetryConfig = {}
   ) {
     this.modelsMetadata = llm.getModelsMetadata();
     this.completionCandidates = completionCandidates;

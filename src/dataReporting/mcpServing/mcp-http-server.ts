@@ -1,17 +1,25 @@
+import { injectable, inject } from "tsyringe";
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { logErrorMsgAndDetail } from "../../utils/error-utils";
 import { httpConfig, mcpConfig } from "../../config";
+import McpDataServer from "./mcp-data-server";
+import { TOKENS } from "../../di/tokens";
 
 /** 
  * Class to handle HTTP requests and responses for the Model Context Protocol (MCP) server.
  */
+@injectable()
 export default class McpHttpServer {
+  private readonly mcpServer: McpServer;
+  
   /**
    * Constructor.
    */
-  constructor(private readonly mcpServer: McpServer, private readonly hostname: string) {}
+  constructor(@inject(TOKENS.McpDataServer) private readonly mcpDataServer: McpDataServer) {
+    this.mcpServer = this.mcpDataServer.configure();
+  }
 
   /**
    * Configures the HTTP server to handle incoming requests.
@@ -33,7 +41,7 @@ export default class McpHttpServer {
   
     return async (req: IncomingMessage, res: ServerResponse) => {
       try {
-        const url = new URL(req.url ?? "", `http://${req.headers.host ?? this.hostname}`);
+        const url = new URL(req.url ?? "", `http://${req.headers.host ?? mcpConfig.DEFAULT_MCP_HOSTNAME}`);
         const { pathname, searchParams } = url;
         const method = req.method;
   

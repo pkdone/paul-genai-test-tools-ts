@@ -32,7 +32,7 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
     await llmService.initialize();
     console.log("LLM Service registered as singleton");
     
-    // Create and register LLMRouter with injected dependencies
+    // Create and register LLMRouter dependencies
     const llmProvider = llmService.getLLMProvider(envVars);
     const llmManifest = llmService.getLLMManifest();
     const retryConfig = llmManifest.providerSpecificConfig;
@@ -57,12 +57,14 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
       });
     }
     
-    // Resolve the dependencies that LLMRouter needs
-    const llmStats = container.resolve<LLMStats>(TOKENS.LLMStats);
-    const promptAdapter = container.resolve<PromptAdapter>(TOKENS.PromptAdapter);    
-    const llmRouter = new LLMRouter(llmProvider, llmStats, promptAdapter, completionCandidates, retryConfig);
-    container.registerInstance(TOKENS.LLMRouter, llmRouter);
-    console.log('LLM Router egistered as singleton');
+    // Register the dynamic dependencies as instances
+    container.registerInstance(TOKENS.LLMProvider, llmProvider);
+    container.registerInstance(TOKENS.CompletionCandidates, completionCandidates);
+    container.registerInstance(TOKENS.RetryConfig, retryConfig);
+
+    // Now register LLMRouter as a singleton class - tsyringe will handle dependency injection
+    container.registerSingleton(TOKENS.LLMRouter, LLMRouter);
+    console.log('LLM Router registered as singleton');
   } else {
     console.log('LLM dependencies already registered - skipping registration');
   }
