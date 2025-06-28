@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { mcpConfig } from "../config";
-import McpHttpServer from "../dataReporting/mcpServing/mcp-http-server";
+import McpHttpServer from "../api/mcpServing/mcp-http-server";
 import { Service } from "../types/service.types";
 import { TOKENS } from "../di/tokens";
 import type { MongoDBClientFactory } from "../mdb/mdb-client-factory";

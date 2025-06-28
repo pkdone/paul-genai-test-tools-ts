@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMResponseTokensUsage, ResolvedLLMModelMetadata } from "../../types/llm.types";
+import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMResponseTokensUsage, ResolvedLLMModelMetadata } from "../../../types/llm.types";
 import { PromptAdapter, TokenLimitReductionStrategy, PromptAdaptationStrategy } from "./llm-prompt-adapter";
 
 const testMetadata = {

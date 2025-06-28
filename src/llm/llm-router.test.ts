@@ -5,24 +5,24 @@ import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMContext, LLMProv
 import { BadResponseMetadataLLMError, RejectionResponseLLMError } from "../types/llm-errors.types";
 import { z } from "zod";
 import LLMRouter from "./llm-router";
-import LLMStats from "./routerTracking/llm-stats";
-import { PromptAdapter } from "./responseProcessing/llm-prompt-adapter";
+import LLMStats from "./common/routerTracking/llm-stats";
+import { PromptAdapter } from "./common/responseProcessing/llm-prompt-adapter";
 
 // Mock the dependencies
-jest.mock("./responseProcessing/llm-response-tools", () => ({
+jest.mock("./common/responseProcessing/llm-response-tools", () => ({
   reducePromptSizeToTokenLimit: jest.fn((prompt: string) => {
     // Simple mock implementation that reduces prompt by half
     return prompt.substring(0, Math.floor(prompt.length * 0.5));
   })
 }));
 
-jest.mock("./routerTracking/llm-router-logging", () => ({
+jest.mock("./common/routerTracking/llm-router-logging", () => ({
   log: jest.fn(),
   logErrWithContext: jest.fn(),
   logWithContext: jest.fn()
 }));
 
-jest.mock("./routerTracking/llm-stats", () => {
+jest.mock("./common/routerTracking/llm-stats", () => {
   return jest.fn().mockImplementation(() => ({
     recordSuccess: jest.fn(),
     recordFailure: jest.fn(),
@@ -36,7 +36,7 @@ jest.mock("./routerTracking/llm-stats", () => {
   }));
 });
 
-jest.mock("./responseProcessing/llm-prompt-adapter", () => ({
+jest.mock("./common/responseProcessing/llm-prompt-adapter", () => ({
   PromptAdapter: jest.fn().mockImplementation(() => ({
     adaptPromptFromResponse: jest.fn((prompt: string) => {
       return prompt.substring(0, Math.floor(prompt.length * 0.5));

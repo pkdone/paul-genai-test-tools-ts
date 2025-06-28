@@ -5,7 +5,7 @@ import { LLMModelKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegEx
 import { llmConfig } from "../../../config";
 import { LLMImplSpecificResponseSummary, LLMProviderSpecificConfig } from "../llm-provider.types";
 import { getErrorText, logErrorMsgAndDetail } from "../../../utils/error-utils";
-import AbstractLLM from "../abstract-llm";
+import AbstractLLM from "../../abstract-llm";
 
 /**
  * Class for the public AWS Bedrock service (multiple possible LLMs)

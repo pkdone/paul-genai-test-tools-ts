@@ -1,8 +1,8 @@
 import { LLMPurpose, LLMResponseTokensUsage, LLMFunctionResponse, LLMGeneratedContent,
-         LLMResponseStatus, LLMContext, ResolvedLLMModelMetadata} from "../../types/llm.types";
-import { BadResponseContentLLMError } from "../../types/llm-errors.types";
-import { convertTextToJSON } from "../../utils/json-tools";
-import { getErrorText } from "../../utils/error-utils";
+         LLMResponseStatus, LLMContext, ResolvedLLMModelMetadata} from "../../../types/llm.types";
+import { BadResponseContentLLMError } from "../../../types/llm-errors.types";
+import { convertTextToJSON } from "../../../utils/json-tools";
+import { getErrorText } from "../../../utils/error-utils";
 
 /**
  * Extract token usage information from LLM response metadata, defaulting missing

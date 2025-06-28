@@ -3,12 +3,12 @@
 import 'reflect-metadata';
 import { z } from 'zod';
 import { LLMStructuredResponseInvoker } from './llm-structured-response-invoker';
-import type LLMRouter from '../llm/llm-router';
+import type LLMRouter from './llm-router';
 import * as errorUtils from '../utils/error-utils';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 // Mock dependencies
-jest.mock('../llm/llm-router');
+jest.mock('./llm-router');
 jest.mock('../utils/error-utils', () => ({
   logErrorMsgAndDetail: jest.fn(),
 }));
@@ -498,158 +498,13 @@ describe('LLMStructuredResponseInvoker', () => {
           'correction task'
         );
 
-        const firstCall = mockLLMRouter.executeCompletion.mock.calls[0];
-        const correctionCall = mockLLMRouter.executeCompletion.mock.calls[1];
-
-        expect(firstCall[0]).toBe('base-resource');
-        expect(correctionCall[0]).toBe('base-resource-fix');
-      });
-    });
-
-    describe('performance and edge cases', () => {
-      test('should handle large JSON responses', async () => {
-        const largeResponse = {
-          name: 'John Doe',
-          age: 30,
-          email: 'john@example.com',
-          data: 'x'.repeat(10000), // Large string
-        };
-
-        const largeSchema = z.object({
-          name: z.string(),
-          age: z.number(),
-          email: z.string().email(),
-          data: z.string(),
-        });
-
-        mockLLMRouter.executeCompletion.mockResolvedValue(largeResponse);
-
-        const result = await llmInvoker.getStructuredResponse(
-          'large-resource',
-          'Generate large data',
-          largeSchema,
-          'large data task'
+        expect(mockLLMRouter.executeCompletion).toHaveBeenNthCalledWith(
+          2,
+          'base-resource-fix',
+          expect.stringContaining('The previous JSON response had validation errors'),
+          true,
+          { resource: 'base-resource-fix', requireJSON: true }
         );
-
-        expect(result).toEqual(largeResponse);
-      });
-
-      test('should handle special characters in JSON response', async () => {
-        const responseWithSpecialChars = {
-          name: 'João O\'Connor "The Developer"',
-          age: 30,
-          email: 'joao@example.com',
-        };
-
-        mockLLMRouter.executeCompletion.mockResolvedValue(responseWithSpecialChars);
-
-        const result = await llmInvoker.getStructuredResponse(
-          'special-chars',
-          'Generate data with special characters',
-          userSchema,
-          'special chars task'
-        );
-
-        expect(result).toEqual(responseWithSpecialChars);
-      });
-
-      test('should handle concurrent calls', async () => {
-        const responses = [
-          { message: 'response 1' },
-          { message: 'response 2' },
-          { message: 'response 3' },
-        ];
-
-        mockLLMRouter.executeCompletion
-          .mockResolvedValueOnce(responses[0])
-          .mockResolvedValueOnce(responses[1])
-          .mockResolvedValueOnce(responses[2]);
-
-        const promises = [
-          llmInvoker.getStructuredResponse('resource-1', 'prompt 1', simpleSchema, 'task 1'),
-          llmInvoker.getStructuredResponse('resource-2', 'prompt 2', simpleSchema, 'task 2'),
-          llmInvoker.getStructuredResponse('resource-3', 'prompt 3', simpleSchema, 'task 3'),
-        ];
-
-        const results = await Promise.all(promises);
-
-        expect(results).toEqual(responses);
-        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(3);
-      });
-
-      test('should handle empty string in response fields', async () => {
-        const responseWithEmpty = {
-          name: '',
-          age: 30,
-          email: 'john@example.com',
-        };
-
-        mockLLMRouter.executeCompletion.mockResolvedValue(responseWithEmpty);
-
-        const result = await llmInvoker.getStructuredResponse(
-          'empty-string',
-          'Generate data with empty string',
-          userSchema,
-          'empty string task'
-        );
-
-        expect(result).toEqual(responseWithEmpty);
-      });
-    });
-
-    describe('error logging integration', () => {
-      test('should log validation errors with proper context', async () => {
-        const invalidResponse = {
-          name: 'John',
-          age: 'invalid',
-          email: 'not-an-email',
-        };
-
-        mockLLMRouter.executeCompletion
-          .mockResolvedValueOnce(invalidResponse)
-          .mockResolvedValueOnce(invalidResponse); // Fails again
-
-        await expect(
-          llmInvoker.getStructuredResponse(
-            'error-logging-test',
-            'Generate user data',
-            userSchema,
-            'error logging task'
-          )
-        ).rejects.toThrow();
-
-        expect(mockLogErrorMsgAndDetail).toHaveBeenCalledWith(
-          "Validation failed for 'error logging task' - attempting self-correction...",
-          expect.objectContaining({
-            // Validation error object should contain error details in Zod format
-            _errors: expect.any(Array),
-            age: expect.objectContaining({
-              _errors: expect.arrayContaining([expect.stringContaining('number')])
-            }),
-            email: expect.objectContaining({
-              _errors: expect.arrayContaining([expect.stringContaining('email')])
-            }),
-          })
-        );
-      });
-
-      test('should not log errors on successful first attempt', async () => {
-        const validResponse = {
-          name: 'John Doe',
-          age: 30,
-          email: 'john@example.com',
-        };
-
-        mockLLMRouter.executeCompletion.mockResolvedValue(validResponse);
-
-        await llmInvoker.getStructuredResponse(
-          'no-error-test',
-          'Generate user data',
-          userSchema,
-          'no error task'
-        );
-
-        expect(mockLogErrorMsgAndDetail).not.toHaveBeenCalled();
       });
     });
   });

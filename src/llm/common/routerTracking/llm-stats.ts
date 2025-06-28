@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary } from "../../types/llm.types";
+import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary } from "../../../types/llm.types";
 
 /**
  * Class for accumulating and tracking statistics of LLM invocation result types.

@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
-import { llmConfig } from "../../config";
-import { LLMResponseTokensUsage, LLMFunctionResponse, ResolvedLLMModelMetadata } from "../../types/llm.types";
-import { BadResponseMetadataLLMError } from "../../types/llm-errors.types";
+import { llmConfig } from "../../../config";
+import { LLMResponseTokensUsage, LLMFunctionResponse, ResolvedLLMModelMetadata } from "../../../types/llm.types";
+import { BadResponseMetadataLLMError } from "../../../types/llm-errors.types";
 
 /**
  * Strategy interface for prompt adaptation approaches.

@@ -1,15 +1,15 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
 import { FileSummarizer } from "../../codebaseIngestion/file-summarizer";
-import { HtmlReportFormatter } from "../../dataReporting/reportGeneration/html-report-formatter";
-import AppReportGenerator from "../../dataReporting/reportGeneration/app-report-generator";
+import { HtmlReportFormatter } from "../../reporting/reportGeneration/html-report-formatter";
+import AppReportGenerator from "../../reporting/reportGeneration/app-report-generator";
 import CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
 import CodeQuestioner from "../../codebaseQuerying/code-questioner";
 import DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-code-insights-back-into-db-generator";
-import { LLMStructuredResponseInvoker } from "../../llmClient/llm-structured-response-invoker";
-import InsightsDataServer from "../../dataReporting/mcpServing/insights-data-server";
-import McpDataServer from "../../dataReporting/mcpServing/mcp-data-server";
-import McpHttpServer from "../../dataReporting/mcpServing/mcp-http-server";
+import { LLMStructuredResponseInvoker } from "../../llm/llm-structured-response-invoker";
+import InsightsDataServer from "../../api/mcpServing/insights-data-server";
+import McpDataServer from "../../api/mcpServing/mcp-data-server";
+import McpHttpServer from "../../api/mcpServing/mcp-http-server";
 
 /**
  * Register internal helper components as singletons.

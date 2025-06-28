@@ -1,12 +1,12 @@
 import { LLMModelQuality, LLMContext, LLMPurpose, LLMProviderImpl, LLMResponseStatus,
-         LLMModelKeysSet, LLMFunctionResponse, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../types/llm.types";
-import { LLMImplSpecificResponseSummary, LLMProviderSpecificConfig } from "./llm-provider.types";
-import { getErrorText } from "../../utils/error-utils";       
+         LLMModelKeysSet, LLMFunctionResponse, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../types/llm.types";
+import { LLMImplSpecificResponseSummary, LLMProviderSpecificConfig } from "./providers/llm-provider.types";
+import { getErrorText } from "../utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          postProcessAsJSONIfNeededGeneratingNewResult,
-       } from "../responseProcessing/llm-response-tools";
-import { extractTokensAmountAndLimitFromErrorMsg } from "../responseProcessing/llm-error-pattern-parser";
-import { BadConfigurationLLMError } from "../../types/llm-errors.types";
+       } from "./common/responseProcessing/llm-response-tools";
+import { extractTokensAmountAndLimitFromErrorMsg } from "./common/responseProcessing/llm-error-pattern-parser";
+import { BadConfigurationLLMError } from "../types/llm-errors.types";
 
 /**
  * Abstract class for any LLM provider services - provides outline of abstract methods to be
@@ -159,4 +159,4 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
    * Is the token limit exceeded?
    */
   protected abstract isTokenLimitExceeded(error: unknown): boolean;
-}
+} 

@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { fileSystemConfig } from "../config";
 import { clearDirectory, buildDirDescendingListOfFiles } from "../utils/fs-utils";
-import { RawCodeToInsightsFileGenerator } from "../dataReporting/insightsFileGeneration/raw-code-to-insights-file-generator";
+import { RawCodeToInsightsFileGenerator } from "../reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";

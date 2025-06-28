@@ -2,8 +2,8 @@ import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
 import { LLMService } from "../../llm/llm-service";
 import LLMRouter from "../../llm/llm-router";
-import LLMStats from "../../llm/routerTracking/llm-stats";
-import { PromptAdapter } from "../../llm/responseProcessing/llm-prompt-adapter";
+import LLMStats from "../../llm/common/routerTracking/llm-stats";
+import { PromptAdapter } from "../../llm/common/responseProcessing/llm-prompt-adapter";
 import { LLMCandidateFunction, LLMModelQuality } from "../../types/llm.types";
 import type { EnvVars } from "../../types/env.types";
 

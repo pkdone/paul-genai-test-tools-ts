@@ -1,11 +1,31 @@
 import { injectable, inject } from "tsyringe";
+import { fillPrompt } from "type-safe-prompt";
 import type LLMRouter from "../llm/llm-router";
 import { fileSystemConfig, llmConfig } from "../config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
 import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
 import type { ProjectedSourceMetataContentAndSummary } from "../repositories/models/source.model";
 import { TOKENS } from "../di/tokens";
-import { createCodebaseQueryPrompt } from "./prompts";
+
+/**
+ * Creates a prompt for querying the codebase with a specific question.
+ * This prompt instructs the LLM to act as a programmer and answer questions about provided code.
+ */
+function createCodebaseQueryPrompt(question: string, codeContent: string): string {
+  return fillPrompt(
+    `Act as a programmer. I've provided the content of some source code files below in the section marked 'CODE'. Using all that code for context, answer the question a developer has asked about the code, where their question is shown in the section marked 'QUESTION' below. Provide your answer in a few paragraphs, referring to specific evidence in the provided code.
+
+QUESTION:
+{{question}}
+
+CODE:
+{{codeContent}}`,
+    {
+      question,
+      codeContent,
+    }
+  );
+}
 
 /**
  * Provides ability to query the codebase, using Vector Search under the covers.
