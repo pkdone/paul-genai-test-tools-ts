@@ -1,15 +1,9 @@
 import * as schemas from './schemas';
 import { buildPrompt } from '../utils/prompt-utils';
-
-// Base instructions for all prompts
-const baseInstructions = `
-NEVER ever respond with XML. NEVER use Markdown code blocks to wrap the JSON in your response.
-NEVER use " or ' quote symbols as part of the text you use for JSON description values, even if you want to quote a piece of existing text, existing message or show a path (ignoring this rule leads to people getting hurt - it is very important).
-Only provide an RFC8259 compliant JSON response that strictly follows the provided JSON schema.
-`;
+import { promptConfig } from '../config';
 
 // Java summary prompt template
-const javaSummaryTemplate = `Act as a programmer. Take the Java code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
+const JAVA_SUMMARY_TEMPLATE = `Act as a programmer. Take the Java code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
 
  * The name of the main public class/interface of the file
  * Its type ('class' or 'interface')
@@ -36,13 +30,13 @@ The JSON response must follow this JSON schema:
 {{jsonSchema}}
 \`\`\`
 
-${baseInstructions}
+${promptConfig.FILE_SUMMARY_BASE_INSTRUCTIONS}
 
 CODE:
 {{codeContent}}`;
 
 // JavaScript/TypeScript summary prompt template
-const jsSummaryTemplate = `Act as a programmer. Take the JavaScript/TypeScript code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
+const JS_SUMMARY_TEMPLATE = `Act as a programmer. Take the JavaScript/TypeScript code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
 
  * A very detailed definition of its purpose (you must write at least 6 sentences for this)
  * A very detailed definition of its implementation (you must write at least 6 sentences for this)
@@ -55,26 +49,26 @@ The JSON response must follow this JSON schema:
 {{jsonSchema}}
 \`\`\`
 
-${baseInstructions}
+${promptConfig.FILE_SUMMARY_BASE_INSTRUCTIONS}
 
 CODE:
 {{codeContent}}`;
 
 // Default summary prompt template
-const defaultSummaryTemplate = `Act as a programmer. Take the content of an application source file shown below in the section marked 'CODE' and for this content, return a JSON response containing data which includes a detailed definition of its purpose (you must write at least 4 sentences for this purpose), a detailed definition of its implementation (you must write at least 3 sentences for this implementation) and the type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.
+const DEFAULT_SUMMARY_TEMPLATE = `Act as a programmer. Take the content of an application source file shown below in the section marked 'CODE' and for this content, return a JSON response containing data which includes a detailed definition of its purpose (you must write at least 4 sentences for this purpose), a detailed definition of its implementation (you must write at least 3 sentences for this implementation) and the type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.
 
 The JSON response must follow this JSON schema:
 \`\`\`json
 {{jsonSchema}}
 \`\`\`
 
-${baseInstructions}
+${promptConfig.FILE_SUMMARY_BASE_INSTRUCTIONS}
 
 CODE:
 {{codeContent}}`;
 
 // DDL summary prompt template
-const ddlSummaryTemplate = `Act as a programmer. Take the content from a database DDL/SQL source code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
+const DDL_SUMMARY_TEMPLATE = `Act as a programmer. Take the content from a database DDL/SQL source code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
 
  * A detailed definition of its purpose (you must write at least 2 sentences for this)
  * A detailed definition of its implementation (you must write at least 2 sentences for this)
@@ -88,49 +82,85 @@ The JSON response must follow this JSON schema:
 {{jsonSchema}}
 \`\`\`
 
-${baseInstructions}
+${promptConfig.FILE_SUMMARY_BASE_INSTRUCTIONS}
 
 CODE:
 {{codeContent}}`;
 
 // Generic summary template for other file types
-const genericSummaryTemplate = `Act as a programmer. Analyze the following source code and provide details about its purpose, implementation, and database integration.
+const GENERIC_SUMMARY_TEMPLATE = `Act as a programmer. Analyze the following source code and provide details about its purpose, implementation, and database integration.
 
 The JSON response must follow this JSON schema:
 \`\`\`json
 {{jsonSchema}}
 \`\`\`
 
-${baseInstructions}
+${promptConfig.FILE_SUMMARY_BASE_INSTRUCTIONS}
 
 CODE:
 {{codeContent}}`;
 
-// Exported prompt functions
+import { z } from 'zod';
+
+/**
+ * Interface for prompt template configuration
+ */
+export interface PromptTemplate {
+  template: string;
+  schema: z.ZodType;
+}
+
+/**
+ * Data-driven mapping of prompt types to their templates and schemas
+ */
+export const summaryPromptTemplates = {
+  java: { template: JAVA_SUMMARY_TEMPLATE, schema: schemas.javaFileSummarySchema },
+  js: { template: JS_SUMMARY_TEMPLATE, schema: schemas.jsFileSummarySchema },
+  default: { template: DEFAULT_SUMMARY_TEMPLATE, schema: schemas.defaultFileSummarySchema },
+  ddl: { template: DDL_SUMMARY_TEMPLATE, schema: schemas.ddlFileSummarySchema },
+  xml: { template: GENERIC_SUMMARY_TEMPLATE, schema: schemas.xmlFileSummarySchema },
+  jsp: { template: GENERIC_SUMMARY_TEMPLATE, schema: schemas.jspFileSummarySchema },
+  markdown: { template: GENERIC_SUMMARY_TEMPLATE, schema: schemas.markdownFileSummarySchema },
+} as const;
+
+/**
+ * Type for valid prompt template keys
+ */
+export type SummaryPromptType = keyof typeof summaryPromptTemplates;
+
+/**
+ * Generic function to create any summary prompt using the data-driven approach
+ */
+export const createSummaryPrompt = (type: SummaryPromptType, codeContent: string): string => {
+  const config = summaryPromptTemplates[type];
+  return buildPrompt(config.template, config.schema, codeContent);
+};
+
+// Backwards compatibility - exported functions that use the new data-driven approach
 export const createJavaSummaryPrompt = (codeContent: string): string => {
-  return buildPrompt(javaSummaryTemplate, schemas.javaFileSummarySchema, codeContent);
+  return createSummaryPrompt('java', codeContent);
 };
 
 export const createJsSummaryPrompt = (codeContent: string): string => {
-  return buildPrompt(jsSummaryTemplate, schemas.jsFileSummarySchema, codeContent);
+  return createSummaryPrompt('js', codeContent);
 };
 
 export const createDefaultSummaryPrompt = (codeContent: string): string => {
-  return buildPrompt(defaultSummaryTemplate, schemas.defaultFileSummarySchema, codeContent);
+  return createSummaryPrompt('default', codeContent);
 };
 
 export const createDdlSummaryPrompt = (codeContent: string): string => {
-  return buildPrompt(ddlSummaryTemplate, schemas.ddlFileSummarySchema, codeContent);
+  return createSummaryPrompt('ddl', codeContent);
 };
 
 export const createXmlSummaryPrompt = (codeContent: string): string => {
-  return buildPrompt(genericSummaryTemplate, schemas.xmlFileSummarySchema, codeContent);
+  return createSummaryPrompt('xml', codeContent);
 };
 
 export const createJspSummaryPrompt = (codeContent: string): string => {
-  return buildPrompt(genericSummaryTemplate, schemas.jspFileSummarySchema, codeContent);
+  return createSummaryPrompt('jsp', codeContent);
 };
 
 export const createMarkdownSummaryPrompt = (codeContent: string): string => {
-  return buildPrompt(genericSummaryTemplate, schemas.markdownFileSummarySchema, codeContent);
+  return createSummaryPrompt('markdown', codeContent);
 }; 
