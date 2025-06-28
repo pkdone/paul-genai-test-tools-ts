@@ -151,7 +151,8 @@ export default class AppReportGenerator {
     complexity: unknown // Accept unknown for robust checking
   ) {
     if (!isComplexity(complexity)) {
-      console.warn(`Unexpected or missing complexity value encountered: ${String(complexity)}`);
+      console.warn(`Unexpected or missing complexity value encountered: ${String(complexity)}. Defaulting to LOW.`);
+      section.low++; // Default to LOW to maintain consistency
       return;
     }
     

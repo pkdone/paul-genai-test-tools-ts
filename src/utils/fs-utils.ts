@@ -82,7 +82,7 @@ export async function buildDirDescendingListOfFiles(srcDirPath: string): Promise
   const queue: string[] = [srcDirPath];
 
   while (queue.length) {
-    const directory = queue.shift();
+    const directory = queue.pop();
     if (!directory) continue;
 
     try {

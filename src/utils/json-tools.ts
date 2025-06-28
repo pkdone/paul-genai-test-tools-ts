@@ -9,6 +9,6 @@ export function convertTextToJSON<T = Record<string, unknown>>(content: string):
   const endJSONIndex = content.lastIndexOf("}");
   if (startJSONIndex === -1 || endJSONIndex === -1) throw new Error(`Invalid input: No JSON content found for text: ${content}`);
   const trimmedContent = content.substring(startJSONIndex, endJSONIndex + 1);
-  const sanitizedContent = trimmedContent.replace(/\p{Cc}/gu, " "); // Remove control characters
-  return JSON.parse(sanitizedContent) as T;
+  // The sanitization line has been removed. JSON.parse handles valid JSON strings correctly.
+  return JSON.parse(trimmedContent) as T;
 }

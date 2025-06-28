@@ -30,9 +30,14 @@ describe("JSON utilities", () => {
         description: "nested JSON"
       },
       {
-        input: "{\"key\": \"value\u0000with\u0007control\u001Fchars\"}",
-        expected: { key: "value with control chars" },
-        description: "control characters"
+        input: "Text with escaped control chars {\"key\": \"value\\nwith\\tcontrol\\rchars\"}",
+        expected: { key: "value\nwith\tcontrol\rchars" },
+        description: "escaped control characters"
+      },
+      {
+        input: "Text with newline in JSON {\"description\": \"First line.\\nSecond line.\"}",
+        expected: { description: "First line.\nSecond line." },
+        description: "JSON with escaped newline character"
       }
     ];
 
