@@ -37,8 +37,16 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
     },
   });
 
-  // Register LLMRouter as a singleton. tsyringe will resolve its dependencies,
-  // including the async factory for LLMService.
-  container.registerSingleton(TOKENS.LLMRouter, LLMRouter);
-  console.log('LLM Router registered as singleton');
+  // Register LLMRouter with an async factory to properly handle the async LLMService dependency
+  container.register(TOKENS.LLMRouter, {
+    useFactory: async (c) => {
+      const llmService = await c.resolve<Promise<LLMService>>(TOKENS.LLMService);
+      const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
+      const llmStats = c.resolve<LLMStats>(TOKENS.LLMStats);
+      const promptAdapter = c.resolve<PromptAdapter>(TOKENS.PromptAdapter);
+      
+      return new LLMRouter(llmService, envVars, llmStats, promptAdapter);
+    },
+  });
+  console.log('LLM Router registered with async factory');
 } 

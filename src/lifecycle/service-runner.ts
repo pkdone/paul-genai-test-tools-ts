@@ -30,10 +30,10 @@ export async function runService(serviceToken: symbol): Promise<void> {
     }
     
     if (config.requiresLLM) {
-      llmRouter = container.resolve<LLMRouter>(TOKENS.LLMRouter);
+      llmRouter = await container.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
     }
     
-    const service = container.resolve<Service>(serviceToken);
+    const service = await container.resolve<Promise<Service>>(serviceToken);
     await service.execute();    
   } finally {
     console.log(`END: ${new Date().toISOString()}`);
