@@ -319,9 +319,9 @@ export default class LLMRouter {
     const retryConfig = this.getRetryConfiguration();
     
     const result = await withRetry(
-      llmFunc as RetryFunc<LLMFunctionResponse>,
+      llmFunc as RetryFunc<[string, boolean, LLMContext], LLMFunctionResponse>,
       [prompt, asJson, context],
-      (result) => result.status === LLMResponseStatus.OVERLOADED,
+      (result: LLMFunctionResponse) => result.status === LLMResponseStatus.OVERLOADED,
       recordRetryFunc,
       retryConfig.maxAttempts,
       retryConfig.minRetryDelayMillis

@@ -4,9 +4,9 @@
 export type PromiseFunction<T> = () => Promise<T>;
 
 /**
- * Type to define the retry function
+ * Type to define the retry function with improved type safety using generics
  */
-export type RetryFunc<T> = (...args: unknown[]) => Promise<T>;
+export type RetryFunc<TArgs extends unknown[], TReturn> = (...args: TArgs) => Promise<TReturn>;
 
 /**
  * Type to define the check result function

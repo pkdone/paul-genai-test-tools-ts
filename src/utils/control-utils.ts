@@ -18,7 +18,7 @@ interface RetryOptions {
  * It wraps the `p-retry` library to provide a consistent retry strategy.
  * 
  * @param asyncTryFunc The asynchronous function to retry.
- * @param args Arguments to pass to the async function.
+ * @param args Arguments to pass to the async function (now strongly typed).
  * @param checkResultForNeedToRetryFunc A function that takes the result and decides whether to retry.
  * @param logRetryEventFunc Function to call to record the retry event (optional).
  * @param maxAttempts Maximum number of attempts.
@@ -26,14 +26,14 @@ interface RetryOptions {
  * @returns The result of the asynchronous function, if successful.
  * @throws {Error} if all retry attempts fail.
  */
-export async function withRetry<T>(
-  asyncTryFunc: RetryFunc<T>,
-  args: unknown[],
-  checkResultForNeedToRetryFunc: CheckResultFunc<T>,
+export async function withRetry<TArgs extends unknown[], TReturn>(
+  asyncTryFunc: RetryFunc<TArgs, TReturn>,
+  args: TArgs,
+  checkResultForNeedToRetryFunc: CheckResultFunc<TReturn>,
   logRetryEventFunc: LogRetryEventFunc | null = null,
   maxAttempts = controlConfig.DEFAULT_MAX_ATTEMPTS,
   minRetryDelay = controlConfig.DEFAULT_MIN_RETRY_DELAY
-): Promise<T | null> {
+): Promise<TReturn | null> {
   try {
     return await pRetry(
       async () => {
