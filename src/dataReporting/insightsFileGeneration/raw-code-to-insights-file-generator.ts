@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import { fileSystemConfig, mcpConfig } from "../../config";
 import { readFile, writeFile, readDirContents } from "../../utils/fs-utils";
 import { getFileSuffix } from "../../utils/path-utils";
-import { promiseAllThrottled } from "../../utils/control-utils";
+import pLimit from 'p-limit';
 import { logErrorMsgAndDetail, getErrorText } from "../../utils/error-utils";
 import LLMRouter from "../../llm/llm-router";
 
@@ -30,16 +30,20 @@ export class RawCodeToInsightsFileGenerator {
     llmName: string
   ): Promise<string[]> {
     const codeBlocksContent = await this.mergeSourceFilesContent(srcFilepaths, srcDirPath);
-    const jobs = prompts.map(prompt => async () => {
-      const result = await this.executePromptAgainstCodebase(prompt, codeBlocksContent, llmRouter);
-      const outputFileName = `${prompt.filename}.result`;
-      const outputFilePath = path.join(process.cwd(), fileSystemConfig.OUTPUT_DIR, outputFileName);
-      await writeFile(outputFilePath, 
-        `GENERATED-BY: ${llmName}\n\nREQUIREMENT: ${prompt.question}\n\nRECOMENDATIONS:\n\n${result.trim()}\n`);
-      return outputFilePath;
+    const limit = pLimit(mcpConfig.MAX_CONCURRENCY);
+
+    const tasks = prompts.map(async prompt => {
+      return limit(async () => {
+        const result = await this.executePromptAgainstCodebase(prompt, codeBlocksContent, llmRouter);
+        const outputFileName = `${prompt.filename}.result`;
+        const outputFilePath = path.join(process.cwd(), fileSystemConfig.OUTPUT_DIR, outputFileName);
+        await writeFile(outputFilePath, 
+          `GENERATED-BY: ${llmName}\n\nREQUIREMENT: ${prompt.question}\n\nRECOMENDATIONS:\n\n${result.trim()}\n`);
+        return outputFilePath;
+      });
     });
 
-    return await promiseAllThrottled<string>(jobs, mcpConfig.MAX_CONCURRENCY);
+    return Promise.all(tasks);
   }
   
   /**

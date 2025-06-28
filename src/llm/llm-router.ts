@@ -111,7 +111,6 @@ export default class LLMRouter {
                           context: LLMContext = {},
                           modelQualityOverride: LLMModelQuality | null = null
                          ): Promise<LLMGeneratedContent | null> {                            
-    
     // Filter candidates based on model quality override if specified
     const candidatesToUse = modelQualityOverride 
       ? this.completionCandidates.filter(candidate => candidate.modelQuality === modelQualityOverride)
@@ -128,7 +127,6 @@ export default class LLMRouter {
     const candidateFunctions = candidatesToUse.map(candidate => candidate.func);
     context.purpose = LLMPurpose.COMPLETIONS;
     context.modelQuality = candidatesToUse[0].modelQuality;
-    
     const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(resourceName, prompt, context, candidateFunctions, asJson, candidatesToUse);
 
     if ((typeof contentResponse !== 'object') && (typeof contentResponse !== 'string')) {
@@ -220,10 +218,10 @@ export default class LLMRouter {
       }
       
       if (nextAction.shouldSwitchToNextLLM) {
-        // Update context with the next candidate's model quality if available
         if (candidates && llmFuncIndex + 1 < candidates.length) {
           context.modelQuality = candidates[llmFuncIndex + 1].modelQuality;
         }
+        
         this.llmStats.recordSwitch();
         llmFuncIndex++;
       }
@@ -280,17 +278,16 @@ export default class LLMRouter {
     const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
     const retryConfig = this.getRetryConfiguration();
     
-    return await withRetry(
+    const result = await withRetry(
       llmFunc as RetryFunc<LLMFunctionResponse>,
       [prompt, asJson, context],
-      result => (result.status === LLMResponseStatus.OVERLOADED),
+      (result) => result.status === LLMResponseStatus.OVERLOADED,
       recordRetryFunc,
       retryConfig.maxAttempts,
-      retryConfig.minRetryDelayMillis,
-      retryConfig.maxRetryAdditionalDelayMillis,
-      retryConfig.requestTimeoutMillis,
-      true
+      retryConfig.minRetryDelayMillis
     );
+
+    return result;
   }
 
   /**

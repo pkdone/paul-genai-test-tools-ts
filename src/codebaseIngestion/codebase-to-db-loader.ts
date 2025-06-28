@@ -5,7 +5,7 @@ import { fileSystemConfig, mcpConfig } from "../config";
 import { readFile, buildDirDescendingListOfFiles } from "../utils/fs-utils";
 import { getFileSuffix } from "../utils/path-utils";
 import { countLines } from "../utils/text-utils";
-import { promiseAllThrottled } from "../utils/control-utils";
+import pLimit from 'p-limit';
 import { logErrorMsgAndDetail } from "../utils/error-utils";
 import { FileSummarizer } from "./file-summarizer";
 import type { SourcesRepository } from "../repositories/interfaces/sources.repository.interface";
@@ -48,15 +48,19 @@ export default class CodebaseToDBLoader {
       await this.sourcesRepository.deleteSourcesByProject(projectName);
     }
 
-    const jobs = filepaths.map(filepath => async () => {
-      try {
-        await this.captureSrcFileMetadataToRepository(filepath, projectName, srcDirPath, ignoreIfAlreadyCaptured);
-      } catch (error: unknown) {
-        logErrorMsgAndDetail(`Problem introspecting and processing source file: ${filepath}`, error);
-      }
+    const limit = pLimit(mcpConfig.MAX_CONCURRENCY);
+
+    const tasks = filepaths.map(async filepath => {
+      return limit(async () => {
+        try {
+          await this.captureSrcFileMetadataToRepository(filepath, projectName, srcDirPath, ignoreIfAlreadyCaptured);
+        } catch (error: unknown) {
+          logErrorMsgAndDetail(`Problem introspecting and processing source file: ${filepath}`, error);
+        }
+      });
     });
 
-    await promiseAllThrottled(jobs, mcpConfig.MAX_CONCURRENCY);
+    await Promise.all(tasks);
   }
 
   /**
