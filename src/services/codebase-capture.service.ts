@@ -4,7 +4,7 @@ import CodebaseToDBLoader from "../codebaseIngestion/codebase-to-db-loader";
 import type LLMRouter from "../llm/llm-router";
 import { Service } from "../types/service.types";
 import type { EnvVars } from "../types/env.types";
-import type { DBInitializerService } from "./db-initializer.service";
+import type { DBInitializerService } from "../mdb/db-initializer.service";
 import { llmConfig } from "../config";
 import { TOKENS } from "../di/tokens";
 

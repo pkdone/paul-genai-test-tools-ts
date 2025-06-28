@@ -8,7 +8,7 @@ import { MDBConnectionTestService } from "../../services/mdb-connection-test.ser
 import { PluggableLLMsTestService } from "../../services/test-pluggable-llms.service";
 import { McpServerService } from "../../services/mcp-server.service";
 import { ReportGenerationService } from "../../services/report-generation-service";
-import { DBInitializerService } from "../../services/db-initializer.service";
+import { DBInitializerService } from "../../mdb/db-initializer.service";
 
 /**
  * Register main executable services as singletons using tsyringe's built-in singleton management.
