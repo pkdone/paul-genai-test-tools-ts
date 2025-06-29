@@ -28,5 +28,8 @@ export interface AppSummariesRepository {
   /**
    * Get specific field data from app summary
    */
-  getProjectAppSummaryField<T>(projectName: string, fieldName: string): Promise<T | null>;
+  getProjectAppSummaryField<K extends keyof AppSummaryRecord>(
+    projectName: string,
+    fieldName: K,
+  ): Promise<AppSummaryRecord[K] | null>;
 }

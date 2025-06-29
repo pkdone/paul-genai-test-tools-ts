@@ -62,22 +62,20 @@ export default class AppSummariesRepositoryImpl
   /**
    * Get specific field data from app summary
    *
-   * For string fields:
-   *  getAppSummaryField<string>(projectName, 'llmProvider')
-   * For array fields:
-   *  getAppSummaryField<string[]>(projectName, 'businessProcesses')
-   * For custom object arrays:
-   *  getAppSummaryField<BusinessProcess[]>(projectName, 'businessProcesses')
+   * Usage examples:
+   *  getProjectAppSummaryField(projectName, 'llmProvider') - returns Promise<string | null>
+   *  getProjectAppSummaryField(projectName, 'businessProcesses') - returns Promise<AppSummaryNameDescArray | null>
+   *  getProjectAppSummaryField(projectName, 'appDescription') - returns Promise<string | null>
    */
-  async getProjectAppSummaryField<T = string>(
+  async getProjectAppSummaryField<K extends keyof AppSummaryRecord>(
     projectName: string,
-    fieldName: string,
-  ): Promise<T | null> {
+    fieldName: K,
+  ): Promise<AppSummaryRecord[K] | null> {
     const query = { projectName };
     const options = {
       projection: { _id: 0, [fieldName]: 1 },
     };
-    const record = await this.collection.findOne<Record<string, T>>(query, options);
+    const record = await this.collection.findOne<Pick<AppSummaryRecord, K>>(query, options);
     return record?.[fieldName] ?? null;
   }
 }

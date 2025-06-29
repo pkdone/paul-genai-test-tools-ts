@@ -4,7 +4,7 @@ import { reportingConfig } from "../reporting.config";
 import { categoryPromptSchemaMappings } from "../../insights/category-mappings";
 import type { SourcesRepository } from "../../../repositories/source/sources.repository.interface";
 import type { AppSummariesRepository } from "../../../repositories/app-summary/app-summaries.repository.interface";
-import type { AppSummaryNameDescArray } from "../../../repositories/app-summary/app-summary.model";
+import type { AppSummaryRecord, AppSummaryNameDescArray } from "../../../repositories/app-summary/app-summary.model";
 import { TOKENS } from "../../../di/tokens";
 import { HtmlReportFormatter } from "./html-report-formatter";
 import type { AppStatistics, ProcsAndTriggers } from "./types";
@@ -155,13 +155,12 @@ export default class AppReportGenerator {
     const promises = categoryKeys.map(async (category) => {
       const label =
         categoryPromptSchemaMappings[category as keyof typeof categoryPromptSchemaMappings].label;
-      const data =
-        await this.appSummariesRepository.getProjectAppSummaryField<AppSummaryNameDescArray>(
-          projectName,
-          category,
-        );
+      const data = await this.appSummariesRepository.getProjectAppSummaryField(
+        projectName,
+        category as keyof AppSummaryRecord,
+      );
       console.log(`Generated ${label} table`);
-      return { category, label, data: data ?? [] };
+      return { category, label, data: (data as AppSummaryNameDescArray | null) ?? [] };
     });
 
     return Promise.all(promises);
