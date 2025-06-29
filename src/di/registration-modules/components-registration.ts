@@ -2,6 +2,7 @@ import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
 import { FileSummarizer } from "../../codebaseIngestion/file-summarizer";
 import { HtmlReportFormatter } from "../../reporting/reportGeneration/html-report-formatter";
+import { RawCodeToInsightsFileGenerator } from "../../reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 import AppReportGenerator from "../../reporting/reportGeneration/app-report-generator";
 import CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
 import CodeQuestioner from "../../codebaseQuerying/code-questioner";
@@ -22,6 +23,7 @@ export function registerComponents(): void {
   // Register components that don't depend on LLMRouter as regular singletons
   container.registerSingleton(TOKENS.HtmlReportFormatter, HtmlReportFormatter);
   container.registerSingleton(TOKENS.AppReportGenerator, AppReportGenerator);
+  container.registerSingleton(TOKENS.RawCodeToInsightsFileGenerator, RawCodeToInsightsFileGenerator);
   container.registerSingleton(TOKENS.InsightsDataServer, InsightsDataServer);
   container.registerSingleton(TOKENS.McpDataServer, McpDataServer);
   container.registerSingleton(TOKENS.McpHttpServer, McpHttpServer);

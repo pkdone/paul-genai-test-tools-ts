@@ -1,5 +1,6 @@
 import path from "path";
 import { promises as fs } from "fs";
+import { injectable } from "tsyringe";
 import { fileSystemConfig, mcpConfig } from "../../config";
 import { readFile, writeFile, readDirContents } from "../../utils/fs-utils";
 import { getFileSuffix } from "../../utils/path-utils";
@@ -18,6 +19,7 @@ export interface FileRequirementPrompt {
 /**
  * Class responsible for processing codebase insights using LLM
  */
+@injectable()
 export class RawCodeToInsightsFileGenerator {
   /**
    * Process source files with prompts and write individual output files.

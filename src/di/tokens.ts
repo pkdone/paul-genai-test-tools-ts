@@ -43,6 +43,7 @@ export const TOKENS = {
   CodeQuestioner: Symbol.for('CodeQuestioner'),
   DBCodeInsightsBackIntoDBGenerator: Symbol.for('DBCodeInsightsBackIntoDBGenerator'),
   LLMStructuredResponseInvoker: Symbol.for('LLMStructuredResponseInvoker'),
+  RawCodeToInsightsFileGenerator: Symbol.for('RawCodeToInsightsFileGenerator'),
   
   // MCP Server Components
   InsightsDataServer: Symbol.for('InsightsDataServer'),

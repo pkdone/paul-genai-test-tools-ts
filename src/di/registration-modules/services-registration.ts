@@ -16,6 +16,7 @@ import type DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-
 import type CodeQuestioner from "../../codebaseQuerying/code-questioner";
 import type McpHttpServer from "../../api/mcpServing/mcp-http-server";
 import type { MongoDBClientFactory } from "../../mdb/mdb-client-factory";
+import type { RawCodeToInsightsFileGenerator } from "../../reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 
 /**
  * Register main executable services as singletons using tsyringe's built-in singleton management.
@@ -82,7 +83,8 @@ function registerLLMDependentServices(): void {
     useFactory: async (c) => {
       const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
       const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
-      return new OneShotGenerateInsightsService(llmRouter, envVars);
+      const insightProcessor = c.resolve<RawCodeToInsightsFileGenerator>(TOKENS.RawCodeToInsightsFileGenerator);
+      return new OneShotGenerateInsightsService(llmRouter, envVars, insightProcessor);
     },
   });
 

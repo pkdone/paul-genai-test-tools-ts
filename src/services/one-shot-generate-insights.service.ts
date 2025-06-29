@@ -18,7 +18,8 @@ export class OneShotGenerateInsightsService implements Service {
    */
   constructor(
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-    @inject(TOKENS.EnvVars) private readonly env: EnvVars
+    @inject(TOKENS.EnvVars) private readonly env: EnvVars,
+    @inject(TOKENS.RawCodeToInsightsFileGenerator) private readonly insightProcessor: RawCodeToInsightsFileGenerator
   ) {}
 
   /**
@@ -35,10 +36,9 @@ export class OneShotGenerateInsightsService implements Service {
     const cleanSrcDirPath = srcDirPath.replace(fileSystemConfig.TRAILING_SLASH_PATTERN, "");
     const srcFilepaths = await buildDirDescendingListOfFiles(cleanSrcDirPath);
     this.llmRouter.displayLLMStatusSummary();
-    const insightProcessor = new RawCodeToInsightsFileGenerator();
-    const prompts = await insightProcessor.loadPrompts();
+    const prompts = await this.insightProcessor.loadPrompts();
     await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
-    await insightProcessor.processSourceFilesWithPrompts(this.llmRouter, srcFilepaths, 
+    await this.insightProcessor.processSourceFilesWithPrompts(this.llmRouter, srcFilepaths, 
       cleanSrcDirPath, prompts, llmName);      
     this.llmRouter.displayLLMStatusDetails();
     console.log(`View generated results in the 'file://${fileSystemConfig.OUTPUT_DIR}' folder`);
