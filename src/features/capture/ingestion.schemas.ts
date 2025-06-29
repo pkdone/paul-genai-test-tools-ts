@@ -2,6 +2,20 @@ import { z } from "zod";
 import { sourceFileSummarySchema } from "../../schemas/source-summary.schema";
 import { databaseIntegrationSchema, methodParameterSchema } from "../../schemas/common.schemas";
 
+// Reusable schema extension for common file summary fields
+const genericFileSummaryExtension = z.object({
+  purpose: z.string().describe("A detailed definition of its purpose."),
+  implementation: z.string().describe("A detailed definition of its implementation."),
+  databaseIntegration: databaseIntegrationSchema
+    .extend({
+      mechanism: z
+        .string()
+        .describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
+      description: z.string().describe("A detailed description of the database integration."),
+    })
+    .describe("Information about how the file interacts with a database."),
+});
+
 // Schema for `java-file-summary.prompt`
 export const javaFileSummarySchema = sourceFileSummarySchema
   .pick({
@@ -172,17 +186,9 @@ export const xmlFileSummarySchema = sourceFileSummarySchema
     implementation: true,
     databaseIntegration: true,
   })
+  .merge(genericFileSummaryExtension)
   .extend({
-    purpose: z.string().describe("A detailed definition of its purpose."),
-    implementation: z.string().describe("A detailed definition of its implementation."),
-    databaseIntegration: databaseIntegrationSchema
-      .extend({
-        mechanism: z
-          .string()
-          .describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
-        description: z.string().describe("A detailed description of the database integration."),
-      })
-      .describe("Information about how the file interacts with a database."),
+    fileType: z.literal("xml").describe("The file type identifier"),
   });
 export type XmlFileSummary = z.infer<typeof xmlFileSummarySchema>;
 
@@ -195,19 +201,10 @@ export const jspFileSummarySchema = sourceFileSummarySchema
     externalReferences: true,
     databaseIntegration: true,
   })
+  .merge(genericFileSummaryExtension)
   .extend({
-    purpose: z.string().describe("A detailed definition of its purpose."),
-    implementation: z.string().describe("A detailed definition of its implementation."),
     internalReferences: z.array(z.string()).describe("A list of internal references."),
     externalReferences: z.array(z.string()).describe("A list of external references."),
-    databaseIntegration: databaseIntegrationSchema
-      .extend({
-        mechanism: z
-          .string()
-          .describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
-        description: z.string().describe("A detailed description of the database integration."),
-      })
-      .describe("Information about how the file interacts with a database."),
   });
 export type JspFileSummary = z.infer<typeof jspFileSummarySchema>;
 
@@ -218,16 +215,8 @@ export const markdownFileSummarySchema = sourceFileSummarySchema
     implementation: true,
     databaseIntegration: true,
   })
+  .merge(genericFileSummaryExtension)
   .extend({
-    purpose: z.string().describe("A detailed definition of its purpose."),
-    implementation: z.string().describe("A detailed definition of its implementation."),
-    databaseIntegration: databaseIntegrationSchema
-      .extend({
-        mechanism: z
-          .string()
-          .describe("The database integration mechanism used, e.g., 'JDBC', 'ORM', 'NONE'."),
-        description: z.string().describe("A detailed description of the database integration."),
-      })
-      .describe("Information about how the file interacts with a database."),
+    fileType: z.literal("markdown").describe("The file type identifier"),
   });
 export type MarkdownFileSummary = z.infer<typeof markdownFileSummarySchema>;
