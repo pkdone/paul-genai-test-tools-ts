@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import type LLMRouter from "./llm-router";
+import type LLMRouter from "../core/llm-router";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { logErrorMsgAndDetail } from "../../common/utils/error-utils";

@@ -2,12 +2,12 @@
 import 'reflect-metadata';
 import { z } from 'zod';
 import { LLMStructuredResponseInvoker } from './llm-structured-response-invoker';
-import type LLMRouter from './llm-router';
+import type LLMRouter from '../core/llm-router';
 import * as errorUtils from '../../common/utils/error-utils';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 // Mock dependencies
-jest.mock('./llm-router');
+jest.mock('../core/llm-router');
 jest.mock('../../common/utils/error-utils', () => ({
   logErrorMsgAndDetail: jest.fn(),
 }));
@@ -495,6 +495,14 @@ describe('LLMStructuredResponseInvoker', () => {
           'Test prompt',
           simpleSchema,
           'correction task'
+        );
+
+        expect(mockLLMRouter.executeCompletion).toHaveBeenNthCalledWith(
+          1,
+          'base-resource',
+          'Test prompt',
+          true,
+          { resource: 'base-resource', requireJSON: true }
         );
 
         expect(mockLLMRouter.executeCompletion).toHaveBeenNthCalledWith(

@@ -3,7 +3,7 @@ import type LLMRouter from "../../llm/core/llm-router";
 import { appConfig } from "../../config/app.config";
 import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
 import { joinArrayWithSeparators } from "../../common/utils/text-utils";
-import { LLMStructuredResponseInvoker } from "../../llm/core/llm-structured-response-invoker";
+import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { PartialAppSummaryRecord } from "../../repositories/app-summary/app-summary.model";

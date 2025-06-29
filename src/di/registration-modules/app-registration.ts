@@ -15,7 +15,7 @@ import AppReportGenerator from "../../features/reporting/reportGeneration/app-re
 import CodebaseToDBLoader from "../../features/capture/codebase-to-db-loader";
 import CodeQuestioner from "../../features/querying/code-questioner";
 import DBCodeInsightsBackIntoDBGenerator from "../../features/insights/db-code-insights-back-into-db-generator";
-import { LLMStructuredResponseInvoker } from "../../llm/core/llm-structured-response-invoker";
+import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import InsightsDataServer from "../../features/api/mcpServing/insights-data-server";
 import McpDataServer from "../../features/api/mcpServing/mcp-data-server";
 import McpHttpServer from "../../features/api/mcpServing/mcp-http-server";
