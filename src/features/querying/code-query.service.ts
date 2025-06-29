@@ -3,7 +3,7 @@ import { injectable, inject } from "tsyringe";
 import { getTextLines } from "../../common/utils/fs-utils";
 import CodeQuestioner from "./code-questioner";
 import { appConfig } from "../../config/app.config";
-import { Service } from "../../app/service.types";
+import { Service } from "../../lifecycle/service.types";
 import { TOKENS } from "../../di/tokens";
 
 /**

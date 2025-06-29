@@ -12,7 +12,7 @@ import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/
 import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
-import type { EnvVars } from "../../app/env.types";
+import type { EnvVars } from "../../lifecycle/env.types";
 import { TOKENS } from "../../di/tokens";
 
 /**

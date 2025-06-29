@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { ServiceRunnerConfig } from "../app/service.types";
-import { EnvVars } from "../app/env.types";
+import { ServiceRunnerConfig } from "../lifecycle/service.types";
+import { EnvVars } from "../lifecycle/env.types";
 import { TOKENS } from "./tokens";
 import { registerEnvDependencies, registerLLMDependencies, registerMongoDBDependencies, 
          registerServices, registerComponents, registerRepositories } 

@@ -5,7 +5,7 @@ const { helpers } = aiplatform;
 import { llmConfig } from "../../../llm.config";
 import { LLMModelKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../llm.types";
 import { getErrorText, logErrorMsgAndDetail } from "../../../../common/utils/error-utils";
-import AbstractLLM from "../../../utils/abstract-llm";
+import AbstractLLM from "../../../core/abstract-llm";
 import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError }
          from "../../../utils/llm-errors.types";
 import { VERTEX_GEMINI } from "./vertex-ai-gemini.manifest";

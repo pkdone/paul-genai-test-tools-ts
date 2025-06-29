@@ -1,5 +1,5 @@
 import { bootstrapContainer, container } from './container';
-import { ServiceRunnerConfig } from '../app/service.types';
+import { ServiceRunnerConfig } from '../lifecycle/service.types';
 import { TOKENS } from './tokens';
 
 // Mock the LLM-related modules to avoid environment dependencies in tests

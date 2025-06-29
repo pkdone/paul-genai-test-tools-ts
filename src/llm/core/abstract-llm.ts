@@ -4,9 +4,9 @@ import { LLMImplSpecificResponseSummary, LLMProviderSpecificConfig } from "../pr
 import { getErrorText } from "../../common/utils/error-utils";       
 import { extractTokensAmountFromMetadataDefaultingMissingValues, 
          postProcessAsJSONIfNeededGeneratingNewResult,
-       } from "./responseProcessing/llm-response-tools";
-import { extractTokensAmountAndLimitFromErrorMsg } from "./responseProcessing/llm-error-pattern-parser";
-import { BadConfigurationLLMError } from "./llm-errors.types";
+       } from "../utils/responseProcessing/llm-response-tools";
+import { extractTokensAmountAndLimitFromErrorMsg } from "../utils/responseProcessing/llm-error-pattern-parser";
+import { BadConfigurationLLMError } from "../utils/llm-errors.types";
 
 /**
  * Abstract class for any LLM provider services - provides outline of abstract methods to be

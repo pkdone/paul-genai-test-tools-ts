@@ -4,7 +4,7 @@ import { LLMService } from "../../llm/core/llm-service";
 import LLMRouter from "../../llm/core/llm-router";
 import LLMStats from "../../llm/utils/routerTracking/llm-stats";
 import { PromptAdapter } from "../../llm/utils/responseProcessing/llm-prompt-adapter";
-import type { EnvVars } from "../../app/env.types";
+import type { EnvVars } from "../../lifecycle/env.types";
 
 /**
  * Register LLM-related dependencies using a more declarative approach.

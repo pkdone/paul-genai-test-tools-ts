@@ -2,7 +2,7 @@ import { z } from "zod";
 import { LLMProviderManifest } from "../../llm-provider.types";
 import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
 import { LLMPurpose } from "../../../llm.types";
-import { BaseEnvVars } from "../../../../app/env.types";
+import { BaseEnvVars } from "../../../../lifecycle/env.types";
 import { llmConfig } from "../../../llm.config";
 
 // Environment variable name constants

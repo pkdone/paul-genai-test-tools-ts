@@ -4,7 +4,7 @@ import { extractTokensAmountAndLimitFromErrorMsg } from "../utils/responseProces
 import { bedrockClaudeProviderManifest, AWS_COMPLETIONS_CLAUDE_V35 } from "./bedrock/bedrockClaude/bedrock-claude.manifest";
 import { azureOpenAIProviderManifest, GPT_COMPLETIONS_GPT4, GPT_COMPLETIONS_GPT4_32k } from "./openai/azureOpenai/azure-openai.manifest";
 import { bedrockLlamaProviderManifest, AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT, AWS_COMPLETIONS_LLAMA_V33_70B_INSTRUCT } from "./bedrock/bedrockLlama/bedrock-llama.manifest";
-import { loadBaseEnvVarsOnly } from "../../app/env";
+import { loadBaseEnvVarsOnly } from "../../lifecycle/env";
 
 // Load environment variables (including MongoDB URL) from .env file
 const baseEnv = loadBaseEnvVarsOnly();

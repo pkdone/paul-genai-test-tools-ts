@@ -4,8 +4,8 @@ import { appConfig } from "../../config/app.config";
 import { clearDirectory, buildDirDescendingListOfFiles } from "../../common/utils/fs-utils";
 import { RawCodeToInsightsFileGenerator } from "../reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 import type LLMRouter from "../../llm/core/llm-router";
-import { Service } from "../../app/service.types";
-import type { EnvVars } from "../../app/env.types";
+import { Service } from "../../lifecycle/service.types";
+import type { EnvVars } from "../../lifecycle/env.types";
 import { TOKENS } from "../../di/tokens";
 
 /**

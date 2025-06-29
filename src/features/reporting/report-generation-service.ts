@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { Service } from "../../app/service.types";
-import type { EnvVars } from "../../app/env.types";
+import { Service } from "../../lifecycle/service.types";
+import type { EnvVars } from "../../lifecycle/env.types";
 import { TOKENS } from "../../di/tokens";
 import { appConfig } from "../../config/app.config";
 import { reportingConfig } from "./reporting.config";

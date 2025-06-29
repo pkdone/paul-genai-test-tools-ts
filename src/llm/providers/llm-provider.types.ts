@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { LLMModelKeysSet, LLMProviderImpl, LLMModelMetadata, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../llm.types";
-import { EnvVars } from "../../app/env.types";
+import { EnvVars } from "../../lifecycle/env.types";
 
 /**
  * Interface for retry and timeout configuration used by LLMRouter

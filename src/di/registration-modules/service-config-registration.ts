@@ -1,5 +1,5 @@
 import { TOKENS } from "../tokens";
-import { ServiceRunnerConfig } from "../../app/service.types";
+import { ServiceRunnerConfig } from "../../lifecycle/service.types";
 
 /**
  * Service configuration mapping that defines what resources each service requires
@@ -22,7 +22,7 @@ const SERVICE_CONFIGURATIONS = new Map<symbol, ServiceRunnerConfig>([
  * Get service configuration for a given service token
  */
 export function getServiceConfiguration(serviceToken: symbol): ServiceRunnerConfig {
-  const config = SERVICE_CONFIGURATIONS.get(serviceToken);
+  const config: ServiceRunnerConfig | undefined = SERVICE_CONFIGURATIONS.get(serviceToken);
   if (!config) {
     throw new Error(`No configuration found for service token: ${serviceToken.toString()}`);
   }

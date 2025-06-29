@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import DBCodeInsightsBackIntoDBGenerator from "./db-code-insights-back-into-db-generator";
 import type LLMRouter from "../../../llm/core/llm-router";
-import { Service } from "../../../app/service.types";
+import { Service } from "../../../lifecycle/service.types";
 import { TOKENS } from "../../../di/tokens";
 
 /**

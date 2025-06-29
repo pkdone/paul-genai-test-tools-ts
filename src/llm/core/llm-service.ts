@@ -3,7 +3,7 @@ import { injectable, inject } from "tsyringe";
 import path from 'path';
 import { appConfig } from "../../config/app.config";
 import { LLMProviderImpl, LLMModelKeysSet as LLMModelsKeysSet, LLMModelMetadata, ResolvedLLMModelMetadata } from "../llm.types";
-import { EnvVars } from "../../app/env.types";
+import { EnvVars } from "../../lifecycle/env.types";
 import { BadConfigurationLLMError } from "../utils/llm-errors.types";
 import { LLMProviderManifest } from "../providers/llm-provider.types";
 import { logErrorMsgAndDetail } from "../../common/utils/error-utils";

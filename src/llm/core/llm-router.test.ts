@@ -8,7 +8,7 @@ import LLMRouter from "./llm-router";
 import LLMStats from "../utils/routerTracking/llm-stats";
 import { PromptAdapter } from "../utils/responseProcessing/llm-prompt-adapter";
 import { LLMService } from "./llm-service";
-import type { EnvVars } from "../../app/env.types";
+import type { EnvVars } from "../../lifecycle/env.types";
 
 // Mock the dependencies
 jest.mock("../utils/responseProcessing/llm-response-tools", () => ({

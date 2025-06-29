@@ -3,7 +3,7 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import OpenAILLM from "./openai-llm";
 import { LLMPurpose } from "../../../llm.types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
-import { BaseEnvVars } from "../../../../app/env.types";
+import { BaseEnvVars } from "../../../../lifecycle/env.types";
 
 // Environment variable name constants
 const OPENAI_LLM_API_KEY_KEY = "OPENAI_LLM_API_KEY";

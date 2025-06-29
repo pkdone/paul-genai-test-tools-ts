@@ -10,7 +10,7 @@ import { McpServerService } from "../../features/api/mcp-server.service";
 import { ReportGenerationService } from "../../features/reporting/report-generation-service";
 import { DBInitializerService } from "../../repositories/db-initializer.service";
 import type LLMRouter from "../../llm/core/llm-router";
-import type { EnvVars } from "../../app/env.types";
+import type { EnvVars } from "../../lifecycle/env.types";
 import type CodebaseToDBLoader from "../../features/ingestion/codebase/codebase-to-db-loader";
 import type DBCodeInsightsBackIntoDBGenerator from "../../features/ingestion/insights/db-code-insights-back-into-db-generator";
 import type { RawCodeToInsightsFileGenerator } from "../../features/reporting/insightsFileGeneration/raw-code-to-insights-file-generator";

@@ -1,5 +1,5 @@
 import { LLMService } from "./llm-service";
-import { EnvVars } from "../../app/env.types";
+import { EnvVars } from "../../lifecycle/env.types";
 import { LLMPurpose, LLMProviderImpl, LLMModelQuality } from "../llm.types";
 import { BadConfigurationLLMError } from "../utils/llm-errors.types";
 import { LLMProviderManifest } from "../providers/llm-provider.types";

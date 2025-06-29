@@ -6,7 +6,7 @@ import { databaseConfig } from "../config/database.config";
 import { llmConfig } from "../llm/llm.config";
 import { logErrorMsgAndDetail } from "../common/utils/error-utils";
 import { createVectorSearchIndexDefinition } from "../common/mdb/mdb-utils";
-import { Service } from "../app/service.types";
+import { Service } from "../lifecycle/service.types";
 import * as sourceSchema from "./source/source.model";
 import * as appSummarySchema from "./app-summary/app-summary.model";
 
