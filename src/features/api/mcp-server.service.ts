@@ -5,7 +5,7 @@ import McpHttpServer from "./mcpServing/mcp-http-server";
 import { Service } from "../../lifecycle/service.types";
 import { TOKENS } from "../../di/tokens";
 import type { MongoDBClientFactory } from "../../common/mdb/mdb-client-factory";
-import { gracefulShutdown } from "../../lifecycle/env";
+import { gracefulShutdown } from "../../lifecycle/shutdown";
 
 /**
  * Service to run the MCP insights server.
