@@ -84,8 +84,6 @@ export const appConfig = {
   README_FILE_NAME: "README",
   SOURCE_FILES_FOR_CODE: ["js", "ts", "java", "py", "sql"] as const,
   JAVA_FILE_TYPE: "java",
-  SRC_FOLDER_NAME: "/src/",
-  DIST_FOLDER_NAME: "/dist/",
   MANIFEST_FILE_SUFFIX: ".manifest.js",
   PROVIDER_MANIFEST_KEY: "ProviderManifest",
   PROVIDERS_FOLDER_PATH: "../providers",

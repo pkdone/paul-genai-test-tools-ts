@@ -1,6 +1,5 @@
 import pRetry from "p-retry";
 import { RetryFunc, CheckResultFunc, LogRetryEventFunc } from "./control.types";
-import { controlConfig } from "./control.config";
 
 interface FailedAttemptError extends Error {
   readonly attemptNumber: number;
@@ -31,8 +30,8 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
   args: TArgs,
   checkResultForNeedToRetryFunc: CheckResultFunc<TReturn>,
   logRetryEventFunc: LogRetryEventFunc | null = null,
-  maxAttempts = controlConfig.DEFAULT_MAX_ATTEMPTS,
-  minRetryDelay = controlConfig.DEFAULT_MIN_RETRY_DELAY,
+  maxAttempts = 3,
+  minRetryDelay = 7000,
 ): Promise<TReturn | null> {
   try {
     return await pRetry(

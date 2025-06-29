@@ -1,9 +1,4 @@
 /**
- * Type to define the control types
- */
-export type PromiseFunction<T> = () => Promise<T>;
-
-/**
  * Type to define the retry function with improved type safety using generics
  */
 export type RetryFunc<TArgs extends unknown[], TReturn> = (...args: TArgs) => Promise<TReturn>;
