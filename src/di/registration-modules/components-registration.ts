@@ -12,8 +12,8 @@ import InsightsDataServer from "../../api/mcpServing/insights-data-server";
 import McpDataServer from "../../api/mcpServing/mcp-data-server";
 import McpHttpServer from "../../api/mcpServing/mcp-http-server";
 import type LLMRouter from "../../llm/llm-router";
-import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
+import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
 
 /**
  * Register internal helper components.
@@ -36,6 +36,7 @@ export function registerComponents(): void {
 
 /**
  * Register components that depend on LLMRouter using async factories to handle the async LLMRouter dependency.
+ * Using manual dependency resolution for async dependencies to ensure proper initialization.
  */
 function registerLLMDependentComponents(): void {
   // LLMStructuredResponseInvoker

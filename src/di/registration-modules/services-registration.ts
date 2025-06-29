@@ -13,9 +13,6 @@ import type LLMRouter from "../../llm/llm-router";
 import type { EnvVars } from "../../types/env.types";
 import type CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
 import type DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-code-insights-back-into-db-generator";
-import type CodeQuestioner from "../../codebaseQuerying/code-questioner";
-import type McpHttpServer from "../../api/mcpServing/mcp-http-server";
-import type { MongoDBClientFactory } from "../../mdb/mdb-client-factory";
 import type { RawCodeToInsightsFileGenerator } from "../../reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 
 /**
@@ -36,6 +33,7 @@ export function registerServices(): void {
 
 /**
  * Register services that depend on LLMRouter using async factories to handle the async LLMRouter dependency.
+ * Using manual dependency resolution for async dependencies to ensure proper initialization.
  */
 function registerLLMDependentServices(): void {
   // CodebaseCaptureService
@@ -52,19 +50,16 @@ function registerLLMDependentServices(): void {
 
   // CodebaseQueryService
   container.register(TOKENS.CodebaseQueryService, {
+    // eslint-disable-next-line @typescript-eslint/require-await
     useFactory: async (c) => {
-      const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const codeQuestioner = await c.resolve<Promise<CodeQuestioner>>(TOKENS.CodeQuestioner);
-      return new CodebaseQueryService(projectName, codeQuestioner);
+      return c.resolve(CodebaseQueryService);
     },
   });
 
-  // McpServerService
+  // McpServerService - doesn't depend on LLMRouter, so can be synchronous
   container.register(TOKENS.McpServerService, {
     useFactory: (c) => {
-      const mcpHttpServer = c.resolve<McpHttpServer>(TOKENS.McpHttpServer);
-      const mongoDBClientFactory = c.resolve<MongoDBClientFactory>(TOKENS.MongoDBClientFactory);
-      return new McpServerService(mcpHttpServer, mongoDBClientFactory);
+      return c.resolve(McpServerService);
     },
   });
 
