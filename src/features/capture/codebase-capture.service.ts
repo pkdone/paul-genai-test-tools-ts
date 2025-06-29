@@ -1,12 +1,12 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import CodebaseToDBLoader from "./codebase-to-db-loader";
-import type LLMRouter from "../../../llm/core/llm-router";
-import { Service } from "../../../lifecycle/service.types";
-import type { EnvVars } from "../../../lifecycle/env.types";
-import type { DBInitializerService } from "../../../repositories/db-initializer.service";
-import { appConfig } from "../../../config/app.config";
-import { TOKENS } from "../../../di/tokens";
+import type LLMRouter from "../../llm/core/llm-router";
+import { Service } from "../../lifecycle/service.types";
+import type { EnvVars } from "../../lifecycle/env.types";
+import type { DBInitializerService } from "../../repositories/db-initializer.service";
+import { appConfig } from "../../config/app.config";
+import { TOKENS } from "../../di/tokens";
 
 /**
  * Service to capture the codebase.

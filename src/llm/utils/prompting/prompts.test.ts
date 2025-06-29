@@ -1,6 +1,6 @@
 import {
   createSummaryPrompt,
-} from '../../../features/ingestion/codebase/ingestion.prompts';
+} from '../../../features/capture/ingestion.prompts';
 
 // Mock the dependencies
 jest.mock('type-safe-prompt', () => ({

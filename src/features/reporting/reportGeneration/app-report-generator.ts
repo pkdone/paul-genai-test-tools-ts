@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { appConfig } from "../../../config/app.config";
 import { reportingConfig } from "../reporting.config";
-import { categoryPromptSchemaMappings } from "../../ingestion/insights/category-mappings";
+import { categoryPromptSchemaMappings } from "../../insights/category-mappings";
 import type { SourcesRepository } from "../../../repositories/source/sources.repository.interface";
 import type { AppSummariesRepository } from "../../../repositories/app-summary/app-summaries.repository.interface";
 import type { AppSummaryNameDescArray } from "../../../repositories/app-summary/app-summary.model";

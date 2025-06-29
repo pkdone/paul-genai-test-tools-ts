@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { nameDescSchema } from '../../../schemas/common.schemas';
+import { nameDescSchema } from '../../schemas/common.schemas';
 
 // Schema for `generate-appdescription.prompt`
 export const appDescriptionSchema = z.object({

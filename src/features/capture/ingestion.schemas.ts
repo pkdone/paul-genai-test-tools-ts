@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { sourceFileSummarySchema } from '../../../schemas/source-summary.schema';
-import { databaseIntegrationSchema, methodParameterSchema } from '../../../schemas/common.schemas';
+import { sourceFileSummarySchema } from '../../schemas/source-summary.schema';
+import { databaseIntegrationSchema, methodParameterSchema } from '../../schemas/common.schemas';
 
 // Schema for `java-file-summary.prompt`
 export const javaFileSummarySchema = sourceFileSummarySchema.pick({

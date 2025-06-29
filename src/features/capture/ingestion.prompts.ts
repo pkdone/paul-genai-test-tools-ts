@@ -1,7 +1,6 @@
 import * as schemas from './ingestion.schemas';
-import { buildPrompt } from '../../../llm/utils/prompting/prompt-utils';
-import { promptConfig } from '../../../llm/utils/prompting/prompt.config';
-import { z } from 'zod';
+import { createPromptFromConfig, DetailedPromptConfig, BasicPromptConfig } from '../../llm/utils/prompting/prompt-factory';
+import { promptConfig } from '../../llm/utils/prompting/prompt.config';
 
 // Base template for detailed file summary prompts (Java, JS, etc.)
 const DETAILED_SUMMARY_BASE_TEMPLATE = `Act as a programmer. Take the {{fileType}} code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
@@ -13,7 +12,7 @@ The JSON response must follow this JSON schema:
 {{jsonSchema}}
 \`\`\`
 
-${promptConfig.FILE_SUMMARY_BASE_INSTRUCTIONS}
+${promptConfig.FORCE_JSON_RESPONSE_LONG}
 
 CODE:
 {{codeContent}}`;
@@ -26,60 +25,25 @@ The JSON response must follow this JSON schema:
 {{jsonSchema}}
 \`\`\`
 
-${promptConfig.FILE_SUMMARY_BASE_INSTRUCTIONS}
+${promptConfig.FORCE_JSON_RESPONSE_LONG}
 
 CODE:
 {{codeContent}}`;
 
-/**
- * Creates a detailed summary prompt by injecting file type and instructions into the base template
- */
-function createDetailedSummaryPrompt(fileType: string, instructions: string, schema: z.ZodType, codeContent: string): string {
-  const template = DETAILED_SUMMARY_BASE_TEMPLATE
-    .replace('{{fileType}}', fileType)
-    .replace('{{specificInstructions}}', instructions);
-  return buildPrompt(template, schema, codeContent);
-}
-
-/**
- * Creates a simple summary prompt by injecting instructions into the base template
- */
-function createSimpleSummaryPrompt(instructions: string, schema: z.ZodType, codeContent: string): string {
-  const template = SIMPLE_SUMMARY_BASE_TEMPLATE.replace('{{specificInstructions}}', instructions);
-  return buildPrompt(template, schema, codeContent);
-}
-
-/**
- * Interface for detailed prompt template configuration
- */
-interface DetailedPromptTemplate {
-  fileType: string;
-  instructions: string;
-  schema: z.ZodType;
-  templateType: 'detailed';
-}
-
-/**
- * Interface for simple prompt template configuration
- */
-interface SimplePromptTemplate {
-  instructions: string;
-  schema: z.ZodType;
-  templateType: 'simple';
-}
+// These functions are no longer needed - replaced by the generic factory
 
 /**
  * Union type for prompt template configuration
  */
-export type PromptTemplate = DetailedPromptTemplate | SimplePromptTemplate;
+export type PromptTemplate = DetailedPromptConfig | BasicPromptConfig;
 
 /**
  * Data-driven mapping of prompt types to their templates and schemas
  */
-export const summaryPromptTemplates = {
+export const summaryPromptTemplates: Record<string, PromptTemplate> = {
   java: { 
+    templateType: 'detailed',
     fileType: 'Java',
-    templateType: 'detailed' as const,
     instructions: `* The name of the main public class/interface of the file
  * Its type ('class' or 'interface')
  * Its classpath
@@ -102,8 +66,8 @@ export const summaryPromptTemplates = {
     schema: schemas.javaFileSummarySchema 
   },
   js: { 
+    templateType: 'detailed',
     fileType: 'JavaScript/TypeScript',
-    templateType: 'detailed' as const,
     instructions: `* A very detailed definition of its purpose (you must write at least 6 sentences for this)
  * A very detailed definition of its implementation (you must write at least 6 sentences for this)
  * A list of the internal references to other modules used by this source file (by using \`require\` or \`import\` keywords) belonging to the same application referenced by the code in this source file (do not include external or 3rd party modules/libraries in the list of internal references)
@@ -112,12 +76,12 @@ export const summaryPromptTemplates = {
     schema: schemas.jsFileSummarySchema 
   },
   default: { 
-    templateType: 'simple' as const,
+    templateType: 'basic',
     instructions: 'Take the content of an application source file shown below in the section marked \'CODE\' and for this content, return a JSON response containing data which includes a detailed definition of its purpose (you must write at least 4 sentences for this purpose), a detailed definition of its implementation (you must write at least 3 sentences for this implementation) and the type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.',
     schema: schemas.defaultFileSummarySchema 
   },
   ddl: { 
-    templateType: 'simple' as const,
+    templateType: 'basic',
     instructions: `Take the content from a database DDL/SQL source code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
 
  * A detailed definition of its purpose (you must write at least 2 sentences for this)
@@ -129,17 +93,17 @@ export const summaryPromptTemplates = {
     schema: schemas.ddlFileSummarySchema 
   },
   xml: { 
-    templateType: 'simple' as const,
+    templateType: 'basic',
     instructions: 'Analyze the following source code and provide details about its purpose, implementation, and database integration.',
     schema: schemas.xmlFileSummarySchema 
   },
   jsp: { 
-    templateType: 'simple' as const,
+    templateType: 'basic',
     instructions: 'Analyze the following source code and provide details about its purpose, implementation, and database integration.',
     schema: schemas.jspFileSummarySchema 
   },
   markdown: { 
-    templateType: 'simple' as const,
+    templateType: 'basic',
     instructions: 'Analyze the following source code and provide details about its purpose, implementation, and database integration.',
     schema: schemas.markdownFileSummarySchema 
   },
@@ -156,9 +120,12 @@ export type SummaryPromptType = keyof typeof summaryPromptTemplates;
 export const createSummaryPrompt = (type: SummaryPromptType, codeContent: string): string => {
   const config = summaryPromptTemplates[type];
   
-  if (config.templateType === 'detailed') {
-    return createDetailedSummaryPrompt(config.fileType, config.instructions, config.schema, codeContent);
-  } else {
-    return createSimpleSummaryPrompt(config.instructions, config.schema, codeContent);
-  }
+  return createPromptFromConfig(
+    { 
+      detailed: DETAILED_SUMMARY_BASE_TEMPLATE,
+      basic: SIMPLE_SUMMARY_BASE_TEMPLATE 
+    },
+    config,
+    codeContent
+  );
 }; 

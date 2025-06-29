@@ -1,8 +1,8 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { CodebaseCaptureService } from "../../features/ingestion/codebase/codebase-capture.service";
+import { CodebaseCaptureService } from "../../features/capture/codebase-capture.service";
 import { CodebaseQueryService } from "../../features/querying/code-query.service";
-import { InsightsFromDBGenerationService } from "../../features/ingestion/insights/insights-from-db-generation.service";
+import { InsightsFromDBGenerationService } from "../../features/insights/insights-from-db-generation.service";
 import { OneShotGenerateInsightsService } from "../../features/oneShot/one-shot-generate-insights.service";
 import { MDBConnectionTestService } from "../../features/diagnostics/mdb-connection-test.service";
 import { PluggableLLMsTestService } from "../../features/diagnostics/test-pluggable-llms.service";
@@ -11,8 +11,8 @@ import { ReportGenerationService } from "../../features/reporting/report-generat
 import { DBInitializerService } from "../../repositories/db-initializer.service";
 import type LLMRouter from "../../llm/core/llm-router";
 import type { EnvVars } from "../../lifecycle/env.types";
-import type CodebaseToDBLoader from "../../features/ingestion/codebase/codebase-to-db-loader";
-import type DBCodeInsightsBackIntoDBGenerator from "../../features/ingestion/insights/db-code-insights-back-into-db-generator";
+import type CodebaseToDBLoader from "../../features/capture/codebase-to-db-loader";
+import type DBCodeInsightsBackIntoDBGenerator from "../../features/insights/db-code-insights-back-into-db-generator";
 import type { RawCodeToInsightsFileGenerator } from "../../features/oneShot/one-shot-insights-generator";
 
 /**
