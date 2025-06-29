@@ -196,7 +196,7 @@ describe('Dependency Registration', () => {
   });
   
   describe('conditional registration behavior', () => {
-    it('should only register services once even with multiple registerServices calls', async () => {
+    it('should only register services once even with multiple registerAppDependencies calls', async () => {
       const config: ServiceRunnerConfig = {
         requiresLLM: false,
         requiresMongoDB: false
