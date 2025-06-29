@@ -37,15 +37,6 @@ export const projectedAppSummaryDescAndLLMProviderSchema = appSummaryRecordSchem
 });
 
 /**
- * Generate JSON schema for application summary records
- */
-export function getJSONSchema() {
-  return generateMDBJSONSchema(appSummaryRecordSchema);  
-}
-
-// TypeScript types inferred from schemas
-
-/**
  * Type for name-description pair use in app summaries
  */
 export type AppSummaryNameDesc = z.infer<typeof nameDescSchema>;
@@ -71,3 +62,10 @@ export type PartialAppSummaryRecord = Partial<AppSummaryRecord>;
  * Type for MongoDB projected document with app description and LLM provider fields
  */
 export type ProjectedAppSummaryDescAndLLMProvider = z.infer<typeof projectedAppSummaryDescAndLLMProviderSchema>; 
+
+/**
+ * Generate JSON schema for application summary records
+ */
+export function getJSONSchema() {
+  return generateMDBJSONSchema(appSummaryRecordSchema);  
+}

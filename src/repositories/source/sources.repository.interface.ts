@@ -1,5 +1,5 @@
 import { Double } from "mongodb";
-import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrationInfo, ProjectedSourceFilePathAndSummary, ProjectedSourceSummaryFields } from "./source.model";
+import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrationInfo, ProjectedSourceFilePathAndSummary, ProjectedSourceSummaryFields, ProjectedFileTypesCountAndLines } from "./source.model";
 
 /**
  * Interface for the Sources repository
@@ -60,4 +60,9 @@ export interface SourcesRepository {
    * Get total lines of code for a project
    */
   getProjectTotalLinesOfCode(projectName: string): Promise<number>;
+
+  /**
+   * Get files count and lines of code count for each file type for a project
+   */
+  getProjectFileTypesCountAndLines(projectName: string): Promise<ProjectedFileTypesCountAndLines[]>;
 } 

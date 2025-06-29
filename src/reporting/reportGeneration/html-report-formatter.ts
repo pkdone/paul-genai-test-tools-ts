@@ -3,7 +3,7 @@ import { reportingConfig } from "../../config";
 import { joinArrayWithSeparators } from "../../utils/text-utils";
 import type { AppSummaryNameDescArray } from "../../repositories/app-summary/app-summary.model";
 import type { AppStatistics, ProcsAndTriggers } from "./types";
-import { DatabaseIntegrationInfo } from "../../repositories/source/source.model";
+import { DatabaseIntegrationInfo, ProjectedFileTypesCountAndLines } from "../../repositories/source/source.model";
 
 /**
  * Class responsible for formatting data into HTML presentation format.
@@ -16,15 +16,17 @@ export class HtmlReportFormatter {
    */
   generateCompleteHTMLReport(
     appStats: AppStatistics,
+    fileTypesData: ProjectedFileTypesCountAndLines[],
     categorizedData: { category: string; label: string; data: AppSummaryNameDescArray }[],
     dbInteractions: DatabaseIntegrationInfo[],
-    procsAndTriggers: ProcsAndTriggers
+    procsAndTriggers: ProcsAndTriggers,
   ): string {
     const html: string[] = [];
     html.push(reportingConfig.HTML_PREFIX);
     html.push(`<h1>Codebase Analysis Report</h1>`);
     html.push("<hr/>");
     html.push(...this.formatAppStatisticsAsHTML(appStats));
+    html.push(...this.formatFileTypesAsHTML(fileTypesData));
 
     for (const categoryData of categorizedData) {
       html.push(...this.formatHTMLTableForCategory(categoryData.category, categoryData.label, categoryData.data));
@@ -159,5 +161,27 @@ export class HtmlReportFormatter {
   generateHTMLKeyValueParagraph(key: string, value: string, extraInfo = ""): string {
     const extraContent = extraInfo ? `&nbsp;&nbsp;&nbsp;&nbsp;${extraInfo}` : "";
     return `<p>${key}: <b>${value}</b>${extraContent}</p>`;
+  }
+
+  /**
+   * Format file types data as HTML
+   */
+  formatFileTypesAsHTML(fileTypesData: ProjectedFileTypesCountAndLines[]): string[] {
+    const html: string[] = [];
+    html.push(`\n<h2>File Types Summary</h2>\n`);
+    
+    if (fileTypesData.length > 0) {
+      // Transform the data to have more readable column headers
+      const transformedData = fileTypesData.map(item => ({
+        'File Type': item.fileType,
+        'Files Count': item.files,
+        'Lines Count': item.lines
+      }));
+      html.push(...this.generateHTMLTableFromArrayOfObjects(transformedData));
+    } else {
+      html.push("<p>No file type data available</p>");
+    }
+    
+    return html;
   }
 }

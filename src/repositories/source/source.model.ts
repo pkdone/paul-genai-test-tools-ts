@@ -80,15 +80,6 @@ export const projectedDatabaseIntegrationFieldsSchema = z.object({
 });
 
 /**
- * Generate JSON schema for source file records
- */
-export function getJSONSchema() {
-  return generateMDBJSONSchema(sourceRecordSchema);  
-}
-
-// TypeScript types inferred from schemas
-
-/**
  * Interface representing a source file record in the database
  * (making it optional for _id)
  */
@@ -121,6 +112,15 @@ export type ProjectedDatabaseIntegrationFields = z.infer<typeof projectedDatabas
 export type ProjectedSourceMetataContentAndSummary = z.infer<typeof projectedSourceMetataContentAndSummarySchema>;
 
 /**
+ * Interface representing 
+ */
+export interface ProjectedFileTypesCountAndLines {
+  readonly fileType: string;
+  readonly lines: number;
+  readonly files: number;
+} 
+
+/**
  * Interface representing database integration information
  */
 export interface DatabaseIntegrationInfo {
@@ -128,3 +128,11 @@ export interface DatabaseIntegrationInfo {
   readonly mechanism: string;
   readonly description: string;
 } 
+
+/**
+ * Generate JSON schema for source file records
+ */
+export function getJSONSchema() {
+  return generateMDBJSONSchema(sourceRecordSchema);  
+}
+

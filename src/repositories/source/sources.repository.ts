@@ -3,7 +3,8 @@ import { MongoClient, Double, Sort } from "mongodb";
 import { SourcesRepository } from "./sources.repository.interface";
 import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrationInfo, 
          ProjectedSourceFilePathAndSummary, ProjectedSourceSummaryFields,
-         ProjectedDatabaseIntegrationFields, ProjectedFilePath } from "./source.model";
+         ProjectedDatabaseIntegrationFields, ProjectedFilePath, 
+         ProjectedFileTypesCountAndLines} from "./source.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config";
 import { logErrorMsgAndDetail } from "../../utils/error-utils";
@@ -214,5 +215,22 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
     ];
     const result = await this.collection.aggregate<{ count: number }>(pipeline).toArray();
     return result[0]?.count ?? 0;
+  }
+
+  /**
+   * Get files count and lines of code count for each file typefor a project
+   */
+  async getProjectFileTypesCountAndLines(projectName: string): Promise<ProjectedFileTypesCountAndLines[]> {
+    const pipeline = [
+      { $match: { projectName } },
+      { $group: {
+        _id: "$type", 
+        lines: { $sum: "$linesCount" },          
+        files: { $sum: 1 },          
+      } },
+      { $set: { fileType: "$_id" } },
+      { $sort: { files: -1 } },
+    ];
+    return await this.collection.aggregate<ProjectedFileTypesCountAndLines>(pipeline).toArray();
   }
 } 

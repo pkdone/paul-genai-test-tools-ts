@@ -33,14 +33,16 @@ export default class AppReportGenerator {
    */
   async generateHTMLReport(projectName: string): Promise<string> {
     const appStats = await this.getAppStatistics(projectName);
+    const fileTypesData = await this.sourcesRepository.getProjectFileTypesCountAndLines(projectName);
     const categorizedData = await this.getCategorizedData(projectName);
     const dbInteractions = await this.buildDBInteractionList(projectName);
     const procsAndTriggers = await this.buildDBStoredProcsTriggersSummaryList(projectName);
     return this.htmlFormatter.generateCompleteHTMLReport(
       appStats,
+      fileTypesData,
       categorizedData,
       dbInteractions,
-      procsAndTriggers
+      procsAndTriggers,
     );
   }
 
