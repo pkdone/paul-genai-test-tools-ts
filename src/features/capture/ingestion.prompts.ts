@@ -39,7 +39,7 @@ CODE:
 /**
  * Union type for prompt template configuration
  */
-export type PromptTemplate = DetailedPromptConfig | BasicPromptConfig;
+type PromptTemplate = DetailedPromptConfig | BasicPromptConfig;
 
 /**
  * Data-driven mapping of prompt types to their templates and schemas
