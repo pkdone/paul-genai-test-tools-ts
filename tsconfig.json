@@ -4,7 +4,6 @@
     "module": "NodeNext",
     "lib": ["ES2023"],
     "outDir": "./dist",
-    "rootDir": "./src",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution": "nodenext",
@@ -32,7 +31,8 @@
     "emitDecoratorMetadata": true
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "tests/**/*.ts"
   ],
   "exclude": [
     "node_modules"

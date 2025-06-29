@@ -1,4 +1,4 @@
-import { getErrorText, getErrorStack } from "./error-utils";
+import { getErrorText, getErrorStack } from "../../../src/common/utils/error-utils";
 
 describe("Error utilities", () => {
   describe("getErrorText", () => {

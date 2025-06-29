@@ -1,8 +1,8 @@
-import { LLMPurpose, LLMResponseStatus, LLMContext, LLMFunctionResponse, LLMResponseTokensUsage } from "../../llm.types";
-import { extractTokensAmountFromMetadataDefaultingMissingValues, postProcessAsJSONIfNeededGeneratingNewResult } from "./llm-response-tools";
-import { extractTokensAmountAndLimitFromErrorMsg } from "./llm-error-pattern-parser";
-import { BEDROCK_COMMON_ERROR_PATTERNS } from "../../providers/bedrock/bedrock-error-patterns";
-import { OPENAI_COMMON_ERROR_PATTERNS } from "../../providers/openai/openai-error-patterns";
+import { LLMPurpose, LLMResponseStatus, LLMContext, LLMFunctionResponse, LLMResponseTokensUsage } from "../../../../src/llm/llm.types";
+import { extractTokensAmountFromMetadataDefaultingMissingValues, postProcessAsJSONIfNeededGeneratingNewResult } from "../../../../src/llm/utils/responseProcessing/llm-response-tools";
+import { extractTokensAmountAndLimitFromErrorMsg } from "../../../../src/llm/utils/responseProcessing/llm-error-pattern-parser";
+import { BEDROCK_COMMON_ERROR_PATTERNS } from "../../../../src/llm/providers/bedrock/bedrock-error-patterns";
+import { OPENAI_COMMON_ERROR_PATTERNS } from "../../../../src/llm/providers/openai/openai-error-patterns";
 
 const testMetadata = {
   "GPT_COMPLETIONS_GPT4": {

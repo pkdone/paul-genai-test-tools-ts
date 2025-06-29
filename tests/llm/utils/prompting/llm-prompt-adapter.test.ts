@@ -1,6 +1,6 @@
 import "reflect-metadata";
-import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMResponseTokensUsage, ResolvedLLMModelMetadata } from "../../llm.types";
-import { PromptAdapter, TokenLimitReductionStrategy, PromptAdaptationStrategy } from "../prompting/llm-prompt-adapter";
+import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMResponseTokensUsage, ResolvedLLMModelMetadata } from "../../../../src/llm/llm.types";
+import { PromptAdapter, TokenLimitReductionStrategy, PromptAdaptationStrategy } from "../../../../src/llm/utils/prompting/llm-prompt-adapter";
 
 const testMetadata = {
   "GPT_COMPLETIONS_GPT4": {

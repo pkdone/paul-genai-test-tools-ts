@@ -6,6 +6,7 @@
     "test:verbose": "jest --verbose",
     "test:int": "jest --testPathIgnorePatterns=\"/node_modules/\" --testPathPattern=\"\\\\.int\\\\.test\\\\.ts$\"",
     "lint": "eslint .",
+    "format": "prettier --write \"**/*.+(ts|tsx)\"",    
     "validate": "npm run compile && npm run lint && npm run test && npm run test:int",
     "checkin": "git add . && git commit -m \"refactorings\" && git push && git status"
   },

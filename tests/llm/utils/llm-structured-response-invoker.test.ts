@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import 'reflect-metadata';
 import { z } from 'zod';
-import { LLMStructuredResponseInvoker } from './llm-structured-response-invoker';
-import type LLMRouter from '../core/llm-router';
-import * as errorUtils from '../../common/utils/error-utils';
+import { LLMStructuredResponseInvoker } from '../../../src/llm/utils/llm-structured-response-invoker';
+import type LLMRouter from '../../../src/llm/core/llm-router';
+import * as errorUtils from '../../../src/common/utils/error-utils';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 // Mock dependencies
-jest.mock('../core/llm-router');
-jest.mock('../../common/utils/error-utils', () => ({
+jest.mock('../../../src/llm/core/llm-router');
+jest.mock('../../../src/common/utils/error-utils', () => ({
   logErrorMsgAndDetail: jest.fn(),
 }));
 jest.mock('zod-to-json-schema');

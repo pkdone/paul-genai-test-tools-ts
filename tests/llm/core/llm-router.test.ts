@@ -1,30 +1,30 @@
 import "reflect-metadata";
 import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMContext, LLMProviderImpl, 
          LLMModelQuality, ResolvedLLMModelMetadata, LLMResponseTokensUsage } 
-       from "../llm.types";
-import { BadResponseMetadataLLMError, RejectionResponseLLMError } from "../utils/llm-errors.types";
+       from "../../../src/llm/llm.types";
+import { BadResponseMetadataLLMError, RejectionResponseLLMError } from "../../../src/llm/utils/llm-errors.types";
 import { z } from "zod";
-import LLMRouter from "./llm-router";
-import LLMStats from "../utils/routerTracking/llm-stats";
-import { PromptAdapter } from "../utils/prompting/llm-prompt-adapter";
-import { LLMService } from "./llm-service";
-import type { EnvVars } from "../../lifecycle/env.types";
+import LLMRouter from "../../../src/llm/core/llm-router";
+import LLMStats from "../../../src/llm/utils/routerTracking/llm-stats";
+import { PromptAdapter } from "../../../src/llm/utils/prompting/llm-prompt-adapter";
+import { LLMService } from "../../../src/llm/core/llm-service";
+import type { EnvVars } from "../../../src/lifecycle/env.types";
 
 // Mock the dependencies
-jest.mock("../utils/responseProcessing/llm-response-tools", () => ({
+jest.mock("../../../src/llm/utils/responseProcessing/llm-response-tools", () => ({
   reducePromptSizeToTokenLimit: jest.fn((prompt: string) => {
     // Simple mock implementation that reduces prompt by half
     return prompt.substring(0, Math.floor(prompt.length * 0.5));
   })
 }));
 
-jest.mock("../utils/routerTracking/llm-router-logging", () => ({
+jest.mock("../../../src/llm/utils/routerTracking/llm-router-logging", () => ({
   log: jest.fn(),
   logErrWithContext: jest.fn(),
   logWithContext: jest.fn()
 }));
 
-jest.mock("../utils/routerTracking/llm-stats", () => {
+jest.mock("../../../src/llm/utils/routerTracking/llm-stats", () => {
   return jest.fn().mockImplementation(() => ({
     recordSuccess: jest.fn(),
     recordFailure: jest.fn(),
@@ -38,7 +38,7 @@ jest.mock("../utils/routerTracking/llm-stats", () => {
   }));
 });
 
-jest.mock("../utils/prompting/llm-prompt-adapter", () => ({
+jest.mock("../../../src/llm/utils/prompting/llm-prompt-adapter", () => ({
   PromptAdapter: jest.fn().mockImplementation(() => ({
     adaptPromptFromResponse: jest.fn((prompt: string) => {
       return prompt.substring(0, Math.floor(prompt.length * 0.5));

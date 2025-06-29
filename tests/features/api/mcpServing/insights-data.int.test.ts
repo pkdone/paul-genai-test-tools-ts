@@ -1,10 +1,10 @@
 import "reflect-metadata";
-import InsightsDataServer from "./insights-data-server";
-import { databaseConfig } from "../../../config/database.config";
-import { loadBaseEnvVarsOnly } from "../../../lifecycle/env";
-import { getProjectNameFromPath } from "../../../common/utils/path-utils";
-import { MongoDBClientFactory } from "../../../common/mdb/mdb-client-factory";
-import AppSummariesRepositoryImpl from "../../../repositories/app-summary/app-summaries.repository";
+import InsightsDataServer from "../../../../src/features/api/mcpServing/insights-data-server";
+import { databaseConfig } from "../../../../src/config/database.config";
+import { loadBaseEnvVarsOnly } from "../../../../src/lifecycle/env";
+import { getProjectNameFromPath } from "../../../../src/common/utils/path-utils";
+import { MongoDBClientFactory } from "../../../../src/common/mdb/mdb-client-factory";
+import AppSummariesRepositoryImpl from "../../../../src/repositories/app-summary/app-summaries.repository";
 
 describe("AnalysisDataServer", () => {
   it("should return an array of objects where each object has keys 'name' and 'description'", async () => {

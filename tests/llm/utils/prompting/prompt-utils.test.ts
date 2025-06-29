@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { schemaToJsonString, buildPrompt } from './prompt-utils';
+import { schemaToJsonString, buildPrompt } from '../../../../src/llm/utils/prompting/prompt-utils';
 
 describe('prompt-utils', () => {
   describe('schemaToJsonString', () => {

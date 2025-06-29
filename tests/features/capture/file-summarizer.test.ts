@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import 'reflect-metadata';
-import { FileSummarizer, SummaryResult } from './file-summarizer';
-import { LLMStructuredResponseInvoker } from '../../llm/utils/llm-structured-response-invoker';
-import * as errorUtils from '../../common/utils/error-utils';
+import { FileSummarizer, SummaryResult } from '../../../src/features/capture/file-summarizer';
+import { LLMStructuredResponseInvoker } from '../../../src/llm/utils/llm-structured-response-invoker';
+import * as errorUtils from '../../../src/common/utils/error-utils';
 
 // Mock dependencies
-jest.mock('../../llm/utils/llm-structured-response-invoker');
-jest.mock('../../common/utils/error-utils', () => ({
+jest.mock('../../../src/llm/utils/llm-structured-response-invoker');
+jest.mock('../../../src/common/utils/error-utils', () => ({
   logErrorMsgAndDetail: jest.fn(),
   getErrorText: jest.fn((error: unknown) => {
     if (error && typeof error === 'object' && 'message' in error) {
@@ -16,7 +16,7 @@ jest.mock('../../common/utils/error-utils', () => ({
   }),
 }));
 
-jest.mock('../../config/app.config', () => ({
+jest.mock('../../../src/config/app.config', () => ({
   appConfig: {
     README_FILE_NAME: 'README',
   },

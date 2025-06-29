@@ -3,17 +3,17 @@ import {
   FileHandler,
   filePromptSchemaMappings,
   defaultHandler,
-} from './file-handler-mappings';
-import * as summaryPrompts from './ingestion.prompts';
-import * as summarySchemas from './ingestion.schemas';
-import { appConfig } from '../../config/app.config';
+} from '../../../src/features/capture/file-handler-mappings';
+import * as summaryPrompts from '../../../src/features/capture/ingestion.prompts';
+import * as summarySchemas from '../../../src/features/capture/ingestion.schemas';
+import { appConfig } from '../../../src/config/app.config';
 
 // Mock the dependencies
-jest.mock('./ingestion.prompts', () => ({
+jest.mock('../../../src/features/capture/ingestion.prompts', () => ({
   createSummaryPrompt: jest.fn(),
 }));
 
-jest.mock('./ingestion.schemas', () => ({
+jest.mock('../../../src/features/capture/ingestion.schemas', () => ({
   javaFileSummarySchema: { _def: { typeName: 'ZodObject' } },
   jsFileSummarySchema: { _def: { typeName: 'ZodObject' } },
   defaultFileSummarySchema: { _def: { typeName: 'ZodObject' } },
@@ -23,7 +23,7 @@ jest.mock('./ingestion.schemas', () => ({
   markdownFileSummarySchema: { _def: { typeName: 'ZodObject' } },
 }));
 
-jest.mock('../../config/app.config', () => ({
+jest.mock('../../../src/config/app.config', () => ({
   appConfig: {
     README_FILE_NAME: 'README',
   },

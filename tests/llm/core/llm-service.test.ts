@@ -1,20 +1,20 @@
-import { LLMService } from "./llm-service";
-import { EnvVars } from "../../lifecycle/env.types";
-import { LLMPurpose, LLMProviderImpl, LLMModelQuality } from "../llm.types";
-import { BadConfigurationLLMError } from "../utils/llm-errors.types";
-import { LLMProviderManifest } from "../providers/llm-provider.types";
+import { LLMService } from "../../../src/llm/core/llm-service";
+import { EnvVars } from "../../../src/lifecycle/env.types";
+import { LLMPurpose, LLMProviderImpl, LLMModelQuality } from "../../../src/llm/llm.types";
+import { BadConfigurationLLMError } from "../../../src/llm/utils/llm-errors.types";
+import { LLMProviderManifest } from "../../../src/llm/providers/llm-provider.types";
 import { z } from "zod";
 
 // Mock dependencies
-jest.mock("../../common/utils/error-utils", () => ({
+jest.mock("../../../src/common/utils/error-utils", () => ({
   logErrorMsgAndDetail: jest.fn()
 }));
 
-jest.mock("../../common/utils/fs-utils", () => ({
+jest.mock("../../../src/common/utils/fs-utils", () => ({
   readDirContents: jest.fn()
 }));
 
-jest.mock("../../config/app.config", () => ({
+jest.mock("../../../src/config/app.config", () => ({
   appConfig: {
     PROVIDERS_FOLDER_PATH: "../providers",
     MANIFEST_FILE_SUFFIX: ".manifest.js",

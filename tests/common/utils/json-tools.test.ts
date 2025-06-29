@@ -1,4 +1,4 @@
-import { convertTextToJSON } from "./json-tools";
+import { convertTextToJSON } from "../../../src/common/utils/json-tools";
 
 // Test interfaces for generic type testing
 interface TestUser {

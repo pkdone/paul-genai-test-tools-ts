@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Decimal128 } from 'bson';
-import { generateMDBJSONSchema, zBsonObjectId, zBsonDecimal128, zBsonDate } from './zod-to-mdb-json-schema';
+import { generateMDBJSONSchema, zBsonObjectId, zBsonDecimal128, zBsonDate } from '../../../src/common/mdb/zod-to-mdb-json-schema';
 
 describe('zod-to-mdb-json-schema', () => {
   describe('generateMDBJSONSchema', () => {

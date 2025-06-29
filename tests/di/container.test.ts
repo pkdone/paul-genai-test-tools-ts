@@ -1,11 +1,11 @@
-import { bootstrapContainer, container } from './container';
-import { ServiceRunnerConfig } from '../lifecycle/service.types';
-import { TOKENS } from './tokens';
+import { bootstrapContainer, container } from '../../src/di/container';
+import { ServiceRunnerConfig } from '../../src/lifecycle/service.types';
+import { TOKENS } from '../../src/di/tokens';
 
 // Mock the LLM-related modules to avoid environment dependencies in tests
-jest.mock('../llm/core/llm-service');
-jest.mock('../llm/core/llm-router');
-jest.mock('../common/mdb/mdb-client-factory', () => {
+jest.mock('../../src/llm/core/llm-service');
+jest.mock('../../src/llm/core/llm-router');
+jest.mock('../../src/common/mdb/mdb-client-factory', () => {
   return {
     MongoDBClientFactory: jest.fn().mockImplementation(() => {
       const mockClient = {

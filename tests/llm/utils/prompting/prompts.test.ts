@@ -1,6 +1,6 @@
 import {
   createSummaryPrompt,
-} from '../../../features/capture/ingestion.prompts';
+} from '../../../../src/features/capture/ingestion.prompts';
 
 // Mock the dependencies
 jest.mock('type-safe-prompt', () => ({
@@ -14,7 +14,7 @@ jest.mock('type-safe-prompt', () => ({
   }),
 }));
 
-jest.mock('./prompt-utils', () => ({
+jest.mock('../../../../src/llm/utils/prompting/prompt-utils', () => ({
   schemaToJsonString: jest.fn(() => JSON.stringify({ mocked: 'schema', type: 'unknown' }, null, 2)),
   buildPrompt: jest.fn((template: string, _schema: unknown, content: string) => {
     // Simple mock that replaces template variables

@@ -1,7 +1,7 @@
-import { LLMPurpose } from "../../llm.types";
-import { parseTokenUsageFromLLMError } from "./llm-error-pattern-parser";
-import { BEDROCK_COMMON_ERROR_PATTERNS } from "../../providers/bedrock/bedrock-error-patterns";
-import { OPENAI_COMMON_ERROR_PATTERNS } from "../../providers/openai/openai-error-patterns";
+import { LLMPurpose } from "../../../../src/llm/llm.types";
+import { parseTokenUsageFromLLMError } from "../../../../src/llm/utils/responseProcessing/llm-error-pattern-parser";
+import { BEDROCK_COMMON_ERROR_PATTERNS } from "../../../../src/llm/providers/bedrock/bedrock-error-patterns";
+import { OPENAI_COMMON_ERROR_PATTERNS } from "../../../../src/llm/providers/openai/openai-error-patterns";
 
 const testMetadata = {
   "GPT_COMPLETIONS_GPT4": {

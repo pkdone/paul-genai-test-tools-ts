@@ -1,10 +1,10 @@
 import { Double } from "bson";
 import { convertArrayOfNumbersToArrayOfDoubles, redactUrl, createVectorSearchIndexDefinition,
-         REDACTED_URL, REDACTED_CREDENTIALS } from "./mdb-utils";
-import { logErrorMsgAndDetail } from "../utils/error-utils";
+         REDACTED_URL, REDACTED_CREDENTIALS } from "../../../src/common/mdb/mdb-utils";
+import { logErrorMsgAndDetail } from "../../../src/common/utils/error-utils";
 
 // Mock the error-utils module
-jest.mock("../utils/error-utils");
+jest.mock("../../../src/common/utils/error-utils");
 const mockLogErrorMsgAndDetail = logErrorMsgAndDetail as jest.MockedFunction<typeof logErrorMsgAndDetail>;
 
 describe("mdb-utils", () => {
