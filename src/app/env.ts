@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 import { z } from "zod";
 import { baseEnvVarsSchema } from "./env.types";
-import LLMRouter from "../common/llm/llm-router";
+import LLMRouter from "../llm/llm-router";
 import { MongoDBClientFactory } from "../common/mdb/mdb-client-factory";
-import { llmConfig } from "../common/llm/llm.config";
+import { llmConfig } from "../llm/llm.config";
 
 /**
  * Utility function to load only base environment variables and validate them.

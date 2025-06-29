@@ -1,10 +1,10 @@
 import { injectable, inject } from "tsyringe";
-import type LLMRouter from "../../../common/llm/llm-router";
+import type LLMRouter from "../../../llm/llm-router";
 import { appConfig } from "../../../app/app.config";
 import { reportingConfig } from "../../reporting/reporting.config";
 import { logErrorMsgAndDetail } from "../../../common/utils/error-utils";
 import { joinArrayWithSeparators } from "../../../common/utils/text-utils";
-import { LLMStructuredResponseInvoker } from "../../../common/llm/llm-structured-response-invoker";
+import { LLMStructuredResponseInvoker } from "../../../llm/llm-structured-response-invoker";
 import type { AppSummariesRepository } from "../../../repositories/app-summary/app-summaries.repository.interface";
 import type { SourcesRepository } from "../../../repositories/source/sources.repository.interface";
 import type { PartialAppSummaryRecord } from "../../../repositories/app-summary/app-summary.model";

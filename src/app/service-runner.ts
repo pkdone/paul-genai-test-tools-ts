@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { MongoDBClientFactory } from "../common/mdb/mdb-client-factory";
 import { gracefulShutdown } from "./env";
-import LLMRouter from "../common/llm/llm-router";
+import LLMRouter from "../llm/llm-router";
 import { Service } from "./service.types";
 import { container } from "../di/container";
 import { TOKENS } from "../di/tokens";

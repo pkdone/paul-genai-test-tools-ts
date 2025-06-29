@@ -1,6 +1,6 @@
 import * as schemas from './ingestion.schemas';
-import { buildPrompt } from '../../../common/llm/common/prompting/prompt-utils';
-import { promptConfig } from '../../../common/llm/common/prompting/prompt.config';
+import { buildPrompt } from '../../../llm/common/prompting/prompt-utils';
+import { promptConfig } from '../../../llm/common/prompting/prompt.config';
 import { z } from 'zod';
 
 // Base template for detailed file summary prompts (Java, JS, etc.)

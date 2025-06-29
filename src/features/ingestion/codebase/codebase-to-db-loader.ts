@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import type LLMRouter from "../../../common/llm/llm-router";
+import type LLMRouter from "../../../llm/llm-router";
 import path from "path";
 import { appConfig } from "../../../app/app.config";
 import { readFile, buildDirDescendingListOfFiles } from "../../../common/utils/fs-utils";

@@ -6,7 +6,7 @@ import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrati
          ProjectedDatabaseIntegrationFields, ProjectedFilePath, 
          ProjectedFileTypesCountAndLines} from "./source.model";
 import { TOKENS } from "../../di/tokens";
-import { databaseConfig } from "../../dbInit/database.config";
+import { databaseConfig } from "../database.config";
 import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
 import { BaseRepository } from "../base.repository";
 
