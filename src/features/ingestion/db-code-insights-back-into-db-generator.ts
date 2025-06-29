@@ -1,13 +1,13 @@
 import { injectable, inject } from "tsyringe";
-import type LLMRouter from "../llm/llm-router";
-import { fileSystemConfig, reportingConfig } from "../config";
-import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { joinArrayWithSeparators } from "../utils/text-utils";
-import { LLMStructuredResponseInvoker } from "../llm/llm-structured-response-invoker";
-import type { AppSummariesRepository } from "../repositories/app-summary/app-summaries.repository.interface";
-import type { SourcesRepository } from "../repositories/source/sources.repository.interface";
-import type { PartialAppSummaryRecord } from "../repositories/app-summary/app-summary.model";
-import { TOKENS } from "../di/tokens";
+import type LLMRouter from "../../llm/llm-router";
+import { fileSystemConfig, reportingConfig } from "../../config";
+import { logErrorMsgAndDetail } from "../../utils/error-utils";
+import { joinArrayWithSeparators } from "../../utils/text-utils";
+import { LLMStructuredResponseInvoker } from "../../llm/llm-structured-response-invoker";
+import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
+import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
+import type { PartialAppSummaryRecord } from "../../repositories/app-summary/app-summary.model";
+import { TOKENS } from "../../di/tokens";
 import { categoryPromptSchemaMappings, type AppSummaryCategory } from './category-mappings';
 
 /**

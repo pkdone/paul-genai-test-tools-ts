@@ -1,11 +1,11 @@
 import { injectable, inject } from "tsyringe";
 import { fillPrompt } from "type-safe-prompt";
-import type LLMRouter from "../llm/llm-router";
-import { fileSystemConfig, llmConfig } from "../config";
-import { convertArrayOfNumbersToArrayOfDoubles } from "../mdb/mdb-utils";
-import type { SourcesRepository } from "../repositories/source/sources.repository.interface";
-import type { ProjectedSourceMetataContentAndSummary } from "../repositories/source/source.model";
-import { TOKENS } from "../di/tokens";
+import type LLMRouter from "../../llm/llm-router";
+import { fileSystemConfig, llmConfig } from "../../config";
+import { convertArrayOfNumbersToArrayOfDoubles } from "../../mdb/mdb-utils";
+import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
+import type { ProjectedSourceMetataContentAndSummary } from "../../repositories/source/source.model";
+import { TOKENS } from "../../di/tokens";
 
 /**
  * Creates a prompt for querying the codebase with a specific question.

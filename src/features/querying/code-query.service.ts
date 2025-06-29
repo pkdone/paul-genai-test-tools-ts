@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { getTextLines } from "../utils/fs-utils";
-import CodeQuestioner from "../codebaseQuerying/code-questioner";
-import { fileSystemConfig } from "../config";
-import { Service } from "../types/service.types";
-import { TOKENS } from "../di/tokens";
+import { getTextLines } from "../../utils/fs-utils";
+import CodeQuestioner from "./code-questioner";
+import { fileSystemConfig } from "../../config";
+import { Service } from "../../types/service.types";
+import { TOKENS } from "../../di/tokens";
 
 /**
  * Service to query the codebase.

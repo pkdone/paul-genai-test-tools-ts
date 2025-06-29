@@ -1,12 +1,12 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { fileSystemConfig } from "../config";
-import { clearDirectory, buildDirDescendingListOfFiles } from "../utils/fs-utils";
+import { fileSystemConfig } from "../../config";
+import { clearDirectory, buildDirDescendingListOfFiles } from "../../utils/fs-utils";
 import { RawCodeToInsightsFileGenerator } from "../reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
-import type LLMRouter from "../llm/llm-router";
-import { Service } from "../types/service.types";
-import type { EnvVars } from "../types/env.types";
-import { TOKENS } from "../di/tokens";
+import type LLMRouter from "../../llm/llm-router";
+import { Service } from "../../types/service.types";
+import type { EnvVars } from "../../types/env.types";
+import { TOKENS } from "../../di/tokens";
 
 /**
  * Service to generate inline insights.

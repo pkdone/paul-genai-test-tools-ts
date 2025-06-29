@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import 'reflect-metadata';
 import { FileSummarizer, SummaryResult } from './file-summarizer';
-import { LLMStructuredResponseInvoker } from '../llm/llm-structured-response-invoker';
-import * as errorUtils from '../utils/error-utils';
+import { LLMStructuredResponseInvoker } from '../../llm/llm-structured-response-invoker';
+import * as errorUtils from '../../utils/error-utils';
 
 // Mock dependencies
-jest.mock('../llm/llm-structured-response-invoker');
-jest.mock('../utils/error-utils', () => ({
+jest.mock('../../llm/llm-structured-response-invoker');
+jest.mock('../../utils/error-utils', () => ({
   logErrorMsgAndDetail: jest.fn(),
   getErrorText: jest.fn((error: unknown) => {
     if (error && typeof error === 'object' && 'message' in error) {
@@ -16,7 +16,7 @@ jest.mock('../utils/error-utils', () => ({
   }),
 }));
 
-jest.mock('../config/fileSystem.config', () => ({
+jest.mock('../../config/fileSystem.config', () => ({
   fileSystemConfig: {
     README_FILE_NAME: 'README',
   },

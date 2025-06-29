@@ -2,10 +2,10 @@ import { injectable, inject } from "tsyringe";
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { logErrorMsgAndDetail } from "../../utils/error-utils";
-import { httpConfig, mcpConfig } from "../../config";
+import { logErrorMsgAndDetail } from "../../../utils/error-utils";
+import { httpConfig, mcpConfig } from "../../../config";
 import McpDataServer from "./mcp-data-server";
-import { TOKENS } from "../../di/tokens";
+import { TOKENS } from "../../../di/tokens";
 
 /** 
  * Class to handle HTTP requests and responses for the Model Context Protocol (MCP) server.

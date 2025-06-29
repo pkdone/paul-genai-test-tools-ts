@@ -1,19 +1,19 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { CodebaseCaptureService } from "../../services/codebase-capture.service";
-import { CodebaseQueryService } from "../../services/code-query.service";
-import { InsightsFromDBGenerationService } from "../../services/insights-from-db-generation.service";
-import { OneShotGenerateInsightsService } from "../../services/one-shot-generate-insights.service";
+import { CodebaseCaptureService } from "../../features/ingestion/codebase-capture.service";
+import { CodebaseQueryService } from "../../features/querying/code-query.service";
+import { InsightsFromDBGenerationService } from "../../features/ingestion/insights-from-db-generation.service";
+import { OneShotGenerateInsightsService } from "../../features/ingestion/one-shot-generate-insights.service";
 import { MDBConnectionTestService } from "../../services/mdb-connection-test.service";
 import { PluggableLLMsTestService } from "../../services/test-pluggable-llms.service";
-import { McpServerService } from "../../services/mcp-server.service";
-import { ReportGenerationService } from "../../services/report-generation-service";
+import { McpServerService } from "../../features/api/mcp-server.service";
+import { ReportGenerationService } from "../../features/reporting/report-generation-service";
 import { DBInitializerService } from "../../dbInit/db-initializer.service";
 import type LLMRouter from "../../llm/llm-router";
 import type { EnvVars } from "../../types/env.types";
-import type CodebaseToDBLoader from "../../codebaseIngestion/codebase-to-db-loader";
-import type DBCodeInsightsBackIntoDBGenerator from "../../insightsGeneration/db-code-insights-back-into-db-generator";
-import type { RawCodeToInsightsFileGenerator } from "../../reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
+import type CodebaseToDBLoader from "../../features/ingestion/codebase-to-db-loader";
+import type DBCodeInsightsBackIntoDBGenerator from "../../features/ingestion/db-code-insights-back-into-db-generator";
+import type { RawCodeToInsightsFileGenerator } from "../../features/reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 
 /**
  * Register main executable services as singletons using tsyringe's built-in singleton management.

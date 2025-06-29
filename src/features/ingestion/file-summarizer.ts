@@ -1,10 +1,10 @@
 import path from "path";
 import { injectable, inject } from "tsyringe";
-import { logErrorMsgAndDetail, getErrorText } from "../utils/error-utils";
-import { LLMStructuredResponseInvoker } from "../llm/llm-structured-response-invoker";
-import { TOKENS } from "../di/tokens";
+import { logErrorMsgAndDetail, getErrorText } from "../../utils/error-utils";
+import { LLMStructuredResponseInvoker } from "../../llm/llm-structured-response-invoker";
+import { TOKENS } from "../../di/tokens";
 import { SummaryType, FileHandler, filePromptSchemaMappings, defaultHandler } from './file-handler-mappings';
-import { fileSystemConfig } from "../config/fileSystem.config";
+import { fileSystemConfig } from "../../config/fileSystem.config";
 
 // Result type for better error handling
 export type SummaryResult<T = SummaryType> = 

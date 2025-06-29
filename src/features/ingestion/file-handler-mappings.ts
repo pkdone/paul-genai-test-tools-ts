@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as summaryPrompts from './ingestion.prompts';
 import * as summarySchemas from './ingestion.schemas';
-import { fileSystemConfig } from "../config/fileSystem.config";
+import { fileSystemConfig } from "../../config/fileSystem.config";
 
 // Strong typing for all possible summary types
 export type SummaryType = 

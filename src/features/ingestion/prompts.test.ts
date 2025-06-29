@@ -20,7 +20,7 @@ jest.mock('type-safe-prompt', () => ({
   }),
 }));
 
-jest.mock('../llm/common/prompt-utils', () => ({
+jest.mock('../../llm/common/prompt-utils', () => ({
   schemaToJsonString: jest.fn(() => JSON.stringify({ mocked: 'schema', type: 'unknown' }, null, 2)),
   buildPrompt: jest.fn((template: string, _schema: unknown, content: string) => {
     // Simple mock that replaces template variables

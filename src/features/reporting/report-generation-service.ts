@@ -1,12 +1,12 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { Service } from "../types/service.types";
-import type { EnvVars } from "../types/env.types";
-import { TOKENS } from "../di/tokens";
-import { fileSystemConfig, reportingConfig } from "../config";
-import { clearDirectory, writeFile } from "../utils/fs-utils";
+import { Service } from "../../types/service.types";
+import type { EnvVars } from "../../types/env.types";
+import { TOKENS } from "../../di/tokens";
+import { fileSystemConfig, reportingConfig } from "../../config";
+import { clearDirectory, writeFile } from "../../utils/fs-utils";
 import path from "path";
-import AppReportGenerator from "../reporting/reportGeneration/app-report-generator";
+import AppReportGenerator from "./reportGeneration/app-report-generator";
 
 /**
  * Service to generate a report of an application's composition.

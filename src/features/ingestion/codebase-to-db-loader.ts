@@ -1,16 +1,16 @@
 import { injectable, inject } from "tsyringe";
-import type LLMRouter from "../llm/llm-router";
+import type LLMRouter from "../../llm/llm-router";
 import path from "path";
-import { fileSystemConfig, mcpConfig } from "../config";
-import { readFile, buildDirDescendingListOfFiles } from "../utils/fs-utils";
-import { getFileSuffix } from "../utils/path-utils";
-import { countLines } from "../utils/text-utils";
+import { fileSystemConfig, mcpConfig } from "../../config";
+import { readFile, buildDirDescendingListOfFiles } from "../../utils/fs-utils";
+import { getFileSuffix } from "../../utils/path-utils";
+import { countLines } from "../../utils/text-utils";
 import pLimit from 'p-limit';
-import { logErrorMsgAndDetail } from "../utils/error-utils";
+import { logErrorMsgAndDetail } from "../../utils/error-utils";
 import { FileSummarizer } from "./file-summarizer";
-import type { SourcesRepository } from "../repositories/source/sources.repository.interface";
-import type { SourceRecord } from "../repositories/source/source.model";
-import { TOKENS } from "../di/tokens";
+import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
+import type { SourceRecord } from "../../repositories/source/source.model";
+import { TOKENS } from "../../di/tokens";
 
 /** 
  * Loads each source file into a class to represent it.

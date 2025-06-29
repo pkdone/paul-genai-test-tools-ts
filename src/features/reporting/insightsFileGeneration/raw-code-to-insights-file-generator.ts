@@ -1,12 +1,12 @@
 import path from "path";
 import { promises as fs } from "fs";
 import { injectable } from "tsyringe";
-import { fileSystemConfig, mcpConfig } from "../../config";
-import { readFile, writeFile, readDirContents } from "../../utils/fs-utils";
-import { getFileSuffix } from "../../utils/path-utils";
+import { fileSystemConfig, mcpConfig } from "../../../config";
+import { readFile, writeFile, readDirContents } from "../../../utils/fs-utils";
+import { getFileSuffix } from "../../../utils/path-utils";
 import pLimit from 'p-limit';
-import { logErrorMsgAndDetail, getErrorText } from "../../utils/error-utils";
-import LLMRouter from "../../llm/llm-router";
+import { logErrorMsgAndDetail, getErrorText } from "../../../utils/error-utils";
+import LLMRouter from "../../../llm/llm-router";
 
 /**
  * Interface to define the filename and question of a file requirement prompt

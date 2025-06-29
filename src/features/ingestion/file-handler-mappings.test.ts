@@ -6,7 +6,7 @@ import {
 } from './file-handler-mappings';
 import * as summaryPrompts from './ingestion.prompts';
 import * as summarySchemas from './ingestion.schemas';
-import { fileSystemConfig } from '../config/fileSystem.config';
+import { fileSystemConfig } from '../../config/fileSystem.config';
 
 // Mock the dependencies
 jest.mock('./ingestion.prompts', () => ({
@@ -29,7 +29,7 @@ jest.mock('./ingestion.schemas', () => ({
   markdownFileSummarySchema: { _def: { typeName: 'ZodObject' } },
 }));
 
-jest.mock('../config/fileSystem.config', () => ({
+jest.mock('../../config/fileSystem.config', () => ({
   fileSystemConfig: {
     README_FILE_NAME: 'README',
   },
