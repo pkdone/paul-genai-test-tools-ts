@@ -1,6 +1,5 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { createAsyncFactory, asyncDep, syncDep } from "../async-factory-helper";
 
 // Repository imports
 import SourcesRepositoryImpl from "../../repositories/source/sources.repository";
@@ -32,7 +31,9 @@ import { McpServerService } from "../../features/api/mcp-server.service";
 import { ReportGenerationService } from "../../features/reporting/report-generation-service";
 import { DBInitializerService } from "../../repositories/db-initializer.service";
 
-// Type imports - these are no longer needed since we use the helper factory
+// Type imports
+import type LLMRouter from "../../llm/core/llm-router";
+import type { EnvVars } from "../../lifecycle/env.types";
 
 /**
  * Register all application-level dependencies (repositories, components, and services).
@@ -85,50 +86,55 @@ function registerComponents(): void {
 }
 
 /**
- * Register components that depend on LLMRouter using async factories to handle the async LLMRouter dependency.
- * Using manual dependency resolution for async dependencies to ensure proper initialization.
+ * Register components that depend on LLMRouter using standard async factories to handle the async LLMRouter dependency.
+ * Using explicit dependency resolution for async dependencies to ensure proper initialization.
  */
 function registerLLMDependentComponents(): void {
   // LLMStructuredResponseInvoker
   container.register(TOKENS.LLMStructuredResponseInvoker, {
-    useFactory: createAsyncFactory(LLMStructuredResponseInvoker, [
-      asyncDep(TOKENS.LLMRouter)
-    ])
+    useFactory: async (c) => {
+      const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
+      return new LLMStructuredResponseInvoker(llmRouter);
+    },
   });
 
   // FileSummarizer
   container.register(TOKENS.FileSummarizer, {
-    useFactory: createAsyncFactory(FileSummarizer, [
-      asyncDep(TOKENS.LLMStructuredResponseInvoker)
-    ])
+    useFactory: async (c) => {
+      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(TOKENS.LLMStructuredResponseInvoker);
+      return new FileSummarizer(llmStructuredResponseInvoker);
+    },
   });
 
   // CodebaseToDBLoader
   container.register(TOKENS.CodebaseToDBLoader, {
-    useFactory: createAsyncFactory(CodebaseToDBLoader, [
-      syncDep(TOKENS.SourcesRepository),
-      asyncDep(TOKENS.LLMRouter),
-      asyncDep(TOKENS.FileSummarizer)
-    ])
+    useFactory: async (c) => {
+      const sourcesRepository = c.resolve<SourcesRepository>(TOKENS.SourcesRepository);
+      const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
+      const fileSummarizer = await c.resolve<Promise<FileSummarizer>>(TOKENS.FileSummarizer);
+      return new CodebaseToDBLoader(sourcesRepository, llmRouter, fileSummarizer);
+    },
   });
 
   // CodeQuestioner
   container.register(TOKENS.CodeQuestioner, {
-    useFactory: createAsyncFactory(CodeQuestioner, [
-      syncDep(TOKENS.SourcesRepository),
-      asyncDep(TOKENS.LLMRouter)
-    ])
+    useFactory: async (c) => {
+      const sourcesRepository = c.resolve<SourcesRepository>(TOKENS.SourcesRepository);
+      const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
+      return new CodeQuestioner(sourcesRepository, llmRouter);
+    },
   });
 
   // DBCodeInsightsBackIntoDBGenerator
   container.register(TOKENS.DBCodeInsightsBackIntoDBGenerator, {
-    useFactory: createAsyncFactory(DBCodeInsightsBackIntoDBGenerator, [
-      syncDep(TOKENS.AppSummariesRepository),
-      asyncDep(TOKENS.LLMRouter),
-      syncDep(TOKENS.SourcesRepository),
-      syncDep(TOKENS.ProjectName),
-      asyncDep(TOKENS.LLMStructuredResponseInvoker)
-    ])
+    useFactory: async (c) => {
+      const appSummariesRepository = c.resolve<AppSummariesRepository>(TOKENS.AppSummariesRepository);
+      const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
+      const sourcesRepository = c.resolve<SourcesRepository>(TOKENS.SourcesRepository);
+      const projectName = c.resolve<string>(TOKENS.ProjectName);
+      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(TOKENS.LLMStructuredResponseInvoker);
+      return new DBCodeInsightsBackIntoDBGenerator(appSummariesRepository, llmRouter, sourcesRepository, projectName, llmStructuredResponseInvoker);
+    },
   });
 }
 
@@ -151,45 +157,49 @@ function registerServices(): void {
 }
 
 /**
- * Register services that depend on LLMRouter using async factories to handle the async LLMRouter dependency.
- * Using manual dependency resolution for async dependencies to ensure proper initialization.
+ * Register services that depend on LLMRouter using standard async factories to handle the async LLMRouter dependency.
+ * Using explicit dependency resolution for async dependencies to ensure proper initialization.
  */
 function registerLLMDependentServices(): void {
   // CodebaseCaptureService
   container.register(TOKENS.CodebaseCaptureService, {
-    useFactory: createAsyncFactory(CodebaseCaptureService, [
-      asyncDep(TOKENS.LLMRouter),
-      syncDep(TOKENS.DBInitializerService),
-      syncDep(TOKENS.EnvVars),
-      syncDep(TOKENS.ProjectName),
-      asyncDep(TOKENS.CodebaseToDBLoader)
-    ])
+    useFactory: async (c) => {
+      const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
+      const dbInitializerService = c.resolve<DBInitializerService>(TOKENS.DBInitializerService);
+      const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
+      const projectName = c.resolve<string>(TOKENS.ProjectName);
+      const codebaseToDBLoader = await c.resolve<Promise<CodebaseToDBLoader>>(TOKENS.CodebaseToDBLoader);
+      return new CodebaseCaptureService(llmRouter, dbInitializerService, envVars, projectName, codebaseToDBLoader);
+    },
   });
 
   // InsightsFromDBGenerationService
   container.register(TOKENS.InsightsFromDBGenerationService, {
-    useFactory: createAsyncFactory(InsightsFromDBGenerationService, [
-      asyncDep(TOKENS.LLMRouter),
-      syncDep(TOKENS.ProjectName),
-      asyncDep(TOKENS.DBCodeInsightsBackIntoDBGenerator)
-    ])
+    useFactory: async (c) => {
+      const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
+      const projectName = c.resolve<string>(TOKENS.ProjectName);
+      const dbCodeInsightsBackIntoDBGenerator = await c.resolve<Promise<DBCodeInsightsBackIntoDBGenerator>>(TOKENS.DBCodeInsightsBackIntoDBGenerator);
+      return new InsightsFromDBGenerationService(llmRouter, projectName, dbCodeInsightsBackIntoDBGenerator);
+    },
   });
 
   // OneShotGenerateInsightsService
   container.register(TOKENS.OneShotGenerateInsightsService, {
-    useFactory: createAsyncFactory(OneShotGenerateInsightsService, [
-      asyncDep(TOKENS.LLMRouter),
-      syncDep(TOKENS.EnvVars),
-      syncDep(TOKENS.RawCodeToInsightsFileGenerator)
-    ])
+    useFactory: async (c) => {
+      const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
+      const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
+      const rawCodeToInsightsFileGenerator = c.resolve<RawCodeToInsightsFileGenerator>(TOKENS.RawCodeToInsightsFileGenerator);
+      return new OneShotGenerateInsightsService(llmRouter, envVars, rawCodeToInsightsFileGenerator);
+    },
   });
 
   // PluggableLLMsTestService
   container.register(TOKENS.PluggableLLMsTestService, {
-    useFactory: createAsyncFactory(PluggableLLMsTestService, [
-      asyncDep(TOKENS.LLMRouter)
-    ])
+    useFactory: async (c) => {
+      const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
+      return new PluggableLLMsTestService(llmRouter);
+    },
   });
 
-  console.log("LLM-dependent services registered with async factories");
+  console.log("LLM-dependent services registered with standard async factories");
 }
