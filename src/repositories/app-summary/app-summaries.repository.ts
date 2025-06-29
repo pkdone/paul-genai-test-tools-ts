@@ -3,7 +3,7 @@ import { MongoClient } from "mongodb";
 import { AppSummariesRepository } from "./app-summaries.repository.interface";
 import { AppSummaryRecord, ProjectedAppSummaryDescAndLLMProvider, PartialAppSummaryRecord } from "./app-summary.model";
 import { TOKENS } from "../../di/tokens";
-import { databaseConfig } from "../../config";
+import { databaseConfig } from "../../dbInit/database.config";
 import { BaseRepository } from "../base.repository";
 
 /**

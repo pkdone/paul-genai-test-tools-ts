@@ -1,17 +1,17 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { FileSummarizer } from "../../features/ingestion/file-summarizer";
+import { FileSummarizer } from "../../features/ingestion/codebase/file-summarizer";
 import { HtmlReportFormatter } from "../../features/reporting/reportGeneration/html-report-formatter";
 import { RawCodeToInsightsFileGenerator } from "../../features/reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 import AppReportGenerator from "../../features/reporting/reportGeneration/app-report-generator";
-import CodebaseToDBLoader from "../../features/ingestion/codebase-to-db-loader";
+import CodebaseToDBLoader from "../../features/ingestion/codebase/codebase-to-db-loader";
 import CodeQuestioner from "../../features/querying/code-questioner";
-import DBCodeInsightsBackIntoDBGenerator from "../../features/ingestion/db-code-insights-back-into-db-generator";
-import { LLMStructuredResponseInvoker } from "../../llm/llm-structured-response-invoker";
+import DBCodeInsightsBackIntoDBGenerator from "../../features/ingestion/insights/db-code-insights-back-into-db-generator";
+import { LLMStructuredResponseInvoker } from "../../common/llm/llm-structured-response-invoker";
 import InsightsDataServer from "../../features/api/mcpServing/insights-data-server";
 import McpDataServer from "../../features/api/mcpServing/mcp-data-server";
 import McpHttpServer from "../../features/api/mcpServing/mcp-http-server";
-import type LLMRouter from "../../llm/llm-router";
+import type LLMRouter from "../../common/llm/llm-router";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
 

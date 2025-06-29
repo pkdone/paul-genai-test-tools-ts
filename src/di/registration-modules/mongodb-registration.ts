@@ -1,8 +1,8 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { MongoDBClientFactory } from "../../mdb/mdb-client-factory";
-import { databaseConfig } from "../../config";
-import type { EnvVars } from "../../types/env.types";
+import { MongoDBClientFactory } from "../../common/mdb/mdb-client-factory";
+import { databaseConfig } from "../../dbInit/database.config";
+import type { EnvVars } from "../../app/env.types";
 
 /**
  * Register MongoDB-related dependencies.

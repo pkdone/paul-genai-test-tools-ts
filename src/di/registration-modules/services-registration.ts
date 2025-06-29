@@ -1,18 +1,18 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { CodebaseCaptureService } from "../../features/ingestion/codebase-capture.service";
+import { CodebaseCaptureService } from "../../features/ingestion/codebase/codebase-capture.service";
 import { CodebaseQueryService } from "../../features/querying/code-query.service";
-import { InsightsFromDBGenerationService } from "../../features/ingestion/insights-from-db-generation.service";
+import { InsightsFromDBGenerationService } from "../../features/ingestion/insights/insights-from-db-generation.service";
 import { OneShotGenerateInsightsService } from "../../features/ingestion/one-shot-generate-insights.service";
-import { MDBConnectionTestService } from "../../services/mdb-connection-test.service";
-import { PluggableLLMsTestService } from "../../services/test-pluggable-llms.service";
+import { MDBConnectionTestService } from "../../e2eTests/mdb-connection-test.service";
+import { PluggableLLMsTestService } from "../../e2eTests/test-pluggable-llms.service";
 import { McpServerService } from "../../features/api/mcp-server.service";
 import { ReportGenerationService } from "../../features/reporting/report-generation-service";
 import { DBInitializerService } from "../../dbInit/db-initializer.service";
-import type LLMRouter from "../../llm/llm-router";
-import type { EnvVars } from "../../types/env.types";
-import type CodebaseToDBLoader from "../../features/ingestion/codebase-to-db-loader";
-import type DBCodeInsightsBackIntoDBGenerator from "../../features/ingestion/db-code-insights-back-into-db-generator";
+import type LLMRouter from "../../common/llm/llm-router";
+import type { EnvVars } from "../../app/env.types";
+import type CodebaseToDBLoader from "../../features/ingestion/codebase/codebase-to-db-loader";
+import type DBCodeInsightsBackIntoDBGenerator from "../../features/ingestion/insights/db-code-insights-back-into-db-generator";
 import type { RawCodeToInsightsFileGenerator } from "../../features/reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 
 /**

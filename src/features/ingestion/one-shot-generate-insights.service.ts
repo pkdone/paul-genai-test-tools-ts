@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { fileSystemConfig } from "../../config";
-import { clearDirectory, buildDirDescendingListOfFiles } from "../../utils/fs-utils";
+import { appConfig } from "../../app/app.config";
+import { clearDirectory, buildDirDescendingListOfFiles } from "../../common/utils/fs-utils";
 import { RawCodeToInsightsFileGenerator } from "../reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
-import type LLMRouter from "../../llm/llm-router";
-import { Service } from "../../types/service.types";
-import type { EnvVars } from "../../types/env.types";
+import type LLMRouter from "../../common/llm/llm-router";
+import { Service } from "../../app/service.types";
+import type { EnvVars } from "../../app/env.types";
 import { TOKENS } from "../../di/tokens";
 
 /**
@@ -33,14 +33,14 @@ export class OneShotGenerateInsightsService implements Service {
    * Generates inline insights.
    */
   private async generateInlineInsights(srcDirPath: string, llmName: string): Promise<void> {
-    const cleanSrcDirPath = srcDirPath.replace(fileSystemConfig.TRAILING_SLASH_PATTERN, "");
+    const cleanSrcDirPath = srcDirPath.replace(appConfig.TRAILING_SLASH_PATTERN, "");
     const srcFilepaths = await buildDirDescendingListOfFiles(cleanSrcDirPath);
     this.llmRouter.displayLLMStatusSummary();
     const prompts = await this.insightProcessor.loadPrompts();
-    await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
+    await clearDirectory(appConfig.OUTPUT_DIR);  
     await this.insightProcessor.processSourceFilesWithPrompts(this.llmRouter, srcFilepaths, 
       cleanSrcDirPath, prompts, llmName);      
     this.llmRouter.displayLLMStatusDetails();
-    console.log(`View generated results in the 'file://${fileSystemConfig.OUTPUT_DIR}' folder`);
+    console.log(`View generated results in the 'file://${appConfig.OUTPUT_DIR}' folder`);
   }
 } 

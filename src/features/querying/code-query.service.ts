@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { getTextLines } from "../../utils/fs-utils";
+import { getTextLines } from "../../common/utils/fs-utils";
 import CodeQuestioner from "./code-questioner";
-import { fileSystemConfig } from "../../config";
-import { Service } from "../../types/service.types";
+import { appConfig } from "../../app/app.config";
+import { Service } from "../../app/service.types";
 import { TOKENS } from "../../di/tokens";
 
 /**
@@ -31,7 +31,7 @@ export class CodebaseQueryService implements Service {
    */
   private async queryCodebase(): Promise<void> {
     console.log(`Performing vector search then invoking LLM for optimal results for project: ${this.projectName}`);
-    const questions = await getTextLines(fileSystemConfig.QUESTIONS_PROMPTS_FILEPATH);
+    const questions = await getTextLines(appConfig.QUESTIONS_PROMPTS_FILEPATH);
 
     for (const question of questions) {
       const result = await this.codeQuestioner.queryCodebaseWithQuestion(question, this.projectName);

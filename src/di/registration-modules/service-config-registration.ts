@@ -1,5 +1,5 @@
 import { TOKENS } from "../tokens";
-import { ServiceRunnerConfig } from "../../types/service.types";
+import { ServiceRunnerConfig } from "../../app/service.types";
 
 /**
  * Service configuration mapping that defines what resources each service requires

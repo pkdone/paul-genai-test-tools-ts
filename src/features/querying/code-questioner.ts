@@ -1,8 +1,9 @@
 import { injectable, inject } from "tsyringe";
 import { fillPrompt } from "type-safe-prompt";
-import type LLMRouter from "../../llm/llm-router";
-import { fileSystemConfig, llmConfig } from "../../config";
-import { convertArrayOfNumbersToArrayOfDoubles } from "../../mdb/mdb-utils";
+import type LLMRouter from "../../common/llm/llm-router";
+import { appConfig } from "../../app/app.config";
+import { llmConfig } from "../../common/llm/llm.config";
+import { convertArrayOfNumbersToArrayOfDoubles } from "../../common/mdb/mdb-utils";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { ProjectedSourceMetataContentAndSummary } from "../../repositories/source/source.model";
 import { TOKENS } from "../../di/tokens";
@@ -51,7 +52,7 @@ export default class CodeQuestioner {
     const queryVectorDoubles = convertArrayOfNumbersToArrayOfDoubles(queryVector);  // HACK, see: https://jira.mongodb.org/browse/NODE-5714
     const bestMatchFiles = await this.sourcesRepository.vectorSearchProjectSourcesRawContent(
       projectName,
-      fileSystemConfig.JAVA_FILE_TYPE,
+      appConfig.JAVA_FILE_TYPE,
       queryVectorDoubles,
       llmConfig.VECTOR_SEARCH_NUM_CANDIDATES,
       llmConfig.VECTOR_SEARCH_NUM_LIMIT

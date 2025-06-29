@@ -2,8 +2,9 @@ import { injectable, inject } from "tsyringe";
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { logErrorMsgAndDetail } from "../../../utils/error-utils";
-import { httpConfig, mcpConfig } from "../../../config";
+import { logErrorMsgAndDetail } from "../../../common/utils/error-utils";
+import { httpConfig } from "./http.config";
+import { mcpConfig } from "./mcp.config";
 import McpDataServer from "./mcp-data-server";
 import { TOKENS } from "../../../di/tokens";
 
@@ -104,7 +105,7 @@ export default class McpHttpServer {
       req.setEncoding(httpConfig.ENCODING_UTF8);
       req.on(mcpConfig.EVENT_DATA, (chunk: string) => { data += chunk; });
       req.on(mcpConfig.EVENT_END, () => { resolve(data); });
-      req.on(mcpConfig.EVENT_ERROR, (err) => { reject(err); });
+      req.on(mcpConfig.EVENT_ERROR, (err: Error) => { reject(err); });
     });
   }  
    

@@ -1,8 +1,8 @@
 import { injectable, inject } from "tsyringe";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import InsightsDataServer from "./insights-data-server";
-import { mcpConfig } from "../../config";
-import { TOKENS } from "../../di/tokens";
+import { mcpConfig } from "./mcp.config";
+import { TOKENS } from "../../../di/tokens";
 
 /** 
  * Class representing the MCP Data Server.

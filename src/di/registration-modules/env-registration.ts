@@ -1,13 +1,13 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { EnvVars } from "../../types/env.types";
-import { LLMService } from "../../llm/llm-service";
-import { loadBaseEnvVarsOnly } from "../../lifecycle/env";
+import { EnvVars } from "../../app/env.types";
+import { LLMService } from "../../common/llm/llm-service";
+import { loadBaseEnvVarsOnly } from "../../app/env";
 import { z } from "zod";
-import { baseEnvVarsSchema } from "../../types/env.types";
-import { BadConfigurationLLMError } from "../../types/llm-errors.types";
-import { getErrorStack } from "../../utils/error-utils";
-import { getProjectNameFromPath } from "../../utils/path-utils";
+import { baseEnvVarsSchema } from "../../app/env.types";
+import { BadConfigurationLLMError } from "../../common/llm/common/llm-errors.types";
+import { getErrorStack } from "../../common/utils/error-utils";
+import { getProjectNameFromPath } from "../../common/utils/path-utils";
 import dotenv from "dotenv";
 
 /**

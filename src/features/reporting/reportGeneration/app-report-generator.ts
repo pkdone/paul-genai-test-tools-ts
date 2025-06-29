@@ -1,9 +1,10 @@
 import { injectable, inject } from "tsyringe";
-import { fileSystemConfig, reportingConfig } from "../../config";
-import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
-import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
-import type { AppSummaryNameDescArray } from "../../repositories/app-summary/app-summary.model";
-import { TOKENS } from "../../di/tokens";
+import { appConfig } from "../../../app/app.config";
+import { reportingConfig } from "../reporting.config";
+import type { SourcesRepository } from "../../../repositories/source/sources.repository.interface";
+import type { AppSummariesRepository } from "../../../repositories/app-summary/app-summaries.repository.interface";
+import type { AppSummaryNameDescArray } from "../../../repositories/app-summary/app-summary.model";
+import { TOKENS } from "../../../di/tokens";
 import { HtmlReportFormatter } from "./html-report-formatter";
 import type { AppStatistics, ProcsAndTriggers } from "./types";
 import { Complexity, isComplexity } from "./types";
@@ -50,7 +51,7 @@ export default class AppReportGenerator {
    * Returns a list of database integrations.
    */
   async buildDBInteractionList(projectName: string) {
-    return await this.sourcesRepository.getProjectDatabaseIntegrations(projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+    return await this.sourcesRepository.getProjectDatabaseIntegrations(projectName, [...appConfig.SOURCE_FILES_FOR_CODE]);
   }
 
   /**
@@ -62,7 +63,7 @@ export default class AppReportGenerator {
       trigs: { total: 0, low: 0, medium: 0, high: 0, list: [] },
     };
     
-    const records = await this.sourcesRepository.getProjectStoredProceduresAndTriggers(projectName, [...fileSystemConfig.SOURCE_FILES_FOR_CODE]);
+    const records = await this.sourcesRepository.getProjectStoredProceduresAndTriggers(projectName, [...appConfig.SOURCE_FILES_FOR_CODE]);
 
     for (const record of records) {
       const summary = record.summary;
@@ -131,11 +132,12 @@ export default class AppReportGenerator {
    * Collect categorized data for all categories
    */
   private async getCategorizedData(projectName: string): Promise<{ category: string; label: string; data: AppSummaryNameDescArray }[]> {
-    const categoryKeys = Object.keys(reportingConfig.APP_SUMMARIES_CATEGORY_TITLES)
-      .filter((key): key is keyof typeof reportingConfig.APP_SUMMARIES_CATEGORY_TITLES => key !== reportingConfig.APP_DESCRIPTION_KEY);
+    const categoryTitles = reportingConfig.APP_SUMMARIES_CATEGORY_TITLES;
+    const categoryKeys = Object.keys(categoryTitles)
+      .filter(key => key !== reportingConfig.APP_DESCRIPTION_KEY);
 
     const promises = categoryKeys.map(async (category) => {
-      const label = reportingConfig.APP_SUMMARIES_CATEGORY_TITLES[category];
+      const label = categoryTitles[category as keyof typeof categoryTitles];
       const data = await this.appSummariesRepository.getProjectAppSummaryField<AppSummaryNameDescArray>(projectName, category);
       console.log(`Generated ${label} table`);
       return { category, label, data: data ?? [] };

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { generateMDBJSONSchema, zBsonObjectId } from '../../mdb/zod-to-mdb-json-schema';
+import { generateMDBJSONSchema, zBsonObjectId } from '../../common/mdb/zod-to-mdb-json-schema';
 import { nameDescSchema } from '../../schemas/common.schemas';
  // passthrough() sets "additionalProperties": true
 

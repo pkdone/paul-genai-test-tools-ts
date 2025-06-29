@@ -1,10 +1,10 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { LLMService } from "../../llm/llm-service";
-import LLMRouter from "../../llm/llm-router";
-import LLMStats from "../../llm/common/routerTracking/llm-stats";
-import { PromptAdapter } from "../../llm/common/responseProcessing/llm-prompt-adapter";
-import type { EnvVars } from "../../types/env.types";
+import { LLMService } from "../../common/llm/llm-service";
+import LLMRouter from "../../common/llm/llm-router";
+import LLMStats from "../../common/llm/common/routerTracking/llm-stats";
+import { PromptAdapter } from "../../common/llm/common/responseProcessing/llm-prompt-adapter";
+import type { EnvVars } from "../../app/env.types";
 
 /**
  * Register LLM-related dependencies using a more declarative approach.

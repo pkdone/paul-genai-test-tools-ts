@@ -1,10 +1,11 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { Service } from "../../types/service.types";
-import type { EnvVars } from "../../types/env.types";
+import { Service } from "../../app/service.types";
+import type { EnvVars } from "../../app/env.types";
 import { TOKENS } from "../../di/tokens";
-import { fileSystemConfig, reportingConfig } from "../../config";
-import { clearDirectory, writeFile } from "../../utils/fs-utils";
+import { appConfig } from "../../app/app.config";
+import { reportingConfig } from "./reporting.config";
+import { clearDirectory, writeFile } from "../../common/utils/fs-utils";
 import path from "path";
 import AppReportGenerator from "./reportGeneration/app-report-generator";
 
@@ -34,11 +35,11 @@ export class ReportGenerationService implements Service {
    */
   private async generateReport(srcDirPath: string): Promise<void> {
     console.log(`ReportGenerationService: Generating report for source directory: ${srcDirPath}`);    
-    const cleanSrcDirPath = srcDirPath.replace(fileSystemConfig.TRAILING_SLASH_PATTERN, "");
+    const cleanSrcDirPath = srcDirPath.replace(appConfig.TRAILING_SLASH_PATTERN, "");
     console.log(cleanSrcDirPath);
-    await clearDirectory(fileSystemConfig.OUTPUT_DIR);  
+    await clearDirectory(appConfig.OUTPUT_DIR);  
     console.log(`Creating report for project: ${this.projectName}`);
-    const htmlFilePath = path.join(fileSystemConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
+    const htmlFilePath = path.join(appConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
     
     await writeFile(htmlFilePath, await this.appReportGenerator.generateHTMLReport(this.projectName));      
     console.log(`View generated report in a browser: file://${path.resolve(htmlFilePath)}`);

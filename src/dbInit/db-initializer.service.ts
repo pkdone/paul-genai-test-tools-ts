@@ -2,10 +2,11 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { TOKENS } from "../di/tokens";
-import { databaseConfig, llmConfig } from "../config";
-import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { createVectorSearchIndexDefinition } from "../mdb/mdb-utils";
-import { Service } from "../types/service.types";
+import { databaseConfig } from "./database.config";
+import { llmConfig } from "../common/llm/llm.config";
+import { logErrorMsgAndDetail } from "../common/utils/error-utils";
+import { createVectorSearchIndexDefinition } from "../common/mdb/mdb-utils";
+import { Service } from "../app/service.types";
 import * as sourceSchema from "../repositories/source/source.model";
 import * as appSummarySchema from "../repositories/app-summary/app-summary.model";
 

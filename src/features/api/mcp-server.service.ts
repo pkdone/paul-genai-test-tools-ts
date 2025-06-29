@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { mcpConfig } from "../../config";
+import { mcpConfig } from "./mcpServing/mcp.config";
 import McpHttpServer from "./mcpServing/mcp-http-server";
-import { Service } from "../../types/service.types";
+import { Service } from "../../app/service.types";
 import { TOKENS } from "../../di/tokens";
-import type { MongoDBClientFactory } from "../../mdb/mdb-client-factory";
-import { gracefulShutdown } from "../../lifecycle/env";
+import type { MongoDBClientFactory } from "../../common/mdb/mdb-client-factory";
+import { gracefulShutdown } from "../../app/env";
 
 /**
  * Service to run the MCP insights server.

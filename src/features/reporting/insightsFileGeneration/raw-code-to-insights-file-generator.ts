@@ -1,12 +1,12 @@
 import path from "path";
 import { promises as fs } from "fs";
 import { injectable } from "tsyringe";
-import { fileSystemConfig, mcpConfig } from "../../../config";
-import { readFile, writeFile, readDirContents } from "../../../utils/fs-utils";
-import { getFileSuffix } from "../../../utils/path-utils";
+import { appConfig } from "../../../app/app.config";
+import { readFile, writeFile, readDirContents } from "../../../common/utils/fs-utils";
+import { getFileSuffix } from "../../../common/utils/path-utils";
 import pLimit from 'p-limit';
-import { logErrorMsgAndDetail, getErrorText } from "../../../utils/error-utils";
-import LLMRouter from "../../../llm/llm-router";
+import { logErrorMsgAndDetail, getErrorText } from "../../../common/utils/error-utils";
+import LLMRouter from "../../../common/llm/llm-router";
 
 /**
  * Interface to define the filename and question of a file requirement prompt
@@ -32,13 +32,13 @@ export class RawCodeToInsightsFileGenerator {
     llmName: string
   ): Promise<string[]> {
     const codeBlocksContent = await this.mergeSourceFilesContent(srcFilepaths, srcDirPath);
-    const limit = pLimit(mcpConfig.MAX_CONCURRENCY);
+    const limit = pLimit(appConfig.MAX_CONCURRENCY);
 
     const tasks = prompts.map(async prompt => {
       return limit(async () => {
         const result = await this.executePromptAgainstCodebase(prompt, codeBlocksContent, llmRouter);
         const outputFileName = `${prompt.filename}.result`;
-        const outputFilePath = path.join(process.cwd(), fileSystemConfig.OUTPUT_DIR, outputFileName);
+        const outputFilePath = path.join(process.cwd(), appConfig.OUTPUT_DIR, outputFileName);
         await writeFile(outputFilePath, 
           `GENERATED-BY: ${llmName}\n\nREQUIREMENT: ${prompt.question}\n\nRECOMENDATIONS:\n\n${result.trim()}\n`);
         return outputFilePath;
@@ -52,13 +52,13 @@ export class RawCodeToInsightsFileGenerator {
    * Load prompts from files in the input folder
    */
   async loadPrompts(): Promise<FileRequirementPrompt[]> {
-    const inputDir = fileSystemConfig.REQUIREMENTS_PROMPTS_FOLDERPATH;
+    const inputDir = appConfig.REQUIREMENTS_PROMPTS_FOLDERPATH;
     const prompts: FileRequirementPrompt[] = [];
     
     try {
       await fs.mkdir(inputDir, { recursive: true });
       const files = await readDirContents(inputDir);
-      const promptFiles = files.filter(file => fileSystemConfig.REQS_FILE_REGEX.test(file.name));
+      const promptFiles = files.filter(file => appConfig.REQS_FILE_REGEX.test(file.name));
       
       for (const file of promptFiles) {
         const filePath = path.join(inputDir, file.name);
@@ -84,7 +84,7 @@ export class RawCodeToInsightsFileGenerator {
     for (const filepath of filepaths) {
       const relativeFilepath = filepath.replace(`${srcDirPath}/`, "");    
       const type = getFileSuffix(filepath).toLowerCase();
-      if ((fileSystemConfig.BINARY_FILE_SUFFIX_IGNORE_LIST as readonly string[]).includes(type)) continue; // Skip file if it has binary content
+      if ((appConfig.BINARY_FILE_SUFFIX_IGNORE_LIST as readonly string[]).includes(type)) continue; // Skip file if it has binary content
       const content = await readFile(filepath);
       contentParts.push(`\n\`\`\` ${relativeFilepath}\n${content.trim()}\n\`\`\`\n`);
     }
