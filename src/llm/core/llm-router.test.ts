@@ -1,30 +1,30 @@
 import "reflect-metadata";
 import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMContext, LLMProviderImpl, 
          LLMModelQuality, ResolvedLLMModelMetadata, LLMResponseTokensUsage } 
-       from "./llm.types";
-import { BadResponseMetadataLLMError, RejectionResponseLLMError } from "./common/llm-errors.types";
+       from "../llm.types";
+import { BadResponseMetadataLLMError, RejectionResponseLLMError } from "../utils/llm-errors.types";
 import { z } from "zod";
 import LLMRouter from "./llm-router";
-import LLMStats from "./common/routerTracking/llm-stats";
-import { PromptAdapter } from "./common/responseProcessing/llm-prompt-adapter";
+import LLMStats from "../utils/routerTracking/llm-stats";
+import { PromptAdapter } from "../utils/responseProcessing/llm-prompt-adapter";
 import { LLMService } from "./llm-service";
-import type { EnvVars } from "../app/env.types";
+import type { EnvVars } from "../../app/env.types";
 
 // Mock the dependencies
-jest.mock("./common/responseProcessing/llm-response-tools", () => ({
+jest.mock("../utils/responseProcessing/llm-response-tools", () => ({
   reducePromptSizeToTokenLimit: jest.fn((prompt: string) => {
     // Simple mock implementation that reduces prompt by half
     return prompt.substring(0, Math.floor(prompt.length * 0.5));
   })
 }));
 
-jest.mock("./common/routerTracking/llm-router-logging", () => ({
+jest.mock("../utils/routerTracking/llm-router-logging", () => ({
   log: jest.fn(),
   logErrWithContext: jest.fn(),
   logWithContext: jest.fn()
 }));
 
-jest.mock("./common/routerTracking/llm-stats", () => {
+jest.mock("../utils/routerTracking/llm-stats", () => {
   return jest.fn().mockImplementation(() => ({
     recordSuccess: jest.fn(),
     recordFailure: jest.fn(),
@@ -38,7 +38,7 @@ jest.mock("./common/routerTracking/llm-stats", () => {
   }));
 });
 
-jest.mock("./common/responseProcessing/llm-prompt-adapter", () => ({
+jest.mock("../utils/responseProcessing/llm-prompt-adapter", () => ({
   PromptAdapter: jest.fn().mockImplementation(() => ({
     adaptPromptFromResponse: jest.fn((prompt: string) => {
       return prompt.substring(0, Math.floor(prompt.length * 0.5));

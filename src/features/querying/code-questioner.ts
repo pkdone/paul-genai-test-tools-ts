@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import { fillPrompt } from "type-safe-prompt";
-import type LLMRouter from "../../llm/llm-router";
+import type LLMRouter from "../../llm/core/llm-router";
 import { appConfig } from "../../app/app.config";
 import { llmConfig } from "../../llm/llm.config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../../common/mdb/mdb-utils";

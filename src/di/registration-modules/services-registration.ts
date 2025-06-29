@@ -9,7 +9,7 @@ import { PluggableLLMsTestService } from "../../testUtils/test-pluggable-llms.se
 import { McpServerService } from "../../features/api/mcp-server.service";
 import { ReportGenerationService } from "../../features/reporting/report-generation-service";
 import { DBInitializerService } from "../../repositories/db-initializer.service";
-import type LLMRouter from "../../llm/llm-router";
+import type LLMRouter from "../../llm/core/llm-router";
 import type { EnvVars } from "../../app/env.types";
 import type CodebaseToDBLoader from "../../features/ingestion/codebase/codebase-to-db-loader";
 import type DBCodeInsightsBackIntoDBGenerator from "../../features/ingestion/insights/db-code-insights-back-into-db-generator";

@@ -2,8 +2,8 @@ import { injectable, inject } from "tsyringe";
 import type LLMRouter from "./llm-router";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { logErrorMsgAndDetail } from "../common/utils/error-utils";
-import { TOKENS } from "../di/tokens";
+import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
+import { TOKENS } from "../../di/tokens";
 
 /**
  * Injectable service for LLM utility operations with validation and retry logic.

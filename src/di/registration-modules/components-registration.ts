@@ -7,11 +7,11 @@ import AppReportGenerator from "../../features/reporting/reportGeneration/app-re
 import CodebaseToDBLoader from "../../features/ingestion/codebase/codebase-to-db-loader";
 import CodeQuestioner from "../../features/querying/code-questioner";
 import DBCodeInsightsBackIntoDBGenerator from "../../features/ingestion/insights/db-code-insights-back-into-db-generator";
-import { LLMStructuredResponseInvoker } from "../../llm/llm-structured-response-invoker";
+import { LLMStructuredResponseInvoker } from "../../llm/core/llm-structured-response-invoker";
 import InsightsDataServer from "../../features/api/mcpServing/insights-data-server";
 import McpDataServer from "../../features/api/mcpServing/mcp-data-server";
 import McpHttpServer from "../../features/api/mcpServing/mcp-http-server";
-import type LLMRouter from "../../llm/llm-router";
+import type LLMRouter from "../../llm/core/llm-router";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
 

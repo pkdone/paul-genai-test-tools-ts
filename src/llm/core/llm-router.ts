@@ -1,19 +1,19 @@
 import { injectable, inject } from "tsyringe";
-import { llmConfig } from "./llm.config";
+import { llmConfig } from "../llm.config";
 import { LLMContext, LLMFunction, LLMModelQuality, LLMPurpose,
          LLMResponseStatus, LLMGeneratedContent, LLMFunctionResponse,
-         ResolvedLLMModelMetadata } from "./llm.types";
-import type { LLMProviderImpl, LLMCandidateFunction } from "./llm.types";
-import { RetryFunc } from "../common/control/control.types";
-import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "./common/llm-errors.types";
-import { withRetry } from "../common/control/control-utils";
-import type { PromptAdapter } from "./common/responseProcessing/llm-prompt-adapter";
-import { log, logErrWithContext, logWithContext } from "./common/routerTracking/llm-router-logging";
-import type LLMStats from "./common/routerTracking/llm-stats";
-import type { LLMRetryConfig } from "./providers/llm-provider.types";
+         ResolvedLLMModelMetadata } from "../llm.types";
+import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
+import { RetryFunc } from "../../common/control/control.types";
+import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../utils/llm-errors.types";
+import { withRetry } from "../../common/control/control-utils";
+import type { PromptAdapter } from "../utils/responseProcessing/llm-prompt-adapter";
+import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";
+import type LLMStats from "../utils/routerTracking/llm-stats";
+import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
-import type { EnvVars } from "../app/env.types";
-import { TOKENS } from "../di/tokens";
+import type { EnvVars } from "../../app/env.types";
+import { TOKENS } from "../../di/tokens";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying

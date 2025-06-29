@@ -3,12 +3,12 @@ import 'reflect-metadata';
 import { z } from 'zod';
 import { LLMStructuredResponseInvoker } from './llm-structured-response-invoker';
 import type LLMRouter from './llm-router';
-import * as errorUtils from '../common/utils/error-utils';
+import * as errorUtils from '../../common/utils/error-utils';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 
 // Mock dependencies
 jest.mock('./llm-router');
-jest.mock('../common/utils/error-utils', () => ({
+jest.mock('../../common/utils/error-utils', () => ({
   logErrorMsgAndDetail: jest.fn(),
 }));
 jest.mock('zod-to-json-schema');

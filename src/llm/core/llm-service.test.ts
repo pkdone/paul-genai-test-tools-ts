@@ -1,20 +1,20 @@
 import { LLMService } from "./llm-service";
-import { EnvVars } from "../app/env.types";
-import { LLMPurpose, LLMProviderImpl, LLMModelQuality } from "./llm.types";
-import { BadConfigurationLLMError } from "./common/llm-errors.types";
-import { LLMProviderManifest } from "./providers/llm-provider.types";
+import { EnvVars } from "../../app/env.types";
+import { LLMPurpose, LLMProviderImpl, LLMModelQuality } from "../llm.types";
+import { BadConfigurationLLMError } from "../utils/llm-errors.types";
+import { LLMProviderManifest } from "../providers/llm-provider.types";
 import { z } from "zod";
 
 // Mock dependencies
-jest.mock("../common/utils/error-utils", () => ({
+jest.mock("../../common/utils/error-utils", () => ({
   logErrorMsgAndDetail: jest.fn()
 }));
 
-jest.mock("../common/utils/fs-utils", () => ({
+jest.mock("../../common/utils/fs-utils", () => ({
   readDirContents: jest.fn()
 }));
 
-jest.mock("../app/app.config", () => ({
+jest.mock("../../app/app.config", () => ({
   appConfig: {
     PROVIDERS_FOLDER_NAME: "providers",
     MANIFEST_FILE_SUFFIX: ".manifest.ts",

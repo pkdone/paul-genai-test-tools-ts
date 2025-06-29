@@ -1,14 +1,14 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import path from 'path';
-import { appConfig } from "../app/app.config";
-import { LLMProviderImpl, LLMModelKeysSet as LLMModelsKeysSet, LLMModelMetadata, ResolvedLLMModelMetadata } from "./llm.types";
-import { EnvVars } from "../app/env.types";
-import { BadConfigurationLLMError } from "./common/llm-errors.types";
-import { LLMProviderManifest } from "./providers/llm-provider.types";
-import { logErrorMsgAndDetail } from "../common/utils/error-utils";
-import { readDirContents } from "../common/utils/fs-utils";
-import { TOKENS } from "../di/tokens";
+import { appConfig } from "../../app/app.config";
+import { LLMProviderImpl, LLMModelKeysSet as LLMModelsKeysSet, LLMModelMetadata, ResolvedLLMModelMetadata } from "../llm.types";
+import { EnvVars } from "../../app/env.types";
+import { BadConfigurationLLMError } from "../utils/llm-errors.types";
+import { LLMProviderManifest } from "../providers/llm-provider.types";
+import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
+import { readDirContents } from "../../common/utils/fs-utils";
+import { TOKENS } from "../../di/tokens";
 
 /**
  * Service for managing a single LLM provider

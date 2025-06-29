@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import * as schemas from './insights.schemas';
-import { buildPrompt } from '../../../llm/common/prompting/prompt-utils';
-import { promptConfig } from '../../../llm/common/prompting/prompt.config';
+import { buildPrompt } from '../../../llm/utils/prompting/prompt-utils';
+import { promptConfig } from '../../../llm/utils/prompting/prompt.config';
 
 // Base template for all insights generation prompts
 const INSIGHTS_BASE_TEMPLATE = `Act as a programmer analyzing the code in a legacy application. Take the list of paths and descriptions of its source files shown below in the section marked 'SOURCES', and based on their content, return a JSON response that contains {{promptDetails}}.

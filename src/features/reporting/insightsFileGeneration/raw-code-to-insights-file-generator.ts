@@ -6,7 +6,7 @@ import { readFile, writeFile, readDirContents } from "../../../common/utils/fs-u
 import { getFileSuffix } from "../../../common/utils/path-utils";
 import pLimit from 'p-limit';
 import { logErrorMsgAndDetail, getErrorText } from "../../../common/utils/error-utils";
-import LLMRouter from "../../../llm/llm-router";
+import LLMRouter from "../../../llm/core/llm-router";
 
 /**
  * Interface to define the filename and question of a file requirement prompt
