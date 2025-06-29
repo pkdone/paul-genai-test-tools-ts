@@ -1,4 +1,4 @@
-import * as schemas from './schemas';
+import * as schemas from './ingestion.schemas';
 import { buildPrompt } from '../llm/common/prompt-utils';
 import { promptConfig } from '../config';
 import { z } from 'zod';

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { reportingConfig } from "../config";
-import * as insightsPrompts from './prompts';
-import * as insightsSchemas from './schemas';
+import * as insightsPrompts from './insights.prompts';
+import * as insightsSchemas from './insights.schemas';
 
 // Type-safe category definitions
 export type AppSummaryCategory = keyof typeof reportingConfig.APP_SUMMARIES_CATEGORY_TITLES;

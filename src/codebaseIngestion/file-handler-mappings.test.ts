@@ -4,12 +4,12 @@ import {
   filePromptSchemaMappings,
   defaultHandler,
 } from './file-handler-mappings';
-import * as summaryPrompts from './prompts';
-import * as summarySchemas from './schemas';
+import * as summaryPrompts from './ingestion.prompts';
+import * as summarySchemas from './ingestion.schemas';
 import { fileSystemConfig } from '../config/fileSystem.config';
 
 // Mock the dependencies
-jest.mock('./prompts', () => ({
+jest.mock('./ingestion.prompts', () => ({
   createJavaSummaryPrompt: jest.fn(),
   createJsSummaryPrompt: jest.fn(),
   createDefaultSummaryPrompt: jest.fn(),
@@ -19,7 +19,7 @@ jest.mock('./prompts', () => ({
   createMarkdownSummaryPrompt: jest.fn(),
 }));
 
-jest.mock('./schemas', () => ({
+jest.mock('./ingestion.schemas', () => ({
   javaFileSummarySchema: { _def: { typeName: 'ZodObject' } },
   jsFileSummarySchema: { _def: { typeName: 'ZodObject' } },
   defaultFileSummarySchema: { _def: { typeName: 'ZodObject' } },

@@ -6,7 +6,7 @@ import {
   createXmlSummaryPrompt,
   createJspSummaryPrompt,
   createMarkdownSummaryPrompt,
-} from './prompts';
+} from './ingestion.prompts';
 
 // Mock the dependencies
 jest.mock('type-safe-prompt', () => ({
