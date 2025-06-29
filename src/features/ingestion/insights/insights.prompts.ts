@@ -61,25 +61,4 @@ export type InsightsPromptType = keyof typeof insightsPromptTemplates;
 export const createInsightsPrompt = (type: InsightsPromptType, codeContent: string): string => {
   const config = insightsPromptTemplates[type];
   return createSpecificInsightsPrompt(config.details, config.schema, codeContent);
-};
-
-// Backwards compatibility - exported functions that use the new data-driven approach
-export const createAppDescriptionPrompt = (codeContent: string): string => {
-  return createInsightsPrompt('appDescription', codeContent);
-};
-
-export const createBoundedContextsPrompt = (codeContent: string): string => {
-  return createInsightsPrompt('boundedContexts', codeContent);
-};
-
-export const createBusinessEntitiesPrompt = (codeContent: string): string => {
-  return createInsightsPrompt('businessEntities', codeContent);
-};
-
-export const createBusinessProcessesPrompt = (codeContent: string): string => {
-  return createInsightsPrompt('businessProcesses', codeContent);
-};
-
-export const createTechnologiesPrompt = (codeContent: string): string => {
-  return createInsightsPrompt('technologies', codeContent);
 }; 

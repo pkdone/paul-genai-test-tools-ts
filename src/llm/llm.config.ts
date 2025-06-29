@@ -20,10 +20,5 @@ export const llmConfig = {
   LLM_UTF8_ENCODING: "utf8",
   LLM_RESPONSE_JSON_CONTENT_TYPE: "application/json",
   LLM_RESPONSE_ANY_CONTENT_TYPE: "*/*",
-  DEFAULT_VECTOR_DIMENSIONS_AMOUNT: 1536,
-  VECTOR_SIMILARITY_TYPE: "euclidean",  // euclidean | cosine | dotProduct
-  VECTOR_QUANTIZATION_TYPE: "scalar",   // scalar | binary
-  VECTOR_SEARCH_NUM_CANDIDATES: 150,
-  VECTOR_SEARCH_NUM_LIMIT: 6,
   PROBLEMATIC_SHUTDOWN_LLM_PROVIDER: "VertexAIGemini",
 } as const;

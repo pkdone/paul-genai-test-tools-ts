@@ -2,7 +2,6 @@ import { injectable, inject } from "tsyringe";
 import { fillPrompt } from "type-safe-prompt";
 import type LLMRouter from "../../llm/core/llm-router";
 import { appConfig } from "../../config/app.config";
-import { llmConfig } from "../../llm/llm.config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../../common/mdb/mdb-utils";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { ProjectedSourceMetataContentAndSummary } from "../../repositories/source/source.model";
@@ -54,8 +53,8 @@ export default class CodeQuestioner {
       projectName,
       appConfig.JAVA_FILE_TYPE,
       queryVectorDoubles,
-      llmConfig.VECTOR_SEARCH_NUM_CANDIDATES,
-      llmConfig.VECTOR_SEARCH_NUM_LIMIT
+      appConfig.VECTOR_SEARCH_NUM_CANDIDATES,
+      appConfig.VECTOR_SEARCH_NUM_LIMIT
     );
 
     if (bestMatchFiles.length <= 0) {

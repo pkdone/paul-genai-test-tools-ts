@@ -13,27 +13,27 @@ export const categoryPromptSchemaMappings: Record<AppSummaryCategory, {
 }> = {
   appDescription: {
     label: "Application Description",
-    promptCreator: insightsPrompts.createAppDescriptionPrompt,
+    promptCreator: (codeContent: string) => insightsPrompts.createInsightsPrompt('appDescription', codeContent),
     schema: insightsSchemas.appDescriptionSchema,
   },
   boundedContexts: {
     label: "Bounded Contexts",
-    promptCreator: insightsPrompts.createBoundedContextsPrompt,
+    promptCreator: (codeContent: string) => insightsPrompts.createInsightsPrompt('boundedContexts', codeContent),
     schema: insightsSchemas.boundedContextsSchema,
   },
   businessEntities: {
     label: "Business Entities",
-    promptCreator: insightsPrompts.createBusinessEntitiesPrompt,
+    promptCreator: (codeContent: string) => insightsPrompts.createInsightsPrompt('businessEntities', codeContent),
     schema: insightsSchemas.businessEntitiesSchema,
   },
   businessProcesses: {
     label: "Business Processes",
-    promptCreator: insightsPrompts.createBusinessProcessesPrompt,
+    promptCreator: (codeContent: string) => insightsPrompts.createInsightsPrompt('businessProcesses', codeContent),
     schema: insightsSchemas.businessProcessesSchema,
   },
   technologies: {
     label: "Technology Stack",
-    promptCreator: insightsPrompts.createTechnologiesPrompt,
+    promptCreator: (codeContent: string) => insightsPrompts.createInsightsPrompt('technologies', codeContent),
     schema: insightsSchemas.technologiesSchema,
   },
 } as const; 

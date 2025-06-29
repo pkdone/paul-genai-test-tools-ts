@@ -22,57 +22,57 @@ export interface FileHandler<T extends SummaryType = SummaryType> {
 // Registry pattern for file type to handler mapping
 export const filePromptSchemaMappings = new Map<string, FileHandler>([
   [appConfig.README_FILE_NAME, { 
-    promptCreator: summaryPrompts.createMarkdownSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('markdown', content), 
     schema: summarySchemas.markdownFileSummarySchema 
   }],
   ['java', { 
-    promptCreator: summaryPrompts.createJavaSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('java', content), 
     schema: summarySchemas.javaFileSummarySchema 
   }],
   ['js', { 
-    promptCreator: summaryPrompts.createJsSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('js', content), 
     schema: summarySchemas.jsFileSummarySchema 
   }],
   ['ts', { 
-    promptCreator: summaryPrompts.createJsSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('js', content), 
     schema: summarySchemas.jsFileSummarySchema 
   }],
   ['javascript', { 
-    promptCreator: summaryPrompts.createJsSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('js', content), 
     schema: summarySchemas.jsFileSummarySchema 
   }],
   ['typescript', { 
-    promptCreator: summaryPrompts.createJsSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('js', content), 
     schema: summarySchemas.jsFileSummarySchema 
   }],
   ['ddl', { 
-    promptCreator: summaryPrompts.createDdlSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('ddl', content), 
     schema: summarySchemas.ddlFileSummarySchema 
   }],
   ['sql', { 
-    promptCreator: summaryPrompts.createDdlSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('ddl', content), 
     schema: summarySchemas.ddlFileSummarySchema 
   }],
   ['xml', { 
-    promptCreator: summaryPrompts.createXmlSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('xml', content), 
     schema: summarySchemas.xmlFileSummarySchema 
   }],
   ['jsp', { 
-    promptCreator: summaryPrompts.createJspSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('jsp', content), 
     schema: summarySchemas.jspFileSummarySchema 
   }],
   ['markdown', { 
-    promptCreator: summaryPrompts.createMarkdownSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('markdown', content), 
     schema: summarySchemas.markdownFileSummarySchema 
   }],
   ['md', { 
-    promptCreator: summaryPrompts.createMarkdownSummaryPrompt, 
+    promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('markdown', content), 
     schema: summarySchemas.markdownFileSummarySchema 
   }],
 ]);
 
 // Default handler for unrecognized file types
 export const defaultHandler: FileHandler = {
-  promptCreator: summaryPrompts.createDefaultSummaryPrompt,
+  promptCreator: (content: string) => summaryPrompts.createSummaryPrompt('default', content),
   schema: summarySchemas.defaultFileSummarySchema
 }; 

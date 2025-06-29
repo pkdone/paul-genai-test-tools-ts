@@ -37,4 +37,7 @@ export const appConfig = {
   SAMPLE_PROMPT_FILEPATH: "./input/sample.prompt",
   QUESTIONS_PROMPTS_FILEPATH: "./input/questions.prompts",
   MAX_CONCURRENCY: 50,
+  DEFAULT_VECTOR_DIMENSIONS_AMOUNT: 1536,
+  VECTOR_SEARCH_NUM_CANDIDATES: 150,
+  VECTOR_SEARCH_NUM_LIMIT: 6,
 } as const; 

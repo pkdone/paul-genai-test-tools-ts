@@ -161,33 +161,4 @@ export const createSummaryPrompt = (type: SummaryPromptType, codeContent: string
   } else {
     return createSimpleSummaryPrompt(config.instructions, config.schema, codeContent);
   }
-};
-
-// Backwards compatibility - exported functions that use the new data-driven approach
-export const createJavaSummaryPrompt = (codeContent: string): string => {
-  return createSummaryPrompt('java', codeContent);
-};
-
-export const createJsSummaryPrompt = (codeContent: string): string => {
-  return createSummaryPrompt('js', codeContent);
-};
-
-export const createDefaultSummaryPrompt = (codeContent: string): string => {
-  return createSummaryPrompt('default', codeContent);
-};
-
-export const createDdlSummaryPrompt = (codeContent: string): string => {
-  return createSummaryPrompt('ddl', codeContent);
-};
-
-export const createXmlSummaryPrompt = (codeContent: string): string => {
-  return createSummaryPrompt('xml', codeContent);
-};
-
-export const createJspSummaryPrompt = (codeContent: string): string => {
-  return createSummaryPrompt('jsp', codeContent);
-};
-
-export const createMarkdownSummaryPrompt = (codeContent: string): string => {
-  return createSummaryPrompt('markdown', codeContent);
 }; 

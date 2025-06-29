@@ -1,11 +1,5 @@
 import {
-  createJavaSummaryPrompt,
-  createJsSummaryPrompt,
-  createDefaultSummaryPrompt,
-  createDdlSummaryPrompt,
-  createXmlSummaryPrompt,
-  createJspSummaryPrompt,
-  createMarkdownSummaryPrompt,
+  createSummaryPrompt,
 } from '../../../features/ingestion/codebase/ingestion.prompts';
 
 // Mock the dependencies
@@ -46,9 +40,9 @@ describe('Prompts', () => {
     'strictly follows the provided JSON schema'
   ];
 
-  describe('createJavaSummaryPrompt', () => {
+  describe('createSummaryPrompt with java type', () => {
     test('should create Java summary prompt with correct structure', () => {
-      const result = createJavaSummaryPrompt(testCodeContent);
+      const result = createSummaryPrompt('java', testCodeContent);
 
       expect(result).toContain('Act as a programmer');
       expect(result).toContain('Java code shown below');
@@ -73,21 +67,21 @@ describe('Prompts', () => {
     });
 
     test('should handle empty code content', () => {
-      const result = createJavaSummaryPrompt('');
+      const result = createSummaryPrompt('java', '');
       expect(result).toContain('CODE:\n');
       expect(result).toContain('mocked');
     });
 
     test('should handle special characters in code content', () => {
       const specialCodeContent = 'class Test { String s = "quotes \\"nested\\" here"; }';
-      const result = createJavaSummaryPrompt(specialCodeContent);
+      const result = createSummaryPrompt('java', specialCodeContent);
       expect(result).toContain(specialCodeContent);
     });
   });
 
-  describe('createJsSummaryPrompt', () => {
+  describe('createSummaryPrompt with js type', () => {
     test('should create JavaScript/TypeScript summary prompt with correct structure', () => {
-      const result = createJsSummaryPrompt(testCodeContent);
+      const result = createSummaryPrompt('js', testCodeContent);
 
       expect(result).toContain('Act as a programmer');
       expect(result).toContain('JavaScript/TypeScript code shown below');
@@ -113,14 +107,14 @@ describe('Prompts', () => {
         console.log("line 1");
         console.log("line 2");
       }`;
-      const result = createJsSummaryPrompt(multilineCode);
+      const result = createSummaryPrompt('js', multilineCode);
       expect(result).toContain(multilineCode);
     });
   });
 
-  describe('createDefaultSummaryPrompt', () => {
+  describe('createSummaryPrompt with default type', () => {
     test('should create default summary prompt with correct structure', () => {
-      const result = createDefaultSummaryPrompt(testCodeContent);
+      const result = createSummaryPrompt('default', testCodeContent);
 
       expect(result).toContain('Act as a programmer');
       expect(result).toContain('application source file');
@@ -137,15 +131,15 @@ describe('Prompts', () => {
 
     test('should handle null or undefined code content gracefully', () => {
       // TypeScript would prevent this, but testing runtime behavior
-      const result = createDefaultSummaryPrompt('null');
+      const result = createSummaryPrompt('default', 'null');
       expect(result).toContain('CODE:\nnull');
     });
   });
 
-  describe('createDdlSummaryPrompt', () => {
+  describe('createSummaryPrompt with ddl type', () => {
     test('should create DDL summary prompt with correct structure', () => {
       const ddlCode = 'CREATE TABLE users (id INT PRIMARY KEY, name VARCHAR(100));';
-      const result = createDdlSummaryPrompt(ddlCode);
+      const result = createSummaryPrompt('ddl', ddlCode);
 
       expect(result).toContain('Act as a programmer');
       expect(result).toContain('database DDL/SQL source code');
@@ -181,16 +175,16 @@ describe('Prompts', () => {
           SELECT * FROM orders WHERE customer_id = cust_id; 
         END;
       `;
-      const result = createDdlSummaryPrompt(complexDdl);
+      const result = createSummaryPrompt('ddl', complexDdl);
       expect(result).toContain(complexDdl);
       expect(result).toContain('stored procedure');
     });
   });
 
-  describe('createXmlSummaryPrompt', () => {
+  describe('createSummaryPrompt with xml type', () => {
     test('should create XML summary prompt with correct structure', () => {
       const xmlCode = '<configuration><database>mysql</database></configuration>';
-      const result = createXmlSummaryPrompt(xmlCode);
+      const result = createSummaryPrompt('xml', xmlCode);
 
       expect(result).toContain('Act as a programmer');
       expect(result).toContain('source code');
@@ -204,15 +198,15 @@ describe('Prompts', () => {
 
     test('should handle malformed XML', () => {
       const malformedXml = '<config><unclosed>';
-      const result = createXmlSummaryPrompt(malformedXml);
+      const result = createSummaryPrompt('xml', malformedXml);
       expect(result).toContain(malformedXml);
     });
   });
 
-  describe('createJspSummaryPrompt', () => {
+  describe('createSummaryPrompt with jsp type', () => {
     test('should create JSP summary prompt with correct structure', () => {
       const jspCode = '<%@ page language="java" %><html><body>Hello World</body></html>';
-      const result = createJspSummaryPrompt(jspCode);
+      const result = createSummaryPrompt('jsp', jspCode);
 
       expect(result).toContain('Act as a programmer');
       expect(result).toContain('source code');
@@ -226,15 +220,15 @@ describe('Prompts', () => {
 
     test('should handle JSP with mixed content', () => {
       const mixedJsp = '<%@ page import="java.util.*" %><% int count = 10; %><p>Count: <%= count %></p>';
-      const result = createJspSummaryPrompt(mixedJsp);
+      const result = createSummaryPrompt('jsp', mixedJsp);
       expect(result).toContain(mixedJsp);
     });
   });
 
-  describe('createMarkdownSummaryPrompt', () => {
+  describe('createSummaryPrompt with markdown type', () => {
     test('should create Markdown summary prompt with correct structure', () => {
       const markdownCode = '# Title\n\nThis is a **markdown** document with [links](http://example.com).';
-      const result = createMarkdownSummaryPrompt(markdownCode);
+      const result = createSummaryPrompt('markdown', markdownCode);
 
       expect(result).toContain('Act as a programmer');
       expect(result).toContain('source code');
@@ -248,12 +242,12 @@ describe('Prompts', () => {
 
     test('should handle markdown with code blocks', () => {
       const markdownWithCode = '# Documentation\n\n```javascript\nfunction test() { return true; }\n```';
-      const result = createMarkdownSummaryPrompt(markdownWithCode);
+      const result = createSummaryPrompt('markdown', markdownWithCode);
       expect(result).toContain(markdownWithCode);
     });
 
     test('should handle empty markdown content', () => {
-      const result = createMarkdownSummaryPrompt('');
+      const result = createSummaryPrompt('markdown', '');
       expect(result).toContain('CODE:\n');
     });
   });
@@ -262,13 +256,13 @@ describe('Prompts', () => {
     test('all prompts should contain base instructions', () => {
       const testContent = 'test content';
       const prompts = [
-        createJavaSummaryPrompt(testContent),
-        createJsSummaryPrompt(testContent),
-        createDefaultSummaryPrompt(testContent),
-        createDdlSummaryPrompt(testContent),
-        createXmlSummaryPrompt(testContent),
-        createJspSummaryPrompt(testContent),
-        createMarkdownSummaryPrompt(testContent),
+        createSummaryPrompt('java', testContent),
+        createSummaryPrompt('js', testContent),
+        createSummaryPrompt('default', testContent),
+        createSummaryPrompt('ddl', testContent),
+        createSummaryPrompt('xml', testContent),
+        createSummaryPrompt('jsp', testContent),
+        createSummaryPrompt('markdown', testContent),
       ];
 
       prompts.forEach((prompt) => {
@@ -283,13 +277,13 @@ describe('Prompts', () => {
     test('all prompts should contain JSON schema placeholder', () => {
       const testContent = 'test content';
       const prompts = [
-        createJavaSummaryPrompt(testContent),
-        createJsSummaryPrompt(testContent),
-        createDefaultSummaryPrompt(testContent),
-        createDdlSummaryPrompt(testContent),
-        createXmlSummaryPrompt(testContent),
-        createJspSummaryPrompt(testContent),
-        createMarkdownSummaryPrompt(testContent),
+        createSummaryPrompt('java', testContent),
+        createSummaryPrompt('js', testContent),
+        createSummaryPrompt('default', testContent),
+        createSummaryPrompt('ddl', testContent),
+        createSummaryPrompt('xml', testContent),
+        createSummaryPrompt('jsp', testContent),
+        createSummaryPrompt('markdown', testContent),
       ];
 
       prompts.forEach(prompt => {
@@ -302,19 +296,19 @@ describe('Prompts', () => {
   describe('Edge cases and error handling', () => {
     test('should handle very long code content', () => {
       const longCode = 'x'.repeat(10000);
-      const result = createJavaSummaryPrompt(longCode);
+      const result = createSummaryPrompt('java', longCode);
       expect(result).toContain(longCode);
     });
 
     test('should handle code content with special JSON characters', () => {
       const specialChars = 'class Test { String json = "{\\"key\\": \\"value\\"}"; }';
-      const result = createJsSummaryPrompt(specialChars);
+      const result = createSummaryPrompt('js', specialChars);
       expect(result).toContain(specialChars);
     });
 
     test('should handle code content with newlines and tabs', () => {
       const formattedCode = 'function test() {\n\treturn {\n\t\tkey: "value"\n\t};\n}';
-      const result = createDefaultSummaryPrompt(formattedCode);
+      const result = createSummaryPrompt('default', formattedCode);
       expect(result).toContain(formattedCode);
     });
   });

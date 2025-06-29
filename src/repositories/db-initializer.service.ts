@@ -3,7 +3,6 @@ import { injectable, inject } from "tsyringe";
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { TOKENS } from "../di/tokens";
 import { databaseConfig } from "../config/database.config";
-import { llmConfig } from "../llm/llm.config";
 import { logErrorMsgAndDetail } from "../common/utils/error-utils";
 import { createVectorSearchIndexDefinition } from "../common/mdb/mdb-utils";
 import { Service } from "../lifecycle/service.types";
@@ -33,7 +32,7 @@ export class DBInitializerService implements Service {
    * Execute the service - initializes database schema.
    */
   async execute(): Promise<void> {
-    await this.ensureCollectionsReady(llmConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT);
+    await this.ensureCollectionsReady(databaseConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT);
   }
 
   /**
@@ -134,8 +133,8 @@ export class DBInitializerService implements Service {
       indexName,
       fieldToIndex,
       numDimensions,
-      llmConfig.VECTOR_SIMILARITY_TYPE,
-      llmConfig.VECTOR_QUANTIZATION_TYPE,
+      databaseConfig.VECTOR_SIMILARITY_TYPE,
+      databaseConfig.VECTOR_QUANTIZATION_TYPE,
       filters
     );
   }
