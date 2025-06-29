@@ -19,7 +19,8 @@ export class OneShotGenerateInsightsService implements Service {
   constructor(
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars,
-    @inject(TOKENS.RawCodeToInsightsFileGenerator) private readonly insightProcessor: RawCodeToInsightsFileGenerator
+    @inject(TOKENS.RawCodeToInsightsFileGenerator)
+    private readonly insightProcessor: RawCodeToInsightsFileGenerator,
   ) {}
 
   /**
@@ -34,13 +35,22 @@ export class OneShotGenerateInsightsService implements Service {
    */
   private async generateInlineInsights(srcDirPath: string, llmName: string): Promise<void> {
     const cleanSrcDirPath = srcDirPath.replace(appConfig.TRAILING_SLASH_PATTERN, "");
-    const srcFilepaths = await buildDirDescendingListOfFiles(cleanSrcDirPath, appConfig.FOLDER_IGNORE_LIST, appConfig.FILENAME_PREFIX_IGNORE);
+    const srcFilepaths = await buildDirDescendingListOfFiles(
+      cleanSrcDirPath,
+      appConfig.FOLDER_IGNORE_LIST,
+      appConfig.FILENAME_PREFIX_IGNORE,
+    );
     this.llmRouter.displayLLMStatusSummary();
     const prompts = await this.insightProcessor.loadPrompts();
-    await clearDirectory(appConfig.OUTPUT_DIR);  
-    await this.insightProcessor.processSourceFilesWithPrompts(this.llmRouter, srcFilepaths, 
-      cleanSrcDirPath, prompts, llmName);      
+    await clearDirectory(appConfig.OUTPUT_DIR);
+    await this.insightProcessor.processSourceFilesWithPrompts(
+      this.llmRouter,
+      srcFilepaths,
+      cleanSrcDirPath,
+      prompts,
+      llmName,
+    );
     this.llmRouter.displayLLMStatusDetails();
     console.log(`View generated results in the 'file://${appConfig.OUTPUT_DIR}' folder`);
   }
-} 
+}

@@ -11,9 +11,21 @@ export default class LLMStats {
   private readonly statusTypes: Record<string, LLMStatsCategoryStatus> = {
     SUCCESS: { description: "LLM invocation suceeded", symbol: ">", count: 0 },
     FAILURE: { description: "LLM invocation failed so no data produced", symbol: "!", count: 0 },
-    SWITCH: { description: "Switched to secondary LLM to try to process request", symbol: "+", count: 0 },
-    RETRY: { description: "Retried calling LLM due to overload or network issue", symbol: "?", count: 0 },
-    CROP: { description: "Cropping prompt due to excessive size, before resending", symbol: "-", count: 0 },
+    SWITCH: {
+      description: "Switched to secondary LLM to try to process request",
+      symbol: "+",
+      count: 0,
+    },
+    RETRY: {
+      description: "Retried calling LLM due to overload or network issue",
+      symbol: "?",
+      count: 0,
+    },
+    CROP: {
+      description: "Cropping prompt due to excessive size, before resending",
+      symbol: "-",
+      count: 0,
+    },
   } as const;
 
   /**
@@ -52,7 +64,7 @@ export default class LLMStats {
   }
 
   /**
-   * Log LLM reactive truncate event occurrence, capturing that a smaller size prompt is required by 
+   * Log LLM reactive truncate event occurrence, capturing that a smaller size prompt is required by
    * cropping, and print its symbol
    */
   recordCrop() {
@@ -67,11 +79,15 @@ export default class LLMStats {
 
     if (includeTotal) {
       const total = tableSnapshot.SUCCESS.count + tableSnapshot.FAILURE.count;
-      tableSnapshot.TOTAL = { description: "Total successes + failures", symbol: "=", count: total };
+      tableSnapshot.TOTAL = {
+        description: "Total successes + failures",
+        symbol: "=",
+        count: total,
+      };
     }
 
     return tableSnapshot as unknown as LLMStatsCategoriesSummary;
-  }  
+  }
 
   /**
    * Log success event occurrence and print its symbol

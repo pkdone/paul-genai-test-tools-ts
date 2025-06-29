@@ -18,10 +18,11 @@ export class CodebaseCaptureService implements Service {
    */
   constructor(
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-    @inject(TOKENS.DBInitializerService) private readonly dbInitializerService: DBInitializerService,
+    @inject(TOKENS.DBInitializerService)
+    private readonly dbInitializerService: DBInitializerService,
     @inject(TOKENS.EnvVars) private readonly env: EnvVars,
     @inject(TOKENS.ProjectName) private readonly projectName: string,
-    @inject(TOKENS.CodebaseToDBLoader) private readonly codebaseToDBLoader: CodebaseToDBLoader
+    @inject(TOKENS.CodebaseToDBLoader) private readonly codebaseToDBLoader: CodebaseToDBLoader,
   ) {}
 
   /**
@@ -34,14 +35,18 @@ export class CodebaseCaptureService implements Service {
   /**
    * Captures the codebase.
    */
-  private async captureCodebase(srcDirPath: string, ignoreIfAlreadyCaptured: boolean): Promise<void> {
+  private async captureCodebase(
+    srcDirPath: string,
+    ignoreIfAlreadyCaptured: boolean,
+  ): Promise<void> {
     console.log(`Processing source files for project: ${this.projectName}`);
-    const numDimensions = this.llmRouter.getEmbeddedModelDimensions() ?? appConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT;
-    await this.dbInitializerService.ensureCollectionsReady(numDimensions);    
+    const numDimensions =
+      this.llmRouter.getEmbeddedModelDimensions() ?? appConfig.DEFAULT_VECTOR_DIMENSIONS_AMOUNT;
+    await this.dbInitializerService.ensureCollectionsReady(numDimensions);
     this.llmRouter.displayLLMStatusSummary();
-    await this.codebaseToDBLoader.loadIntoDB(this.projectName, srcDirPath, ignoreIfAlreadyCaptured);      
+    await this.codebaseToDBLoader.loadIntoDB(this.projectName, srcDirPath, ignoreIfAlreadyCaptured);
     console.log("Finished capturing project files metadata into database");
     console.log("Summary of LLM invocations outcomes:");
     this.llmRouter.displayLLMStatusDetails();
   }
-} 
+}

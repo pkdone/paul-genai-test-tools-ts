@@ -1,5 +1,5 @@
 import { OpenAI, RateLimitError, InternalServerError } from "openai";
-import { APIError } from "openai/error"
+import { APIError } from "openai/error";
 import { LLMPurpose } from "../../llm.types";
 import AbstractLLM from "../../core/abstract-llm";
 
@@ -8,22 +8,28 @@ import AbstractLLM from "../../core/abstract-llm";
  */
 export default abstract class BaseOpenAILLM extends AbstractLLM {
   /**
-   * 
+   *
    * Execute the prompt against the LLM and return the relevant sumamry of the LLM's answer.
    */
-  protected async invokeImplementationSpecificLLM(taskType: LLMPurpose, modelKey: string, prompt: string) {
-    const params = this.buildFullLLMParameters(taskType, modelKey, prompt);    
+  protected async invokeImplementationSpecificLLM(
+    taskType: LLMPurpose,
+    modelKey: string,
+    prompt: string,
+  ) {
+    const params = this.buildFullLLMParameters(taskType, modelKey, prompt);
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
       return this.invokeImplementationSpecificEmbeddingsLLM(params as OpenAI.EmbeddingCreateParams);
     } else {
-      return this.invokeImplementationSpecificCompletionLLM(params as OpenAI.ChatCompletionCreateParams);
+      return this.invokeImplementationSpecificCompletionLLM(
+        params as OpenAI.ChatCompletionCreateParams,
+      );
     }
   }
 
   /**
    * Invoke the actuall LLM's embedding API directly.
-   */ 
+   */
   protected async invokeImplementationSpecificEmbeddingsLLM(params: OpenAI.EmbeddingCreateParams) {
     // Invoke LLM
     const llmResponses = await this.getClient().embeddings.create(params);
@@ -31,11 +37,11 @@ export default abstract class BaseOpenAILLM extends AbstractLLM {
 
     // Capture response content
     const responseContent = llmResponse.embedding;
-    
-    // Capture finish reason
-    const isIncompleteResponse = (!responseContent);
 
-    // Capture token usage 
+    // Capture finish reason
+    const isIncompleteResponse = !responseContent;
+
+    // Capture token usage
     const promptTokens = llmResponses.usage.prompt_tokens;
     const completionTokens = -1;
     const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
@@ -45,10 +51,14 @@ export default abstract class BaseOpenAILLM extends AbstractLLM {
 
   /**
    * Invoke the actuall LLM's completion API directly.
-   */ 
-  protected async invokeImplementationSpecificCompletionLLM(params: OpenAI.ChatCompletionCreateParams) {
+   */
+  protected async invokeImplementationSpecificCompletionLLM(
+    params: OpenAI.ChatCompletionCreateParams,
+  ) {
     // Invoke LLM
-    const llmResponses = (await this.getClient().chat.completions.create(params)) as OpenAI.ChatCompletion;
+    const llmResponses = (await this.getClient().chat.completions.create(
+      params,
+    )) as OpenAI.ChatCompletion;
     const llmResponse = llmResponses.choices[0];
 
     // Capture response content
@@ -57,9 +67,9 @@ export default abstract class BaseOpenAILLM extends AbstractLLM {
 
     // Capture finish reason
     const finishReason = llmResponse.finish_reason;
-    const isIncompleteResponse = (finishReason === "length") || (!responseContent);
+    const isIncompleteResponse = finishReason === "length" || !responseContent;
 
-    // Capture token usage 
+    // Capture token usage
     const promptTokens = llmResponses.usage?.prompt_tokens ?? -1;
     const completionTokens = llmResponses.usage?.completion_tokens ?? -1;
     const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
@@ -71,11 +81,11 @@ export default abstract class BaseOpenAILLM extends AbstractLLM {
    * See if an error object indicates a network issue or throttling event.
    */
   protected isLLMOverloaded(error: unknown) {
-    if ((error instanceof APIError) && (error.code === "insufficient_quota")) {
+    if (error instanceof APIError && error.code === "insufficient_quota") {
       return false;
     }
 
-    return ((error instanceof RateLimitError) || (error instanceof InternalServerError));
+    return error instanceof RateLimitError || error instanceof InternalServerError;
   }
 
   /**
@@ -83,8 +93,7 @@ export default abstract class BaseOpenAILLM extends AbstractLLM {
    */
   protected isTokenLimitExceeded(error: unknown) {
     if (error instanceof APIError) {
-      return error.code === "context_length_exceeded" ||
-             error.type === "invalid_request_error";
+      return error.code === "context_length_exceeded" || error.type === "invalid_request_error";
     }
 
     return false;
@@ -94,9 +103,13 @@ export default abstract class BaseOpenAILLM extends AbstractLLM {
    * Abstract method to get the client object for the specific LLM provider.
    */
   protected abstract getClient(): OpenAI;
-  
+
   /**
    * Abstract method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected abstract buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
+  protected abstract buildFullLLMParameters(
+    taskType: LLMPurpose,
+    modelKey: string,
+    prompt: string,
+  ): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
 }

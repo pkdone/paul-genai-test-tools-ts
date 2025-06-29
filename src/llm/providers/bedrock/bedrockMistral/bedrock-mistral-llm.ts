@@ -2,7 +2,7 @@ import { llmConfig } from "../../../llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { BEDROCK_MISTRAL } from "./bedrock-mistral.manifest";
 
-/** 
+/**
  * Class for the AWS Bedrock Mistral LLMs.
  *
  */
@@ -12,7 +12,7 @@ export default class BedrockMistralLLM extends BaseBedrockLLM {
    */
   getModelFamily(): string {
     return BEDROCK_MISTRAL;
-  }        
+  }
 
   /**
    * Assemble the Bedrock parameters for Mistral completions only.
@@ -23,23 +23,25 @@ export default class BedrockMistralLLM extends BaseBedrockLLM {
         {
           role: llmConfig.LLM_ROLE_USER,
           content: prompt,
-        }
+        },
       ],
       temperature: llmConfig.DEFAULT_ZERO_TEMP,
       top_p: llmConfig.DEFAULT_TOP_P_LOWEST,
-              max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
+      max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
     });
   }
 
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: MistralCompletionLLMSpecificResponse) {
+  protected extractCompletionModelSpecificResponse(
+    llmResponse: MistralCompletionLLMSpecificResponse,
+  ) {
     const firstResponse = llmResponse.choices[0];
     const responseContent = firstResponse.message?.content ?? null;
     const finishReason = firstResponse.stop_reason ?? firstResponse.finish_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = (finishReasonLowercase === "length") || (!responseContent);
+    const isIncompleteResponse = finishReasonLowercase === "length" || !responseContent;
     const promptTokens = llmResponse.usage?.prompt_tokens ?? -1;
     const completionTokens = llmResponse.usage?.completion_tokens ?? -1;
     const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit
@@ -52,17 +54,17 @@ export default class BedrockMistralLLM extends BaseBedrockLLM {
  * Type definitions for the Mistral specific completions LLM response usage.
  */
 interface MistralCompletionLLMSpecificResponse {
-  choices: [{
-    message?: {
-      content: string;
-    };
-    stop_reason?: string;
-    finish_reason?: string;
-  }];
+  choices: [
+    {
+      message?: {
+        content: string;
+      };
+      stop_reason?: string;
+      finish_reason?: string;
+    },
+  ];
   usage?: {
     prompt_tokens?: number;
     completion_tokens?: number;
-  }
+  };
 }
-
-

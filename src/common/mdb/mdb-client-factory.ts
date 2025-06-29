@@ -57,7 +57,10 @@ export class MongoDBClientFactory {
    */
   getClient(id: string): MongoClient {
     const client = this.clients.get(id);
-    if (!client) throw new MongoError(`No active connection found for id '${id}'. Call \`connect(id, url)\` first.`);
+    if (!client)
+      throw new MongoError(
+        `No active connection found for id '${id}'. Call \`connect(id, url)\` first.`,
+      );
     return client;
   }
 
@@ -77,4 +80,4 @@ export class MongoDBClientFactory {
 
     this.clients.clear();
   }
-} 
+}

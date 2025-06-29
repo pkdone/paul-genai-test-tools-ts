@@ -17,4 +17,4 @@ export abstract class BaseRepository<T extends Document> {
     const db = mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
     this.collection = db.collection<T>(collectionName);
   }
-} 
+}

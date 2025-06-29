@@ -1,6 +1,11 @@
 import { AzureOpenAI, OpenAI } from "openai";
 import { llmConfig } from "../../../llm.config";
-import { LLMModelKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../llm.types";
+import {
+  LLMModelKeysSet,
+  LLMPurpose,
+  ResolvedLLMModelMetadata,
+  LLMErrorMsgRegExPattern,
+} from "../../../llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { BadConfigurationLLMError } from "../../../utils/llm-errors.types";
 import { AZURE_OPENAI } from "./azure-openai.manifest";
@@ -26,12 +31,15 @@ export default class AzureOpenAILLM extends BaseOpenAILLM {
     embeddingsDeployment: string,
     primaryCompletionsDeployment: string,
     secondaryCompletionsDeployment: string,
-    providerSpecificConfig: LLMProviderSpecificConfig = {}
-  ) { 
+    providerSpecificConfig: LLMProviderSpecificConfig = {},
+  ) {
     super(modelsKeys, modelsMetadata, errorPatterns, providerSpecificConfig);
     this.modelToDeploymentMappings = new Map();
     this.modelToDeploymentMappings.set(modelsKeys.embeddingsModelKey, embeddingsDeployment);
-    this.modelToDeploymentMappings.set(modelsKeys.primaryCompletionModelKey, primaryCompletionsDeployment);
+    this.modelToDeploymentMappings.set(
+      modelsKeys.primaryCompletionModelKey,
+      primaryCompletionsDeployment,
+    );
     const secondaryCompletion = modelsKeys.secondaryCompletionModelKey;
 
     if (secondaryCompletion) {
@@ -49,7 +57,7 @@ export default class AzureOpenAILLM extends BaseOpenAILLM {
     return AZURE_OPENAI;
   }
 
- /**
+  /**
    * Abstract method to get the client object for the specific LLM provider.
    */
   protected getClient() {
@@ -61,23 +69,26 @@ export default class AzureOpenAILLM extends BaseOpenAILLM {
    */
   protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
     const deployment = this.modelToDeploymentMappings.get(modelKey);
-    if (!deployment) throw new BadConfigurationLLMError(`Model key ${modelKey} not found for ${this.constructor.name}`);      
+    if (!deployment)
+      throw new BadConfigurationLLMError(
+        `Model key ${modelKey} not found for ${this.constructor.name}`,
+      );
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
         model: deployment,
-        input: prompt
+        input: prompt,
       };
-      return params;  
+      return params;
     } else {
       const config = this.providerSpecificConfig;
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
         model: deployment,
         temperature: config.temperature ?? llmConfig.DEFAULT_ZERO_TEMP,
-        messages: [{ role: llmConfig.LLM_ROLE_USER as "user", content: prompt } ],
+        messages: [{ role: llmConfig.LLM_ROLE_USER as "user", content: prompt }],
         max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
-      };        
+      };
       return params;
-    } 
+    }
   }
 }

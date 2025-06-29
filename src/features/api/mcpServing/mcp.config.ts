@@ -12,7 +12,7 @@ export const mcpConfig = {
   EVENT_DATA: "data",
   EVENT_END: "end",
   EVENT_ERROR: "error",
-  
+
   // MCP server configuration
   DEFAULT_MCP_HOSTNAME: "localhost",
   DEFAULT_MCP_PORT: 3001,

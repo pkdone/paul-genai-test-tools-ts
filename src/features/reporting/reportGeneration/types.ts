@@ -9,7 +9,10 @@ export enum Complexity {
  * Type guard to check if a value is a valid Complexity enum value
  */
 export function isComplexity(value: unknown): value is Complexity {
-  return typeof value === 'string' && Object.values(Complexity).includes(value.toUpperCase() as Complexity);
+  return (
+    typeof value === "string" &&
+    Object.values(Complexity).includes(value.toUpperCase() as Complexity)
+  );
 }
 
 // Interface for the database interaction list

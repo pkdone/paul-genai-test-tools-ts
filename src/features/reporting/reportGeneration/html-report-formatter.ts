@@ -3,7 +3,10 @@ import { reportingConfig } from "../reporting.config";
 import { joinArrayWithSeparators } from "../../../common/utils/text-utils";
 import type { AppSummaryNameDescArray } from "../../../repositories/app-summary/app-summary.model";
 import type { AppStatistics, ProcsAndTriggers } from "./types";
-import { DatabaseIntegrationInfo, ProjectedFileTypesCountAndLines } from "../../../repositories/source/source.model";
+import {
+  DatabaseIntegrationInfo,
+  ProjectedFileTypesCountAndLines,
+} from "../../../repositories/source/source.model";
 
 /**
  * Class responsible for formatting data into HTML presentation format.
@@ -29,7 +32,13 @@ export class HtmlReportFormatter {
     html.push(...this.formatFileTypesAsHTML(fileTypesData));
 
     for (const categoryData of categorizedData) {
-      html.push(...this.formatHTMLTableForCategory(categoryData.category, categoryData.label, categoryData.data));
+      html.push(
+        ...this.formatHTMLTableForCategory(
+          categoryData.category,
+          categoryData.label,
+          categoryData.data,
+        ),
+      );
     }
 
     html.push(...this.formatDBIntegrationsListsAsHTML(dbInteractions, procsAndTriggers));
@@ -56,7 +65,11 @@ export class HtmlReportFormatter {
   /**
    * Format a category's data as an HTML table
    */
-  formatHTMLTableForCategory(_category: string, label: string, data: AppSummaryNameDescArray): string[] {
+  formatHTMLTableForCategory(
+    _category: string,
+    label: string,
+    data: AppSummaryNameDescArray,
+  ): string[] {
     const html: string[] = [];
     html.push(`\n<h2>${label}</h2>\n`);
     html.push(...this.generateHTMLTableFromArrayOfObjects(data));
@@ -66,7 +79,10 @@ export class HtmlReportFormatter {
   /**
    * Format database integrations and stored procedures/triggers as HTML
    */
-  formatDBIntegrationsListsAsHTML(dbInteractions: DatabaseIntegrationInfo[], procsAndTriggers: ProcsAndTriggers): string[] {
+  formatDBIntegrationsListsAsHTML(
+    dbInteractions: DatabaseIntegrationInfo[],
+    procsAndTriggers: ProcsAndTriggers,
+  ): string[] {
     const html: string[] = [];
     html.push(...this.formatDBInteractionsAsHTML(dbInteractions));
     html.push(...this.formatStoredProceduresAndTriggersAsHTML(procsAndTriggers));
@@ -81,12 +97,14 @@ export class HtmlReportFormatter {
     html.push(`\n<h2>Database Interactions</h2>\n`);
 
     if (dbInteractions.length > 0) {
-      const dbInteractionsHTML = this.generateHTMLTableFromArrayOfObjects(dbInteractions as unknown as Record<string, unknown>[]);
+      const dbInteractionsHTML = this.generateHTMLTableFromArrayOfObjects(
+        dbInteractions as unknown as Record<string, unknown>[],
+      );
       html.push(...dbInteractionsHTML);
     } else {
       html.push("None Found");
     }
-    
+
     return html;
   }
 
@@ -96,10 +114,14 @@ export class HtmlReportFormatter {
   formatStoredProceduresAndTriggersAsHTML(procsAndTriggers: ProcsAndTriggers): string[] {
     const html: string[] = [];
     html.push(`\n<h2>Database Stored Procedures & Triggers</h2>\n`);
-    html.push(this.generateHTMLKeyValueParagraph("Stored Procedures", String(procsAndTriggers.procs.total)),
-      `(complexity: low = ${procsAndTriggers.procs.low}, medium = ${procsAndTriggers.procs.medium}, high = ${procsAndTriggers.procs.high})`);
-    html.push(this.generateHTMLKeyValueParagraph("Triggers", String(procsAndTriggers.trigs.total)),
-      `(complexity: low = ${procsAndTriggers.trigs.low}, medium = ${procsAndTriggers.trigs.medium}, high = ${procsAndTriggers.trigs.high})`);
+    html.push(
+      this.generateHTMLKeyValueParagraph("Stored Procedures", String(procsAndTriggers.procs.total)),
+      `(complexity: low = ${procsAndTriggers.procs.low}, medium = ${procsAndTriggers.procs.medium}, high = ${procsAndTriggers.procs.high})`,
+    );
+    html.push(
+      this.generateHTMLKeyValueParagraph("Triggers", String(procsAndTriggers.trigs.total)),
+      `(complexity: low = ${procsAndTriggers.trigs.low}, medium = ${procsAndTriggers.trigs.medium}, high = ${procsAndTriggers.trigs.high})`,
+    );
 
     if (procsAndTriggers.procs.list.length > 0 || procsAndTriggers.trigs.list.length > 0) {
       const combinedList = [...procsAndTriggers.procs.list, ...procsAndTriggers.trigs.list];
@@ -112,7 +134,9 @@ export class HtmlReportFormatter {
   /**
    * Generate a HTML table with header and normal rows from an array of objects (rows).
    */
-  generateHTMLTableFromArrayOfObjects(keyForArrayOfObjects: Record<string, unknown>[] | null): string[] {
+  generateHTMLTableFromArrayOfObjects(
+    keyForArrayOfObjects: Record<string, unknown>[] | null,
+  ): string[] {
     if (!keyForArrayOfObjects || keyForArrayOfObjects.length === 0) return [];
     const html: string[] = [];
     html.push("<p><table>");
@@ -120,27 +144,31 @@ export class HtmlReportFormatter {
     html.push("<tr>");
 
     for (const key of keysOfInterest) {
-      const capitalizedKey = key.replace(/\b\w/g, char => char.toUpperCase());
+      const capitalizedKey = key.replace(/\b\w/g, (char) => char.toUpperCase());
       html.push(`<th>${capitalizedKey}</th>`);
     }
 
     html.push("</tr>");
-    
+
     for (const field of keyForArrayOfObjects) {
       html.push("<tr>");
 
       for (const key of keysOfInterest) {
         const value = field[key];
         let stringValue = "";
-        
+
         if (value != null) {
-          if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+          if (
+            typeof value === "string" ||
+            typeof value === "number" ||
+            typeof value === "boolean"
+          ) {
             stringValue = String(value);
           } else {
             stringValue = JSON.stringify(value);
           }
         }
-        
+
         if (key === "link") {
           html.push(`<td><a href="${stringValue}" target="_blank">Link</a></td>`);
         } else {
@@ -169,19 +197,19 @@ export class HtmlReportFormatter {
   formatFileTypesAsHTML(fileTypesData: ProjectedFileTypesCountAndLines[]): string[] {
     const html: string[] = [];
     html.push(`\n<h2>File Types Summary</h2>\n`);
-    
+
     if (fileTypesData.length > 0) {
       // Transform the data to have more readable column headers
-      const transformedData = fileTypesData.map(item => ({
-        'File Type': item.fileType,
-        'Files Count': item.files,
-        'Lines Count': item.lines
+      const transformedData = fileTypesData.map((item) => ({
+        "File Type": item.fileType,
+        "Files Count": item.files,
+        "Lines Count": item.lines,
       }));
       html.push(...this.generateHTMLTableFromArrayOfObjects(transformedData));
     } else {
       html.push("<p>No file type data available</p>");
     }
-    
+
     return html;
   }
 }

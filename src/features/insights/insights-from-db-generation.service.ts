@@ -16,7 +16,8 @@ export class InsightsFromDBGenerationService implements Service {
   constructor(
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.ProjectName) private readonly projectName: string,
-    @inject(TOKENS.DBCodeInsightsBackIntoDBGenerator) private readonly summariesGenerator: DBCodeInsightsBackIntoDBGenerator
+    @inject(TOKENS.DBCodeInsightsBackIntoDBGenerator)
+    private readonly summariesGenerator: DBCodeInsightsBackIntoDBGenerator,
   ) {}
 
   /**
@@ -32,9 +33,9 @@ export class InsightsFromDBGenerationService implements Service {
   private async generateInsights(): Promise<void> {
     console.log(`Generating insights for project: ${this.projectName}`);
     this.llmRouter.displayLLMStatusSummary();
-    await this.summariesGenerator.generateSummariesDataInDB();    
+    await this.summariesGenerator.generateSummariesDataInDB();
     console.log("Finished generating insights for the project");
     console.log("Summary of LLM invocations outcomes:");
     this.llmRouter.displayLLMStatusDetails();
   }
-} 
+}

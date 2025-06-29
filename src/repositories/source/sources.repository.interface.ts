@@ -1,5 +1,12 @@
 import { Double } from "mongodb";
-import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrationInfo, ProjectedSourceFilePathAndSummary, ProjectedSourceSummaryFields, ProjectedFileTypesCountAndLines } from "./source.model";
+import {
+  SourceRecord,
+  ProjectedSourceMetataContentAndSummary,
+  DatabaseIntegrationInfo,
+  ProjectedSourceFilePathAndSummary,
+  ProjectedSourceSummaryFields,
+  ProjectedFileTypesCountAndLines,
+} from "./source.model";
 
 /**
  * Interface for the Sources repository
@@ -23,27 +30,36 @@ export interface SourcesRepository {
   /**
    * Get source file summaries for a project
    */
-  getProjectSourcesSummaries(projectName: string, fileTypes: string[]): Promise<ProjectedSourceSummaryFields[]>;
+  getProjectSourcesSummaries(
+    projectName: string,
+    fileTypes: string[],
+  ): Promise<ProjectedSourceSummaryFields[]>;
 
   /**
    * Get database integration information for a project
    */
-  getProjectDatabaseIntegrations(projectName: string, fileTypes: string[]): Promise<DatabaseIntegrationInfo[]>;
+  getProjectDatabaseIntegrations(
+    projectName: string,
+    fileTypes: string[],
+  ): Promise<DatabaseIntegrationInfo[]>;
 
   /**
    * Get stored procedures and triggers information for a project
    */
-  getProjectStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<ProjectedSourceFilePathAndSummary[]>;
+  getProjectStoredProceduresAndTriggers(
+    projectName: string,
+    fileTypes: string[],
+  ): Promise<ProjectedSourceFilePathAndSummary[]>;
 
   /**
    * Perform vector search on source file content
    */
   vectorSearchProjectSourcesRawContent(
-    projectName: string, 
-    fileType: string, 
-    queryVector: Double[], 
-    numCandidates: number, 
-    limit: number
+    projectName: string,
+    fileType: string,
+    queryVector: Double[],
+    numCandidates: number,
+    limit: number,
   ): Promise<ProjectedSourceMetataContentAndSummary[]>;
 
   /**
@@ -65,4 +81,4 @@ export interface SourcesRepository {
    * Get files count and lines of code count for each file type for a project
    */
   getProjectFileTypesCountAndLines(projectName: string): Promise<ProjectedFileTypesCountAndLines[]>;
-} 
+}

@@ -3,11 +3,16 @@ import { injectable, inject } from "tsyringe";
 import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-utils";
 import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import { TOKENS } from "../../di/tokens";
-import { SummaryType, FileHandler, filePromptSchemaMappings, defaultHandler } from './file-handler-mappings';
+import {
+  SummaryType,
+  FileHandler,
+  filePromptSchemaMappings,
+  defaultHandler,
+} from "./file-handler-mappings";
 import { appConfig } from "../../config/app.config";
 
 // Result type for better error handling
-export type SummaryResult<T = SummaryType> = 
+export type SummaryResult<T = SummaryType> =
   | { success: true; data: T }
   | { success: false; error: string };
 
@@ -17,22 +22,27 @@ export type SummaryResult<T = SummaryType> =
 @injectable()
 export class FileSummarizer {
   constructor(
-    @inject(TOKENS.LLMStructuredResponseInvoker) private readonly llmUtilityService: LLMStructuredResponseInvoker
+    @inject(TOKENS.LLMStructuredResponseInvoker)
+    private readonly llmUtilityService: LLMStructuredResponseInvoker,
   ) {}
 
   /**
    * Generate a strongly-typed summary for the given file content.
    */
-  async getFileSummaryAsJSON(filepath: string, type: string, content: string): Promise<SummaryResult> {
+  async getFileSummaryAsJSON(
+    filepath: string,
+    type: string,
+    content: string,
+  ): Promise<SummaryResult> {
     try {
       if (content.trim().length === 0) return { success: false, error: "File is empty" };
-      const handler = this.getFileHandler(filepath, type);  
+      const handler = this.getFileHandler(filepath, type);
       const prompt = handler.promptCreator(content);
       const llmResponse = await this.llmUtilityService.getStructuredResponse(
         filepath,
         prompt,
         handler.schema,
-        filepath
+        filepath,
       );
       return { success: true, data: llmResponse };
     } catch (error) {
@@ -54,4 +64,4 @@ export class FileSummarizer {
       return handler ?? defaultHandler;
     }
   }
-} 
+}

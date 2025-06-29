@@ -1,4 +1,4 @@
-import pRetry from 'p-retry';
+import pRetry from "p-retry";
 import { RetryFunc, CheckResultFunc, LogRetryEventFunc } from "./control.types";
 import { controlConfig } from "./control.config";
 
@@ -16,7 +16,7 @@ interface RetryOptions {
 /**
  * Generic retry mechanism for asynchronous functions using exponential backoff.
  * It wraps the `p-retry` library to provide a consistent retry strategy.
- * 
+ *
  * @param asyncTryFunc The asynchronous function to retry.
  * @param args Arguments to pass to the async function (now strongly typed).
  * @param checkResultForNeedToRetryFunc A function that takes the result and decides whether to retry.
@@ -32,18 +32,18 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
   checkResultForNeedToRetryFunc: CheckResultFunc<TReturn>,
   logRetryEventFunc: LogRetryEventFunc | null = null,
   maxAttempts = controlConfig.DEFAULT_MAX_ATTEMPTS,
-  minRetryDelay = controlConfig.DEFAULT_MIN_RETRY_DELAY
+  minRetryDelay = controlConfig.DEFAULT_MIN_RETRY_DELAY,
 ): Promise<TReturn | null> {
   try {
     return await pRetry(
       async () => {
         const result = await asyncTryFunc(...args);
-        
+
         if (checkResultForNeedToRetryFunc(result)) {
           // Throwing an error triggers a retry by p-retry
-          throw new Error('Result indicates a retry is needed.');
+          throw new Error("Result indicates a retry is needed.");
         }
-        
+
         return result;
       },
       {
@@ -52,12 +52,11 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
         onFailedAttempt: () => {
           if (logRetryEventFunc) logRetryEventFunc();
         },
-      } as RetryOptions
+      } as RetryOptions,
     );
   } catch (error) {
     // p-retry throws if all attempts fail. We can catch it and return null to match previous behavior.
-    console.error('All retry attempts failed:', error);
+    console.error("All retry attempts failed:", error);
     return null;
   }
 }
-

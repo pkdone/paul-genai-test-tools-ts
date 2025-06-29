@@ -16,7 +16,7 @@ export class CodebaseQueryService implements Service {
    */
   constructor(
     @inject(TOKENS.ProjectName) private readonly projectName: string,
-    @inject(TOKENS.CodeQuestioner) private readonly codeQuestioner: CodeQuestioner
+    @inject(TOKENS.CodeQuestioner) private readonly codeQuestioner: CodeQuestioner,
   ) {}
 
   /**
@@ -30,12 +30,17 @@ export class CodebaseQueryService implements Service {
    * Queries the codebase.
    */
   private async queryCodebase(): Promise<void> {
-    console.log(`Performing vector search then invoking LLM for optimal results for project: ${this.projectName}`);
+    console.log(
+      `Performing vector search then invoking LLM for optimal results for project: ${this.projectName}`,
+    );
     const questions = await getTextLines(appConfig.QUESTIONS_PROMPTS_FILEPATH);
 
     for (const question of questions) {
-      const result = await this.codeQuestioner.queryCodebaseWithQuestion(question, this.projectName);
-      console.log(`\n---------------\nQUESTION: ${question}\n\n${result}\n---------------\n`);          
+      const result = await this.codeQuestioner.queryCodebaseWithQuestion(
+        question,
+        this.projectName,
+      );
+      console.log(`\n---------------\nQUESTION: ${question}\n\n${result}\n---------------\n`);
     }
   }
-} 
+}

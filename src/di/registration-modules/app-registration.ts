@@ -44,8 +44,8 @@ export function registerAppDependencies(): void {
   registerRepositories();
   registerComponents();
   registerServices();
-  
-  console.log('All application dependencies registered');
+
+  console.log("All application dependencies registered");
 }
 
 /**
@@ -61,26 +61,29 @@ function registerRepositories(): void {
     useClass: AppSummariesRepositoryImpl,
   });
 
-  console.log('Repositories registered');
+  console.log("Repositories registered");
 }
 
 /**
  * Register internal helper components.
  * Components that depend on LLMRouter use async factories, others use singletons.
  */
-function registerComponents(): void {  
+function registerComponents(): void {
   // Register components that don't depend on LLMRouter as regular singletons
   container.registerSingleton(TOKENS.HtmlReportFormatter, HtmlReportFormatter);
   container.registerSingleton(TOKENS.AppReportGenerator, AppReportGenerator);
-  container.registerSingleton(TOKENS.RawCodeToInsightsFileGenerator, RawCodeToInsightsFileGenerator);
+  container.registerSingleton(
+    TOKENS.RawCodeToInsightsFileGenerator,
+    RawCodeToInsightsFileGenerator,
+  );
   container.registerSingleton(TOKENS.InsightsDataServer, InsightsDataServer);
   container.registerSingleton(TOKENS.McpDataServer, McpDataServer);
   container.registerSingleton(TOKENS.McpHttpServer, McpHttpServer);
-  
+
   // Register components that depend on LLMRouter with async factories
   registerLLMDependentComponents();
-  
-  console.log('Internal helper components registered');
+
+  console.log("Internal helper components registered");
 }
 
 /**
@@ -99,7 +102,9 @@ function registerLLMDependentComponents(): void {
   // FileSummarizer
   container.register(TOKENS.FileSummarizer, {
     useFactory: async (c) => {
-      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(TOKENS.LLMStructuredResponseInvoker);
+      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(
+        TOKENS.LLMStructuredResponseInvoker,
+      );
       return new FileSummarizer(llmStructuredResponseInvoker);
     },
   });
@@ -126,12 +131,22 @@ function registerLLMDependentComponents(): void {
   // DBCodeInsightsBackIntoDBGenerator
   container.register(TOKENS.DBCodeInsightsBackIntoDBGenerator, {
     useFactory: async (c) => {
-      const appSummariesRepository = c.resolve<AppSummariesRepository>(TOKENS.AppSummariesRepository);
+      const appSummariesRepository = c.resolve<AppSummariesRepository>(
+        TOKENS.AppSummariesRepository,
+      );
       const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
       const sourcesRepository = c.resolve<SourcesRepository>(TOKENS.SourcesRepository);
       const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(TOKENS.LLMStructuredResponseInvoker);
-      return new DBCodeInsightsBackIntoDBGenerator(appSummariesRepository, llmRouter, sourcesRepository, projectName, llmStructuredResponseInvoker);
+      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(
+        TOKENS.LLMStructuredResponseInvoker,
+      );
+      return new DBCodeInsightsBackIntoDBGenerator(
+        appSummariesRepository,
+        llmRouter,
+        sourcesRepository,
+        projectName,
+        llmStructuredResponseInvoker,
+      );
     },
   });
 }
@@ -145,11 +160,11 @@ function registerServices(): void {
   container.registerSingleton(TOKENS.ReportGenerationService, ReportGenerationService);
   container.registerSingleton(TOKENS.DBInitializerService, DBInitializerService);
   container.registerSingleton(TOKENS.MDBConnectionTestService, MDBConnectionTestService);
-  
+
   // Register services that depend on LLMRouter with async factories
   registerLLMDependentServices();
-  
-  console.log('Main executable services registered');
+
+  console.log("Main executable services registered");
 }
 
 /**
@@ -164,8 +179,16 @@ function registerLLMDependentServices(): void {
       const dbInitializerService = c.resolve<DBInitializerService>(TOKENS.DBInitializerService);
       const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
       const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const codebaseToDBLoader = await c.resolve<Promise<CodebaseToDBLoader>>(TOKENS.CodebaseToDBLoader);
-      return new CodebaseCaptureService(llmRouter, dbInitializerService, envVars, projectName, codebaseToDBLoader);
+      const codebaseToDBLoader = await c.resolve<Promise<CodebaseToDBLoader>>(
+        TOKENS.CodebaseToDBLoader,
+      );
+      return new CodebaseCaptureService(
+        llmRouter,
+        dbInitializerService,
+        envVars,
+        projectName,
+        codebaseToDBLoader,
+      );
     },
   });
 
@@ -189,7 +212,9 @@ function registerLLMDependentServices(): void {
     useFactory: async (c) => {
       const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
       const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const dbCodeInsightsGenerator = await c.resolve<Promise<DBCodeInsightsBackIntoDBGenerator>>(TOKENS.DBCodeInsightsBackIntoDBGenerator);
+      const dbCodeInsightsGenerator = await c.resolve<Promise<DBCodeInsightsBackIntoDBGenerator>>(
+        TOKENS.DBCodeInsightsBackIntoDBGenerator,
+      );
       return new InsightsFromDBGenerationService(llmRouter, projectName, dbCodeInsightsGenerator);
     },
   });
@@ -199,7 +224,9 @@ function registerLLMDependentServices(): void {
     useFactory: async (c) => {
       const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
       const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
-      const insightProcessor = c.resolve<RawCodeToInsightsFileGenerator>(TOKENS.RawCodeToInsightsFileGenerator);
+      const insightProcessor = c.resolve<RawCodeToInsightsFileGenerator>(
+        TOKENS.RawCodeToInsightsFileGenerator,
+      );
       return new OneShotGenerateInsightsService(llmRouter, envVars, insightProcessor);
     },
   });
@@ -212,5 +239,5 @@ function registerLLMDependentServices(): void {
     },
   });
 
-  console.log('LLM-dependent services registered with async factories');
-} 
+  console.log("LLM-dependent services registered with async factories");
+}

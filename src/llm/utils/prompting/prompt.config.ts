@@ -17,4 +17,4 @@ Only provide an RFC8259 compliant JSON response that strictly follows the provid
   FORCE_JSON_RESPONSE_SHORT: `
 In the JSON response, do not include any explanations - only provide an RFC8259 compliant JSON response following the provided format without deviation.
 `,
-} as const; 
+} as const;

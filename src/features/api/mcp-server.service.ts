@@ -17,7 +17,8 @@ export class McpServerService implements Service {
    */
   constructor(
     @inject(TOKENS.McpHttpServer) private readonly mcpHttpServer: McpHttpServer,
-    @inject(TOKENS.MongoDBClientFactory) private readonly mongoDBClientFactory: MongoDBClientFactory
+    @inject(TOKENS.MongoDBClientFactory)
+    private readonly mongoDBClientFactory: MongoDBClientFactory,
   ) {}
 
   /**
@@ -32,17 +33,17 @@ export class McpServerService implements Service {
    */
   private async startMcpServer(): Promise<void> {
     const httpServer = this.mcpHttpServer.configure();
-    
+
     // Return a Promise that keeps the server running until it's closed
     await new Promise<void>((resolve) => {
-      httpServer.listen(mcpConfig.DEFAULT_MCP_PORT, () => { 
-        console.log(`MCP server listening on port ${mcpConfig.DEFAULT_MCP_PORT}`); 
+      httpServer.listen(mcpConfig.DEFAULT_MCP_PORT, () => {
+        console.log(`MCP server listening on port ${mcpConfig.DEFAULT_MCP_PORT}`);
       });
-      
+
       httpServer.on("close", () => {
         void this.handleGracefulShutdown();
         resolve(); // Resolve the Promise when server closes
-      });    
+      });
     });
   }
 
@@ -52,4 +53,4 @@ export class McpServerService implements Service {
   private async handleGracefulShutdown(): Promise<void> {
     await gracefulShutdown(undefined, this.mongoDBClientFactory);
   }
-} 
+}

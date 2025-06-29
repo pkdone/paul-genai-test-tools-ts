@@ -2,7 +2,7 @@ import { llmConfig } from "../../../llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { BEDROCK_CLAUDE } from "./bedrock-claude.manifest";
 
-/** 
+/**
  * Class for the AWS Bedrock [Anthropic] Claude LLMs.
  */
 export default class BedrockClaudeLLM extends BaseBedrockLLM {
@@ -11,8 +11,8 @@ export default class BedrockClaudeLLM extends BaseBedrockLLM {
    */
   getModelFamily(): string {
     return BEDROCK_CLAUDE;
-  }    
-    
+  }
+
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
@@ -34,19 +34,20 @@ export default class BedrockClaudeLLM extends BaseBedrockLLM {
       temperature: config.temperature ?? llmConfig.DEFAULT_ZERO_TEMP,
       top_p: config.topP ?? llmConfig.DEFAULT_TOP_P_LOWEST,
       top_k: config.topK ?? llmConfig.DEFAULT_TOP_K_LOWEST,
-              max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,    
+      max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
     });
   }
 
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: ClaudeCompletionLLMSpecificResponse) {
+  protected extractCompletionModelSpecificResponse(
+    llmResponse: ClaudeCompletionLLMSpecificResponse,
+  ) {
     const responseContent = llmResponse.content?.[0]?.text ?? "";
     const finishReason = llmResponse.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = ((finishReasonLowercase === "length") 
-      || !responseContent); // No content - assume prompt maxed out total tokens available
+    const isIncompleteResponse = finishReasonLowercase === "length" || !responseContent; // No content - assume prompt maxed out total tokens available
     const promptTokens = llmResponse.usage?.input_tokens ?? -1;
     const completionTokens = llmResponse.usage?.output_tokens ?? -1;
     const maxTotalTokens = -1; // Not using "total_tokens" as that is total of prompt + completion tokens tokens and not the max limit

@@ -10,7 +10,9 @@ jest.mock("../../../src/common/utils/error-utils");
 jest.mock("../../../src/common/mdb/mdb-utils");
 
 const MockedMongoClient = MongoClient as jest.MockedClass<typeof MongoClient>;
-const mockLogErrorMsgAndDetail = logErrorMsgAndDetail as jest.MockedFunction<typeof logErrorMsgAndDetail>;
+const mockLogErrorMsgAndDetail = logErrorMsgAndDetail as jest.MockedFunction<
+  typeof logErrorMsgAndDetail
+>;
 const mockRedactUrl = redactUrl as jest.MockedFunction<typeof redactUrl>;
 
 describe("MongoDBClientFactory", () => {
@@ -21,7 +23,7 @@ describe("MongoDBClientFactory", () => {
 
   beforeEach(() => {
     factory = new MongoDBClientFactory();
-    
+
     // Create a mock client with all necessary methods
     mockClient = {
       connect: jest.fn().mockResolvedValue(undefined),
@@ -31,14 +33,14 @@ describe("MongoDBClientFactory", () => {
     } as unknown as jest.Mocked<MongoClient>;
 
     MockedMongoClient.mockImplementation(() => mockClient);
-    
+
     // Mock console methods
-    mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
-    mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation();
-    
+    mockConsoleLog = jest.spyOn(console, "log").mockImplementation();
+    mockConsoleWarn = jest.spyOn(console, "warn").mockImplementation();
+
     // Setup default mock implementations
     mockRedactUrl.mockImplementation((url: string) => `REDACTED_${url}`);
-    
+
     jest.clearAllMocks();
   });
 
@@ -79,11 +81,13 @@ describe("MongoDBClientFactory", () => {
 
       // First connection
       await factory.connect(id, url);
-      
+
       // Second connection with same id
       const result = await factory.connect(id, url);
 
-      expect(mockConsoleWarn).toHaveBeenCalledWith(`MongoDB client with id '${id}' is already connected.`);
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        `MongoDB client with id '${id}' is already connected.`,
+      );
       expect(MockedMongoClient).toHaveBeenCalledTimes(1); // Should only be called once
       expect(result).toBe(mockClient);
     });
@@ -114,7 +118,7 @@ describe("MongoDBClientFactory", () => {
 
       expect(mockLogErrorMsgAndDetail).toHaveBeenCalledWith(
         "Failed to connect to MongoDB",
-        connectionError
+        connectionError,
       );
     });
 
@@ -123,16 +127,18 @@ describe("MongoDBClientFactory", () => {
       const url = "mongodb://localhost:27017/test";
 
       const client = await factory.connect(id, url);
-      
+
       // Verify client is in factory
       expect(factory.getClient(id)).toBe(client);
-      
+
       // Call close on the client
       await client.close();
-      
+
       // Verify client is removed from factory
       expect(() => factory.getClient(id)).toThrow(
-        new MongoError(`No active connection found for id '${id}'. Call \`connect(id, url)\` first.`)
+        new MongoError(
+          `No active connection found for id '${id}'. Call \`connect(id, url)\` first.`,
+        ),
       );
     });
 
@@ -142,12 +148,12 @@ describe("MongoDBClientFactory", () => {
       const forceClose = true;
 
       // Create a spy on the original close method before connecting
-      const originalCloseSpy = jest.spyOn(mockClient, 'close');
+      const originalCloseSpy = jest.spyOn(mockClient, "close");
 
       const client = await factory.connect(id, url);
-      
+
       await client.close(forceClose);
-      
+
       // The wrapped close should call the original mock
       expect(originalCloseSpy).toHaveBeenCalledWith(forceClose);
     });
@@ -168,7 +174,9 @@ describe("MongoDBClientFactory", () => {
       const id = "non-existent";
 
       expect(() => factory.getClient(id)).toThrow(
-        new MongoError(`No active connection found for id '${id}'. Call \`connect(id, url)\` first.`)
+        new MongoError(
+          `No active connection found for id '${id}'. Call \`connect(id, url)\` first.`,
+        ),
       );
     });
   });
@@ -178,12 +186,12 @@ describe("MongoDBClientFactory", () => {
       const clients = [
         { id: "client1", url: "mongodb://localhost:27017/db1" },
         { id: "client2", url: "mongodb://localhost:27018/db2" },
-        { id: "client3", url: "mongodb://localhost:27019/db3" }
+        { id: "client3", url: "mongodb://localhost:27019/db3" },
       ];
 
       // Create an array to track close method spies
       const closeSpies: jest.SpyInstance[] = [];
-      
+
       // Mock the MongoClient constructor to return different instances
       MockedMongoClient.mockImplementation(() => {
         const newMockClient = {
@@ -193,7 +201,7 @@ describe("MongoDBClientFactory", () => {
           topology: {},
         } as unknown as jest.Mocked<MongoClient>;
         // Create a spy on each client's close method
-        closeSpies.push(jest.spyOn(newMockClient, 'close'));
+        closeSpies.push(jest.spyOn(newMockClient, "close"));
         return newMockClient;
       });
 
@@ -205,10 +213,10 @@ describe("MongoDBClientFactory", () => {
       await factory.closeAll();
 
       // Each client should have been closed
-      closeSpies.forEach(spy => {
+      closeSpies.forEach((spy) => {
         expect(spy).toHaveBeenCalledTimes(1);
       });
-      
+
       // Console should log closure of each client
       clients.forEach(({ id }) => {
         expect(mockConsoleLog).toHaveBeenCalledWith(`Closed MongoDB connection for id '${id}'.`);
@@ -217,7 +225,9 @@ describe("MongoDBClientFactory", () => {
       // All clients should be removed from factory
       clients.forEach(({ id }) => {
         expect(() => factory.getClient(id)).toThrow(
-          new MongoError(`No active connection found for id '${id}'. Call \`connect(id, url)\` first.`)
+          new MongoError(
+            `No active connection found for id '${id}'. Call \`connect(id, url)\` first.`,
+          ),
         );
       });
     });
@@ -228,7 +238,7 @@ describe("MongoDBClientFactory", () => {
       const closeError = new Error("Close failed");
 
       const client = await factory.connect(id, url);
-      
+
       // Mock close to throw an error by replacing the close method after connection
       client.close = jest.fn().mockRejectedValue(closeError);
 
@@ -236,14 +246,14 @@ describe("MongoDBClientFactory", () => {
 
       expect(mockLogErrorMsgAndDetail).toHaveBeenCalledWith(
         `Error closing MongoDB client '${id}'`,
-        closeError
+        closeError,
       );
     });
 
     test("clears all clients even when some fail to close", async () => {
       const clients = [
         { id: "client1", url: "mongodb://localhost:27017/db1" },
-        { id: "client2", url: "mongodb://localhost:27018/db2" }
+        { id: "client2", url: "mongodb://localhost:27018/db2" },
       ];
 
       // Mock the MongoClient constructor to return different instances
@@ -267,7 +277,9 @@ describe("MongoDBClientFactory", () => {
       // All clients should still be removed from factory despite errors
       clients.forEach(({ id }) => {
         expect(() => factory.getClient(id)).toThrow(
-          new MongoError(`No active connection found for id '${id}'. Call \`connect(id, url)\` first.`)
+          new MongoError(
+            `No active connection found for id '${id}'. Call \`connect(id, url)\` first.`,
+          ),
         );
       });
     });
@@ -284,9 +296,9 @@ describe("MongoDBClientFactory", () => {
     test("can connect, retrieve, and close multiple clients", async () => {
       const connections = [
         { id: "primary", url: "mongodb://localhost:27017/primary" },
-        { id: "secondary", url: "mongodb://localhost:27018/secondary" }
+        { id: "secondary", url: "mongodb://localhost:27018/secondary" },
       ];
-      
+
       // Mock the MongoClient constructor to return different instances
       MockedMongoClient.mockImplementation(() => {
         const newMockClient = {
@@ -342,7 +354,7 @@ describe("MongoDBClientFactory", () => {
 
       // Mock the constructor to return the failing client for the next call
       MockedMongoClient.mockImplementationOnce(() => failingMockClient);
-      
+
       try {
         await factory.connect("bad", badUrl);
         fail("Expected MongoError to be thrown");
@@ -355,4 +367,4 @@ describe("MongoDBClientFactory", () => {
       expect(factory.getClient("good")).toBe(mockClient);
     });
   });
-}); 
+});

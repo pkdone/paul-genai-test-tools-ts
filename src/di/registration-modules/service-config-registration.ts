@@ -10,12 +10,12 @@ const SERVICE_CONFIGURATIONS = new Map<symbol, ServiceRunnerConfig>([
   [TOKENS.CodebaseQueryService, { requiresMongoDB: true, requiresLLM: true }],
   [TOKENS.InsightsFromDBGenerationService, { requiresMongoDB: true, requiresLLM: true }],
   [TOKENS.McpServerService, { requiresMongoDB: true, requiresLLM: true }],
-  
+
   // Services with specific requirements
   [TOKENS.OneShotGenerateInsightsService, { requiresMongoDB: false, requiresLLM: true }],
   [TOKENS.MDBConnectionTestService, { requiresMongoDB: true, requiresLLM: false }],
   [TOKENS.PluggableLLMsTestService, { requiresMongoDB: false, requiresLLM: true }],
-  [TOKENS.ReportGenerationService, { requiresMongoDB: true, requiresLLM: false }]
+  [TOKENS.ReportGenerationService, { requiresMongoDB: true, requiresLLM: false }],
 ]);
 
 /**
@@ -27,4 +27,4 @@ export function getServiceConfiguration(serviceToken: symbol): ServiceRunnerConf
     throw new Error(`No configuration found for service token: ${serviceToken.toString()}`);
   }
   return config;
-} 
+}

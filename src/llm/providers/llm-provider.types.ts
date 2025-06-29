@@ -1,5 +1,13 @@
 import { z } from "zod";
-import { LLMModelKeysSet, LLMProviderImpl, LLMModelMetadata, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern, LLMGeneratedContent, LLMResponseTokensUsage } from "../llm.types";
+import {
+  LLMModelKeysSet,
+  LLMProviderImpl,
+  LLMModelMetadata,
+  ResolvedLLMModelMetadata,
+  LLMErrorMsgRegExPattern,
+  LLMGeneratedContent,
+  LLMResponseTokensUsage,
+} from "../llm.types";
 import { EnvVars } from "../../lifecycle/env.types";
 
 /**
@@ -28,7 +36,7 @@ export interface LLMProviderSpecificConfig extends LLMRetryConfig {
   /** Default temperature for completions */
   temperature?: number;
   /** Default topP for completions */
-  topP?: number;  
+  topP?: number;
   /** Default topK for completions */
   topK?: number;
   /** Safety settings for providers that support them */
@@ -61,7 +69,7 @@ export interface LLMProviderManifest {
     modelsKeysSet: LLMModelKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
-    providerSpecificConfig?: LLMProviderSpecificConfig
+    providerSpecificConfig?: LLMProviderSpecificConfig,
   ) => LLMProviderImpl;
 }
 

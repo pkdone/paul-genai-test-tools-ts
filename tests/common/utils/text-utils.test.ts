@@ -22,5 +22,4 @@ describe("Text utilities", () => {
       expect(joinArrayWithSeparators([])).toBe("");
     });
   });
-
-}); 
+});

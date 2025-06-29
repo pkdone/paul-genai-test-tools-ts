@@ -1,4 +1,8 @@
-import { AppSummaryRecord, ProjectedAppSummaryDescAndLLMProvider, PartialAppSummaryRecord } from "./app-summary.model";
+import {
+  AppSummaryRecord,
+  ProjectedAppSummaryDescAndLLMProvider,
+  PartialAppSummaryRecord,
+} from "./app-summary.model";
 
 /**
  * Interface for the App Summaries repository
@@ -17,10 +21,12 @@ export interface AppSummariesRepository {
   /**
    * Get app summary info for reporting (description and LLM provider)
    */
-  getProjectAppSummaryDescAndLLMProvider(projectName: string): Promise<ProjectedAppSummaryDescAndLLMProvider | null>;
+  getProjectAppSummaryDescAndLLMProvider(
+    projectName: string,
+  ): Promise<ProjectedAppSummaryDescAndLLMProvider | null>;
 
   /**
    * Get specific field data from app summary
    */
   getProjectAppSummaryField<T>(projectName: string, fieldName: string): Promise<T | null>;
-} 
+}

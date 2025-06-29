@@ -1,6 +1,6 @@
-import { zodToJsonSchema } from 'zod-to-json-schema';
-import { fillPrompt } from 'type-safe-prompt';
-import { z } from 'zod';
+import { zodToJsonSchema } from "zod-to-json-schema";
+import { fillPrompt } from "type-safe-prompt";
+import { z } from "zod";
 
 /**
  * Helper function to convert a Zod schema to a JSON string for use in prompts
@@ -14,19 +14,15 @@ export const schemaToJsonString = (schema: z.ZodType): string => {
 /**
  * Generic prompt builder utility that combines a template, schema, and content
  * to create a complete prompt for LLM consumption.
- * 
+ *
  * @param template - The prompt template string with placeholders
  * @param schema - The Zod schema to be serialized as JSON schema
  * @param content - The content to be inserted into the template
  * @returns The complete prompt string
  */
-export function buildPrompt(
-  template: string, 
-  schema: z.ZodType, 
-  content: string
-): string {
+export function buildPrompt(template: string, schema: z.ZodType, content: string): string {
   return fillPrompt(template, {
     jsonSchema: schemaToJsonString(schema),
     codeContent: content,
   });
-} 
+}

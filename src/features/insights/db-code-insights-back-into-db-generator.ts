@@ -8,7 +8,7 @@ import type { AppSummariesRepository } from "../../repositories/app-summary/app-
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { PartialAppSummaryRecord } from "../../repositories/app-summary/app-summary.model";
 import { TOKENS } from "../../di/tokens";
-import { categoryPromptSchemaMappings, type AppSummaryCategory } from './category-mappings';
+import { categoryPromptSchemaMappings, type AppSummaryCategory } from "./category-mappings";
 
 /**
  * Generates metadata in database collections to capture application information,
@@ -22,11 +22,13 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    * Creates a new SummariesGenerator.
    */
   constructor(
-    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: AppSummariesRepository,
+    @inject(TOKENS.AppSummariesRepository)
+    private readonly appSummariesRepository: AppSummariesRepository,
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
     @inject(TOKENS.ProjectName) private readonly projectName: string,
-    @inject(TOKENS.LLMStructuredResponseInvoker) private readonly llmUtilityService: LLMStructuredResponseInvoker, 
+    @inject(TOKENS.LLMStructuredResponseInvoker)
+    private readonly llmUtilityService: LLMStructuredResponseInvoker,
   ) {
     this.llmProviderDescription = this.llmRouter.getModelsUsedDescription();
   }
@@ -42,22 +44,26 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     if (sourceFileSummaries.length === 0) {
       throw new Error(
         "No existing code file summaries found in the metadata database. " +
-        "Please ensure you have run the script to process the source data first."
+          "Please ensure you have run the script to process the source data first.",
       );
     }
 
-    await this.appSummariesRepository.createOrReplaceAppSummary({ 
-      projectName: this.projectName, 
-      llmProvider: this.llmProviderDescription 
+    await this.appSummariesRepository.createOrReplaceAppSummary({
+      projectName: this.projectName,
+      llmProvider: this.llmProviderDescription,
     });
     const categories: AppSummaryCategory[] = [
-      'appDescription',
-      'boundedContexts', 
-      'businessEntities',
-      'businessProcesses',
-      'technologies'
+      "appDescription",
+      "boundedContexts",
+      "businessEntities",
+      "businessProcesses",
+      "technologies",
     ] as const;
-    await Promise.all(categories.map(async (category) => this.generateDataForCategory(category, sourceFileSummaries)));
+    await Promise.all(
+      categories.map(async (category) =>
+        this.generateDataForCategory(category, sourceFileSummaries),
+      ),
+    );
   }
 
   /**
@@ -65,10 +71,9 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    */
   private async buildSourceFileListSummaryList(): Promise<string[]> {
     const srcFilesList: string[] = [];
-    const records = await this.sourcesRepository.getProjectSourcesSummaries(
-      this.projectName, 
-      [...appConfig.SOURCE_FILES_FOR_CODE]
-    );
+    const records = await this.sourcesRepository.getProjectSourcesSummaries(this.projectName, [
+      ...appConfig.SOURCE_FILES_FOR_CODE,
+    ]);
 
     for (const record of records) {
       if (!record.summary || Object.keys(record.summary).length === 0) {
@@ -77,24 +82,26 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       }
 
       const fileLabel = record.summary.classpath ?? record.filepath;
-      srcFilesList.push(`* ${fileLabel}: ${record.summary.purpose} ${record.summary.implementation}`);
+      srcFilesList.push(
+        `* ${fileLabel}: ${record.summary.purpose} ${record.summary.implementation}`,
+      );
     }
-    
+
     return srcFilesList;
   }
 
   /**
-   * Calls an LLM to summarize a specific set of data (i.e., one category), and then saves the 
+   * Calls an LLM to summarize a specific set of data (i.e., one category), and then saves the
    * dataset under a named field of the main application summary record.
    */
   private async generateDataForCategory(
-    category: AppSummaryCategory, 
-    sourceFileSummaries: string[]
+    category: AppSummaryCategory,
+    sourceFileSummaries: string[],
   ): Promise<void> {
     const categoryLabel = categoryPromptSchemaMappings[category].label;
 
     try {
-      console.log(`Processing ${categoryLabel}`);      
+      console.log(`Processing ${categoryLabel}`);
       const validatedData = await this.getCategorySummaryAsJSON(category, sourceFileSummaries);
       if (!validatedData) return;
       await this.appSummariesRepository.updateAppSummary(this.projectName, validatedData);
@@ -104,34 +111,33 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     }
   }
 
-
   /**
-   * Calls an LLM to summarize a specific set of data (i.e., one category), and then saves the 
+   * Calls an LLM to summarize a specific set of data (i.e., one category), and then saves the
    * dataset under a named field of the main application summary record.
    */
   private async getCategorySummaryAsJSON(
     category: AppSummaryCategory,
-    sourceFileSummaries: string[]
+    sourceFileSummaries: string[],
   ): Promise<PartialAppSummaryRecord | null> {
     const categoryLabel = categoryPromptSchemaMappings[category].label;
 
     try {
       const { promptCreator, schema } = categoryPromptSchemaMappings[category];
-      const resourceName = `${String(category)} - generate-${String(category)}.prompt`;    
+      const resourceName = `${String(category)} - generate-${String(category)}.prompt`;
       const content = joinArrayWithSeparators(sourceFileSummaries);
       const prompt = promptCreator(content);
       const llmResponse: unknown = await this.llmUtilityService.getStructuredResponse(
         resourceName,
         prompt,
         schema,
-        categoryLabel
+        categoryLabel,
       );
       return llmResponse as PartialAppSummaryRecord;
     } catch (error) {
-      console.warn(`WARNING: ${error instanceof Error ? error.message : 'Unknown error'} for ${categoryLabel}`);
+      console.warn(
+        `WARNING: ${error instanceof Error ? error.message : "Unknown error"} for ${categoryLabel}`,
+      );
       return null;
     }
   }
 }
-
-

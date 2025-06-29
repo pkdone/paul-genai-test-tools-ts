@@ -11,8 +11,8 @@ export default class BedrockTitanLLM extends BaseBedrockLLM {
    */
   getModelFamily(): string {
     return BEDROCK_TITAN;
-  }    
-    
+  }
+
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
@@ -26,16 +26,17 @@ export default class BedrockTitanLLM extends BaseBedrockLLM {
       },
     });
   }
-  
+
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: TitanCompletionLLMSpecificResponse) {
-    const responseContent = llmResponse.results?.[0]?.outputText ?? ""; 
+  protected extractCompletionModelSpecificResponse(
+    llmResponse: TitanCompletionLLMSpecificResponse,
+  ) {
+    const responseContent = llmResponse.results?.[0]?.outputText ?? "";
     const finishReason = llmResponse.results?.[0]?.completionReason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = ((finishReasonLowercase === "max_tokens")
-      || !responseContent);  // No content - assume prompt maxed out total tokens available
+    const isIncompleteResponse = finishReasonLowercase === "max_tokens" || !responseContent; // No content - assume prompt maxed out total tokens available
     const promptTokens = llmResponse.inputTextTokenCount ?? -1;
     const completionTokens = llmResponse.results?.[0]?.tokenCount ?? -1;
     const maxTotalTokens = -1;
@@ -55,4 +56,3 @@ interface TitanCompletionLLMSpecificResponse {
   }[];
   inputTextTokenCount?: number;
 }
-

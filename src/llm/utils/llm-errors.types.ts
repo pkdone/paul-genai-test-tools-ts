@@ -2,12 +2,12 @@
  * Abstract error class to represent a generic problem using an LLM implementation.
  */
 export abstract class LLMError extends Error {
-  /** 
+  /**
    * Constructor.
    */
   constructor(name: string, message: string) {
-      super(message);
-      this.name = name;
+    super(message);
+    this.name = name;
   }
 
   /**
@@ -17,7 +17,11 @@ export abstract class LLMError extends Error {
    * @param payload The payload to be stringified and included in the message
    * @returns The formatted message string
    */
-  protected static buildMessage(baseMessage: string, payloadLabel: string, payload: unknown): string {
+  protected static buildMessage(
+    baseMessage: string,
+    payloadLabel: string,
+    payload: unknown,
+  ): string {
     const stringifiedPayload = JSON.stringify(payload);
     return `${baseMessage}. ${payloadLabel}: ${stringifiedPayload}`;
   }
@@ -27,12 +31,12 @@ export abstract class LLMError extends Error {
  * Error class to represent a problem with the content received from an LLM implementation.
  */
 export class BadResponseContentLLMError extends LLMError {
-  /** 
+  /**
    * The content received in the LLM implementation's response.
    */
   readonly content: string;
 
-  /** 
+  /**
    * Constructor.
    */
   constructor(message: string, content: unknown = null) {
@@ -46,12 +50,12 @@ export class BadResponseContentLLMError extends LLMError {
  * response.
  */
 export class BadResponseMetadataLLMError extends LLMError {
-  /** 
+  /**
    * The metadata received from the LLM implementation.
    */
   readonly metadata: string;
 
-  /** 
+  /**
    * Constructor.
    */
   constructor(message: string, metadata: unknown = null) {
@@ -64,12 +68,12 @@ export class BadResponseMetadataLLMError extends LLMError {
  * Error class to represent a problem with the configuration used to initialize LLM implementation.
  */
 export class BadConfigurationLLMError extends LLMError {
-  /** 
+  /**
    * The configuration used to initiatize the LLM implementation.
    */
   readonly config: string;
 
-  /** 
+  /**
    * Constructor.
    */
   constructor(message: string, config: unknown = null) {
@@ -82,12 +86,12 @@ export class BadConfigurationLLMError extends LLMError {
  * Error class to indicate that the LLM implementation rejected the request.
  */
 export class RejectionResponseLLMError extends LLMError {
-  /** 
+  /**
    * The rejection reason received from the LLM implementation.
    */
   readonly reason: string;
 
-  /** 
+  /**
    * Constructor.
    */
   constructor(message: string, reason: unknown = null) {

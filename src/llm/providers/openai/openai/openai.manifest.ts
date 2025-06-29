@@ -58,7 +58,7 @@ export const openAIProviderManifest: LLMProviderManifest = {
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
-    const env = envConfig as BaseEnvVars & { 
+    const env = envConfig as BaseEnvVars & {
       [OPENAI_LLM_API_KEY_KEY]: string;
       [OPENAI_TEXT_EMBEDDINGS_MODEL_KEY]: string;
       [OPENAI_GPT_COMPLETIONS_MODEL_PRIMARY_KEY]: string;
@@ -66,4 +66,4 @@ export const openAIProviderManifest: LLMProviderManifest = {
     };
     return new OpenAILLM(modelsKeysSet, modelsMetadata, errorPatterns, env[OPENAI_LLM_API_KEY_KEY]);
   },
-}; 
+};

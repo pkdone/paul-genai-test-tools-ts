@@ -7,31 +7,28 @@ describe("Error utilities", () => {
       {
         input: new Error("Test error"),
         expected: "Error. Test error",
-        description: "Error object"
+        description: "Error object",
       },
       {
         input: { message: "Custom error" },
         expected: "<unknown-type>. Custom error",
-        description: "object containing message"
+        description: "object containing message",
       },
       {
         input: "string error",
-        expected: "<unknown-type>. \"string error\"",
-        description: "primitive value"
+        expected: '<unknown-type>. "string error"',
+        description: "primitive value",
       },
       {
         input: null,
         expected: "<unknown-type>. No error message available",
-        description: "null value"
-      }
+        description: "null value",
+      },
     ];
 
-    test.each(errorTextTestData)(
-      "with $description",
-      ({ input, expected }) => {
-        expect(getErrorText(input)).toBe(expected);
-      }
-    );
+    test.each(errorTextTestData)("with $description", ({ input, expected }) => {
+      expect(getErrorText(input)).toBe(expected);
+    });
   });
 
   describe("getErrorStack", () => {
@@ -46,4 +43,4 @@ describe("Error utilities", () => {
       expect(stack).toContain("Error");
     });
   });
-}); 
+});

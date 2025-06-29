@@ -14,14 +14,14 @@ import type { EnvVars } from "../../lifecycle/env.types";
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
   if (container.isRegistered(TOKENS.LLMRouter)) {
-    console.log('LLM dependencies already registered - skipping registration');
+    console.log("LLM dependencies already registered - skipping registration");
     return;
   }
 
   // Register utility classes that LLM dependencies need
   container.registerSingleton(TOKENS.LLMStats, LLMStats);
   container.registerSingleton(TOKENS.PromptAdapter, PromptAdapter);
-  
+
   // Register the model family and environment variables as instances
   container.registerInstance(TOKENS.LLMModelFamily, envVars.LLM);
   container.registerInstance(TOKENS.EnvVars, envVars);
@@ -44,9 +44,9 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
       const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
       const llmStats = c.resolve<LLMStats>(TOKENS.LLMStats);
       const promptAdapter = c.resolve<PromptAdapter>(TOKENS.PromptAdapter);
-      
+
       return new LLMRouter(llmService, envVars, llmStats, promptAdapter);
     },
   });
-  console.log('LLM Router registered with async factory');
-} 
+  console.log("LLM Router registered with async factory");
+}

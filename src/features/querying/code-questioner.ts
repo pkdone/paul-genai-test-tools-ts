@@ -23,7 +23,7 @@ CODE:
     {
       question,
       codeContent,
-    }
+    },
   );
 }
 
@@ -37,24 +37,24 @@ export default class CodeQuestioner {
    */
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
-    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter
-  ) { 
-  }
+    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
+  ) {}
 
   /**
-   * Query the codebase, by first querying Vector Search and then using the results for RAG 
+   * Query the codebase, by first querying Vector Search and then using the results for RAG
    * interacton with the LLM.
-   */ 
+   */
   async queryCodebaseWithQuestion(question: string, projectName: string) {
     const queryVector = await this.llmRouter.generateEmbeddings("Human question", question);
-    if (queryVector === null || queryVector.length <= 0) return "No vector was generated for the question - unable to answer question";
-    const queryVectorDoubles = convertArrayOfNumbersToArrayOfDoubles(queryVector);  // HACK, see: https://jira.mongodb.org/browse/NODE-5714
+    if (queryVector === null || queryVector.length <= 0)
+      return "No vector was generated for the question - unable to answer question";
+    const queryVectorDoubles = convertArrayOfNumbersToArrayOfDoubles(queryVector); // HACK, see: https://jira.mongodb.org/browse/NODE-5714
     const bestMatchFiles = await this.sourcesRepository.vectorSearchProjectSourcesRawContent(
       projectName,
       appConfig.JAVA_FILE_TYPE,
       queryVectorDoubles,
       appConfig.VECTOR_SEARCH_NUM_CANDIDATES,
-      appConfig.VECTOR_SEARCH_NUM_LIMIT
+      appConfig.VECTOR_SEARCH_NUM_LIMIT,
     );
 
     if (bestMatchFiles.length <= 0) {
@@ -65,22 +65,29 @@ export default class CodeQuestioner {
     const codeBlocksAsText = this.mergeSourceCodeFilesContentIntoMarkdownText(bestMatchFiles);
     const resourceName = `Codebase query`;
     const prompt = createCodebaseQueryPrompt(question, codeBlocksAsText);
-    const response = await this.llmRouter.executeCompletion(resourceName, prompt, false, {resource: resourceName, requireJSON: false});      
+    const response = await this.llmRouter.executeCompletion(resourceName, prompt, false, {
+      resource: resourceName,
+      requireJSON: false,
+    });
 
     if (response) {
-      const referencesText = bestMatchFiles.map(match => ` * ${match.filepath}`).join("\n");
+      const referencesText = bestMatchFiles.map((match) => ` * ${match.filepath}`).join("\n");
       return `${typeof response === "string" ? response : JSON.stringify(response)}\n\nReferences:\n${referencesText}`;
     } else {
-      console.log("Called the LLN with some data returned by Vector Search but the LLM returned an empty response");
+      console.log(
+        "Called the LLN with some data returned by Vector Search but the LLM returned an empty response",
+      );
       return "Unable to answer question because no insight was generated";
     }
   }
 
   /**
-   * Turns a list of content of source code file and their respective filetypes and produces one 
+   * Turns a list of content of source code file and their respective filetypes and produces one
    * piece of text using Markdown code-block syntax to delinante the content of each source file.
    */
-  private mergeSourceCodeFilesContentIntoMarkdownText(sourceFileMetadataList: ProjectedSourceMetataContentAndSummary[]) {
+  private mergeSourceCodeFilesContentIntoMarkdownText(
+    sourceFileMetadataList: ProjectedSourceMetataContentAndSummary[],
+  ) {
     const markdownParts: string[] = [];
 
     for (const fileMetadata of sourceFileMetadataList) {
@@ -90,6 +97,3 @@ export default class CodeQuestioner {
     return markdownParts.join("");
   }
 }
-
-
-

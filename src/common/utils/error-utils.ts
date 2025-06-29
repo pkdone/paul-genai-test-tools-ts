@@ -5,7 +5,7 @@ export function logErrorMsgAndDetail(msg: string | null, error: unknown): void {
   if (msg) {
     console.error(msg, getErrorText(error), "-", getErrorStack(error));
   } else {
-    console.error(getErrorText(error), "-", getErrorStack(error));    
+    console.error(getErrorText(error), "-", getErrorStack(error));
   }
 }
 
@@ -27,13 +27,13 @@ export function logErrorMsg(errMsg: string): void {
  * Get the error text from a thrown variable which may or may not be an Error object.
  */
 export function getErrorText(error: unknown): string {
-  const errType  = (error instanceof Error) ? error.constructor.name : "<unknown-type>";
+  const errType = error instanceof Error ? error.constructor.name : "<unknown-type>";
 
   if (!error) {
     return `${errType}. No error message available`;
   } else if (error instanceof Error) {
     return `${errType}. ${error.message}`;
-  } else if ((typeof error === "object") && ("message" in error)) {
+  } else if (typeof error === "object" && "message" in error) {
     return `${errType}. ${String(error.message)}`;
   } else {
     return `${errType}. ${JSON.stringify(error)}`;
@@ -49,6 +49,6 @@ export function getErrorStack(obj: unknown): string {
     return obj.stack ?? `Error: ${obj.message} (Stack trace not available)`;
   } else {
     // For non-Error objects, provide a generic message or a new stack trace indicating it's for a non-Error
-    return `Stack trace for non-Error object (details: ${JSON.stringify(obj)}): \n${new Error().stack ?? 'No stack trace available'}`;
+    return `Stack trace for non-Error object (details: ${JSON.stringify(obj)}): \n${new Error().stack ?? "No stack trace available"}`;
   }
 }

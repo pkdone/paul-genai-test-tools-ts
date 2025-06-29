@@ -11,9 +11,7 @@ import { TOKENS } from "../../di/tokens";
  */
 @injectable()
 export class LLMStructuredResponseInvoker {
-  constructor(
-    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter
-  ) {}
+  constructor(@inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter) {}
 
   /**
    * Main method to call LLM with validation and automatic retry on validation failure.
@@ -23,22 +21,30 @@ export class LLMStructuredResponseInvoker {
     resourceName: string,
     prompt: string,
     schema: z.ZodType<T>,
-    taskLabel: string
+    taskLabel: string,
   ): Promise<T> {
     // Initial attempt, returning good LLM response if valid JSON according to schema
-    const response = await this.callLLMErroringIfNotJSON(resourceName, prompt);  
+    const response = await this.callLLMErroringIfNotJSON(resourceName, prompt);
     const validation = schema.safeParse(response);
     if (validation.success) return validation.data;
 
     // Try to use the LLM to correct the LLM response and return that if valid
-    logErrorMsgAndDetail(`Validation failed for '${taskLabel}' - attempting self-correction...`, validation.error.format());
+    logErrorMsgAndDetail(
+      `Validation failed for '${taskLabel}' - attempting self-correction...`,
+      validation.error.format(),
+    );
     const correctionPrompt = this.buildCorrectionPrompt(response, schema, validation.error);
-    const correctedResponse = await this.callLLMErroringIfNotJSON(`${resourceName}-fix`, correctionPrompt);
+    const correctedResponse = await this.callLLMErroringIfNotJSON(
+      `${resourceName}-fix`,
+      correctionPrompt,
+    );
     const retryValidation = schema.safeParse(correctedResponse);
     if (retryValidation.success) return retryValidation.data;
 
     // Otherwise assume failure
-    throw new Error(`Failed to get schema valid LLM JSON response even after retry for ${taskLabel}: ${retryValidation.error.message}`);
+    throw new Error(
+      `Failed to get schema valid LLM JSON response even after retry for ${taskLabel}: ${retryValidation.error.message}`,
+    );
   }
 
   /**
@@ -46,17 +52,15 @@ export class LLMStructuredResponseInvoker {
    * Ensures the response is a valid JSON object and throws descriptive errors on failure.
    */
   private async callLLMErroringIfNotJSON(
-    resourceName: string, 
-    prompt: string
+    resourceName: string,
+    prompt: string,
   ): Promise<Record<string, unknown>> {
-    const response = await this.llmRouter.executeCompletion(
-      resourceName, 
-      prompt, 
-      true,
-      { resource: resourceName, requireJSON: true }
-    );
+    const response = await this.llmRouter.executeCompletion(resourceName, prompt, true, {
+      resource: resourceName,
+      requireJSON: true,
+    });
 
-    if (response === null || Array.isArray(response) || typeof response !== 'object') {
+    if (response === null || Array.isArray(response) || typeof response !== "object") {
       throw new Error(`LLM returned non-object JSON for ${resourceName}: ${typeof response}`);
     }
 
@@ -70,7 +74,7 @@ export class LLMStructuredResponseInvoker {
   private buildCorrectionPrompt<T>(
     originalResponse: unknown,
     schema: z.ZodType<T>,
-    validationError: z.ZodError
+    validationError: z.ZodError,
   ): string {
     return `The previous JSON response had validation errors. Please fix the following JSON to strictly match the provided schema.
 ---
@@ -85,4 +89,4 @@ ${JSON.stringify(validationError.format())}
 ---
 Return ONLY the corrected, valid JSON object.`;
   }
-} 
+}

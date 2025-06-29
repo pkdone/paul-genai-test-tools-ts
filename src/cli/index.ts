@@ -12,7 +12,7 @@ export async function runApplication(serviceToken: symbol): Promise<void> {
   // Phase 1: Bootstrap - Set up the DI container
   const config = getServiceConfiguration(serviceToken);
   await bootstrapContainer(config);
-  
+
   // Phase 2: Run - Execute the service using the bootstrapped container
   await runService(serviceToken);
 }

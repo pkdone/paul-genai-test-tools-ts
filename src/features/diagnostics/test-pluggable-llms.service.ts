@@ -15,9 +15,7 @@ export class PluggableLLMsTestService implements Service {
   /**
    * Constructor with dependency injection.
    */
-  constructor(
-    @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
-  ) {}
+  constructor(@inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter) {}
 
   /**
    * Execute the service - tests the LLM functionality.
@@ -33,22 +31,35 @@ export class PluggableLLMsTestService implements Service {
     const prompt = await readFile(appConfig.SAMPLE_PROMPT_FILEPATH);
     console.log("\n---PROMPT---");
     console.log(prompt);
-    
+
     // Test embeddings generation
     console.log("\n\n---EMBEDDINGS---");
-    const embeddingsResult = await this.llmRouter.generateEmbeddings("hard-coded-test-input", prompt);
+    const embeddingsResult = await this.llmRouter.generateEmbeddings(
+      "hard-coded-test-input",
+      prompt,
+    );
     console.log(embeddingsResult ?? "<empty>");
-    
+
     // Test primary LLM completion
     console.log("\n\n---COMPLETION (Primary LLM)---");
-    const completionPrimaryResult = await this.llmRouter.executeCompletion("hard-coded-test-input", 
-                                      prompt, false, {}, LLMModelQuality.PRIMARY);
+    const completionPrimaryResult = await this.llmRouter.executeCompletion(
+      "hard-coded-test-input",
+      prompt,
+      false,
+      {},
+      LLMModelQuality.PRIMARY,
+    );
     console.log(completionPrimaryResult ?? "<empty>");
-    
+
     // Test secondary LLM completion
     console.log("\n\n---COMPLETION (Secondary LLM)---");
-    const completionSecondaryResult = await this.llmRouter.executeCompletion("hard-coded-test-input", 
-                                        prompt, false, {}, LLMModelQuality.SECONDARY);
+    const completionSecondaryResult = await this.llmRouter.executeCompletion(
+      "hard-coded-test-input",
+      prompt,
+      false,
+      {},
+      LLMModelQuality.SECONDARY,
+    );
     console.log(completionSecondaryResult ?? "<empty>");
   }
-} 
+}

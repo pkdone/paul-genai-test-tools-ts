@@ -11,10 +11,10 @@ import { TOKENS } from "../../di/tokens";
 export class MDBConnectionTestService implements Service {
   /**
    * Constructor with dependency injection.
-   */  
+   */
   constructor(
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
-    @inject(TOKENS.ProjectName) private readonly projectName: string
+    @inject(TOKENS.ProjectName) private readonly projectName: string,
   ) {}
 
   /**
@@ -28,4 +28,4 @@ export class MDBConnectionTestService implements Service {
     const result = await this.sourcesRepository.getProjectFilesPaths(this.projectName);
     console.log("Result:", JSON.stringify(result, null, 2));
   }
-} 
+}

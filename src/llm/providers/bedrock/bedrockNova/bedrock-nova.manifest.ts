@@ -3,7 +3,10 @@ import BedrockNovaLLM from "./bedrock-nova-llm";
 import { LLMPurpose } from "../../../llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 import { z } from "zod";
-import { BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY, AWS_EMBEDDINGS_TITAN_V1 } from "../bedrock-models.constants";
+import {
+  BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
+  AWS_EMBEDDINGS_TITAN_V1,
+} from "../bedrock-models.constants";
 
 // Environment variable name constants
 const BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY";
@@ -56,4 +59,4 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
   factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     return new BedrockNovaLLM(modelsKeysSet, modelsMetadata, errorPatterns);
   },
-}; 
+};

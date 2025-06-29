@@ -5,12 +5,12 @@ export const REDACTED_CREDENTIALS = "REDACTED";
 
 /**
  * Iterates through the numbers in the array and converts each one explicitly to a BSON Double.
- * 
+ *
  * @param numbers The array of numbers to convert.
  * @returns The array of BSON Doubles.
  */
 export function convertArrayOfNumbersToArrayOfDoubles(numbers: number[]): Double[] {
-  return numbers.map(number => new Double(number));
+  return numbers.map((number) => new Double(number));
 }
 
 /**
@@ -28,7 +28,7 @@ export function redactUrl(url: string): string {
     }
     return parsedUrl.toString();
   } catch (error: unknown) {
-    logErrorMsgAndDetail("Could not parse URL for redaction", error); 
+    logErrorMsgAndDetail("Could not parse URL for redaction", error);
     return REDACTED_URL;
   }
 }
@@ -50,7 +50,7 @@ export function createVectorSearchIndexDefinition(
   dimensions = 1536,
   similarity = "euclidean",
   quantization = "scalar",
-  filters: { type: string; path: string }[] = []
+  filters: { type: string; path: string }[] = [],
 ) {
   return {
     name: indexName,
@@ -64,11 +64,11 @@ export function createVectorSearchIndexDefinition(
           similarity: similarity,
           quantization: quantization,
         },
-        ...filters.map(filter => ({
+        ...filters.map((filter) => ({
           type: filter.type,
-          path: filter.path
-        }))
-      ]
+          path: filter.path,
+        })),
+      ],
     },
   };
-} 
+}

@@ -3,7 +3,10 @@ import { LLMProviderManifest } from "../../llm-provider.types";
 import BedrockClaudeLLM from "./bedrock-claude-llm";
 import { LLMPurpose } from "../../../llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
-import { BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY, AWS_EMBEDDINGS_TITAN_V1 } from "../bedrock-models.constants";
+import {
+  BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
+  AWS_EMBEDDINGS_TITAN_V1,
+} from "../bedrock-models.constants";
 import { llmConfig } from "../../../llm.config";
 
 // Environment variable name constants
@@ -45,7 +48,7 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
       modelKey: AWS_COMPLETIONS_CLAUDE_V40,
       urnEnvKey: BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY,
       purpose: LLMPurpose.COMPLETIONS,
-      maxCompletionTokens: 32768,  // Should be 64k but errors if larger than around 39200
+      maxCompletionTokens: 32768, // Should be 64k but errors if larger than around 39200
       maxTotalTokens: 200000,
     },
     secondaryCompletion: {
@@ -68,6 +71,11 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
     maxRetryAdditionalDelayMillis: 45 * 1000, // 45 seconds additional random delay
   },
   factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, providerSpecificConfig) => {
-    return new BedrockClaudeLLM(modelsKeysSet, modelsMetadata, errorPatterns, providerSpecificConfig);
+    return new BedrockClaudeLLM(
+      modelsKeysSet,
+      modelsMetadata,
+      errorPatterns,
+      providerSpecificConfig,
+    );
   },
-}; 
+};

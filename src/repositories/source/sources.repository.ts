@@ -1,10 +1,16 @@
 import { injectable, inject } from "tsyringe";
 import { MongoClient, Double, Sort } from "mongodb";
 import { SourcesRepository } from "./sources.repository.interface";
-import { SourceRecord, ProjectedSourceMetataContentAndSummary, DatabaseIntegrationInfo, 
-         ProjectedSourceFilePathAndSummary, ProjectedSourceSummaryFields,
-         ProjectedDatabaseIntegrationFields, ProjectedFilePath, 
-         ProjectedFileTypesCountAndLines} from "./source.model";
+import {
+  SourceRecord,
+  ProjectedSourceMetataContentAndSummary,
+  DatabaseIntegrationInfo,
+  ProjectedSourceFilePathAndSummary,
+  ProjectedSourceSummaryFields,
+  ProjectedDatabaseIntegrationFields,
+  ProjectedFilePath,
+  ProjectedFileTypesCountAndLines,
+} from "./source.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config/database.config";
 import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
@@ -14,7 +20,10 @@ import { BaseRepository } from "../base.repository";
  * MongoDB implementation of the Sources repository
  */
 @injectable()
-export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> implements SourcesRepository {
+export default class SourcesRepositoryImpl
+  extends BaseRepository<SourceRecord>
+  implements SourcesRepository
+{
   /**
    * Constructor.
    */
@@ -40,8 +49,8 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
    * Check if a source file already exists for a project
    */
   async doesProjectSourceExist(projectName: string, filepath: string): Promise<boolean> {
-    const query = { 
-      projectName, 
+    const query = {
+      projectName,
       filepath,
     };
     const options = {
@@ -54,7 +63,10 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
   /**
    * Get source file summaries for a project
    */
-  async getProjectSourcesSummaries(projectName: string, fileTypes: string[]): Promise<ProjectedSourceSummaryFields[]> {
+  async getProjectSourcesSummaries(
+    projectName: string,
+    fileTypes: string[],
+  ): Promise<ProjectedSourceSummaryFields[]> {
     const query = {
       projectName,
       type: { $in: fileTypes },
@@ -68,14 +80,17 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
         filepath: 1,
       },
       sort: { "summary.classpath": 1 } as Sort,
-    };    
+    };
     return this.collection.find<ProjectedSourceSummaryFields>(query, options).toArray();
   }
 
   /**
    * Get database integration information for a project
    */
-  async getProjectDatabaseIntegrations(projectName: string, fileTypes: string[]): Promise<DatabaseIntegrationInfo[]> {
+  async getProjectDatabaseIntegrations(
+    projectName: string,
+    fileTypes: string[],
+  ): Promise<DatabaseIntegrationInfo[]> {
     const query = {
       projectName,
       type: { $in: fileTypes },
@@ -94,11 +109,13 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
         "summary.classpath": 1,
       } as Sort,
     };
-    const records = await this.collection.find<ProjectedDatabaseIntegrationFields>(query, options).toArray();
-    
+    const records = await this.collection
+      .find<ProjectedDatabaseIntegrationFields>(query, options)
+      .toArray();
+
     return records
-      .filter(record => record.summary?.databaseIntegration)
-      .map(record => {
+      .filter((record) => record.summary?.databaseIntegration)
+      .map((record) => {
         const { summary, filepath } = record;
         const databaseIntegration = summary?.databaseIntegration;
         if (summary && databaseIntegration) {
@@ -109,14 +126,17 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
           };
         }
         // This should not happen due to the filter above, but satisfies TypeScript
-        throw new Error('Record missing required summary or databaseIntegration');
+        throw new Error("Record missing required summary or databaseIntegration");
       });
   }
 
   /**
    * Get stored procedures and triggers information for a project
    */
-  async getProjectStoredProceduresAndTriggers(projectName: string, fileTypes: string[]): Promise<ProjectedSourceFilePathAndSummary[]> {
+  async getProjectStoredProceduresAndTriggers(
+    projectName: string,
+    fileTypes: string[],
+  ): Promise<ProjectedSourceFilePathAndSummary[]> {
     const query = {
       $and: [
         { projectName },
@@ -139,11 +159,11 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
    * Perform vector search on source file content
    */
   async vectorSearchProjectSourcesRawContent(
-    projectName: string, 
-    fileType: string, 
-    queryVector: Double[], 
-    numCandidates: number, 
-    limit: number
+    projectName: string,
+    fileType: string,
+    queryVector: Double[],
+    numCandidates: number,
+    limit: number,
   ): Promise<ProjectedSourceMetataContentAndSummary[]> {
     const pipeline = [
       {
@@ -151,15 +171,12 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
           index: databaseConfig.CONTENT_VECTOR_INDEX_NAME,
           path: databaseConfig.CONTENT_VECTOR_FIELD,
           filter: {
-            $and: [
-              { projectName: { $eq: projectName } },
-              { type: { $eq: fileType } },
-            ],
+            $and: [{ projectName: { $eq: projectName } }, { type: { $eq: fileType } }],
           },
           queryVector: queryVector,
           numCandidates,
           limit,
-        }
+        },
       },
       {
         $project: {
@@ -169,16 +186,18 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
           type: 1,
           content: 1,
           summary: 1,
-        }
+        },
       },
     ];
 
     try {
-      return await this.collection.aggregate<ProjectedSourceMetataContentAndSummary>(pipeline).toArray();
+      return await this.collection
+        .aggregate<ProjectedSourceMetataContentAndSummary>(pipeline)
+        .toArray();
     } catch (error: unknown) {
       logErrorMsgAndDetail(
-        `Problem performing Atlas Vector Search aggregation - ensure the vector index is defined for the '${databaseConfig.SOURCES_COLLCTN_NAME}' collection`, 
-        error
+        `Problem performing Atlas Vector Search aggregation - ensure the vector index is defined for the '${databaseConfig.SOURCES_COLLCTN_NAME}' collection`,
+        error,
       );
       throw error;
     }
@@ -190,19 +209,19 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
   async getProjectFilesPaths(projectName: string): Promise<string[]> {
     const query = { projectName };
     const options = { projection: { _id: 0, filepath: 1 } };
-    return this.collection.find<ProjectedFilePath>(query, options).map(record => record.filepath).toArray();
+    return this.collection
+      .find<ProjectedFilePath>(query, options)
+      .map((record) => record.filepath)
+      .toArray();
   }
 
   /**
    * Get file count for a project
    */
   async getProjectFilesCount(projectName: string): Promise<number> {
-    const pipeline = [
-      { $match: { projectName } },
-      { $group: { _id: "", count: { $sum: 1 } } }
-    ];
+    const pipeline = [{ $match: { projectName } }, { $group: { _id: "", count: { $sum: 1 } } }];
     const result = await this.collection.aggregate<{ count: number }>(pipeline).toArray();
-    return result[0]?.count ?? 0;    
+    return result[0]?.count ?? 0;
   }
 
   /**
@@ -211,7 +230,7 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
   async getProjectTotalLinesOfCode(projectName: string): Promise<number> {
     const pipeline = [
       { $match: { projectName } },
-      { $group: { _id: "", count: { $sum: "$linesCount" } } }
+      { $group: { _id: "", count: { $sum: "$linesCount" } } },
     ];
     const result = await this.collection.aggregate<{ count: number }>(pipeline).toArray();
     return result[0]?.count ?? 0;
@@ -220,17 +239,21 @@ export default class SourcesRepositoryImpl extends BaseRepository<SourceRecord> 
   /**
    * Get files count and lines of code count for each file typefor a project
    */
-  async getProjectFileTypesCountAndLines(projectName: string): Promise<ProjectedFileTypesCountAndLines[]> {
+  async getProjectFileTypesCountAndLines(
+    projectName: string,
+  ): Promise<ProjectedFileTypesCountAndLines[]> {
     const pipeline = [
       { $match: { projectName } },
-      { $group: {
-        _id: "$type", 
-        lines: { $sum: "$linesCount" },          
-        files: { $sum: 1 },          
-      } },
+      {
+        $group: {
+          _id: "$type",
+          lines: { $sum: "$linesCount" },
+          files: { $sum: 1 },
+        },
+      },
       { $set: { fileType: "$_id" } },
       { $sort: { files: -1 } },
     ];
     return await this.collection.aggregate<ProjectedFileTypesCountAndLines>(pipeline).toArray();
   }
-} 
+}

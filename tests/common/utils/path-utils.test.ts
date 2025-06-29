@@ -8,10 +8,7 @@ describe("File system utilities", () => {
     { input: "myfile", expected: "", description: "file without extension" },
   ];
 
-  test.each(fileSuffixTestData)(
-    "getFileSuffix $description",
-    ({ input, expected }) => {
-      expect(getFileSuffix(input)).toBe(expected);
-    }
-  );
-}); 
+  test.each(fileSuffixTestData)("getFileSuffix $description", ({ input, expected }) => {
+    expect(getFileSuffix(input)).toBe(expected);
+  });
+});

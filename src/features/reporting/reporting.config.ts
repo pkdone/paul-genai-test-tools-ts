@@ -88,4 +88,4 @@ export const reportingConfig = {
     </body>
   </html>
   `,
-} as const; 
+} as const;

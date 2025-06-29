@@ -1,6 +1,10 @@
-import * as schemas from './ingestion.schemas';
-import { createPromptFromConfig, DetailedPromptConfig, BasicPromptConfig } from '../../llm/utils/prompting/prompt-factory';
-import { promptConfig } from '../../llm/utils/prompting/prompt.config';
+import * as schemas from "./ingestion.schemas";
+import {
+  createPromptFromConfig,
+  DetailedPromptConfig,
+  BasicPromptConfig,
+} from "../../llm/utils/prompting/prompt-factory";
+import { promptConfig } from "../../llm/utils/prompting/prompt.config";
 
 // Base template for detailed file summary prompts (Java, JS, etc.)
 const DETAILED_SUMMARY_BASE_TEMPLATE = `Act as a programmer. Take the {{fileType}} code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
@@ -41,9 +45,9 @@ export type PromptTemplate = DetailedPromptConfig | BasicPromptConfig;
  * Data-driven mapping of prompt types to their templates and schemas
  */
 export const summaryPromptTemplates: Record<string, PromptTemplate> = {
-  java: { 
-    templateType: 'detailed',
-    fileType: 'Java',
+  java: {
+    templateType: "detailed",
+    fileType: "Java",
     instructions: `* The name of the main public class/interface of the file
  * Its type ('class' or 'interface')
  * Its classpath
@@ -63,25 +67,26 @@ export const summaryPromptTemplates: Record<string, PromptTemplate> = {
     - Code uses a 3rd party framework/library for database access (set mechanism: 'OTHER')
     - Otherwise, if the code does not use a database, then set mechanism: 'NONE'
     (note, JMS and JNDI are not related to interacting with a dataase)`,
-    schema: schemas.javaFileSummarySchema 
+    schema: schemas.javaFileSummarySchema,
   },
-  js: { 
-    templateType: 'detailed',
-    fileType: 'JavaScript/TypeScript',
+  js: {
+    templateType: "detailed",
+    fileType: "JavaScript/TypeScript",
     instructions: `* A very detailed definition of its purpose (you must write at least 6 sentences for this)
  * A very detailed definition of its implementation (you must write at least 6 sentences for this)
  * A list of the internal references to other modules used by this source file (by using \`require\` or \`import\` keywords) belonging to the same application referenced by the code in this source file (do not include external or 3rd party modules/libraries in the list of internal references)
  * A list of the external references to other external modules/libraries used by this source file (by using \`require\` or \`import\` keywords), which do not belong to this same application that this source file is part of
  * The type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.`,
-    schema: schemas.jsFileSummarySchema 
+    schema: schemas.jsFileSummarySchema,
   },
-  default: { 
-    templateType: 'basic',
-    instructions: 'Take the content of an application source file shown below in the section marked \'CODE\' and for this content, return a JSON response containing data which includes a detailed definition of its purpose (you must write at least 4 sentences for this purpose), a detailed definition of its implementation (you must write at least 3 sentences for this implementation) and the type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.',
-    schema: schemas.defaultFileSummarySchema 
+  default: {
+    templateType: "basic",
+    instructions:
+      "Take the content of an application source file shown below in the section marked 'CODE' and for this content, return a JSON response containing data which includes a detailed definition of its purpose (you must write at least 4 sentences for this purpose), a detailed definition of its implementation (you must write at least 3 sentences for this implementation) and the type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.",
+    schema: schemas.defaultFileSummarySchema,
   },
-  ddl: { 
-    templateType: 'basic',
+  ddl: {
+    templateType: "basic",
     instructions: `Take the content from a database DDL/SQL source code shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
 
  * A detailed definition of its purpose (you must write at least 2 sentences for this)
@@ -90,22 +95,25 @@ export const summaryPromptTemplates: Record<string, PromptTemplate> = {
  * A list of the stored procedure (if any) it defines - for each stored procedure, include the stored procedure's name, its purpose in detail (you MUST write at least 4 sentences for this purpose), the number of lines of code in the stored procedure, and a complexity score or how complex the stored procedure's code is (the score must be have one of the follinwg values: 'LOW', 'MEDIUM', 'HIGH')
  * A list of the triggers (if any) it defines - for each trigger, include the trigger's name, its purpose in detail (you MUST write at least 4 sentences for this purpose), the number of lines of code in the trigger, and a complexity score or how complex the trigger's code is (the score must be have one of the follinwg values: 'LOW', 'MEDIUM', 'HIGH')
  * The most prominent type of database integration it employs (if any), stating the mechanism used ('NONE', 'DDL', 'DML', 'SQL', 'STORED-PROCEDURE', or 'TRIGGER') and a description of the integration (you MUST write at least 2 sentences for this description)`,
-    schema: schemas.ddlFileSummarySchema 
+    schema: schemas.ddlFileSummarySchema,
   },
-  xml: { 
-    templateType: 'basic',
-    instructions: 'Analyze the following source code and provide details about its purpose, implementation, and database integration.',
-    schema: schemas.xmlFileSummarySchema 
+  xml: {
+    templateType: "basic",
+    instructions:
+      "Analyze the following source code and provide details about its purpose, implementation, and database integration.",
+    schema: schemas.xmlFileSummarySchema,
   },
-  jsp: { 
-    templateType: 'basic',
-    instructions: 'Analyze the following source code and provide details about its purpose, implementation, and database integration.',
-    schema: schemas.jspFileSummarySchema 
+  jsp: {
+    templateType: "basic",
+    instructions:
+      "Analyze the following source code and provide details about its purpose, implementation, and database integration.",
+    schema: schemas.jspFileSummarySchema,
   },
-  markdown: { 
-    templateType: 'basic',
-    instructions: 'Analyze the following source code and provide details about its purpose, implementation, and database integration.',
-    schema: schemas.markdownFileSummarySchema 
+  markdown: {
+    templateType: "basic",
+    instructions:
+      "Analyze the following source code and provide details about its purpose, implementation, and database integration.",
+    schema: schemas.markdownFileSummarySchema,
   },
 } as const;
 
@@ -119,13 +127,13 @@ export type SummaryPromptType = keyof typeof summaryPromptTemplates;
  */
 export const createSummaryPrompt = (type: SummaryPromptType, codeContent: string): string => {
   const config = summaryPromptTemplates[type];
-  
+
   return createPromptFromConfig(
-    { 
+    {
       detailed: DETAILED_SUMMARY_BASE_TEMPLATE,
-      basic: SIMPLE_SUMMARY_BASE_TEMPLATE 
+      basic: SIMPLE_SUMMARY_BASE_TEMPLATE,
     },
     config,
-    codeContent
+    codeContent,
   );
-}; 
+};

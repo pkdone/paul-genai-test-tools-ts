@@ -2,7 +2,7 @@ import { llmConfig } from "../../../llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, BEDROCK_LLAMA } from "./bedrock-llama.manifest";
 
-/** 
+/**
  * Class for the AWS Bedrock Llama LLMs.
  *
  */
@@ -12,15 +12,14 @@ export default class BedrockLlamaLLM extends BaseBedrockLLM {
    */
   getModelFamily(): string {
     return BEDROCK_LLAMA;
-  }    
-    
+  }
+
   /**
    * Assemble the Bedrock parameters for Llama completions only.
    */
   protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
-    const bodyObj: { prompt: string, temperature: number, top_p: number, max_gen_len?: number } = {
-      prompt: 
-`<|begin_of_text|><|start_header_id|>${llmConfig.LLM_ROLE_SYSTEM}<|end_header_id|>
+    const bodyObj: { prompt: string; temperature: number; top_p: number; max_gen_len?: number } = {
+      prompt: `<|begin_of_text|><|start_header_id|>${llmConfig.LLM_ROLE_SYSTEM}<|end_header_id|>
 You are a helpful software engineering and programming assistant, and you need to answer the question given without attempting to fill in any blanks in the question<|eot_id|>
 <|start_header_id|>${llmConfig.LLM_ROLE_USER}<|end_header_id|>${prompt}<|eot_id|><|start_header_id|>${llmConfig.LLM_ROLE_ASSISTANT}<|end_header_id|>`,
       temperature: llmConfig.DEFAULT_ZERO_TEMP,
@@ -32,18 +31,19 @@ You are a helpful software engineering and programming assistant, and you need t
       bodyObj.max_gen_len = this.llmModelsMetadata[modelKey].maxCompletionTokens;
     }
 
-    return JSON.stringify(bodyObj);    
+    return JSON.stringify(bodyObj);
   }
 
   /**
    * Extract the relevant information from the completion LLM specific response.
    */
-  protected extractCompletionModelSpecificResponse(llmResponse: LlamaCompletionLLMSpecificResponse) {
+  protected extractCompletionModelSpecificResponse(
+    llmResponse: LlamaCompletionLLMSpecificResponse,
+  ) {
     const responseContent = llmResponse.generation ?? "";
     const finishReason = llmResponse.stop_reason ?? "";
     const finishReasonLowercase = finishReason.toLowerCase();
-    const isIncompleteResponse = ((finishReasonLowercase === "length")
-      || !responseContent);  // No content - assume prompt maxed out total tokens available
+    const isIncompleteResponse = finishReasonLowercase === "length" || !responseContent; // No content - assume prompt maxed out total tokens available
     const promptTokens = llmResponse.prompt_token_count ?? -1;
     const completionTokens = llmResponse.generation_token_count ?? -1;
     const maxTotalTokens = -1;
@@ -56,10 +56,8 @@ You are a helpful software engineering and programming assistant, and you need t
  * Type definitions for the Llama specific completions LLM response usage.
  */
 interface LlamaCompletionLLMSpecificResponse {
-  generation?: string; 
+  generation?: string;
   stop_reason?: string;
   prompt_token_count?: number;
   generation_token_count?: number;
 }
-
-

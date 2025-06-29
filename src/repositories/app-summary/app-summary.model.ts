@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { generateMDBJSONSchema, zBsonObjectId } from '../../common/mdb/zod-to-mdb-json-schema';
-import { nameDescSchema } from '../../schemas/common.schemas';
- // passthrough() sets "additionalProperties": true
+import { z } from "zod";
+import { generateMDBJSONSchema, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
+import { nameDescSchema } from "../../schemas/common.schemas";
+// passthrough() sets "additionalProperties": true
 
 /**
  * Schema for arrays of name-description pairs used in app summaries
@@ -11,20 +11,22 @@ export const appSummaryNameDescArraySchema = z.array(nameDescSchema);
 /**
  * Zod schema for application summary records in the database
  */
-export const appSummaryRecordSchema = z.object({
-  _id: zBsonObjectId,
-  projectName: z.string(),
-  llmProvider: z.string(),
-  appDescription: z.string().optional(),
-  businessEntities: appSummaryNameDescArraySchema.optional(),
-  businessProcesses: appSummaryNameDescArraySchema.optional(),
-  businessRules: appSummaryNameDescArraySchema.optional(),
-  dataFlow: appSummaryNameDescArraySchema.optional(),
-  integrationPoints: appSummaryNameDescArraySchema.optional(),
-  qualityIssues: appSummaryNameDescArraySchema.optional(),
-  recommendedImprovements: appSummaryNameDescArraySchema.optional(),
-  securityConsiderations: appSummaryNameDescArraySchema.optional(),
-}).passthrough();
+export const appSummaryRecordSchema = z
+  .object({
+    _id: zBsonObjectId,
+    projectName: z.string(),
+    llmProvider: z.string(),
+    appDescription: z.string().optional(),
+    businessEntities: appSummaryNameDescArraySchema.optional(),
+    businessProcesses: appSummaryNameDescArraySchema.optional(),
+    businessRules: appSummaryNameDescArraySchema.optional(),
+    dataFlow: appSummaryNameDescArraySchema.optional(),
+    integrationPoints: appSummaryNameDescArraySchema.optional(),
+    qualityIssues: appSummaryNameDescArraySchema.optional(),
+    recommendedImprovements: appSummaryNameDescArraySchema.optional(),
+    securityConsiderations: appSummaryNameDescArraySchema.optional(),
+  })
+  .passthrough();
 
 /**
  * Schema for MongoDB projected document with app description and LLM provider fields
@@ -51,21 +53,24 @@ export type AppSummaryNameDescArray = z.infer<typeof appSummaryNameDescArraySche
  * (making it optional for _id)
  */
 type AppSummaryRecordTmp = z.infer<typeof appSummaryRecordSchema>;
-export type AppSummaryRecord = Omit<AppSummaryRecordTmp, "_id"> & Partial<Pick<AppSummaryRecordTmp, "_id">>; 
+export type AppSummaryRecord = Omit<AppSummaryRecordTmp, "_id"> &
+  Partial<Pick<AppSummaryRecordTmp, "_id">>;
 
 /**
  * Type for arrays of name-description pairs used in app summaries
  */
-export type PartialAppSummaryRecord = Partial<AppSummaryRecord>; 
+export type PartialAppSummaryRecord = Partial<AppSummaryRecord>;
 
 /**
  * Type for MongoDB projected document with app description and LLM provider fields
  */
-export type ProjectedAppSummaryDescAndLLMProvider = z.infer<typeof projectedAppSummaryDescAndLLMProviderSchema>; 
+export type ProjectedAppSummaryDescAndLLMProvider = z.infer<
+  typeof projectedAppSummaryDescAndLLMProviderSchema
+>;
 
 /**
  * Generate JSON schema for application summary records
  */
 export function getJSONSchema() {
-  return generateMDBJSONSchema(appSummaryRecordSchema);  
+  return generateMDBJSONSchema(appSummaryRecordSchema);
 }

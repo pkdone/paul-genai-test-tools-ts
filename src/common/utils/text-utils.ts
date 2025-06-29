@@ -9,6 +9,5 @@ export function countLines(text: string): number {
  *  Merges an array of string seperated by newlines unless a different sepeator specified.
  */
 export function joinArrayWithSeparators(lines: string[], separator = "\n", prefix = ""): string {
-  return lines.map(line => `${prefix}${line}`).join(separator);
+  return lines.map((line) => `${prefix}${line}`).join(separator);
 }
-

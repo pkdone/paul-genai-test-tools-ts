@@ -12,20 +12,24 @@ export default class InsightsDataServer {
    * Constructor.
    */
   constructor(
-    @inject(TOKENS.AppSummariesRepository) private readonly appSummariesRepository: AppSummariesRepository,
-    @inject(TOKENS.ProjectName) private readonly projectName: string
-  ) {
-  }
+    @inject(TOKENS.AppSummariesRepository)
+    private readonly appSummariesRepository: AppSummariesRepository,
+    @inject(TOKENS.ProjectName) private readonly projectName: string,
+  ) {}
 
   /**
    * Retrieves a list of business processes from the database.
    */
   async getBusinessProcesses(): Promise<{ name: string; description: string }[]> {
-    const busProcesses = await this.appSummariesRepository.getProjectAppSummaryField<AppSummaryNameDescArray>(this.projectName, "businessProcesses");    
+    const busProcesses =
+      await this.appSummariesRepository.getProjectAppSummaryField<AppSummaryNameDescArray>(
+        this.projectName,
+        "businessProcesses",
+      );
     if (!busProcesses || !Array.isArray(busProcesses)) return [];
-    return busProcesses.map(item => ({
-      name: item.name || '',
-      description: item.description || ''
+    return busProcesses.map((item) => ({
+      name: item.name || "",
+      description: item.description || "",
     }));
   }
 }

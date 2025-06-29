@@ -1,6 +1,11 @@
 import { OpenAI } from "openai";
 import { llmConfig } from "../../../llm.config";
-import { LLMModelKeysSet, LLMPurpose, ResolvedLLMModelMetadata, LLMErrorMsgRegExPattern } from "../../../llm.types";
+import {
+  LLMModelKeysSet,
+  LLMPurpose,
+  ResolvedLLMModelMetadata,
+  LLMErrorMsgRegExPattern,
+} from "../../../llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { OPENAI } from "./openai.manifest";
 
@@ -18,8 +23,8 @@ export default class OpenAILLM extends BaseOpenAILLM {
     modelsKeys: LLMModelKeysSet,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
     errorPatterns: readonly LLMErrorMsgRegExPattern[],
-    apiKey: string
-  ) { 
+    apiKey: string,
+  ) {
     super(modelsKeys, modelsMetadata, errorPatterns);
     this.client = new OpenAI({ apiKey });
   }
@@ -45,18 +50,17 @@ export default class OpenAILLM extends BaseOpenAILLM {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
         model: this.llmModelsMetadata[modelKey].urn,
-        input: prompt
+        input: prompt,
       };
-      return params;  
+      return params;
     } else {
       const params: OpenAI.Chat.ChatCompletionCreateParams = {
         model: this.llmModelsMetadata[modelKey].urn,
         temperature: llmConfig.DEFAULT_ZERO_TEMP,
-        messages: [{ role: llmConfig.LLM_ROLE_USER as "user", content: prompt } ],
+        messages: [{ role: llmConfig.LLM_ROLE_USER as "user", content: prompt }],
         max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
-      };        
+      };
       return params;
-    } 
+    }
   }
 }
-

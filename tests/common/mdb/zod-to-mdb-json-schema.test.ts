@@ -1,58 +1,67 @@
-import { z } from 'zod';
-import { Decimal128 } from 'bson';
-import { generateMDBJSONSchema, zBsonObjectId, zBsonDecimal128, zBsonDate } from '../../../src/common/mdb/zod-to-mdb-json-schema';
+import { z } from "zod";
+import { Decimal128 } from "bson";
+import {
+  generateMDBJSONSchema,
+  zBsonObjectId,
+  zBsonDecimal128,
+  zBsonDate,
+} from "../../../src/common/mdb/zod-to-mdb-json-schema";
 
-describe('zod-to-mdb-json-schema', () => {
-  describe('generateMDBJSONSchema', () => {
+describe("zod-to-mdb-json-schema", () => {
+  describe("generateMDBJSONSchema", () => {
     // Sample schema as per requirements
     const UserSchema = z.object({
       _id: zBsonObjectId.optional(),
       username: z.string().min(3),
       email: z.string().email(),
       createdAt: zBsonDate.default(() => new Date()),
-      balance: zBsonDecimal128.default(() => new Decimal128('0.00')),
+      balance: zBsonDecimal128.default(() => new Decimal128("0.00")),
     });
 
-    test('should convert basic schema with custom BSON types', () => {
+    test("should convert basic schema with custom BSON types", () => {
       const result = generateMDBJSONSchema(UserSchema);
-      
+
       // Basic structure checks
       expect(result).toBeDefined();
-      expect(result).toHaveProperty('type', 'object');
-      
+      expect(result).toHaveProperty("type", "object");
+
       // Check if schema has properties for each field
-      const schema = result as unknown as { 
+      const schema = result as unknown as {
         properties: Record<string, unknown>;
         required?: string[];
       };
-      
+
       expect(schema.properties).toBeDefined();
       expect(Object.keys(schema.properties)).toEqual([
-        '_id', 'username', 'email', 'createdAt', 'balance'
+        "_id",
+        "username",
+        "email",
+        "createdAt",
+        "balance",
       ]);
 
       // Check specific BSON type transformations
       // Check objectId transformation
-      expect(schema.properties._id).toHaveProperty('bsonType', 'objectId');
+      expect(schema.properties._id).toHaveProperty("bsonType", "objectId");
 
       // Check date transformation
-      expect(schema.properties.createdAt).toHaveProperty('bsonType', 'date');
-      
+      expect(schema.properties.createdAt).toHaveProperty("bsonType", "date");
+
       // Check decimal transformation
-      expect(schema.properties.balance).toHaveProperty('bsonType', 'decimal');
-      
+      expect(schema.properties.balance).toHaveProperty("bsonType", "decimal");
+
       // String validations
-      expect(schema.properties.username).toHaveProperty('type', 'string');
-      
+      expect(schema.properties.username).toHaveProperty("type", "string");
+
       // Optional fields should not be in required array
       if (schema.required) {
-        expect(schema.required).not.toContain('_id');
-        expect(schema.required).toContain('username');
-        expect(schema.required).toContain('email');
+        expect(schema.required).not.toContain("_id");
+        expect(schema.required).toContain("username");
+        expect(schema.required).toContain("email");
       }
     });
 
-    test('should handle nested objects and arrays', () => {
+    test("should handle nested objects and arrays", () => {
       const ComplexSchema = z.object({
         user: UserSchema,
         tags: z.array(z.string()),
@@ -61,30 +70,30 @@ describe('zod-to-mdb-json-schema', () => {
 
       const result = generateMDBJSONSchema(ComplexSchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
-      
+
       expect(schema.properties).toBeDefined();
-      expect(Object.keys(schema.properties)).toEqual(['user', 'tags', 'metadata']);
-      
+      expect(Object.keys(schema.properties)).toEqual(["user", "tags", "metadata"]);
+
       // Check if user is an object with its own properties
-      expect(schema.properties.user).toHaveProperty('type', 'object');
-      
+      expect(schema.properties.user).toHaveProperty("type", "object");
+
       // Check if tags is an array
-      expect(schema.properties.tags).toHaveProperty('type', 'array');
-      
+      expect(schema.properties.tags).toHaveProperty("type", "array");
+
       // Check if metadata is an object (for record type)
-      expect(schema.properties.metadata).toHaveProperty('type', 'object');
+      expect(schema.properties.metadata).toHaveProperty("type", "object");
     });
 
-    test('should handle empty schema', () => {
+    test("should handle empty schema", () => {
       const EmptySchema = z.object({});
       const result = generateMDBJSONSchema(EmptySchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
-      
-      expect(schema).toHaveProperty('type', 'object');
+
+      expect(schema).toHaveProperty("type", "object");
       expect(Object.keys(schema.properties)).toHaveLength(0);
     });
 
-    test('should handle zod string validations correctly', () => {
+    test("should handle zod string validations correctly", () => {
       const StringSchema = z.object({
         regular: z.string(),
         withMinLength: z.string().min(5),
@@ -96,36 +105,36 @@ describe('zod-to-mdb-json-schema', () => {
 
       const result = generateMDBJSONSchema(StringSchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
-      
+
       // String with min length
       expect(schema.properties.withMinLength).toMatchObject({
-        type: 'string',
+        type: "string",
         minLength: 5,
       });
-      
+
       // String with max length
       expect(schema.properties.withMaxLength).toMatchObject({
-        type: 'string',
+        type: "string",
         maxLength: 10,
       });
-      
+
       // String with email format
       expect(schema.properties.withEmail).toMatchObject({
-        type: 'string',
-        format: 'email',
+        type: "string",
+        format: "email",
       });
-      
+
       // String with URL format
       expect(schema.properties.withUrl).toMatchObject({
-        type: 'string',
-        format: 'uri',
+        type: "string",
+        format: "uri",
       });
-      
+
       // String with regex pattern
-      expect(schema.properties.withRegex).toHaveProperty('pattern');
+      expect(schema.properties.withRegex).toHaveProperty("pattern");
     });
 
-    test('should handle zod number validations correctly', () => {
+    test("should handle zod number validations correctly", () => {
       const NumberSchema = z.object({
         regular: z.number(),
         integer: z.number().int(),
@@ -136,35 +145,35 @@ describe('zod-to-mdb-json-schema', () => {
 
       const result = generateMDBJSONSchema(NumberSchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
-      
+
       // Regular number
       expect(schema.properties.regular).toMatchObject({
-        type: 'number',
+        type: "number",
       });
-      
+
       // Integer
       expect(schema.properties.integer).toMatchObject({
-        type: 'integer',
+        type: "integer",
       });
-      
+
       // Number with minimum
       expect(schema.properties.withMin).toMatchObject({
-        type: 'number',
+        type: "number",
         minimum: 5,
       });
-      
+
       // Number with maximum
       expect(schema.properties.withMax).toMatchObject({
-        type: 'number',
+        type: "number",
         maximum: 10,
       });
-      
+
       // Positive number handling may vary by implementation
       // Just check it exists and has type number
-      expect(schema.properties.positive).toHaveProperty('type', 'number');
+      expect(schema.properties.positive).toHaveProperty("type", "number");
     });
 
-    test('should handle zod array validations correctly', () => {
+    test("should handle zod array validations correctly", () => {
       const ArraySchema = z.object({
         strings: z.array(z.string()),
         nonEmpty: z.array(z.number()).min(1),
@@ -174,54 +183,54 @@ describe('zod-to-mdb-json-schema', () => {
 
       const result = generateMDBJSONSchema(ArraySchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
-      
+
       // Regular array
       expect(schema.properties.strings).toMatchObject({
-        type: 'array',
+        type: "array",
       });
-      
+
       // Array with min items
       expect(schema.properties.nonEmpty).toMatchObject({
-        type: 'array',
+        type: "array",
         minItems: 1,
       });
-      
+
       // Array with max items
       expect(schema.properties.withMaxItems).toMatchObject({
-        type: 'array',
+        type: "array",
         maxItems: 5,
       });
-      
+
       // Array with exact length
       expect(schema.properties.exactLength).toMatchObject({
-        type: 'array',
+        type: "array",
         minItems: 3,
         maxItems: 3,
       });
     });
 
-    test('should handle union types and optionals correctly', () => {
+    test("should handle union types and optionals correctly", () => {
       const UnionSchema = z.object({
         stringOrNumber: z.union([z.string(), z.number()]),
         optionalField: z.string().optional(),
         nullableField: z.number().nullable(),
-        defaultValue: z.string().default('default'),
+        defaultValue: z.string().default("default"),
       });
 
       const result = generateMDBJSONSchema(UnionSchema);
-      const schema = result as unknown as { 
+      const schema = result as unknown as {
         properties: Record<string, unknown>;
-        required?: string[]; 
+        required?: string[];
       };
-      
+
       // Union type handling may vary - check if it exists
       expect(schema.properties.stringOrNumber).toBeDefined();
-      
+
       // Only check for optional fields not being required, as default handling may vary
       if (schema.required) {
-        expect(schema.required).not.toContain('optionalField');
+        expect(schema.required).not.toContain("optionalField");
       }
-      
+
       // Nullable field should be defined
       expect(schema.properties.nullableField).toBeDefined();
     });

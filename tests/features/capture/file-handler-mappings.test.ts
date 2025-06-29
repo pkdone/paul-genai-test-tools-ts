@@ -3,264 +3,264 @@ import {
   FileHandler,
   filePromptSchemaMappings,
   defaultHandler,
-} from '../../../src/features/capture/file-handler-mappings';
-import * as summaryPrompts from '../../../src/features/capture/ingestion.prompts';
-import * as summarySchemas from '../../../src/features/capture/ingestion.schemas';
-import { appConfig } from '../../../src/config/app.config';
+} from "../../../src/features/capture/file-handler-mappings";
+import * as summaryPrompts from "../../../src/features/capture/ingestion.prompts";
+import * as summarySchemas from "../../../src/features/capture/ingestion.schemas";
+import { appConfig } from "../../../src/config/app.config";
 
 // Mock the dependencies
-jest.mock('../../../src/features/capture/ingestion.prompts', () => ({
+jest.mock("../../../src/features/capture/ingestion.prompts", () => ({
   createSummaryPrompt: jest.fn(),
 }));
 
-jest.mock('../../../src/features/capture/ingestion.schemas', () => ({
-  javaFileSummarySchema: { _def: { typeName: 'ZodObject' } },
-  jsFileSummarySchema: { _def: { typeName: 'ZodObject' } },
-  defaultFileSummarySchema: { _def: { typeName: 'ZodObject' } },
-  ddlFileSummarySchema: { _def: { typeName: 'ZodObject' } },
-  xmlFileSummarySchema: { _def: { typeName: 'ZodObject' } },
-  jspFileSummarySchema: { _def: { typeName: 'ZodObject' } },
-  markdownFileSummarySchema: { _def: { typeName: 'ZodObject' } },
+jest.mock("../../../src/features/capture/ingestion.schemas", () => ({
+  javaFileSummarySchema: { _def: { typeName: "ZodObject" } },
+  jsFileSummarySchema: { _def: { typeName: "ZodObject" } },
+  defaultFileSummarySchema: { _def: { typeName: "ZodObject" } },
+  ddlFileSummarySchema: { _def: { typeName: "ZodObject" } },
+  xmlFileSummarySchema: { _def: { typeName: "ZodObject" } },
+  jspFileSummarySchema: { _def: { typeName: "ZodObject" } },
+  markdownFileSummarySchema: { _def: { typeName: "ZodObject" } },
 }));
 
-jest.mock('../../../src/config/app.config', () => ({
+jest.mock("../../../src/config/app.config", () => ({
   appConfig: {
-    README_FILE_NAME: 'README',
+    README_FILE_NAME: "README",
   },
 }));
 
-describe('File Handler Mappings', () => {
-  const testContent = 'test file content';
+describe("File Handler Mappings", () => {
+  const testContent = "test file content";
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('filePromptSchemaMappings', () => {
-    test('should be a Map instance', () => {
+  describe("filePromptSchemaMappings", () => {
+    test("should be a Map instance", () => {
       expect(filePromptSchemaMappings).toBeInstanceOf(Map);
     });
 
-    test('should contain expected file type mappings', () => {
+    test("should contain expected file type mappings", () => {
       const expectedTypes = [
-        'README',
-        'java',
-        'js',
-        'ts',
-        'javascript',
-        'typescript',
-        'ddl',
-        'sql',
-        'xml',
-        'jsp',
-        'markdown',
-        'md',
+        "README",
+        "java",
+        "js",
+        "ts",
+        "javascript",
+        "typescript",
+        "ddl",
+        "sql",
+        "xml",
+        "jsp",
+        "markdown",
+        "md",
       ];
 
-      expectedTypes.forEach(type => {
+      expectedTypes.forEach((type) => {
         expect(filePromptSchemaMappings.has(type)).toBe(true);
       });
     });
 
-    test('should have correct number of mappings', () => {
+    test("should have correct number of mappings", () => {
       // Based on the implementation: README, java, js, ts, javascript, typescript, ddl, sql, xml, jsp, markdown, md
       expect(filePromptSchemaMappings.size).toBe(12);
     });
 
-    describe('individual mappings', () => {
-      test('README should map to markdown handler', () => {
-        const handler = filePromptSchemaMappings.get('README');
+    describe("individual mappings", () => {
+      test("README should map to markdown handler", () => {
+        const handler = filePromptSchemaMappings.get("README");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.markdownFileSummarySchema);
       });
 
-      test('java should map to Java handler', () => {
-        const handler = filePromptSchemaMappings.get('java');
+      test("java should map to Java handler", () => {
+        const handler = filePromptSchemaMappings.get("java");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.javaFileSummarySchema);
       });
 
-      test('js should map to JavaScript handler', () => {
-        const handler = filePromptSchemaMappings.get('js');
+      test("js should map to JavaScript handler", () => {
+        const handler = filePromptSchemaMappings.get("js");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.jsFileSummarySchema);
       });
 
-      test('ts should map to JavaScript handler', () => {
-        const handler = filePromptSchemaMappings.get('ts');
+      test("ts should map to JavaScript handler", () => {
+        const handler = filePromptSchemaMappings.get("ts");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.jsFileSummarySchema);
       });
 
-      test('javascript should map to JavaScript handler', () => {
-        const handler = filePromptSchemaMappings.get('javascript');
+      test("javascript should map to JavaScript handler", () => {
+        const handler = filePromptSchemaMappings.get("javascript");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.jsFileSummarySchema);
       });
 
-      test('typescript should map to JavaScript handler', () => {
-        const handler = filePromptSchemaMappings.get('typescript');
+      test("typescript should map to JavaScript handler", () => {
+        const handler = filePromptSchemaMappings.get("typescript");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.jsFileSummarySchema);
       });
 
-      test('ddl should map to DDL handler', () => {
-        const handler = filePromptSchemaMappings.get('ddl');
+      test("ddl should map to DDL handler", () => {
+        const handler = filePromptSchemaMappings.get("ddl");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.ddlFileSummarySchema);
       });
 
-      test('sql should map to DDL handler', () => {
-        const handler = filePromptSchemaMappings.get('sql');
+      test("sql should map to DDL handler", () => {
+        const handler = filePromptSchemaMappings.get("sql");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.ddlFileSummarySchema);
       });
 
-      test('xml should map to XML handler', () => {
-        const handler = filePromptSchemaMappings.get('xml');
+      test("xml should map to XML handler", () => {
+        const handler = filePromptSchemaMappings.get("xml");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.xmlFileSummarySchema);
       });
 
-      test('jsp should map to JSP handler', () => {
-        const handler = filePromptSchemaMappings.get('jsp');
+      test("jsp should map to JSP handler", () => {
+        const handler = filePromptSchemaMappings.get("jsp");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.jspFileSummarySchema);
       });
 
-      test('markdown should map to markdown handler', () => {
-        const handler = filePromptSchemaMappings.get('markdown');
+      test("markdown should map to markdown handler", () => {
+        const handler = filePromptSchemaMappings.get("markdown");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.markdownFileSummarySchema);
       });
 
-      test('md should map to markdown handler', () => {
-        const handler = filePromptSchemaMappings.get('md');
+      test("md should map to markdown handler", () => {
+        const handler = filePromptSchemaMappings.get("md");
         expect(handler).toBeDefined();
-        expect(typeof handler?.promptCreator).toBe('function');
+        expect(typeof handler?.promptCreator).toBe("function");
         expect(handler?.schema).toBe(summarySchemas.markdownFileSummarySchema);
       });
     });
 
-    describe('handler functionality', () => {
-      test('should create prompts when promptCreator is called', () => {
-        const javaHandler = filePromptSchemaMappings.get('java');
+    describe("handler functionality", () => {
+      test("should create prompts when promptCreator is called", () => {
+        const javaHandler = filePromptSchemaMappings.get("java");
         expect(javaHandler).toBeDefined();
 
         if (javaHandler) {
           javaHandler.promptCreator(testContent);
-          expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith('java', testContent);
+          expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith("java", testContent);
         }
       });
 
-      test('should handle multiple file types with same handler', () => {
-        const jsHandler = filePromptSchemaMappings.get('js');
-        const tsHandler = filePromptSchemaMappings.get('ts');
-        const javascriptHandler = filePromptSchemaMappings.get('javascript');
-        const typescriptHandler = filePromptSchemaMappings.get('typescript');
+      test("should handle multiple file types with same handler", () => {
+        const jsHandler = filePromptSchemaMappings.get("js");
+        const tsHandler = filePromptSchemaMappings.get("ts");
+        const javascriptHandler = filePromptSchemaMappings.get("javascript");
+        const typescriptHandler = filePromptSchemaMappings.get("typescript");
 
         // All should use the same schema
         expect(jsHandler?.schema).toBe(tsHandler?.schema);
         expect(jsHandler?.schema).toBe(javascriptHandler?.schema);
         expect(jsHandler?.schema).toBe(typescriptHandler?.schema);
-        
+
         // Test that they all call createSummaryPrompt with 'js' type
         jsHandler?.promptCreator(testContent);
         tsHandler?.promptCreator(testContent);
         javascriptHandler?.promptCreator(testContent);
         typescriptHandler?.promptCreator(testContent);
-        
-        expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith('js', testContent);
+
+        expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith("js", testContent);
         expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledTimes(4);
       });
     });
 
-    describe('Map operations', () => {
-      test('should return undefined for non-existent file types', () => {
-        const handler = filePromptSchemaMappings.get('nonexistent');
+    describe("Map operations", () => {
+      test("should return undefined for non-existent file types", () => {
+        const handler = filePromptSchemaMappings.get("nonexistent");
         expect(handler).toBeUndefined();
       });
 
-      test('should support case-sensitive lookups', () => {
-        const lowerHandler = filePromptSchemaMappings.get('java');
-        const upperHandler = filePromptSchemaMappings.get('JAVA');
+      test("should support case-sensitive lookups", () => {
+        const lowerHandler = filePromptSchemaMappings.get("java");
+        const upperHandler = filePromptSchemaMappings.get("JAVA");
 
         expect(lowerHandler).toBeDefined();
         expect(upperHandler).toBeUndefined();
       });
 
-      test('should allow iteration over all handlers', () => {
+      test("should allow iteration over all handlers", () => {
         const handlers = Array.from(filePromptSchemaMappings.values());
-        
+
         expect(handlers.length).toBe(12);
-        handlers.forEach(handler => {
-          expect(handler).toHaveProperty('promptCreator');
-          expect(handler).toHaveProperty('schema');
-          expect(typeof handler.promptCreator).toBe('function');
+        handlers.forEach((handler) => {
+          expect(handler).toHaveProperty("promptCreator");
+          expect(handler).toHaveProperty("schema");
+          expect(typeof handler.promptCreator).toBe("function");
         });
       });
 
-      test('should allow iteration over all file type keys', () => {
+      test("should allow iteration over all file type keys", () => {
         const keys = Array.from(filePromptSchemaMappings.keys());
-        
-        expect(keys).toContain('java');
-        expect(keys).toContain('js');
-        expect(keys).toContain('ts');
-        expect(keys).toContain('sql');
-        expect(keys).toContain('README');
+
+        expect(keys).toContain("java");
+        expect(keys).toContain("js");
+        expect(keys).toContain("ts");
+        expect(keys).toContain("sql");
+        expect(keys).toContain("README");
       });
     });
   });
 
-  describe('defaultHandler', () => {
-    test('should be defined', () => {
+  describe("defaultHandler", () => {
+    test("should be defined", () => {
       expect(defaultHandler).toBeDefined();
     });
 
-    test('should have correct structure', () => {
-      expect(defaultHandler).toHaveProperty('promptCreator');
-      expect(defaultHandler).toHaveProperty('schema');
-      expect(typeof defaultHandler.promptCreator).toBe('function');
+    test("should have correct structure", () => {
+      expect(defaultHandler).toHaveProperty("promptCreator");
+      expect(defaultHandler).toHaveProperty("schema");
+      expect(typeof defaultHandler.promptCreator).toBe("function");
     });
 
-    test('should use default prompt creator', () => {
-      expect(typeof defaultHandler.promptCreator).toBe('function');
+    test("should use default prompt creator", () => {
+      expect(typeof defaultHandler.promptCreator).toBe("function");
     });
 
-    test('should use default schema', () => {
+    test("should use default schema", () => {
       expect(defaultHandler.schema).toBe(summarySchemas.defaultFileSummarySchema);
     });
 
-    test('should create prompt when called', () => {
+    test("should create prompt when called", () => {
       defaultHandler.promptCreator(testContent);
-      expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith('default', testContent);
+      expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith("default", testContent);
     });
   });
 
-  describe('FileHandler interface', () => {
-    test('should enforce correct structure', () => {
+  describe("FileHandler interface", () => {
+    test("should enforce correct structure", () => {
       const testHandler: FileHandler = {
         promptCreator: jest.fn(),
         schema: summarySchemas.defaultFileSummarySchema,
       };
 
-      expect(testHandler).toHaveProperty('promptCreator');
-      expect(testHandler).toHaveProperty('schema');
-      expect(typeof testHandler.promptCreator).toBe('function');
+      expect(testHandler).toHaveProperty("promptCreator");
+      expect(testHandler).toHaveProperty("schema");
+      expect(typeof testHandler.promptCreator).toBe("function");
     });
 
-    test('should work with type compatibility', () => {
+    test("should work with type compatibility", () => {
       // Test that FileHandler can work with existing schema types
       const typedHandler: FileHandler = {
         promptCreator: jest.fn(),
@@ -268,40 +268,40 @@ describe('File Handler Mappings', () => {
       };
 
       expect(typedHandler.schema).toBe(summarySchemas.javaFileSummarySchema);
-      expect(typeof typedHandler.promptCreator).toBe('function');
+      expect(typeof typedHandler.promptCreator).toBe("function");
     });
   });
 
-  describe('SummaryType union', () => {
-    test('should include all expected summary types', () => {
+  describe("SummaryType union", () => {
+    test("should include all expected summary types", () => {
       // This is a compile-time test that ensures the union type includes all expected types
       // We can't directly test the type at runtime, but we can verify it works with assignments
 
       const javaSummary: SummaryType = {
-        classname: 'TestClass',
-        type: 'class',
-        classpath: 'com.example.TestClass',
-        purpose: 'Test purpose',
-        implementation: 'Test implementation',
+        classname: "TestClass",
+        type: "class",
+        classpath: "com.example.TestClass",
+        purpose: "Test purpose",
+        implementation: "Test implementation",
         internalReferences: [],
         externalReferences: [],
         publicConstants: [],
         publicMethods: [],
-        databaseIntegration: { mechanism: 'NONE', description: 'No database' },
+        databaseIntegration: { mechanism: "NONE", description: "No database" },
       };
 
       const jsSummary: SummaryType = {
-        purpose: 'JS test purpose',
-        implementation: 'JS test implementation',
+        purpose: "JS test purpose",
+        implementation: "JS test implementation",
         internalReferences: [],
         externalReferences: [],
-        databaseIntegration: { mechanism: 'NONE', description: 'No database' },
+        databaseIntegration: { mechanism: "NONE", description: "No database" },
       };
 
       const defaultSummary: SummaryType = {
-        purpose: 'Default test purpose',
-        implementation: 'Default test implementation',
-        databaseIntegration: { mechanism: 'NONE', description: 'No database' },
+        purpose: "Default test purpose",
+        implementation: "Default test implementation",
+        databaseIntegration: { mechanism: "NONE", description: "No database" },
       };
 
       // These should all compile without errors
@@ -311,90 +311,90 @@ describe('File Handler Mappings', () => {
     });
   });
 
-  describe('Configuration integration', () => {
-    test('should use fileSystemConfig for README file name', () => {
+  describe("Configuration integration", () => {
+    test("should use fileSystemConfig for README file name", () => {
       const readmeHandler = filePromptSchemaMappings.get(appConfig.README_FILE_NAME);
       expect(readmeHandler).toBeDefined();
-      expect(typeof readmeHandler?.promptCreator).toBe('function');
+      expect(typeof readmeHandler?.promptCreator).toBe("function");
     });
 
-    test('should handle README file name changes', () => {
+    test("should handle README file name changes", () => {
       // Test that the mapping is based on the config value
-      expect(appConfig.README_FILE_NAME).toBe('README');
-      
-      const handler = filePromptSchemaMappings.get('README');
+      expect(appConfig.README_FILE_NAME).toBe("README");
+
+      const handler = filePromptSchemaMappings.get("README");
       expect(handler).toBeDefined();
     });
   });
 
-  describe('Edge cases and error handling', () => {
-    test('should handle empty content in prompt creators', () => {
-      const javaHandler = filePromptSchemaMappings.get('java');
-      
+  describe("Edge cases and error handling", () => {
+    test("should handle empty content in prompt creators", () => {
+      const javaHandler = filePromptSchemaMappings.get("java");
+
       if (javaHandler) {
-        javaHandler.promptCreator('');
-        expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith('java', '');
+        javaHandler.promptCreator("");
+        expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith("java", "");
       }
     });
 
-    test('should handle special characters in content', () => {
+    test("should handle special characters in content", () => {
       const specialContent = 'content with "quotes" and \n newlines \t tabs';
-      const sqlHandler = filePromptSchemaMappings.get('sql');
-      
+      const sqlHandler = filePromptSchemaMappings.get("sql");
+
       if (sqlHandler) {
         sqlHandler.promptCreator(specialContent);
-        expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith('ddl', specialContent);
+        expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith("ddl", specialContent);
       }
     });
 
-    test('should handle large content strings', () => {
-      const largeContent = 'x'.repeat(10000);
-      const xmlHandler = filePromptSchemaMappings.get('xml');
-      
+    test("should handle large content strings", () => {
+      const largeContent = "x".repeat(10000);
+      const xmlHandler = filePromptSchemaMappings.get("xml");
+
       if (xmlHandler) {
         xmlHandler.promptCreator(largeContent);
-        expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith('xml', largeContent);
+        expect(summaryPrompts.createSummaryPrompt).toHaveBeenCalledWith("xml", largeContent);
       }
     });
 
-    test('should be immutable', () => {
+    test("should be immutable", () => {
       const originalSize = filePromptSchemaMappings.size;
-      
+
       // Attempt to modify the map (this should work since Maps are mutable)
-      filePromptSchemaMappings.set('test', defaultHandler);
+      filePromptSchemaMappings.set("test", defaultHandler);
       expect(filePromptSchemaMappings.size).toBe(originalSize + 1);
-      
+
       // Clean up
-      filePromptSchemaMappings.delete('test');
+      filePromptSchemaMappings.delete("test");
       expect(filePromptSchemaMappings.size).toBe(originalSize);
     });
   });
 
-  describe('Performance considerations', () => {
-    test('should handle frequent lookups efficiently', () => {
+  describe("Performance considerations", () => {
+    test("should handle frequent lookups efficiently", () => {
       const start = performance.now();
-      
+
       // Perform many lookups
       for (let i = 0; i < 1000; i++) {
-        filePromptSchemaMappings.get('java');
-        filePromptSchemaMappings.get('js');
-        filePromptSchemaMappings.get('sql');
-        filePromptSchemaMappings.get('nonexistent');
+        filePromptSchemaMappings.get("java");
+        filePromptSchemaMappings.get("js");
+        filePromptSchemaMappings.get("sql");
+        filePromptSchemaMappings.get("nonexistent");
       }
-      
+
       const end = performance.now();
       const duration = end - start;
-      
+
       // Should complete in reasonable time (less than 100ms for 4000 lookups)
       expect(duration).toBeLessThan(100);
     });
 
-    test('should reuse handler instances', () => {
-      const handler1 = filePromptSchemaMappings.get('java');
-      const handler2 = filePromptSchemaMappings.get('java');
-      
+    test("should reuse handler instances", () => {
+      const handler1 = filePromptSchemaMappings.get("java");
+      const handler2 = filePromptSchemaMappings.get("java");
+
       // Should return the same reference
       expect(handler1).toBe(handler2);
     });
   });
-}); 
+});

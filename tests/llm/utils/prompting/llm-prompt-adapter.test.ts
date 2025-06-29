@@ -1,32 +1,45 @@
 import "reflect-metadata";
-import { LLMPurpose, LLMResponseStatus, LLMFunctionResponse, LLMResponseTokensUsage, ResolvedLLMModelMetadata } from "../../../../src/llm/llm.types";
-import { PromptAdapter, TokenLimitReductionStrategy, PromptAdaptationStrategy } from "../../../../src/llm/utils/prompting/llm-prompt-adapter";
+import {
+  LLMPurpose,
+  LLMResponseStatus,
+  LLMFunctionResponse,
+  LLMResponseTokensUsage,
+  ResolvedLLMModelMetadata,
+} from "../../../../src/llm/llm.types";
+import {
+  PromptAdapter,
+  TokenLimitReductionStrategy,
+  PromptAdaptationStrategy,
+} from "../../../../src/llm/utils/prompting/llm-prompt-adapter";
 
 const testMetadata = {
-  "GPT_COMPLETIONS_GPT4": {
+  GPT_COMPLETIONS_GPT4: {
     modelKey: "GPT_COMPLETIONS_GPT4",
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
-  "GPT_COMPLETIONS_GPT4_32k": {
+  GPT_COMPLETIONS_GPT4_32k: {
     modelKey: "GPT_COMPLETIONS_GPT4_32k",
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 32768,
-  }
+  },
 };
 
 describe("PromptAdapter", () => {
   // Helper function to create a mock LLM response for prompt adapter testing
-  const createMockLLMResponse = (modelKey: string, tokensUsage: LLMResponseTokensUsage): LLMFunctionResponse => ({
+  const createMockLLMResponse = (
+    modelKey: string,
+    tokensUsage: LLMResponseTokensUsage,
+  ): LLMFunctionResponse => ({
     status: LLMResponseStatus.EXCEEDED,
     request: "mock request",
     modelKey,
     context: {},
-    tokensUage: tokensUsage
+    tokensUage: tokensUsage,
   });
 
   describe("adaptPromptFromResponse", () => {
@@ -35,7 +48,9 @@ describe("PromptAdapter", () => {
       const tokensUsage = { promptTokens: 4, completionTokens: 10, maxTotalTokens: 8192 };
       const adapter = new PromptAdapter();
       const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
-      expect(adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata)).toBe("1234 1234 1234 1");
+      expect(adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata)).toBe(
+        "1234 1234 1234 1",
+      );
     });
 
     test("should reduce prompt when completion token limit is hit", () => {
@@ -47,7 +62,7 @@ describe("PromptAdapter", () => {
     });
 
     test("should reduce prompt when total token limit is hit", () => {
-      const prompt = "A".repeat(57865);  // random string
+      const prompt = "A".repeat(57865); // random string
       const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 8192 };
       const adapter = new PromptAdapter();
       const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
@@ -77,7 +92,9 @@ describe("PromptAdapter", () => {
       const tokensUsage = { promptTokens: 6000, completionTokens: 3000, maxTotalTokens: 32768 };
       const adapter = new PromptAdapter();
       const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
-      expect(adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata).length).toBeLessThan(prompt.length);
+      expect(
+        adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata).length,
+      ).toBeLessThan(prompt.length);
     });
 
     test("should handle models with higher total token limits", () => {
@@ -97,7 +114,7 @@ describe("PromptAdapter", () => {
         request: "mock request",
         modelKey: "GPT_COMPLETIONS_GPT4",
         context: {},
-        tokensUage: undefined
+        tokensUage: undefined,
       };
 
       expect(() => {
@@ -137,10 +154,10 @@ describe("PromptAdapter", () => {
       const tokensUsage = { promptTokens: 100, completionTokens: 100, maxTotalTokens: 8192 };
       const adapter = new PromptAdapter();
       const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
-      
+
       adapter.setStrategy(new CustomStrategy());
       const result = adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata);
-      
+
       expect(result).toBe("custom adapted prompt");
     });
   });
@@ -161,9 +178,13 @@ describe("TokenLimitReductionStrategy", () => {
     const emptyPrompt = "";
     const whitespacePrompt = "   ";
     const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 8192 };
-    
-    expect(strategy.adaptPrompt(emptyPrompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata)).toBe("");
-    expect(strategy.adaptPrompt(whitespacePrompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata)).toBe(whitespacePrompt);
+
+    expect(
+      strategy.adaptPrompt(emptyPrompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata),
+    ).toBe("");
+    expect(
+      strategy.adaptPrompt(whitespacePrompt, "GPT_COMPLETIONS_GPT4", tokensUsage, testMetadata),
+    ).toBe(whitespacePrompt);
   });
 
   test("should reduce prompt when completion tokens are at the limit", () => {
@@ -182,13 +203,13 @@ describe("TokenLimitReductionStrategy", () => {
 
   test("should handle model without maxCompletionTokens defined", () => {
     const customMetadata: Record<string, ResolvedLLMModelMetadata> = {
-      "CUSTOM_MODEL": {
+      CUSTOM_MODEL: {
         modelKey: "CUSTOM_MODEL",
         urn: "custom",
         purpose: LLMPurpose.COMPLETIONS,
         maxCompletionTokens: undefined,
         maxTotalTokens: 8192,
-      }
+      },
     };
 
     const prompt = "A".repeat(1000);
@@ -196,4 +217,4 @@ describe("TokenLimitReductionStrategy", () => {
     const result = strategy.adaptPrompt(prompt, "CUSTOM_MODEL", tokensUsage, customMetadata);
     expect(result.length).toBeLessThan(prompt.length);
   });
-}); 
+});

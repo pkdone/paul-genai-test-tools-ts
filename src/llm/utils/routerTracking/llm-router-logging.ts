@@ -9,11 +9,11 @@ export function log(text: string): void {
 }
 
 /**
- * Log both the error content and also any context associated with work being done when the 
+ * Log both the error content and also any context associated with work being done when the
  * error occurred, add the context to the error object and then throw the augmented error.
  */
 export function logErrWithContext(error: unknown, context: LLMContext): void {
-  logErrorDetail(error);  
+  logErrorDetail(error);
   logContext(context);
 }
 
@@ -29,7 +29,7 @@ export function logWithContext(msg: string, context: LLMContext): void {
  * Log the context keys and values.
  */
 export function logContext(context: LLMContext): void {
-  if ((context instanceof Object) && !Array.isArray(context)) {
+  if (context instanceof Object && !Array.isArray(context)) {
     for (const [key, value] of Object.entries(context)) {
       log(`  * ${key}: ${String(value)}`);
     }

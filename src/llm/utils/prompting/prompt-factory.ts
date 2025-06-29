@@ -1,5 +1,5 @@
-import { buildPrompt } from './prompt-utils';
-import { z } from 'zod';
+import { buildPrompt } from "./prompt-utils";
+import { z } from "zod";
 
 /**
  * Base interface for prompt configuration
@@ -13,7 +13,7 @@ interface BasePromptConfig {
  */
 export interface SimplePromptConfig extends BasePromptConfig {
   details: string;
-  templateType: 'simple';
+  templateType: "simple";
 }
 
 /**
@@ -22,7 +22,7 @@ export interface SimplePromptConfig extends BasePromptConfig {
 export interface DetailedPromptConfig extends BasePromptConfig {
   fileType: string;
   instructions: string;
-  templateType: 'detailed';
+  templateType: "detailed";
 }
 
 /**
@@ -30,7 +30,7 @@ export interface DetailedPromptConfig extends BasePromptConfig {
  */
 export interface BasicPromptConfig extends BasePromptConfig {
   instructions: string;
-  templateType: 'basic';
+  templateType: "basic";
 }
 
 /**
@@ -45,9 +45,9 @@ export type PromptConfig = SimplePromptConfig | DetailedPromptConfig | BasicProm
 export function processSimpleTemplate(
   baseTemplate: string,
   config: SimplePromptConfig,
-  codeContent: string
+  codeContent: string,
 ): string {
-  const template = baseTemplate.replace('{{promptDetails}}', config.details);
+  const template = baseTemplate.replace("{{promptDetails}}", config.details);
   return buildPrompt(template, config.schema, codeContent);
 }
 
@@ -58,11 +58,11 @@ export function processSimpleTemplate(
 export function processDetailedTemplate(
   baseTemplate: string,
   config: DetailedPromptConfig,
-  codeContent: string
+  codeContent: string,
 ): string {
   const template = baseTemplate
-    .replace('{{fileType}}', config.fileType)
-    .replace('{{specificInstructions}}', config.instructions);
+    .replace("{{fileType}}", config.fileType)
+    .replace("{{specificInstructions}}", config.instructions);
   return buildPrompt(template, config.schema, codeContent);
 }
 
@@ -73,9 +73,9 @@ export function processDetailedTemplate(
 export function processBasicTemplate(
   baseTemplate: string,
   config: BasicPromptConfig,
-  codeContent: string
+  codeContent: string,
 ): string {
-  const template = baseTemplate.replace('{{specificInstructions}}', config.instructions);
+  const template = baseTemplate.replace("{{specificInstructions}}", config.instructions);
   return buildPrompt(template, config.schema, codeContent);
 }
 
@@ -94,31 +94,33 @@ export interface TemplateMap {
 export function createPromptFromConfig(
   baseTemplates: TemplateMap,
   config: PromptConfig,
-  codeContent: string
+  codeContent: string,
 ): string {
   switch (config.templateType) {
-    case 'simple': {
+    case "simple": {
       const template = baseTemplates.simple;
       if (!template) {
-        throw new Error('No template found for type: simple');
+        throw new Error("No template found for type: simple");
       }
       return processSimpleTemplate(template, config, codeContent);
     }
-    case 'detailed': {
+    case "detailed": {
       const template = baseTemplates.detailed;
       if (!template) {
-        throw new Error('No template found for type: detailed');
+        throw new Error("No template found for type: detailed");
       }
       return processDetailedTemplate(template, config, codeContent);
     }
-    case 'basic': {
+    case "basic": {
       const template = baseTemplates.basic;
       if (!template) {
-        throw new Error('No template found for type: basic');
+        throw new Error("No template found for type: basic");
       }
       return processBasicTemplate(template, config, codeContent);
     }
     default:
-      throw new Error(`Unknown template type: ${String((config as { templateType: string }).templateType)}`);
+      throw new Error(
+        `Unknown template type: ${String((config as { templateType: string }).templateType)}`,
+      );
   }
-} 
+}

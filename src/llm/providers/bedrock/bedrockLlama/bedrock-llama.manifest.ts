@@ -3,13 +3,16 @@ import BedrockLlamaLLM from "./bedrock-llama-llm";
 import { LLMPurpose } from "../../../llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
 import { z } from "zod";
-import { BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY, AWS_EMBEDDINGS_TITAN_V1 } from "../bedrock-models.constants";
+import {
+  BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
+  AWS_EMBEDDINGS_TITAN_V1,
+} from "../bedrock-models.constants";
 
 // Environment variable name constants
 const BEDROCK_LLAMA_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_LLAMA_COMPLETIONS_MODEL_PRIMARY";
 const BEDROCK_LLAMA_COMPLETIONS_MODEL_SECONDARY_KEY = "BEDROCK_LLAMA_COMPLETIONS_MODEL_SECONDARY";
 
-// Exported constants 
+// Exported constants
 export const BEDROCK_LLAMA = "BedrockLlama";
 export const AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT";
 export const AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT = "AWS_COMPLETIONS_LLAMA_V32_90B_INSTRUCT";
@@ -62,4 +65,4 @@ export const bedrockLlamaProviderManifest: LLMProviderManifest = {
   factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
     return new BedrockLlamaLLM(modelsKeysSet, modelsMetadata, errorPatterns);
   },
-}; 
+};

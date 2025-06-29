@@ -38,16 +38,19 @@ export async function clearDirectory(dirPath: string): Promise<void> {
   try {
     const files = await fs.readdir(dirPath);
     const removalPromises = files
-      .filter(file => file !== ".gitignore")
-      .map(async file => {
+      .filter((file) => file !== ".gitignore")
+      .map(async (file) => {
         const filePath = path.join(dirPath, file);
         try {
           await fs.rm(filePath, { recursive: true, force: true });
         } catch (error: unknown) {
-          logErrorMsgAndDetail(`When clearing directory '${dirPath}', unable to remove the item: ${filePath}`, error);
+          logErrorMsgAndDetail(
+            `When clearing directory '${dirPath}', unable to remove the item: ${filePath}`,
+            error,
+          );
         }
       });
-    
+
     await Promise.allSettled(removalPromises);
   } catch (error: unknown) {
     logErrorMsgAndDetail(`Unable to read directory for clearing: ${dirPath}`, error);
@@ -56,7 +59,10 @@ export async function clearDirectory(dirPath: string): Promise<void> {
   try {
     await fs.mkdir(dirPath, { recursive: true });
   } catch (mkdirError: unknown) {
-    logErrorMsgAndDetail(`Failed to ensure directory exists after clearing: ${dirPath}`, mkdirError);
+    logErrorMsgAndDetail(
+      `Failed to ensure directory exists after clearing: ${dirPath}`,
+      mkdirError,
+    );
   }
 }
 
@@ -68,18 +74,18 @@ export async function getTextLines(filePath: string): Promise<string[]> {
   const fileContents = await readFile(filePath);
   const lines = fileContents
     .split("\n")
-    .map(line => line.trim())
-    .filter(line => line && !line.startsWith("#"));
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"));
   return lines;
 }
 
 /**
- * Build the list of files descending from a directory 
+ * Build the list of files descending from a directory
  */
 export async function buildDirDescendingListOfFiles(
-  srcDirPath: string, 
-  folderIgnoreList: readonly string[], 
-  filenameIgnorePrefix: string
+  srcDirPath: string,
+  folderIgnoreList: readonly string[],
+  filenameIgnorePrefix: string,
 ): Promise<string[]> {
   const files: string[] = [];
   const queue: string[] = [srcDirPath];
@@ -95,13 +101,13 @@ export async function buildDirDescendingListOfFiles(
         const fullPath = path.join(directory, entry.name);
 
         if (entry.isDirectory()) {
-          if (!folderIgnoreList.includes(entry.name)) {          
+          if (!folderIgnoreList.includes(entry.name)) {
             queue.push(fullPath);
           }
         } else if (entry.isFile()) {
           if (!entry.name.toLowerCase().startsWith(filenameIgnorePrefix)) {
             files.push(fullPath);
-          } 
+          }
         }
       }
     } catch (error: unknown) {

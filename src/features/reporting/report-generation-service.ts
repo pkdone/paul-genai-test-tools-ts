@@ -16,11 +16,11 @@ import AppReportGenerator from "./reportGeneration/app-report-generator";
 export class ReportGenerationService implements Service {
   /**
    * Constructor with dependency injection.
-   */  
+   */
   constructor(
     @inject(TOKENS.EnvVars) private readonly env: EnvVars,
     @inject(TOKENS.ProjectName) private readonly projectName: string,
-    @inject(TOKENS.AppReportGenerator) private readonly appReportGenerator: AppReportGenerator
+    @inject(TOKENS.AppReportGenerator) private readonly appReportGenerator: AppReportGenerator,
   ) {}
 
   /**
@@ -34,14 +34,17 @@ export class ReportGenerationService implements Service {
    * Generate a report from the codebase in the specified directory.
    */
   private async generateReport(srcDirPath: string): Promise<void> {
-    console.log(`ReportGenerationService: Generating report for source directory: ${srcDirPath}`);    
+    console.log(`ReportGenerationService: Generating report for source directory: ${srcDirPath}`);
     const cleanSrcDirPath = srcDirPath.replace(appConfig.TRAILING_SLASH_PATTERN, "");
     console.log(cleanSrcDirPath);
-    await clearDirectory(appConfig.OUTPUT_DIR);  
+    await clearDirectory(appConfig.OUTPUT_DIR);
     console.log(`Creating report for project: ${this.projectName}`);
     const htmlFilePath = path.join(appConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
-    
-    await writeFile(htmlFilePath, await this.appReportGenerator.generateHTMLReport(this.projectName));      
+
+    await writeFile(
+      htmlFilePath,
+      await this.appReportGenerator.generateHTMLReport(this.projectName),
+    );
     console.log(`View generated report in a browser: file://${path.resolve(htmlFilePath)}`);
   }
 }
