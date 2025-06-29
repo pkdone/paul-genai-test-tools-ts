@@ -7,7 +7,7 @@ import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
 import { RetryFunc } from "../../common/control/control.types";
 import { BadConfigurationLLMError, BadResponseMetadataLLMError, RejectionResponseLLMError } from "../utils/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
-import type { PromptAdapter } from "../utils/responseProcessing/llm-prompt-adapter";
+import type { PromptAdapter } from "../utils/prompting/llm-prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";
 import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";

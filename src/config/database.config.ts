@@ -10,6 +10,4 @@ export const databaseConfig = {
   SUMMARY_VECTOR_FIELD: "summaryVector",
   CONTENT_VECTOR_INDEX_NAME: "contentVector_vector_index",
   SUMMARY_VECTOR_INDEX_NAME: "summaryVector_vector_index",
-  REDACTED_URL: "REDACTED_URL",
-  REDACTED_CREDENTIALS: "REDACTED",
 } as const;

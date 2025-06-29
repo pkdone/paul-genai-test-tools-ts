@@ -1,6 +1,7 @@
 import { Double } from "bson";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { databaseConfig } from "../../config/database.config";
+export const REDACTED_URL = "REDACTED_URL";
+export const REDACTED_CREDENTIALS = "REDACTED";
 
 /**
  * Iterates through the numbers in the array and converts each one explicitly to a BSON Double.
@@ -22,13 +23,13 @@ export function redactUrl(url: string): string {
   try {
     const parsedUrl = new URL(url);
     if (parsedUrl.username || parsedUrl.password) {
-      parsedUrl.username = databaseConfig.REDACTED_CREDENTIALS;
-      parsedUrl.password = databaseConfig.REDACTED_CREDENTIALS;
+      parsedUrl.username = REDACTED_CREDENTIALS;
+      parsedUrl.password = REDACTED_CREDENTIALS;
     }
     return parsedUrl.toString();
   } catch (error: unknown) {
     logErrorMsgAndDetail("Could not parse URL for redaction", error); 
-    return databaseConfig.REDACTED_URL;
+    return REDACTED_URL;
   }
 }
 

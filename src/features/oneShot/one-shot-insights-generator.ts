@@ -1,12 +1,12 @@
 import path from "path";
 import { promises as fs } from "fs";
 import { injectable } from "tsyringe";
-import { appConfig } from "../../../config/app.config";
-import { readFile, writeFile, readDirContents } from "../../../common/utils/fs-utils";
-import { getFileSuffix } from "../../../common/utils/path-utils";
+import { appConfig } from "../../config/app.config";
+import { readFile, writeFile, readDirContents } from "../../common/utils/fs-utils";
+import { getFileSuffix } from "../../common/utils/path-utils";
 import pLimit from 'p-limit';
-import { logErrorMsgAndDetail, getErrorText } from "../../../common/utils/error-utils";
-import LLMRouter from "../../../llm/core/llm-router";
+import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-utils";
+import LLMRouter from "../../llm/core/llm-router";
 
 /**
  * Interface to define the filename and question of a file requirement prompt
@@ -116,4 +116,4 @@ export class RawCodeToInsightsFileGenerator {
 
     return response;
   }
-}
+} 

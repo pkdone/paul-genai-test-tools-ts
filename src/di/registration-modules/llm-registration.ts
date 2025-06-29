@@ -3,7 +3,7 @@ import { TOKENS } from "../tokens";
 import { LLMService } from "../../llm/core/llm-service";
 import LLMRouter from "../../llm/core/llm-router";
 import LLMStats from "../../llm/utils/routerTracking/llm-stats";
-import { PromptAdapter } from "../../llm/utils/responseProcessing/llm-prompt-adapter";
+import { PromptAdapter } from "../../llm/utils/prompting/llm-prompt-adapter";
 import type { EnvVars } from "../../lifecycle/env.types";
 
 /**

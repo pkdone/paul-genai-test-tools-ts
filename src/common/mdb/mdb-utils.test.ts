@@ -1,7 +1,7 @@
 import { Double } from "bson";
-import { convertArrayOfNumbersToArrayOfDoubles, redactUrl, createVectorSearchIndexDefinition } from "./mdb-utils";
+import { convertArrayOfNumbersToArrayOfDoubles, redactUrl, createVectorSearchIndexDefinition,
+         REDACTED_URL, REDACTED_CREDENTIALS } from "./mdb-utils";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { databaseConfig } from "../../config/database.config";
 
 // Mock the error-utils module
 jest.mock("../utils/error-utils");
@@ -62,14 +62,14 @@ describe("mdb-utils", () => {
       const url = "mongodb://username:password@localhost:27017/mydb";
       const result = redactUrl(url);
       
-      expect(result).toBe(`mongodb://${databaseConfig.REDACTED_CREDENTIALS}:${databaseConfig.REDACTED_CREDENTIALS}@localhost:27017/mydb`);
+      expect(result).toBe(`mongodb://${REDACTED_CREDENTIALS}:${REDACTED_CREDENTIALS}@localhost:27017/mydb`);
     });
 
     test("redacts only username when no password", () => {
       const url = "mongodb://username@localhost:27017/mydb";
       const result = redactUrl(url);
       
-      expect(result).toBe(`mongodb://${databaseConfig.REDACTED_CREDENTIALS}:${databaseConfig.REDACTED_CREDENTIALS}@localhost:27017/mydb`);
+      expect(result).toBe(`mongodb://${REDACTED_CREDENTIALS}:${REDACTED_CREDENTIALS}@localhost:27017/mydb`);
     });
 
     test("handles URL without credentials", () => {
@@ -83,21 +83,21 @@ describe("mdb-utils", () => {
       const url = "mongodb+srv://user:pass@cluster0.example.mongodb.net/mydb?retryWrites=true&w=majority";
       const result = redactUrl(url);
       
-      expect(result).toBe(`mongodb+srv://${databaseConfig.REDACTED_CREDENTIALS}:${databaseConfig.REDACTED_CREDENTIALS}@cluster0.example.mongodb.net/mydb?retryWrites=true&w=majority`);
+      expect(result).toBe(`mongodb+srv://${REDACTED_CREDENTIALS}:${REDACTED_CREDENTIALS}@cluster0.example.mongodb.net/mydb?retryWrites=true&w=majority`);
     });
 
     test("handles complex credentials with special characters", () => {
       const url = "mongodb://user%40domain:p%40ssw0rd@localhost:27017/mydb";
       const result = redactUrl(url);
       
-      expect(result).toBe(`mongodb://${databaseConfig.REDACTED_CREDENTIALS}:${databaseConfig.REDACTED_CREDENTIALS}@localhost:27017/mydb`);
+      expect(result).toBe(`mongodb://${REDACTED_CREDENTIALS}:${REDACTED_CREDENTIALS}@localhost:27017/mydb`);
     });
 
     test("returns REDACTED_URL when URL parsing fails", () => {
       const invalidUrl = "not-a-valid-url";
       const result = redactUrl(invalidUrl);
       
-      expect(result).toBe(databaseConfig.REDACTED_URL);
+      expect(result).toBe(REDACTED_URL);
       expect(mockLogErrorMsgAndDetail).toHaveBeenCalledWith(
         "Could not parse URL for redaction",
         expect.anything()
@@ -107,7 +107,7 @@ describe("mdb-utils", () => {
     test("handles empty string", () => {
       const result = redactUrl("");
       
-      expect(result).toBe(databaseConfig.REDACTED_URL);
+      expect(result).toBe(REDACTED_URL);
       expect(mockLogErrorMsgAndDetail).toHaveBeenCalledWith(
         "Could not parse URL for redaction",
         expect.anything()

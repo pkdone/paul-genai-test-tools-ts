@@ -1,7 +1,7 @@
 import "reflect-metadata";
-import { bootstrapContainer } from "./di/container";
-import { runService } from "./lifecycle/service-runner";
-import { getServiceConfiguration } from "./di/registration-modules/service-config-registration";
+import { bootstrapContainer } from "../di/container";
+import { runService } from "../lifecycle/service-runner";
+import { getServiceConfiguration } from "../di/registration-modules/service-config-registration";
 
 /**
  * Main application entry point that orchestrates the two distinct phases:

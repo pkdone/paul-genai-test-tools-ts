@@ -33,7 +33,7 @@ export default class CodebaseToDBLoader {
    * Generate the set of representations of source files including each one's content and metadata.
    */
   async loadIntoDB(projectName: string, srcDirPath: string, ignoreIfAlreadyCaptured: boolean): Promise<void> {
-    const srcFilepaths = await buildDirDescendingListOfFiles(srcDirPath);
+    const srcFilepaths = await buildDirDescendingListOfFiles(srcDirPath, appConfig.FOLDER_IGNORE_LIST, appConfig.FILENAME_PREFIX_IGNORE);
     await this.insertSourceContentIntoDB(srcFilepaths, projectName, srcDirPath, ignoreIfAlreadyCaptured);
   }
 

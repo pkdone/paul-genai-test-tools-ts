@@ -2,7 +2,7 @@ import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
 import { FileSummarizer } from "../../features/ingestion/codebase/file-summarizer";
 import { HtmlReportFormatter } from "../../features/reporting/reportGeneration/html-report-formatter";
-import { RawCodeToInsightsFileGenerator } from "../../features/reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
+import { RawCodeToInsightsFileGenerator } from "../../features/oneShot/one-shot-insights-generator";
 import AppReportGenerator from "../../features/reporting/reportGeneration/app-report-generator";
 import CodebaseToDBLoader from "../../features/ingestion/codebase/codebase-to-db-loader";
 import CodeQuestioner from "../../features/querying/code-questioner";

@@ -1,4 +1,3 @@
-import { appConfig } from "../../config/app.config";
 import { promises as fs, Dirent } from "fs";
 import path from "path";
 import { logErrorMsgAndDetail } from "./error-utils";
@@ -77,7 +76,11 @@ export async function getTextLines(filePath: string): Promise<string[]> {
 /**
  * Build the list of files descending from a directory 
  */
-export async function buildDirDescendingListOfFiles(srcDirPath: string): Promise<string[]> {
+export async function buildDirDescendingListOfFiles(
+  srcDirPath: string, 
+  folderIgnoreList: readonly string[], 
+  filenameIgnorePrefix: string
+): Promise<string[]> {
   const files: string[] = [];
   const queue: string[] = [srcDirPath];
 
@@ -92,11 +95,11 @@ export async function buildDirDescendingListOfFiles(srcDirPath: string): Promise
         const fullPath = path.join(directory, entry.name);
 
         if (entry.isDirectory()) {
-          if (!(appConfig.FOLDER_IGNORE_LIST as readonly string[]).includes(entry.name)) {          
+          if (!folderIgnoreList.includes(entry.name)) {          
             queue.push(fullPath);
           }
         } else if (entry.isFile()) {
-          if (!entry.name.toLowerCase().startsWith(appConfig.FILENAME_PREFIX_IGNORE)) {
+          if (!entry.name.toLowerCase().startsWith(filenameIgnorePrefix)) {
             files.push(fullPath);
           } 
         }
