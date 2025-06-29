@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import path from 'path';
-import { appConfig } from "../../app/app.config";
+import { appConfig } from "../../config/app.config";
 import { LLMProviderImpl, LLMModelKeysSet as LLMModelsKeysSet, LLMModelMetadata, ResolvedLLMModelMetadata } from "../llm.types";
 import { EnvVars } from "../../app/env.types";
 import { BadConfigurationLLMError } from "../utils/llm-errors.types";

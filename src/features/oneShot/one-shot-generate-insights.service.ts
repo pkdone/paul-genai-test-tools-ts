@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { appConfig } from "../../app/app.config";
+import { appConfig } from "../../config/app.config";
 import { clearDirectory, buildDirDescendingListOfFiles } from "../../common/utils/fs-utils";
 import { RawCodeToInsightsFileGenerator } from "../reporting/insightsFileGeneration/raw-code-to-insights-file-generator";
 import type LLMRouter from "../../llm/core/llm-router";

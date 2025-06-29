@@ -1,6 +1,6 @@
 import { Double } from "bson";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { databaseConfig } from "../../repositories/database.config";
+import { databaseConfig } from "../../config/database.config";
 
 /**
  * Iterates through the numbers in the array and converts each one explicitly to a BSON Double.

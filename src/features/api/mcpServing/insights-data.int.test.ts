@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import InsightsDataServer from "./insights-data-server";
-import { databaseConfig } from "../../../repositories/database.config";
+import { databaseConfig } from "../../../config/database.config";
 import { loadBaseEnvVarsOnly } from "../../../app/env";
 import { getProjectNameFromPath } from "../../../common/utils/path-utils";
 import { MongoDBClientFactory } from "../../../common/mdb/mdb-client-factory";

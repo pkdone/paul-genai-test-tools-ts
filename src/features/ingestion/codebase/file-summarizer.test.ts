@@ -16,7 +16,7 @@ jest.mock('../../../common/utils/error-utils', () => ({
   }),
 }));
 
-jest.mock('../../../app/app.config', () => ({
+jest.mock('../../../config/app.config', () => ({
   appConfig: {
     README_FILE_NAME: 'README',
   },

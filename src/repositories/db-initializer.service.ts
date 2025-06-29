@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { MongoClient, Db, Collection, IndexSpecification } from "mongodb";
 import { TOKENS } from "../di/tokens";
-import { databaseConfig } from "./database.config";
+import { databaseConfig } from "../config/database.config";
 import { llmConfig } from "../llm/llm.config";
 import { logErrorMsgAndDetail } from "../common/utils/error-utils";
 import { createVectorSearchIndexDefinition } from "../common/mdb/mdb-utils";

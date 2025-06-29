@@ -1,7 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import type LLMRouter from "../../../llm/core/llm-router";
-import { appConfig } from "../../../app/app.config";
-import { reportingConfig } from "../../reporting/reporting.config";
+import { appConfig } from "../../../config/app.config";
 import { logErrorMsgAndDetail } from "../../../common/utils/error-utils";
 import { joinArrayWithSeparators } from "../../../common/utils/text-utils";
 import { LLMStructuredResponseInvoker } from "../../../llm/core/llm-structured-response-invoker";
@@ -92,7 +91,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     category: AppSummaryCategory, 
     sourceFileSummaries: string[]
   ): Promise<void> {
-    const categoryLabel = reportingConfig.APP_SUMMARIES_CATEGORY_TITLES[category];
+    const categoryLabel = categoryPromptSchemaMappings[category].label;
 
     try {
       console.log(`Processing ${categoryLabel}`);      
@@ -114,7 +113,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     category: AppSummaryCategory,
     sourceFileSummaries: string[]
   ): Promise<PartialAppSummaryRecord | null> {
-    const categoryLabel = reportingConfig.APP_SUMMARIES_CATEGORY_TITLES[category];
+    const categoryLabel = categoryPromptSchemaMappings[category].label;
 
     try {
       const { promptCreator, schema } = categoryPromptSchemaMappings[category];

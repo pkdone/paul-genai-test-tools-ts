@@ -1,7 +1,7 @@
 import { Double } from "bson";
 import { convertArrayOfNumbersToArrayOfDoubles, redactUrl, createVectorSearchIndexDefinition } from "./mdb-utils";
 import { logErrorMsgAndDetail } from "../utils/error-utils";
-import { databaseConfig } from "../../repositories/database.config";
+import { databaseConfig } from "../../config/database.config";
 
 // Mock the error-utils module
 jest.mock("../utils/error-utils");

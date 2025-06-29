@@ -4,7 +4,7 @@ import { logErrorMsgAndDetail, getErrorText } from "../../../common/utils/error-
 import { LLMStructuredResponseInvoker } from "../../../llm/core/llm-structured-response-invoker";
 import { TOKENS } from "../../../di/tokens";
 import { SummaryType, FileHandler, filePromptSchemaMappings, defaultHandler } from './file-handler-mappings';
-import { appConfig } from "../../../app/app.config";
+import { appConfig } from "../../../config/app.config";
 
 // Result type for better error handling
 export type SummaryResult<T = SummaryType> = 

@@ -1,7 +1,7 @@
 import { inject } from "tsyringe";
 import { MongoClient, Collection, Document } from "mongodb";
 import { TOKENS } from "../di/tokens";
-import { databaseConfig } from "./database.config";
+import { databaseConfig } from "../config/database.config";
 
 /**
  * Abstract base repository class providing common MongoDB functionality

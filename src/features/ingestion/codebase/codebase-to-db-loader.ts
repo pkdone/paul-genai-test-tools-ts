@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import type LLMRouter from "../../../llm/core/llm-router";
 import path from "path";
-import { appConfig } from "../../../app/app.config";
+import { appConfig } from "../../../config/app.config";
 import { readFile, buildDirDescendingListOfFiles } from "../../../common/utils/fs-utils";
 import { getFileSuffix } from "../../../common/utils/path-utils";
 import { countLines } from "../../../common/utils/text-utils";

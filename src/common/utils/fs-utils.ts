@@ -1,4 +1,4 @@
-import { appConfig } from "../../app/app.config";
+import { appConfig } from "../../config/app.config";
 import { promises as fs, Dirent } from "fs";
 import path from "path";
 import { logErrorMsgAndDetail } from "./error-utils";

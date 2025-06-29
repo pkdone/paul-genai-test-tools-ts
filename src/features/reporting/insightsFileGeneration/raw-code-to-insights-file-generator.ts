@@ -1,7 +1,7 @@
 import path from "path";
 import { promises as fs } from "fs";
 import { injectable } from "tsyringe";
-import { appConfig } from "../../../app/app.config";
+import { appConfig } from "../../../config/app.config";
 import { readFile, writeFile, readDirContents } from "../../../common/utils/fs-utils";
 import { getFileSuffix } from "../../../common/utils/path-utils";
 import pLimit from 'p-limit';

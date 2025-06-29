@@ -14,7 +14,7 @@ jest.mock("../../common/utils/fs-utils", () => ({
   readDirContents: jest.fn()
 }));
 
-jest.mock("../../app/app.config", () => ({
+jest.mock("../../config/app.config", () => ({
   appConfig: {
     PROVIDERS_FOLDER_NAME: "providers",
     MANIFEST_FILE_SUFFIX: ".manifest.ts",
