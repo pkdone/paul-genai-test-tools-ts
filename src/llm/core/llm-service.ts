@@ -30,7 +30,7 @@ export class LLMService {
    * Static method to load a manifest for a specific model family without creating a full service
    */
   static async loadManifestForModelFamily(modelFamily: string): Promise<LLMProviderManifest> {
-    const providersRootPath = path.join(__dirname, appConfig.PROVIDERS_FOLDER_NAME);
+    const providersRootPath = path.join(__dirname, appConfig.PROVIDERS_FOLDER_PATH);
     const manifest = await LLMService.findManifestRecursively(providersRootPath, modelFamily);    
     if (!manifest) throw new BadConfigurationLLMError(`No provider manifest found for model family: ${modelFamily}`);    
     return manifest;

@@ -30,7 +30,7 @@ export const appConfig = {
   DIST_FOLDER_NAME: "/dist/",
   MANIFEST_FILE_SUFFIX: ".manifest.js",
   PROVIDER_MANIFEST_KEY: "ProviderManifest",
-  PROVIDERS_FOLDER_NAME: "providers",
+  PROVIDERS_FOLDER_PATH: "../providers",
   TRAILING_SLASH_PATTERN: /\/$/,  //Regex pattern to match trailing slash at end of string
   REQUIREMENTS_PROMPTS_FOLDERPATH: "./input/requirements",
   REQS_FILE_REGEX: /requirement\d+\.prompt$/i,
