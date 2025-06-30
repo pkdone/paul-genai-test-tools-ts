@@ -93,9 +93,14 @@ export default class LLMRouter {
    * Get the description of models the chosen plug-in provides.
    */
   getModelsUsedDescription(): string {
-    const [embeddings] = this.llm.getModelsNames();
+    const [embeddings, primaryCompletion, secondaryCompletion] = this.llm.getModelsNames();
     const candidateDescriptions = this.completionCandidates
-      .map((candidate) => `${candidate.modelQuality}: ${candidate.description}`)
+      .map((candidate) => {
+        const modelId = candidate.modelQuality === LLMModelQuality.PRIMARY 
+          ? primaryCompletion 
+          : secondaryCompletion;
+        return `${candidate.modelQuality}: ${modelId}`;
+      })
       .join(", ");
     return `${this.llm.getModelFamily()} (embeddings: ${embeddings}, completions: ${candidateDescriptions})`;
   }
