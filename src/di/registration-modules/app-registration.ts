@@ -101,7 +101,9 @@ function registerLLMDependentComponents(): void {
   // FileSummarizer
   container.register(TOKENS.FileSummarizer, {
     useFactory: async (c) => {
-      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(TOKENS.LLMStructuredResponseInvoker);
+      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(
+        TOKENS.LLMStructuredResponseInvoker,
+      );
       return new FileSummarizer(llmStructuredResponseInvoker);
     },
   });
@@ -128,12 +130,22 @@ function registerLLMDependentComponents(): void {
   // DBCodeInsightsBackIntoDBGenerator
   container.register(TOKENS.DBCodeInsightsBackIntoDBGenerator, {
     useFactory: async (c) => {
-      const appSummariesRepository = c.resolve<AppSummariesRepository>(TOKENS.AppSummariesRepository);
+      const appSummariesRepository = c.resolve<AppSummariesRepository>(
+        TOKENS.AppSummariesRepository,
+      );
       const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
       const sourcesRepository = c.resolve<SourcesRepository>(TOKENS.SourcesRepository);
       const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(TOKENS.LLMStructuredResponseInvoker);
-      return new DBCodeInsightsBackIntoDBGenerator(appSummariesRepository, llmRouter, sourcesRepository, projectName, llmStructuredResponseInvoker);
+      const llmStructuredResponseInvoker = await c.resolve<Promise<LLMStructuredResponseInvoker>>(
+        TOKENS.LLMStructuredResponseInvoker,
+      );
+      return new DBCodeInsightsBackIntoDBGenerator(
+        appSummariesRepository,
+        llmRouter,
+        sourcesRepository,
+        projectName,
+        llmStructuredResponseInvoker,
+      );
     },
   });
 }
@@ -168,8 +180,16 @@ function registerLLMDependentServices(): void {
       const dbInitializerService = c.resolve<DBInitializerService>(TOKENS.DBInitializerService);
       const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
       const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const codebaseToDBLoader = await c.resolve<Promise<CodebaseToDBLoader>>(TOKENS.CodebaseToDBLoader);
-      return new CodebaseCaptureService(llmRouter, dbInitializerService, envVars, projectName, codebaseToDBLoader);
+      const codebaseToDBLoader = await c.resolve<Promise<CodebaseToDBLoader>>(
+        TOKENS.CodebaseToDBLoader,
+      );
+      return new CodebaseCaptureService(
+        llmRouter,
+        dbInitializerService,
+        envVars,
+        projectName,
+        codebaseToDBLoader,
+      );
     },
   });
 
@@ -178,8 +198,14 @@ function registerLLMDependentServices(): void {
     useFactory: async (c) => {
       const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
       const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const dbCodeInsightsBackIntoDBGenerator = await c.resolve<Promise<DBCodeInsightsBackIntoDBGenerator>>(TOKENS.DBCodeInsightsBackIntoDBGenerator);
-      return new InsightsFromDBGenerationService(llmRouter, projectName, dbCodeInsightsBackIntoDBGenerator);
+      const dbCodeInsightsBackIntoDBGenerator = await c.resolve<
+        Promise<DBCodeInsightsBackIntoDBGenerator>
+      >(TOKENS.DBCodeInsightsBackIntoDBGenerator);
+      return new InsightsFromDBGenerationService(
+        llmRouter,
+        projectName,
+        dbCodeInsightsBackIntoDBGenerator,
+      );
     },
   });
 
@@ -188,7 +214,9 @@ function registerLLMDependentServices(): void {
     useFactory: async (c) => {
       const llmRouter = await c.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
       const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
-      const rawCodeToInsightsFileGenerator = c.resolve<RawCodeToInsightsFileGenerator>(TOKENS.RawCodeToInsightsFileGenerator);
+      const rawCodeToInsightsFileGenerator = c.resolve<RawCodeToInsightsFileGenerator>(
+        TOKENS.RawCodeToInsightsFileGenerator,
+      );
       return new OneShotGenerateInsightsService(llmRouter, envVars, rawCodeToInsightsFileGenerator);
     },
   });

@@ -11,5 +11,3 @@ export function loadBaseEnvVarsOnly(): z.infer<typeof baseEnvVarsSchema> {
   const parsedEnv = baseEnvVarsSchema.parse(rawEnv);
   return parsedEnv;
 }
-
-
