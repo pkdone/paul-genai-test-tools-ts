@@ -27,6 +27,7 @@ export interface ProcsAndTriggers {
       type: string;
       functionName: string;
       complexity: Complexity;
+      complexityReason: string;
       linesOfCode: number;
       purpose: string;
     }[];
@@ -41,6 +42,7 @@ export interface ProcsAndTriggers {
       type: string;
       functionName: string;
       complexity: Complexity;
+      complexityReason: string;
       linesOfCode: number;
       purpose: string;
     }[];

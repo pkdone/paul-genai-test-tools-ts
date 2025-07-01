@@ -157,6 +157,9 @@ export const ddlFileSummarySchema = sourceFileSummarySchema
             .describe("Detailed purpose of the stored procedure (at least 4 sentences)."),
           linesOfCode: z.number(),
           complexity: z.enum(["LOW", "MEDIUM", "HIGH"]),
+          complexityReason: z
+            .string()
+            .describe("A brief, one-sentence reason for the chosen complexity score."),
         }),
       )
       .describe("A list of stored procedures defined."),
@@ -167,6 +170,9 @@ export const ddlFileSummarySchema = sourceFileSummarySchema
           purpose: z.string().describe("Detailed purpose of the trigger (at least 4 sentences)."),
           linesOfCode: z.number(),
           complexity: z.enum(["LOW", "MEDIUM", "HIGH"]),
+          complexityReason: z
+            .string()
+            .describe("A brief, one-sentence reason for the chosen complexity score."),
         }),
       )
       .describe("A list of triggers defined."),

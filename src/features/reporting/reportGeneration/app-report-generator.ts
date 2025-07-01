@@ -98,6 +98,7 @@ export default class AppReportGenerator {
           type: "STORED PROCEDURE",
           functionName: sp.name,
           complexity: isComplexity(sp.complexity) ? sp.complexity : Complexity.LOW,
+          complexityReason: isComplexity(sp.complexity) ? sp.complexityReason : "N/A",
           linesOfCode: sp.linesOfCode,
           purpose: sp.purpose,
         });
@@ -115,6 +116,7 @@ export default class AppReportGenerator {
           type: "TRIGGER",
           functionName: trig.name,
           complexity: isComplexity(trig.complexity) ? trig.complexity : Complexity.LOW,
+          complexityReason: isComplexity(trig.complexity) ? trig.complexityReason : "N/A",
           linesOfCode: trig.linesOfCode,
           purpose: trig.purpose,
         });

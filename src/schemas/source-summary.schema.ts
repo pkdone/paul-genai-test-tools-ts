@@ -32,5 +32,3 @@ export const sourceFileSummarySchema = z
     publicMethods: z.array(publicMethodSchema).optional(),
   })
   .passthrough();
-
-export type SourceFileSummary = z.infer<typeof sourceFileSummarySchema>;

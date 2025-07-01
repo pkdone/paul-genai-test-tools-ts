@@ -43,8 +43,6 @@ export function registerAppDependencies(): void {
   registerRepositories();
   registerComponents();
   registerServices();
-
-  console.log("All application dependencies registered");
 }
 
 /**

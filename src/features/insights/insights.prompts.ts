@@ -66,6 +66,5 @@ export type InsightsPromptType = keyof typeof insightsPromptTemplates;
  */
 export const createInsightsPrompt = (type: InsightsPromptType, codeContent: string): string => {
   const config = insightsPromptTemplates[type];
-
   return createPromptFromConfig({ simple: INSIGHTS_BASE_TEMPLATE }, config, codeContent);
 };

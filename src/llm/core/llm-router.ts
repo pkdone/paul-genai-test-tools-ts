@@ -96,9 +96,10 @@ export default class LLMRouter {
     const [embeddings, primaryCompletion, secondaryCompletion] = this.llm.getModelsNames();
     const candidateDescriptions = this.completionCandidates
       .map((candidate) => {
-        const modelId = candidate.modelQuality === LLMModelQuality.PRIMARY 
-          ? primaryCompletion 
-          : secondaryCompletion;
+        const modelId =
+          candidate.modelQuality === LLMModelQuality.PRIMARY
+            ? primaryCompletion
+            : secondaryCompletion;
         return `${candidate.modelQuality}: ${modelId}`;
       })
       .join(", ");

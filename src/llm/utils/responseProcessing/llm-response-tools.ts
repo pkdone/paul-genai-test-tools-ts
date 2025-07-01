@@ -39,6 +39,7 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
   asJson: boolean,
   context: LLMContext,
   modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
+  logProcessingWarning = false,
 ): LLMFunctionResponse {
   if (taskType === LLMPurpose.COMPLETIONS) {
     try {
@@ -51,9 +52,11 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
         generated: generatedContent,
       };
     } catch (error: unknown) {
-      console.warn(
-        `ISSUE: LLM response cannot be parsed to JSON  (model '${modelsMetadata[modelKey].urn})', so marking as overloaded just to be able to try again in the hope of a better response for the next attempt`,
-      );
+      if (logProcessingWarning) {
+        console.warn(
+          `LLM response for model '${modelsMetadata[modelKey].urn}' cannot be parsed to JSON so marking as overloaded just to be able to try again in the hope of a better response for the next attempt - Error: ${getErrorText(error)}`,
+        );
+      }
       context.jsonParseError = getErrorText(error);
       return { ...skeletonResult, status: LLMResponseStatus.OVERLOADED };
     }

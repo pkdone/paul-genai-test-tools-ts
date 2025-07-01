@@ -40,6 +40,7 @@ export const procedureTriggerSchema = z
     name: z.string(),
     purpose: z.string(),
     complexity: z.enum(["LOW", "MEDIUM", "HIGH"]),
+    complexityReason: z.string(),
     linesOfCode: z.number(),
   })
   .passthrough();

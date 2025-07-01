@@ -140,7 +140,7 @@ export class HtmlReportFormatter {
     if (!keyForArrayOfObjects || keyForArrayOfObjects.length === 0) return [];
     const html: string[] = [];
     html.push("<p><table>");
-    const keysOfInterest = Object.keys(keyForArrayOfObjects[0]); // Now safe
+    const keysOfInterest = Object.keys(keyForArrayOfObjects[0]);
     html.push("<tr>");
 
     for (const key of keysOfInterest) {
