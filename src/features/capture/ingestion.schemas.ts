@@ -12,7 +12,6 @@ export const javaFileSummarySchema = sourceFileSummarySchema.pick({
   externalReferences: true,
   publicConstants: true,
   publicMethods: true,
-  databaseIntegration: true,
 });
 export type JavaFileSummary = z.infer<typeof javaFileSummarySchema>;
 
@@ -22,7 +21,6 @@ export const jsFileSummarySchema = sourceFileSummarySchema.pick({
   implementation: true,
   internalReferences: true,
   externalReferences: true,
-  databaseIntegration: true,
 });
 export type JsFileSummary = z.infer<typeof jsFileSummarySchema>;
 
@@ -30,7 +28,6 @@ export type JsFileSummary = z.infer<typeof jsFileSummarySchema>;
 export const defaultFileSummarySchema = sourceFileSummarySchema.pick({
   purpose: true,
   implementation: true,
-  databaseIntegration: true,
 });
 export type DefaultFileSummary = z.infer<typeof defaultFileSummarySchema>;
 
