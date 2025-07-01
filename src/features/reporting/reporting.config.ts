@@ -4,7 +4,6 @@
 export const reportingConfig = {
   OUTPUT_SUMMARY_HTML_FILE: "codebase-report.html",
   APP_DESCRIPTION_KEY: "appDescription",
-  LLM_PROVIDERS_KEY: "llmProvider",
   HTML_PREFIX: `
   <html>
     <head>

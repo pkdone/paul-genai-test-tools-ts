@@ -36,14 +36,7 @@ export default class AppSummariesRepositoryImpl
    * Update an existing app summary record
    */
   async updateAppSummary(projectName: string, updates: PartialAppSummaryRecord): Promise<void> {
-    const result = await this.collection.updateOne({ projectName }, { $set: updates });
-
-    if (result.modifiedCount < 1) {
-      throw new Error(
-        `Unable to update app summary with field name(s) '${Object.keys(updates).join(", ")}' ` +
-          `for project '${projectName}' in collection '${this.collection.collectionName}'.`,
-      );
-    }
+    await this.collection.updateOne({ projectName }, { $set: updates });
   }
 
   /**
