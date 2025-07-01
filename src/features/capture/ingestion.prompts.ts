@@ -101,19 +101,19 @@ export const summaryPromptTemplates: Record<string, PromptTemplate> = {
     templateType: "basic",
     instructions:
       "Analyze the following source code and provide details about its purpose, implementation, and database integration.",
-    schema: schemas.xmlFileSummarySchema,
+    schema: schemas.defaultFileSummarySchema,
   },
   jsp: {
     templateType: "basic",
     instructions:
-      "Analyze the following source code and provide details about its purpose, implementation, and database integration.",
+      "Analyze the following source code and provide details about its purpose, implementation, and a list of detailed descriptions of the data input fields it contains (if any) integration.",
     schema: schemas.jspFileSummarySchema,
   },
   markdown: {
     templateType: "basic",
     instructions:
       "Analyze the following source code and provide details about its purpose, implementation, and database integration.",
-    schema: schemas.markdownFileSummarySchema,
+    schema: schemas.defaultFileSummarySchema,
   },
 } as const;
 

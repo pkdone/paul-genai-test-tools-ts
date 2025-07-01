@@ -9,9 +9,7 @@ export type SummaryType =
   | summarySchemas.JsFileSummary
   | summarySchemas.DefaultFileSummary
   | summarySchemas.DdlFileSummary
-  | summarySchemas.XmlFileSummary
-  | summarySchemas.JspFileSummary
-  | summarySchemas.MarkdownFileSummary;
+  | summarySchemas.JspFileSummary;
 
 // Type-safe file handler configuration
 export interface FileHandler<T extends SummaryType = SummaryType> {
@@ -25,7 +23,7 @@ export const filePromptSchemaMappings = new Map<string, FileHandler>([
     appConfig.README_FILE_NAME,
     {
       promptCreator: (content: string) => summaryPrompts.createSummaryPrompt("markdown", content),
-      schema: summarySchemas.markdownFileSummarySchema,
+      schema: summarySchemas.defaultFileSummarySchema,
     },
   ],
   [
@@ -81,7 +79,7 @@ export const filePromptSchemaMappings = new Map<string, FileHandler>([
     "xml",
     {
       promptCreator: (content: string) => summaryPrompts.createSummaryPrompt("xml", content),
-      schema: summarySchemas.xmlFileSummarySchema,
+      schema: summarySchemas.defaultFileSummarySchema,
     },
   ],
   [
@@ -95,14 +93,14 @@ export const filePromptSchemaMappings = new Map<string, FileHandler>([
     "markdown",
     {
       promptCreator: (content: string) => summaryPrompts.createSummaryPrompt("markdown", content),
-      schema: summarySchemas.markdownFileSummarySchema,
+      schema: summarySchemas.defaultFileSummarySchema,
     },
   ],
   [
     "md",
     {
       promptCreator: (content: string) => summaryPrompts.createSummaryPrompt("markdown", content),
-      schema: summarySchemas.markdownFileSummarySchema,
+      schema: summarySchemas.defaultFileSummarySchema,
     },
   ],
 ]);
