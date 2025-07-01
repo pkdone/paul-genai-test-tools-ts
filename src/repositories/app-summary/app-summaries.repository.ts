@@ -60,22 +60,32 @@ export default class AppSummariesRepositoryImpl
   }
 
   /**
-   * Get specific field data from app summary
+   * Retrieves the value of a specific field from an app summary record for the given project.
+   *
+   * The return type is inferred based on the requested field name, and will be the non-nullable type
+   * of that field or `null` if the record or field is not found.
+   *
+   * - If the field exists but is `undefined`, `null` is returned.
+   * - If the record does not exist, `null` is returned.
    *
    * Usage examples:
-   *  getProjectAppSummaryField(projectName, 'llmProvider') - returns Promise<string | null>
-   *  getProjectAppSummaryField(projectName, 'businessProcesses') - returns Promise<AppSummaryNameDescArray | null>
-   *  getProjectAppSummaryField(projectName, 'appDescription') - returns Promise<string | null>
+   *   getProjectAppSummaryField(projectName, 'llmProvider') // Promise<string | null>
+   *   getProjectAppSummaryField(projectName, 'businessProcesses') // Promise<AppSummaryNameDescArray | null>
+   *   getProjectAppSummaryField(projectName, 'appDescription') // Promise<string | null>
+   *
+   * @param projectName - The name of the project.
+   * @param fieldName - The field to retrieve from the app summary record.
+   * @returns The value of the requested field, or null if not found.
    */
   async getProjectAppSummaryField<K extends keyof AppSummaryRecord>(
     projectName: string,
     fieldName: K,
-  ): Promise<AppSummaryRecord[K] | null> {
+  ): Promise<NonNullable<AppSummaryRecord[K]> | null> {
     const query = { projectName };
     const options = {
       projection: { _id: 0, [fieldName]: 1 },
     };
     const record = await this.collection.findOne<Pick<AppSummaryRecord, K>>(query, options);
-    return record?.[fieldName] ?? null;
+    return (record && fieldName in record) ? record[fieldName] ?? null : null;
   }
 }

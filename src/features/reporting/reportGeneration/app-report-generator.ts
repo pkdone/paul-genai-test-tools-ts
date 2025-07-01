@@ -165,7 +165,11 @@ export default class AppReportGenerator {
         category as keyof AppSummaryRecord,
       );
       console.log(`Generated ${label} table`);
-      return { category, label, data: (data as AppSummaryNameDescArray | null) ?? [] };
+      return {
+        category,
+        label,
+        data: Array.isArray(data) ? data : [],
+      };
     });
 
     return Promise.all(promises);
