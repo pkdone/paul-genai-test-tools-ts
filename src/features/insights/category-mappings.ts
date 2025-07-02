@@ -1,8 +1,15 @@
 import { z } from "zod";
+import {
+  appDescriptionSchema,
+  boundedContextsSchema,
+  businessEntitiesSchema,
+  businessProcessesSchema,
+  technologiesSchema,
+} from "../../schemas/app-summaries.schema";
 import * as insightsPrompts from "./insights.prompts";
-import * as insightsSchemas from "./insights.schemas";
 
 // Type-safe category definitions
+// TODO: should this be in schemas/appSummary.schema.ts?
 export type AppSummaryCategory =
   | "appDescription"
   | "boundedContexts"
@@ -23,30 +30,32 @@ export const categoryPromptSchemaMappings: Record<
     label: "Application Description",
     promptCreator: (codeContent: string) =>
       insightsPrompts.createInsightsPrompt("appDescription", codeContent),
-    schema: insightsSchemas.appDescriptionSchema,
+    schema: appDescriptionSchema,
   },
+  // TODO: use constant
   boundedContexts: {
     label: "Bounded Contexts",
     promptCreator: (codeContent: string) =>
+                                           // TODO: use constant
       insightsPrompts.createInsightsPrompt("boundedContexts", codeContent),
-    schema: insightsSchemas.boundedContextsSchema,
+    schema: boundedContextsSchema,
   },
   businessEntities: {
     label: "Business Entities",
     promptCreator: (codeContent: string) =>
       insightsPrompts.createInsightsPrompt("businessEntities", codeContent),
-    schema: insightsSchemas.businessEntitiesSchema,
+    schema: businessEntitiesSchema,
   },
   businessProcesses: {
     label: "Business Processes",
     promptCreator: (codeContent: string) =>
       insightsPrompts.createInsightsPrompt("businessProcesses", codeContent),
-    schema: insightsSchemas.businessProcessesSchema,
+    schema: businessProcessesSchema,
   },
   technologies: {
     label: "Technology Stack",
     promptCreator: (codeContent: string) =>
       insightsPrompts.createInsightsPrompt("technologies", codeContent),
-    schema: insightsSchemas.technologiesSchema,
+    schema: technologiesSchema,
   },
 } as const;

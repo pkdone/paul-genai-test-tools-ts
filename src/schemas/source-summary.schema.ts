@@ -14,35 +14,13 @@ import {
  */
 export const sourceFileSummarySchema = z
   .object({
-    //purpose: z.string(),
-    //implementation: z.string(),
-    classname: z.string().optional(),
-    classpath: z.string().optional(),
-    type: z.enum(["class", "interface"]).optional(),
-    internalReferences: z.array(z.string()).optional(),
-    externalReferences: z.array(z.string()).optional(),
-    //databaseIntegration: databaseIntegrationSchema.optional(),
-    storedProcedures: z.array(procedureTriggerSchema).optional(),
-    triggers: z.array(procedureTriggerSchema).optional(),
-    tables: z.array(tablesSchema).optional(),
-    externalSystemActivities: z.array(z.string()).optional(),
-    deployableModules: z.array(z.string()).optional(),
-    //dataInputFields: z.array(z.string()).optional(),
-    publicConstants: z.array(publicConstantSchema).optional(),
-    publicMethods: z.array(publicMethodSchema).optional(),
-    purpose: z.string().describe("A detailed definition of the file's purpose."),
-    implementation: z.string().describe("A detailed definition of the file's implementation."),
-    /*
+    purpose: z.string().describe("A detailed definition of the file's purpose in at least 3 sentences."),
+    implementation: z.string().describe("A detailed definition of the file's implementation in at least 3 sentences."),
     classname: z.string().optional().describe("The name of the main public class or interface."),
     classpath: z.string().optional().describe("The fully qualified classpath."),
     type: z.enum(["class", "interface"]).optional().describe("The type of the main entity."),
     internalReferences: z.array(z.string()).optional().describe("A list of internal references to other modules in the same project."),
     externalReferences: z.array(z.string()).optional().describe("A list of external references to 3rd party modules outside this project."),
-    */
-    databaseIntegration: databaseIntegrationSchema
-      .optional()
-      .describe("Information about how the file interacts with a database."),
-    /*
     storedProcedures: z
       .array(procedureTriggerSchema)
       .optional()
@@ -54,14 +32,14 @@ export const sourceFileSummarySchema = z
       .optional()
       .describe("A list of external system activities."),
     deployableModules: z.array(z.string()).optional().describe("A list of deployable modules."),
-    */
-    dataInputFields: z.array(z.string()).optional().describe("A list of data input fields."),
-    /*
     publicConstants: z
       .array(publicConstantSchema)
       .optional()
       .describe("A list of public constants defined."),
-    publicMethods: z.array(publicMethodSchema).optional().describe("A list of public methods."),
-    */
+    publicMethods: z.array(publicMethodSchema).optional().describe("A list of public methods/functions)."),
+    databaseIntegration: databaseIntegrationSchema
+      .optional()
+      .describe("Information about how the file interacts with a database."),
+    dataInputFields: z.array(z.string()).optional().describe("A list of data input fields."),
   })
   .passthrough();

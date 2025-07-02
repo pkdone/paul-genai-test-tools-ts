@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { generateMDBJSONSchema, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
-import { nameDescSchema } from "../../schemas/common.schemas";
-// passthrough() sets "additionalProperties": true
+import { boundedContextsSchema, businessEntitiesSchema, businessProcessesSchema, nameDescSchema, technologiesSchema } from "../../schemas/app-summaries.schema";
 
 /**
  * Schema for arrays of name-description pairs used in app summaries
@@ -17,14 +16,10 @@ export const appSummaryRecordSchema = z
     projectName: z.string(),
     llmProvider: z.string(),
     appDescription: z.string().optional(),
-    businessEntities: appSummaryNameDescArraySchema.optional(),
-    businessProcesses: appSummaryNameDescArraySchema.optional(),
-    businessRules: appSummaryNameDescArraySchema.optional(),
-    dataFlow: appSummaryNameDescArraySchema.optional(),
-    integrationPoints: appSummaryNameDescArraySchema.optional(),
-    qualityIssues: appSummaryNameDescArraySchema.optional(),
-    recommendedImprovements: appSummaryNameDescArraySchema.optional(),
-    securityConsiderations: appSummaryNameDescArraySchema.optional(),
+    boundedContexts: boundedContextsSchema.optional(),
+    businessEntities: businessEntitiesSchema.optional(),
+    businessProcesses: businessProcessesSchema.optional(),
+    technologies: technologiesSchema.optional(),
   })
   .passthrough();
 
@@ -37,11 +32,6 @@ export const projectedAppSummaryDescAndLLMProviderSchema = appSummaryRecordSchem
   appDescription: true,
   llmProvider: true,
 });
-
-/**
- * Type for name-description pair use in app summaries
- */
-export type AppSummaryNameDesc = z.infer<typeof nameDescSchema>;
 
 /**
  * Type for arrays of name-description pairs used in app summaries

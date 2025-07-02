@@ -6,8 +6,6 @@ import { z } from "zod";
  */
 export const databaseIntegrationSchema = z
   .object({
-    //mechanism: z.string(),
-    //description: z.string(),
     mechanism: z
       .enum([
         "NONE",
@@ -27,20 +25,7 @@ export const databaseIntegrationSchema = z
         "OTHER",
       ])
       .describe("The database integration mechanism used."),
-    description: z.string().describe("A detailed description of the database integration (or a note saying no database integration related code exists)."),
-  })
-  .passthrough();
-
-/**
- * Schema for name-description pairs
- * Used in insights generation and app summaries
- */
-export const nameDescSchema = z
-  .object({
-    name: z.string(),
-    description: z.string(),    
-    //name: z.string().describe("The name of the entity."),
-    //description: z.string().describe("A detailed description of the entity."),
+    description: z.string().describe("A detailed description of the way database integration is achived (or a note saying no database integration related code exists)."),
   })
   .passthrough();
 
@@ -49,10 +34,8 @@ export const nameDescSchema = z
  */
 export const tablesSchema = z
   .object({
-    name: z.string(),
-    command: z.string(),    
-    //name: z.string().describe("The name of the table."),
-    //command: z.string().describe("The DDL command for the table."),
+    name: z.string().describe("The name of the table."),
+    command: z.string().describe("The DDL command for the table."),
   })
   .passthrough();
 
@@ -61,20 +44,13 @@ export const tablesSchema = z
  */
 export const procedureTriggerSchema = z
   .object({
-    name: z.string(),
-    purpose: z.string(),
-    complexity: z.enum(["LOW", "MEDIUM", "HIGH"]),
-    complexityReason: z.string(),
-    linesOfCode: z.number(),
-    /*    
     name: z.string().describe("The name of the procedure or trigger."),
-    purpose: z.string().describe("Detailed purpose (at least 4 sentences)."),
+    purpose: z.string().describe("Detailed purpose in at least 3 sentences."),
     complexity: z.enum(["LOW", "MEDIUM", "HIGH"]).describe("Complexity score."),
     complexityReason: z
       .string()
       .describe("A brief, one-sentence reason for the chosen complexity score."),
-    linesOfCode: z.number().describe("Number of lines of code."),
-    */
+    linesOfCode: z.number().describe("Number of lines of code it contains."),
   })
   .passthrough();
 
@@ -83,14 +59,9 @@ export const procedureTriggerSchema = z
  */
 export const publicConstantSchema = z
   .object({
-    name: z.string(),
-    value: z.string(),
-    type: z.string(),    
-    /*
     name: z.string().describe("The name of the constant."),
     value: z.string().describe("The value of the constant."),
     type: z.string().describe("The type of the constant."),
-    */
   })
   .passthrough();
 
@@ -99,10 +70,8 @@ export const publicConstantSchema = z
  */
 export const methodParameterSchema = z
   .object({
-    name: z.string(),
-    type: z.string(),
-    //name: z.string().describe("The name of the parameter."),
-    //type: z.string().describe("The type of the parameter."),
+    name: z.string().describe("The name of the parameter."),
+    type: z.string().describe("The type of the parameter."),
   })
   .passthrough();
 
@@ -111,17 +80,10 @@ export const methodParameterSchema = z
  */
 export const publicMethodSchema = z
   .object({
-    name: z.string(),
-    purpose: z.string(),
-    parameters: z.array(methodParameterSchema).optional(),
-    returnType: z.string(),
-    description: z.string(),
-    /*    
-    name: z.string().describe("The name of the method."),
-    purpose: z.string().describe("Detailed purpose of the method (at least 6 sentences)."),
-    parameters: z.array(methodParameterSchema).optional().describe("List of parameters."),
-    returnType: z.string().describe("The return type of the method."),
-    description: z.string().describe("Detailed description of the method's implementation."),
-    */
+    name: z.string().describe("The name of the method/function."),
+    purpose: z.string().describe("Detailed purpose of the method/function in atleast 3 sentences."),
+    parameters: z.array(methodParameterSchema).optional().describe("List parameters of the method/function."),
+    returnType: z.string().describe("The return type of the method/function."),
+    description: z.string().describe("Detailed description of how the method/function is implementated."),
   })
   .passthrough();

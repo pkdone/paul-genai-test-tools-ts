@@ -52,6 +52,8 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       projectName: this.projectName,
       llmProvider: this.llmProviderDescription,
     });
+
+    // TODO: Factor out array or try to use AppSummaryCategory from category-mappings.ts
     const categories: AppSummaryCategory[] = [
       "appDescription",
       "boundedContexts",
