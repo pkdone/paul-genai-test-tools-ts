@@ -72,7 +72,7 @@ describe("File Handler Mappings", () => {
         const handler = filePromptSchemaMappings.get("README");
         expect(handler).toBeDefined();
         expect(typeof handler?.promptCreator).toBe("function");
-        expect(handler?.schema).toBe(summarySchemas.defaultFileSummarySchema);
+        expect(handler?.schema).toBe(summarySchemas.markdownFileSummarySchema);
       });
 
       test("java should map to Java handler", () => {
@@ -128,7 +128,7 @@ describe("File Handler Mappings", () => {
         const handler = filePromptSchemaMappings.get("xml");
         expect(handler).toBeDefined();
         expect(typeof handler?.promptCreator).toBe("function");
-        expect(handler?.schema).toBe(summarySchemas.defaultFileSummarySchema);
+        expect(handler?.schema).toBe(summarySchemas.xmlFileSummarySchema);
       });
 
       test("jsp should map to JSP handler", () => {
@@ -142,14 +142,14 @@ describe("File Handler Mappings", () => {
         const handler = filePromptSchemaMappings.get("markdown");
         expect(handler).toBeDefined();
         expect(typeof handler?.promptCreator).toBe("function");
-        expect(handler?.schema).toBe(summarySchemas.defaultFileSummarySchema);
+        expect(handler?.schema).toBe(summarySchemas.markdownFileSummarySchema);
       });
 
       test("md should map to markdown handler", () => {
         const handler = filePromptSchemaMappings.get("md");
         expect(handler).toBeDefined();
         expect(typeof handler?.promptCreator).toBe("function");
-        expect(handler?.schema).toBe(summarySchemas.defaultFileSummarySchema);
+        expect(handler?.schema).toBe(summarySchemas.markdownFileSummarySchema);
       });
     });
 

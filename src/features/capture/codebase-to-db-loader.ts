@@ -159,6 +159,7 @@ export default class CodebaseToDBLoader {
       ...(contentVector !== undefined && { contentVector }),
     };
 
+    // TODO: remove this try catch
     try {
       await this.sourcesRepository.insertSource(sourceFileRecord);
     } catch (error: unknown) {

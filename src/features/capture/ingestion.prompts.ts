@@ -92,16 +92,17 @@ export const summaryPromptTemplates: Record<string, PromptTemplate> = {
  * A detailed definition of its purpose (you must write at least 2 sentences for this)
  * A detailed definition of its implementation (you must write at least 2 sentences for this)
  * A list of the tables (if any) it defines - for each table, include the table's name and a copy of the command that creates the file used to create the table
- * A list of the stored procedure (if any) it defines - for each stored procedure, include the stored procedure's name, its purpose in detail (you MUST write at least 4 sentences for this purpose), the number of lines of code in the stored procedure, and a complexity score or how complex the stored procedure's code is (the score must be have one of the follinwg values: 'LOW', 'MEDIUM', 'HIGH') along with a brief, one-sentence reason for the chosen complexity score.
- * A list of the triggers (if any) it defines - for each trigger, include the trigger's name, its purpose in detail (you MUST write at least 4 sentences for this purpose), the number of lines of code in the trigger, and a complexity score or how complex the trigger's code is (the score must be have one of the follinwg values: 'LOW', 'MEDIUM', 'HIGH') along with a brief, one-sentence reason for the chosen complexity score.
- * The most prominent type of database integration it employs (if any), stating the mechanism used ('NONE', 'DDL', 'DML', 'SQL', 'STORED-PROCEDURE', or 'TRIGGER') and a description of the integration (you MUST write at least 2 sentences for this description)`,
+ * A list of the stored procedure (if any) it defines - for each stored procedure, include the stored procedure's name, its purpose in detail (you MUST write at least 4 sentences for this purpose), the number of lines of code in the stored procedure, and a complexity score or how complex the stored procedure's code is (the score must be have one of the following values: 'LOW', 'MEDIUM', 'HIGH') along with a brief, one-sentence reason for the chosen complexity score.
+ * A list of the triggers (if any) it defines - for each trigger, include the trigger's name, its purpose in detail (you MUST write at least 4 sentences for this purpose), the number of lines of code in the trigger, and a complexity score or how complex the trigger's code is (the score must be have one of the following values: 'LOW', 'MEDIUM', 'HIGH') along with a brief, one-sentence reason for the chosen complexity score.
+ * The most prominent type of database integration it employs (if any), stating the mechanism used ('NONE', 'DDL', 'DML', 'SQL', 'STORED-PROCEDURE', or 'TRIGGER') and a description of the integration (you MUST write at least 2 sentences for this description)
+ * The type of database integration it employs (if any), stating the mechanism used and a description of the integration (you MUST write at least 2 sentences for this description) `,
     schema: schemas.ddlFileSummarySchema,
   },
   xml: {
     templateType: "basic",
     instructions:
-      "Analyze the following source code and provide details about its purpose, implementation, and database integration.",
-    schema: schemas.defaultFileSummarySchema,
+      "Analyze the following source code and provide details about its purpose, implementation, and the type of database integration it employs (if any), stating the mechanism used and a description of the integration (you MUST write at least 2 sentences for this description) .",
+    schema: schemas.xmlFileSummarySchema,
   },
   jsp: {
     templateType: "basic",
@@ -113,7 +114,7 @@ export const summaryPromptTemplates: Record<string, PromptTemplate> = {
     templateType: "basic",
     instructions:
       "Analyze the following source code and provide details about its purpose, implementation, and database integration.",
-    schema: schemas.defaultFileSummarySchema,
+    schema: schemas.markdownFileSummarySchema,
   },
 } as const;
 
