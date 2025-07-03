@@ -4,11 +4,11 @@ import {
 } from "../../llm/utils/prompting/prompt-factory";
 import { promptConfig } from "../../llm/utils/prompting/prompt.config";
 import {
-  appDescriptionSchema,
-  boundedContextsSchema,
-  businessEntitiesSchema,
-  businessProcessesSchema,
-  technologiesSchema,
+  appDescriptionKeyValPairSchema,
+  boundedContextsKeyValPairSchema,
+  businessEntitiesKeyValPairSchema,
+  businessProcessesKeyValPairSchema,
+  technologiesKeyValPairSchema,
 } from "../../schemas/app-summaries.schema";
 
 // Base template for all insights generation prompts
@@ -19,7 +19,7 @@ The JSON response must follow this JSON schema:
 {{jsonSchema}}
 \`\`\`
 
-${promptConfig.FORCE_JSON_RESPONSE_SHORT}
+${promptConfig.FORCE_JSON_RESPONSE_LONG}
 
 SOURCES:
 {{codeContent}}`;
@@ -35,35 +35,35 @@ export const insightsPromptTemplates: Record<string, SimplePromptConfig> = {
     templateType: "simple",
     details:
       "the detailed description outlining the application's purpose and implementation. You must write at most 25 sentences for this description.",
-    schema: appDescriptionSchema,
+    schema: appDescriptionKeyValPairSchema,
   },
   // TODO: use constants, see category-mappings.ts
   boundedContexts: {
     templateType: "simple",
     details:
       "a concise list of the bounded contexts that exist in the application from a Domain Driven Design perspective, each with a name plus and a description. You MUST write at most 3 sentences for each description. Note a bounded context often doesn't map to a single source file's code and is usually an aggregate across multiple sources.",
-    schema: boundedContextsSchema,
+    schema: boundedContextsKeyValPairSchema,
   },
   // TODO: use constants, see category-mappings.ts
   businessEntities: {
     templateType: "simple",
     details:
       "a concise list of the application's main business entities from a Domain Driven Design perspective, each with a name plus and a description. You MUST write at most 3 sentences for each description. Note a business entity often doesn't map to a single source file's code and is usually an aggregate across multiple sources.",
-    schema: businessEntitiesSchema,
+    schema: businessEntitiesKeyValPairSchema,
   },
   // TODO: use constants, see category-mappings.ts
   businessProcesses: {
     templateType: "simple",
     details:
       "a concise list of the application's main business processes, each with a name plus and a description. You MUST write at most 3 sentences for each description. Note a business process often doesn't map to a single source file's code and is usually an aggregate across multiple sources.",
-    schema: businessProcessesSchema,
+    schema: businessProcessesKeyValPairSchema,
   },
   // TODO: use constants, see category-mappings.ts
   technologies: {
     templateType: "simple",
     details:
       "a concise list of the key external and host platform technologies depended on by the application, each with a name plus and a description. You MUST write at most 3 sentences for each description. Note the key technologies you catalog should include the programming languages, databases, runtimes, containers, and 3rd party systems (eg, queuing systems, email services, etc).",
-    schema: technologiesSchema,
+    schema: technologiesKeyValPairSchema,
   },
 } as const;
 

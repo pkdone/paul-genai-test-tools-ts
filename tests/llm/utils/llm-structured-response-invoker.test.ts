@@ -131,7 +131,7 @@ describe("LLMStructuredResponseInvoker", () => {
         expect(result).toEqual(validCorrectedResponse);
         expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(2);
         expect(mockLogErrorMsgAndDetail).toHaveBeenCalledWith(
-          "Validation failed for 'user generation task' - attempting self-correction...",
+          "JSON validation failed for 'user generation task', so attempting self-correction with an the LLM...",
           expect.any(Object),
         );
 

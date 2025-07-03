@@ -9,6 +9,7 @@ import {
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config/database.config";
 import { BaseRepository } from "../base.repository";
+import { logMongoValidationErrorIfPresent } from "../../common/mdb/mdb-utils";
 
 /**
  * MongoDB implementation of the App Summaries repository
@@ -29,14 +30,24 @@ export default class AppSummariesRepositoryImpl
    * Create or replace an app summary record
    */
   async createOrReplaceAppSummary(record: AppSummaryRecord): Promise<void> {
-    await this.collection.replaceOne({ projectName: record.projectName }, record, { upsert: true });
+    try {
+      await this.collection.replaceOne({ projectName: record.projectName }, record, { upsert: true });
+    } catch (error: unknown) {
+      logMongoValidationErrorIfPresent(error);
+      throw error;
+    }
   }
 
   /**
    * Update an existing app summary record
    */
   async updateAppSummary(projectName: string, updates: PartialAppSummaryRecord): Promise<void> {
-    await this.collection.updateOne({ projectName }, { $set: updates });
+    try {
+      await this.collection.updateOne({ projectName }, { $set: updates });
+    } catch (error: unknown) {
+      logMongoValidationErrorIfPresent(error);
+      throw error;
+    }
   }
 
   /**

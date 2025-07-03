@@ -1,25 +1,9 @@
 import { createSummaryPrompt } from "../../../../src/features/capture/ingestion.prompts";
+import * as promptFactory from "../../../../src/llm/utils/prompting/prompt-factory";
 
-// Mock the dependencies
-jest.mock("type-safe-prompt", () => ({
-  fillPrompt: jest.fn((template: string, variables: Record<string, string>) => {
-    // Simple mock implementation that replaces {{variable}} with values
-    let result = template;
-    Object.entries(variables).forEach(([key, value]) => {
-      result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, "g"), value);
-    });
-    return result;
-  }),
-}));
-
-jest.mock("../../../../src/llm/utils/prompting/prompt-utils", () => ({
-  schemaToJsonString: jest.fn(() => JSON.stringify({ mocked: "schema", type: "unknown" }, null, 2)),
-  buildPrompt: jest.fn((template: string, _schema: unknown, content: string) => {
-    // Simple mock that replaces template variables
-    return template
-      .replace("{{jsonSchema}}", JSON.stringify({ mocked: "schema", type: "unknown" }, null, 2))
-      .replace("{{codeContent}}", content);
-  }),
+// Mock the dependency
+jest.mock("../../../../src/llm/utils/prompting/prompt-factory", () => ({
+  createPromptFromConfig: jest.fn(),
 }));
 
 describe("Prompts", () => {
@@ -37,6 +21,35 @@ describe("Prompts", () => {
     "RFC8259 compliant JSON response",
     "strictly follows the provided JSON schema",
   ];
+
+  beforeEach(() => {
+    // Reset mocks before each test
+    (promptFactory.createPromptFromConfig as jest.Mock).mockClear();
+
+    // Mock implementation
+    (promptFactory.createPromptFromConfig as jest.Mock).mockImplementation(
+      (
+        baseTemplates: promptFactory.TemplateMap,
+        config: promptFactory.PromptConfig,
+        code: string,
+      ) => {
+        let template = "";
+        if (config.templateType === "detailed" && baseTemplates.detailed) {
+          template = baseTemplates.detailed;
+          template = template.replace("{{fileType}}", config.fileType);
+          template = template.replace("{{specificInstructions}}", config.instructions);
+        } else if (config.templateType === "basic" && baseTemplates.basic) {
+          template = baseTemplates.basic;
+          template = template.replace("{{specificInstructions}}", config.instructions);
+        }
+        template = template.replace(
+          "{{jsonSchema}}",
+          JSON.stringify({ mocked: "schema", type: "unknown" }, null, 2),
+        );
+        return `${template}\nCODE:\n${code}`;
+      },
+    );
+  });
 
   describe("createSummaryPrompt with java type", () => {
     test("should create Java summary prompt with correct structure", () => {

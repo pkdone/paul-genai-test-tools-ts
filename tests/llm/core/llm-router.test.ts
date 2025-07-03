@@ -16,7 +16,7 @@ import {
 import { z } from "zod";
 import LLMRouter from "../../../src/llm/core/llm-router";
 import LLMStats from "../../../src/llm/utils/routerTracking/llm-stats";
-import { PromptAdapter } from "../../../src/llm/utils/prompting/llm-prompt-adapter";
+import { PromptAdapter } from "../../../src/llm/utils/prompting/prompt-adapter";
 import { LLMService } from "../../../src/llm/core/llm-service";
 import type { EnvVars } from "../../../src/lifecycle/env.types";
 
@@ -48,7 +48,7 @@ jest.mock("../../../src/llm/utils/routerTracking/llm-stats", () => {
   }));
 });
 
-jest.mock("../../../src/llm/utils/prompting/llm-prompt-adapter", () => ({
+jest.mock("../../../src/llm/utils/prompting/prompt-adapter", () => ({
   PromptAdapter: jest.fn().mockImplementation(() => ({
     adaptPromptFromResponse: jest.fn((prompt: string) => {
       return prompt.substring(0, Math.floor(prompt.length * 0.5));

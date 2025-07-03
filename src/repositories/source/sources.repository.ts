@@ -15,6 +15,7 @@ import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config/database.config";
 import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
 import { BaseRepository } from "../base.repository";
+import { logMongoValidationErrorIfPresent } from "../../common/mdb/mdb-utils";
 
 /**
  * MongoDB implementation of the Sources repository
@@ -35,7 +36,12 @@ export default class SourcesRepositoryImpl
    * Insert a source file record into the database
    */
   async insertSource(sourceFileData: SourceRecord): Promise<void> {
-    await this.collection.insertOne(sourceFileData);
+    try {
+      await this.collection.insertOne(sourceFileData);
+    } catch (error: unknown) {
+      logMongoValidationErrorIfPresent(error);
+      throw error;
+    }
   }
 
   /**

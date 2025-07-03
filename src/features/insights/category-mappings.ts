@@ -1,10 +1,10 @@
 import { z } from "zod";
 import {
-  appDescriptionSchema,
-  boundedContextsSchema,
-  businessEntitiesSchema,
-  businessProcessesSchema,
-  technologiesSchema,
+  appDescriptionKeyValPairSchema,
+  boundedContextsKeyValPairSchema,
+  businessEntitiesKeyValPairSchema,
+  businessProcessesKeyValPairSchema,
+  technologiesKeyValPairSchema,
 } from "../../schemas/app-summaries.schema";
 import * as insightsPrompts from "./insights.prompts";
 
@@ -32,7 +32,7 @@ export const categoryPromptSchemaMappings: Record<
     promptCreator: (codeContent: string) =>
                                            // TODO: use constant
       insightsPrompts.createInsightsPrompt("appDescription", codeContent),
-    schema: appDescriptionSchema,
+    schema: appDescriptionKeyValPairSchema,
   },
   // TODO: use constant
   boundedContexts: {
@@ -40,7 +40,7 @@ export const categoryPromptSchemaMappings: Record<
     promptCreator: (codeContent: string) =>
                                            // TODO: use constant
       insightsPrompts.createInsightsPrompt("boundedContexts", codeContent),
-    schema: boundedContextsSchema,
+    schema: boundedContextsKeyValPairSchema,
   },
   // TODO: use constant
   businessEntities: {
@@ -48,7 +48,7 @@ export const categoryPromptSchemaMappings: Record<
     promptCreator: (codeContent: string) =>
                                            // TODO: use constant
       insightsPrompts.createInsightsPrompt("businessEntities", codeContent),
-    schema: businessEntitiesSchema,
+    schema: businessEntitiesKeyValPairSchema,
   },
   // TODO: use constant
   businessProcesses: {
@@ -56,7 +56,7 @@ export const categoryPromptSchemaMappings: Record<
     promptCreator: (codeContent: string) =>
                                            // TODO: use constant
       insightsPrompts.createInsightsPrompt("businessProcesses", codeContent),
-    schema: businessProcessesSchema,
+    schema: businessProcessesKeyValPairSchema,
   },
   // TODO: use constant
   technologies: {
@@ -64,6 +64,6 @@ export const categoryPromptSchemaMappings: Record<
     promptCreator: (codeContent: string) =>
                                            // TODO: use constant
       insightsPrompts.createInsightsPrompt("technologies", codeContent),
-    schema: technologiesSchema,
+    schema: technologiesKeyValPairSchema,
   },
 } as const;

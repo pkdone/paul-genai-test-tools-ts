@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { generateMDBJSONSchema, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
-import { boundedContextsSchema, businessEntitiesSchema, businessProcessesSchema, nameDescSchema, technologiesSchema } from "../../schemas/app-summaries.schema";
+import { boundedContextsArraySchema, businessEntitiesArraySchema, businessProcessesArraySchema, nameDescSchema, technologiesArraySchema } from "../../schemas/app-summaries.schema";
 
 /**
  * Schema for arrays of name-description pairs used in app summaries
@@ -16,10 +16,10 @@ export const appSummaryRecordSchema = z
     projectName: z.string(),
     llmProvider: z.string(),
     appDescription: z.string().optional(),
-    boundedContexts: boundedContextsSchema.optional(),
-    businessEntities: businessEntitiesSchema.optional(),
-    businessProcesses: businessProcessesSchema.optional(),
-    technologies: technologiesSchema.optional(),
+    boundedContexts: boundedContextsArraySchema.optional(),
+    businessEntities: businessEntitiesArraySchema.optional(),
+    businessProcesses: businessProcessesArraySchema.optional(),
+    technologies: technologiesArraySchema.optional(),
   })
   .passthrough();
 

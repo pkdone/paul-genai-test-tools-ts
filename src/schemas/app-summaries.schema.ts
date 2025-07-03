@@ -13,46 +13,51 @@ export const nameDescSchema = z
 /**
  * Schema for application description
  */
-export const appDescriptionSchema = z.object({
-  appDescription: z
-    .string()
-    .describe(
-      "A detailed description of the application's purpose and implementation in at least 20 sentences).",
-    ),
+export const appDescriptionSchema = z
+  .string()
+  .describe(
+    "A detailed description of the application's purpose and implementation in at least 20 sentences).",
+  );
+export const appDescriptionKeyValPairSchema = z.object({
+  appDescription: appDescriptionSchema,
 });
 
 /**
  * Schema for arrays of bounded contexts name-description pairs
  */
-export const boundedContextsSchema = z.object({
-  boundedContexts: z
-    .array(nameDescSchema)
-    .describe("A list of bounded contexts from a Domain Driven Design perspective."),
+export const boundedContextsArraySchema = z
+  .array(nameDescSchema)
+  .describe("A list of bounded contexts from a Domain Driven Design perspective.");
+export const boundedContextsKeyValPairSchema = z.object({
+  boundedContexts: boundedContextsArraySchema,
 });
 
 /**
  * Schema for arrays of business entities name-description pairs
  */
-export const businessEntitiesSchema = z.object({
-  businessEntities: z
-    .array(nameDescSchema)
-    .describe("A list of the application's main business entities."),
+export const businessEntitiesArraySchema = z
+  .array(nameDescSchema)
+  .describe("A list of the application's main business entities.");
+export const businessEntitiesKeyValPairSchema = z.object({
+  businessEntities: businessEntitiesArraySchema,
 });
 
 /**
  * Schema for arrays of business processes name-description pairs
  */
-export const businessProcessesSchema = z.object({
-  businessProcesses: z
-    .array(nameDescSchema)
-    .describe("A list of the application's main business processes."),
+export const businessProcessesArraySchema = z
+  .array(nameDescSchema)
+  .describe("A list of the application's main business processes.");
+export const businessProcessesKeyValPairSchema = z.object({
+  businessProcesses: businessProcessesArraySchema,
 });
 
 // Schema for `generate-technologies.prompt`
-export const technologiesSchema = z.object({
-  technologies: z
-    .array(nameDescSchema)
-    .describe(
-      "A list of key external and host platform technologies depended on by the application.",
-    ),
+export const technologiesArraySchema = z
+  .array(nameDescSchema)
+  .describe(
+    "A list of key external and host platform technologies depended on by the application.",
+  );
+export const technologiesKeyValPairSchema = z.object({
+  technologies: technologiesArraySchema,
 });

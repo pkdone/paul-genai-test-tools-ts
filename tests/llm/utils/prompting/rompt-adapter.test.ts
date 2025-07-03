@@ -10,7 +10,7 @@ import {
   PromptAdapter,
   TokenLimitReductionStrategy,
   PromptAdaptationStrategy,
-} from "../../../../src/llm/utils/prompting/llm-prompt-adapter";
+} from "../../../../src/llm/utils/prompting/prompt-adapter";
 
 const testMetadata = {
   GPT_COMPLETIONS_GPT4: {

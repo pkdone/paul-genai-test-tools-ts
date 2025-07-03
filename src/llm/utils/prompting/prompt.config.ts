@@ -6,15 +6,9 @@ export const promptConfig = {
    * Base instructions for file summary prompts
    */
   FORCE_JSON_RESPONSE_LONG: `
+In your response, only include JSON and do not include any additional text explanations outside the JSON object.
 NEVER ever respond with XML. NEVER use Markdown code blocks to wrap the JSON in your response.
-NEVER use " or ' quote symbols as part of the text you use for JSON description values, even if you want to quote a piece of existing text, existing message or show a path (ignoring this rule leads to people getting hurt - it is very important).
-Only provide an RFC8259 compliant JSON response that strictly follows the provided JSON schema.
-`,
-
-  /**
-   * Base instructions for insights generation prompts
-   */
-  FORCE_JSON_RESPONSE_SHORT: `
-In the JSON response, do not include any explanations - only provide an RFC8259 compliant JSON response following the provided format without deviation.
+NEVER use " or ' quote symbols as part of the text you use for JSON description values, even if you want to quote a piece of existing text, existing message or show a path
+ONLY provide an RFC8259 compliant JSON response that strictly follows the provided JSON schema.
 `,
 } as const;

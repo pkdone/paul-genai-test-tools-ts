@@ -63,7 +63,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     ] as const;
     await Promise.all(
       categories.map(async (category) =>
-        this.generateDataForCategory(category, sourceFileSummaries),
+        this.generateAndRecordDataForCategory(category, sourceFileSummaries),
       ),
     );
   }
@@ -96,15 +96,17 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    * Calls an LLM to summarize a specific set of data (i.e., one category), and then saves the
    * dataset under a named field of the main application summary record.
    */
-  private async generateDataForCategory(
+  private async generateAndRecordDataForCategory(
     category: AppSummaryCategory,
     sourceFileSummaries: string[],
   ): Promise<void> {
     const categoryLabel = categoryPromptSchemaMappings[category].label;
+    // TODO: remove
+    let validatedData: PartialAppSummaryRecord | null = null;
 
     try {
       console.log(`Processing ${categoryLabel}`);
-      const validatedData = await this.getCategorySummaryAsJSON(category, sourceFileSummaries);
+      validatedData = await this.getCategorySummaryAsJSON(category, sourceFileSummaries);
       if (!validatedData) return;
       await this.appSummariesRepository.updateAppSummary(this.projectName, validatedData);
       console.log(`Captured main ${categoryLabel} details into database`);
