@@ -20,7 +20,7 @@ export function logErrorDetail(error: unknown): void {
  * Log an string msg flagged as an error.
  */
 export function logErrorMsg(errMsg: string): void {
-  logErrorMsgAndDetail(errMsg, null);
+  console.error(errMsg);
 }
 
 /**

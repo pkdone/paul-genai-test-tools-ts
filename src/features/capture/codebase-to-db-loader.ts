@@ -6,7 +6,7 @@ import { readFile, buildDirDescendingListOfFiles } from "../../common/utils/fs-u
 import { getFileSuffix } from "../../common/utils/path-utils";
 import { countLines } from "../../common/utils/text-utils";
 import pLimit from "p-limit";
-import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
+import { logErrorMsg, logErrorMsgAndDetail } from "../../common/utils/error-utils";
 import { FileSummarizer } from "./file-summarizer";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { SourceRecord } from "../../repositories/source/source.model";
@@ -159,14 +159,10 @@ export default class CodebaseToDBLoader {
       ...(contentVector !== undefined && { contentVector }),
     };
 
-    // TODO: remove this try catch
     try {
       await this.sourcesRepository.insertSource(sourceFileRecord);
     } catch (error: unknown) {
-      logErrorMsgAndDetail(
-        `Problem inserting source file metadata into the database: ${filepath}`,
-        error,
-      );
+      logErrorMsg(`Problem inserting source file metadata into the database: ${filepath}`);
       throw error;
     }
   }

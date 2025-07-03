@@ -268,7 +268,7 @@ export default class LLMRouter {
       );
 
       if (!result) {
-        log(`Given-up on trying to process the following resource with an LLM: '${resourceName}'`);
+        log(`Given-up on trying to fulfill the current prompt with an LLM for the following resource: '${resourceName}'`);
         this.llmStats.recordFailure();
       }
     } catch (error: unknown) {
@@ -364,7 +364,7 @@ export default class LLMRouter {
 
     if (isOverloaded) {
       logWithContext(
-        `LLM problem processing prompt for completion with current LLM model because it is overloaded or timing out, even after retries (or a JSON parse error occurred we just wanted to force a retry)`,
+        `LLM problem processing prompt for completion with current LLM model because it is overloaded, timing out or is spitting out invalid JSON (if JSON was requested), even after retries `,
         context,
       );
       return {

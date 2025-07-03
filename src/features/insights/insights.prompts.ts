@@ -30,6 +30,7 @@ SOURCES:
  * Data-driven mapping of insights prompt types to their specific details and schemas
  */
 export const insightsPromptTemplates: Record<string, SimplePromptConfig> = {
+  // TODO: use constants, see category-mappings.ts
   appDescription: {
     templateType: "simple",
     details:
@@ -43,18 +44,21 @@ export const insightsPromptTemplates: Record<string, SimplePromptConfig> = {
       "a concise list of the bounded contexts that exist in the application from a Domain Driven Design perspective, each with a name plus and a description. You MUST write at most 3 sentences for each description. Note a bounded context often doesn't map to a single source file's code and is usually an aggregate across multiple sources.",
     schema: boundedContextsSchema,
   },
+  // TODO: use constants, see category-mappings.ts
   businessEntities: {
     templateType: "simple",
     details:
       "a concise list of the application's main business entities from a Domain Driven Design perspective, each with a name plus and a description. You MUST write at most 3 sentences for each description. Note a business entity often doesn't map to a single source file's code and is usually an aggregate across multiple sources.",
     schema: businessEntitiesSchema,
   },
+  // TODO: use constants, see category-mappings.ts
   businessProcesses: {
     templateType: "simple",
     details:
       "a concise list of the application's main business processes, each with a name plus and a description. You MUST write at most 3 sentences for each description. Note a business process often doesn't map to a single source file's code and is usually an aggregate across multiple sources.",
     schema: businessProcessesSchema,
   },
+  // TODO: use constants, see category-mappings.ts
   technologies: {
     templateType: "simple",
     details:

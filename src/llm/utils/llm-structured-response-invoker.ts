@@ -2,7 +2,7 @@ import { injectable, inject } from "tsyringe";
 import type LLMRouter from "../core/llm-router";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
+import { logErrorMsg, logErrorMsgAndDetail } from "../../common/utils/error-utils";
 import { TOKENS } from "../../di/tokens";
 
 /**
@@ -30,7 +30,7 @@ export class LLMStructuredResponseInvoker {
 
     // Try to use the LLM to correct the LLM response and return that if valid
     logErrorMsgAndDetail(
-      `Validation failed for '${taskLabel}' - attempting self-correction...`,
+      `JSON validation failed for '${taskLabel}', so attempting self-correction with an the LLM...`,
       validation.error.format(),
     );
     const correctionPrompt = this.buildCorrectionPrompt(response, schema, validation.error);
@@ -54,13 +54,14 @@ export class LLMStructuredResponseInvoker {
   private async callLLMErroringIfNotJSON(
     resourceName: string,
     prompt: string,
-  ): Promise<Record<string, unknown>> {
+  ): Promise<Record<string, unknown>| null> {
     const response = await this.llmRouter.executeCompletion(resourceName, prompt, true, {
       resource: resourceName,
       requireJSON: true,
     });
 
-    if (response === null || Array.isArray(response) || typeof response !== "object") {
+    if (Array.isArray(response) || typeof response !== "object") {
+      logErrorMsg(`Error - LLM response processing '${resourceName}' is not JSON - value returned was: ${JSON.stringify(response)}`);
       throw new Error(`LLM returned non-object JSON for ${resourceName}: ${typeof response}`);
     }
 

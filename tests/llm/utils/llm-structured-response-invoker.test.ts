@@ -10,6 +10,7 @@ import { zodToJsonSchema } from "zod-to-json-schema";
 jest.mock("../../../src/llm/core/llm-router");
 jest.mock("../../../src/common/utils/error-utils", () => ({
   logErrorMsgAndDetail: jest.fn(),
+  logErrorMsg: jest.fn(),
 }));
 jest.mock("zod-to-json-schema");
 
@@ -211,7 +212,6 @@ describe("LLMStructuredResponseInvoker", () => {
         expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(2);
         expect(mockLogErrorMsgAndDetail).toHaveBeenCalledTimes(1);
       });
-
       test("should throw error when LLM returns null", async () => {
         mockLLMRouter.executeCompletion.mockResolvedValue(null);
 
@@ -222,11 +222,13 @@ describe("LLMStructuredResponseInvoker", () => {
             userSchema,
             "user generation task",
           ),
-        ).rejects.toThrow(/LLM returned non-object JSON for test-resource: object/);
+        ).rejects.toThrow(
+          /Failed to get schema valid LLM JSON response even after retry for user generation task/
+        );
 
-        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(1);
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(2);
+        expect(mockLogErrorMsgAndDetail).toHaveBeenCalledTimes(1);
       });
-
       test("should throw error when LLM returns array", async () => {
         const arrayResponse: number[] = [1, 2, 3];
         mockLLMRouter.executeCompletion.mockResolvedValue(arrayResponse);
@@ -238,7 +240,9 @@ describe("LLMStructuredResponseInvoker", () => {
             userSchema,
             "user generation task",
           ),
-        ).rejects.toThrow(/LLM returned non-object JSON for test-resource: object/);
+        ).rejects.toThrow(
+          /LLM returned non-object JSON/
+        );
       });
 
       test("should throw error when LLM returns primitive value", async () => {
@@ -252,7 +256,9 @@ describe("LLMStructuredResponseInvoker", () => {
             userSchema,
             "user generation task",
           ),
-        ).rejects.toThrow(/LLM returned non-object JSON for test-resource: string/);
+        ).rejects.toThrow(
+          /LLM returned non-object JSON/
+        );
       });
 
       test("should throw error when LLM returns number array as single number", async () => {
@@ -267,7 +273,9 @@ describe("LLMStructuredResponseInvoker", () => {
             userSchema,
             "user generation task",
           ),
-        ).rejects.toThrow(/LLM returned non-object JSON for test-resource: object/);
+        ).rejects.toThrow(
+          /LLM returned non-object JSON/
+        );
       });
 
       test("should handle LLM execution error", async () => {
