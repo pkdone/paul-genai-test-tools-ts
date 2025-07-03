@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { generateMDBJSONSchema, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
-import { boundedContextsArraySchema, businessEntitiesArraySchema, businessProcessesArraySchema, nameDescSchema, technologiesArraySchema } from "../../schemas/app-summaries.schema";
+import {
+  boundedContextsArraySchema,
+  businessEntitiesArraySchema,
+  businessProcessesArraySchema,
+  nameDescSchema,
+  technologiesArraySchema,
+} from "../../schemas/app-summaries.schema";
 
 /**
  * Schema for arrays of name-description pairs used in app summaries

@@ -1,11 +1,10 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
 import { ServiceRunnerConfig } from "../lifecycle/service.types";
-import { EnvVars } from "../lifecycle/env.types";
-import { TOKENS } from "./tokens";
 import {
-  registerEnvDependencies,
-  registerLLMDependencies,
+  registerBaseEnvDependencies,
+  registerLlmEnvDependencies,
+  registerLLMServices,
   registerMongoDBDependencies,
   registerAppDependencies,
 } from "./registration-modules";
@@ -15,12 +14,15 @@ import {
  * Leverages tsyringe's built-in singleton management and isRegistered checks.
  */
 export async function bootstrapContainer(config: ServiceRunnerConfig): Promise<void> {
-  await registerEnvDependencies(config.requiresLLM);
-  const envVars = container.resolve<EnvVars>(TOKENS.EnvVars);
-  if (config.requiresLLM) await registerLLMDependencies(envVars);
+  if (config.requiresLLM) {
+    await registerLlmEnvDependencies();
+    registerLLMServices();
+  } else {
+    registerBaseEnvDependencies();
+  }
 
   if (config.requiresMongoDB) {
-    await registerMongoDBDependencies(envVars);
+    await registerMongoDBDependencies();
   }
 
   registerAppDependencies();

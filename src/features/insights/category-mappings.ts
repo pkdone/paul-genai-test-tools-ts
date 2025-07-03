@@ -30,7 +30,7 @@ export const categoryPromptSchemaMappings: Record<
   appDescription: {
     label: "Application Description",
     promptCreator: (codeContent: string) =>
-                                           // TODO: use constant
+      // TODO: use constant
       insightsPrompts.createInsightsPrompt("appDescription", codeContent),
     schema: appDescriptionKeyValPairSchema,
   },
@@ -38,7 +38,7 @@ export const categoryPromptSchemaMappings: Record<
   boundedContexts: {
     label: "Bounded Contexts",
     promptCreator: (codeContent: string) =>
-                                           // TODO: use constant
+      // TODO: use constant
       insightsPrompts.createInsightsPrompt("boundedContexts", codeContent),
     schema: boundedContextsKeyValPairSchema,
   },
@@ -46,7 +46,7 @@ export const categoryPromptSchemaMappings: Record<
   businessEntities: {
     label: "Business Entities",
     promptCreator: (codeContent: string) =>
-                                           // TODO: use constant
+      // TODO: use constant
       insightsPrompts.createInsightsPrompt("businessEntities", codeContent),
     schema: businessEntitiesKeyValPairSchema,
   },
@@ -54,7 +54,7 @@ export const categoryPromptSchemaMappings: Record<
   businessProcesses: {
     label: "Business Processes",
     promptCreator: (codeContent: string) =>
-                                           // TODO: use constant
+      // TODO: use constant
       insightsPrompts.createInsightsPrompt("businessProcesses", codeContent),
     schema: businessProcessesKeyValPairSchema,
   },
@@ -62,7 +62,7 @@ export const categoryPromptSchemaMappings: Record<
   technologies: {
     label: "Technology Stack",
     promptCreator: (codeContent: string) =>
-                                           // TODO: use constant
+      // TODO: use constant
       insightsPrompts.createInsightsPrompt("technologies", codeContent),
     schema: technologiesKeyValPairSchema,
   },

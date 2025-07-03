@@ -157,7 +157,6 @@ function registerServices(): void {
   container.registerSingleton(TOKENS.ReportGenerationService, ReportGenerationService);
   container.registerSingleton(TOKENS.DBInitializerService, DBInitializerService);
   container.registerSingleton(TOKENS.MDBConnectionTestService, MDBConnectionTestService);
-  container.registerSingleton(TOKENS.CodebaseQueryService, CodebaseQueryService);
   container.registerSingleton(TOKENS.McpServerService, McpServerService);
 
   // Register services that depend on LLMRouter with async factories
@@ -171,6 +170,15 @@ function registerServices(): void {
  * Using explicit dependency resolution for async dependencies to ensure proper initialization.
  */
 function registerLLMDependentServices(): void {
+  // CodebaseQueryService
+  container.register(TOKENS.CodebaseQueryService, {
+    useFactory: async (c) => {
+      const projectName = c.resolve<string>(TOKENS.ProjectName);
+      const codeQuestioner = await c.resolve<Promise<CodeQuestioner>>(TOKENS.CodeQuestioner);
+      return new CodebaseQueryService(projectName, codeQuestioner);
+    },
+  });
+
   // CodebaseCaptureService
   container.register(TOKENS.CodebaseCaptureService, {
     useFactory: async (c) => {

@@ -1,34 +1,22 @@
-import { container } from "tsyringe";
+import { container, DependencyContainer } from "tsyringe";
 import { TOKENS } from "../tokens";
 import { LLMService } from "../../llm/core/llm-service";
 import LLMRouter from "../../llm/core/llm-router";
+import { EnvVars } from "../../lifecycle/env.types";
 import LLMStats from "../../llm/utils/routerTracking/llm-stats";
 import { PromptAdapter } from "../../llm/utils/prompting/prompt-adapter";
-import type { EnvVars } from "../../lifecycle/env.types";
 
 /**
- * Register LLM-related dependencies using a more declarative approach.
- * Uses async factories to handle initialization without resolving dependencies immediately.
- * This function is async to match the bootstrap interface, though async work happens in factories.
+ * Registers the LLM router and its dependencies in the container.
  */
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
-  if (container.isRegistered(TOKENS.LLMRouter)) {
-    console.log("LLM dependencies already registered - skipping registration");
-    return;
-  }
-
-  // Register utility classes that LLM dependencies need
+export function registerLLMServices(): void {
+  // Register LLM utility classes
   container.registerSingleton(TOKENS.LLMStats, LLMStats);
   container.registerSingleton(TOKENS.PromptAdapter, PromptAdapter);
 
-  // Register the model family and environment variables as instances
-  container.registerInstance(TOKENS.LLMModelFamily, envVars.LLM);
-  container.registerInstance(TOKENS.EnvVars, envVars);
-
-  // Use an async factory for LLMService to handle its initialization
+  // Register LLMService with an async factory
   container.register(TOKENS.LLMService, {
-    useFactory: async (c) => {
+    useFactory: async (c: DependencyContainer) => {
       const modelFamily = c.resolve<string>(TOKENS.LLMModelFamily);
       const service = new LLMService(modelFamily);
       await service.initialize();
@@ -37,16 +25,16 @@ export async function registerLLMDependencies(envVars: EnvVars): Promise<void> {
     },
   });
 
-  // Register LLMRouter with an async factory to properly handle the async LLMService dependency
+  // Register LLMRouter with an async factory that depends on LLMService
   container.register(TOKENS.LLMRouter, {
-    useFactory: async (c) => {
+    useFactory: async (c: DependencyContainer) => {
       const llmService = await c.resolve<Promise<LLMService>>(TOKENS.LLMService);
       const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
       const llmStats = c.resolve<LLMStats>(TOKENS.LLMStats);
       const promptAdapter = c.resolve<PromptAdapter>(TOKENS.PromptAdapter);
-
-      return new LLMRouter(llmService, envVars, llmStats, promptAdapter);
+      const router = new LLMRouter(llmService, envVars, llmStats, promptAdapter);
+      console.log("LLM Router registered with async factory");
+      return router;
     },
   });
-  console.log("LLM Router registered with async factory");
 }

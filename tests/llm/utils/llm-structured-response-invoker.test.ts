@@ -223,7 +223,7 @@ describe("LLMStructuredResponseInvoker", () => {
             "user generation task",
           ),
         ).rejects.toThrow(
-          /Failed to get schema valid LLM JSON response even after retry for user generation task/
+          /Failed to get schema valid LLM JSON response even after retry for user generation task/,
         );
 
         expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(2);
@@ -240,9 +240,7 @@ describe("LLMStructuredResponseInvoker", () => {
             userSchema,
             "user generation task",
           ),
-        ).rejects.toThrow(
-          /LLM returned non-object JSON/
-        );
+        ).rejects.toThrow(/LLM returned non-object JSON/);
       });
 
       test("should throw error when LLM returns primitive value", async () => {
@@ -256,9 +254,7 @@ describe("LLMStructuredResponseInvoker", () => {
             userSchema,
             "user generation task",
           ),
-        ).rejects.toThrow(
-          /LLM returned non-object JSON/
-        );
+        ).rejects.toThrow(/LLM returned non-object JSON/);
       });
 
       test("should throw error when LLM returns number array as single number", async () => {
@@ -273,9 +269,7 @@ describe("LLMStructuredResponseInvoker", () => {
             userSchema,
             "user generation task",
           ),
-        ).rejects.toThrow(
-          /LLM returned non-object JSON/
-        );
+        ).rejects.toThrow(/LLM returned non-object JSON/);
       });
 
       test("should handle LLM execution error", async () => {

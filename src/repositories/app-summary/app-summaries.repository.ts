@@ -31,7 +31,9 @@ export default class AppSummariesRepositoryImpl
    */
   async createOrReplaceAppSummary(record: AppSummaryRecord): Promise<void> {
     try {
-      await this.collection.replaceOne({ projectName: record.projectName }, record, { upsert: true });
+      await this.collection.replaceOne({ projectName: record.projectName }, record, {
+        upsert: true,
+      });
     } catch (error: unknown) {
       logMongoValidationErrorIfPresent(error);
       throw error;
@@ -90,6 +92,6 @@ export default class AppSummariesRepositoryImpl
       projection: { _id: 0, [fieldName]: 1 },
     };
     const record = await this.collection.findOne<Pick<AppSummaryRecord, K>>(query, options);
-    return (record && fieldName in record) ? record[fieldName] ?? null : null;
+    return record && fieldName in record ? (record[fieldName] ?? null) : null;
   }
 }

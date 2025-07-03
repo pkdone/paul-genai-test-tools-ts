@@ -8,8 +8,9 @@ import type { EnvVars } from "../../lifecycle/env.types";
  * Register MongoDB-related dependencies.
  * Uses tsyringe's isRegistered check to prevent duplicate registrations.
  */
-export async function registerMongoDBDependencies(envVars: EnvVars): Promise<void> {
+export async function registerMongoDBDependencies(): Promise<void> {
   if (!container.isRegistered(TOKENS.MongoDBClientFactory)) {
+    const envVars = container.resolve<EnvVars>(TOKENS.EnvVars);
     container.registerSingleton(TOKENS.MongoDBClientFactory, MongoDBClientFactory);
     const mongoDBClientFactory = container.resolve<MongoDBClientFactory>(
       TOKENS.MongoDBClientFactory,

@@ -268,7 +268,9 @@ export default class LLMRouter {
       );
 
       if (!result) {
-        log(`Given-up on trying to fulfill the current prompt with an LLM for the following resource: '${resourceName}'`);
+        log(
+          `Given-up on trying to fulfill the current prompt with an LLM for the following resource: '${resourceName}'`,
+        );
         this.llmStats.recordFailure();
       }
     } catch (error: unknown) {

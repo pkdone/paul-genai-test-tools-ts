@@ -15,7 +15,7 @@ export function logMongoValidationErrorIfPresent(error: unknown, doLog = true): 
     error.errorResponse.errmsg.toLowerCase().includes("document failed validation")
   ) {
     logErrorMsg(
-      `MongoDB document validation failed: ${JSON.stringify(error.errorResponse.errInfo, null, 2)}`
+      `MongoDB document validation failed: ${JSON.stringify(error.errorResponse.errInfo, null, 2)}`,
     );
   }
 }
@@ -91,5 +91,3 @@ export function createVectorSearchIndexDefinition(
     },
   };
 }
-
-

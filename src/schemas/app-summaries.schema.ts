@@ -6,7 +6,9 @@ import { z } from "zod";
 export const nameDescSchema = z
   .object({
     name: z.string().describe("The name of the entity."),
-    description: z.string().describe("A detailed description of the entity in at least 3 sentences."),
+    description: z
+      .string()
+      .describe("A detailed description of the entity in at least 5 sentences."),
   })
   .passthrough();
 
@@ -27,7 +29,7 @@ export const appDescriptionKeyValPairSchema = z.object({
  */
 export const boundedContextsArraySchema = z
   .array(nameDescSchema)
-  .describe("A list of bounded contexts from a Domain Driven Design perspective.");
+  .describe("A list of bounded contexts from a Domain Driven Design perspective");
 export const boundedContextsKeyValPairSchema = z.object({
   boundedContexts: boundedContextsArraySchema,
 });

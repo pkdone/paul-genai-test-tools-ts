@@ -54,14 +54,16 @@ export class LLMStructuredResponseInvoker {
   private async callLLMErroringIfNotJSON(
     resourceName: string,
     prompt: string,
-  ): Promise<Record<string, unknown>| null> {
+  ): Promise<Record<string, unknown> | null> {
     const response = await this.llmRouter.executeCompletion(resourceName, prompt, true, {
       resource: resourceName,
       requireJSON: true,
     });
 
     if (Array.isArray(response) || typeof response !== "object") {
-      logErrorMsg(`Error - LLM response processing '${resourceName}' is not JSON - value returned was: ${JSON.stringify(response)}`);
+      logErrorMsg(
+        `Error - LLM response processing '${resourceName}' is not JSON - value returned was: ${JSON.stringify(response)}`,
+      );
       throw new Error(`LLM returned non-object JSON for ${resourceName}: ${typeof response}`);
     }
 

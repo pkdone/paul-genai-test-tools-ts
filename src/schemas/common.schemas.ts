@@ -20,12 +20,16 @@ export const databaseIntegrationSchema = z
         "DDL",
         "DML",
         "STORED-PROCEDURE",
-        "TRIGGER",  
+        "TRIGGER",
         "FUNCTION",
         "OTHER",
       ])
       .describe("The database integration mechanism used."),
-    description: z.string().describe("A detailed description of the way database integration is achived (or a note saying no database integration related code exists)."),
+    description: z
+      .string()
+      .describe(
+        "A detailed description of the way database integration is achived (or a note saying no database integration related code exists).",
+      ),
   })
   .passthrough();
 
@@ -82,8 +86,13 @@ export const publicMethodSchema = z
   .object({
     name: z.string().describe("The name of the method/function."),
     purpose: z.string().describe("Detailed purpose of the method/function in atleast 3 sentences."),
-    parameters: z.array(methodParameterSchema).optional().describe("List parameters of the method/function."),
+    parameters: z
+      .array(methodParameterSchema)
+      .optional()
+      .describe("List parameters of the method/function."),
     returnType: z.string().describe("The return type of the method/function."),
-    description: z.string().describe("Detailed description of how the method/function is implementated."),
+    description: z
+      .string()
+      .describe("Detailed description of how the method/function is implementated."),
   })
   .passthrough();

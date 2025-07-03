@@ -25,23 +25,21 @@ export const javaFileSummarySchema = sourceFileSummarySchema
 export type JavaFileSummary = z.infer<typeof javaFileSummarySchema>;
 
 // Schema for `js-file-summary.prompt`
-export const jsFileSummarySchema = sourceFileSummarySchema
-  .pick({
-    purpose: true,
-    implementation: true,
-    internalReferences: true,
-    externalReferences: true,
-    databaseIntegration: true,
-  })
+export const jsFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  internalReferences: true,
+  externalReferences: true,
+  databaseIntegration: true,
+});
 export type JsFileSummary = z.infer<typeof jsFileSummarySchema>;
 
 // Schema for `default-file-summary.prompt`
-export const defaultFileSummarySchema = sourceFileSummarySchema
-  .pick({
-    purpose: true,
-    implementation: true,
-    databaseIntegration: true,
-  })
+export const defaultFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  databaseIntegration: true,
+});
 export type DefaultFileSummary = z.infer<typeof defaultFileSummarySchema>;
 
 // Schema for `ddl-file-summary.prompt`
@@ -77,14 +75,13 @@ export const xmlFileSummarySchema = sourceFileSummarySchema
 export type XmlFileSummary = z.infer<typeof xmlFileSummarySchema>;
 
 // Schema for `jsp-file-summary.prompt`
-export const jspFileSummarySchema = sourceFileSummarySchema
-  .pick({
-    purpose: true,
-    implementation: true,
-    internalReferences: true,
-    externalReferences: true,
-    dataInputFields: true,
-  });
+export const jspFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  internalReferences: true,
+  externalReferences: true,
+  dataInputFields: true,
+});
 export type JspFileSummary = z.infer<typeof jspFileSummarySchema>;
 
 // Schema for `markdown-file-summary.prompt`More actions

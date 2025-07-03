@@ -1,10 +1,9 @@
 import { container } from "tsyringe";
 import { TOKENS } from "../tokens";
-import { EnvVars } from "../../lifecycle/env.types";
+import { EnvVars,baseEnvVarsSchema } from "../../lifecycle/env.types";
 import { LLMService } from "../../llm/core/llm-service";
 import { loadBaseEnvVarsOnly } from "../../lifecycle/env";
 import { z } from "zod";
-import { baseEnvVarsSchema } from "../../lifecycle/env.types";
 import { BadConfigurationLLMError } from "../../llm/utils/llm-errors.types";
 import { getErrorStack } from "../../common/utils/error-utils";
 import { getProjectNameFromPath } from "../../common/utils/path-utils";
@@ -14,35 +13,39 @@ import dotenv from "dotenv";
  * Register environment variables based on requirements.
  * Uses conditional registration with tsyringe's isRegistered check to prevent duplicates.
  */
-export async function registerEnvDependencies(requiresLLM: boolean): Promise<void> {
-  // Check if EnvVars is already registered
+export function registerBaseEnvDependencies(): void {
   if (!container.isRegistered(TOKENS.EnvVars)) {
-    const envVars = await loadEnvironmentVars(requiresLLM);
+    const envVars = loadBaseEnvVarsOnly();
     container.registerInstance(TOKENS.EnvVars, envVars);
-    console.log("Environment variables loaded and registered as singleton");
-  } else {
-    console.log("Environment variables already registered - skipping registration");
+    console.log("Base environment variables loaded and registered.");
   }
+  registerProjectName();
+}
 
-  // Register ProjectName derived from CODEBASE_DIR_PATH
+export async function registerLlmEnvDependencies(): Promise<void> {
+  if (!container.isRegistered(TOKENS.EnvVars)) {
+    const envVars = await loadEnvIncludingLLMVars();
+    container.registerInstance(TOKENS.EnvVars, envVars);
+    console.log("LLM environment variables loaded and registered.");
+  }
+  registerProjectName();
+  registerLlmModelFamily();
+}
+
+function registerProjectName(): void {
   if (!container.isRegistered(TOKENS.ProjectName)) {
     const envVars = container.resolve<EnvVars>(TOKENS.EnvVars);
     const projectName = getProjectNameFromPath(envVars.CODEBASE_DIR_PATH);
     container.registerInstance(TOKENS.ProjectName, projectName);
-    console.log(`Project name '${projectName}' derived and registered as singleton`);
-  } else {
-    console.log("Project name already registered - skipping registration");
+    console.log(`Project name '${projectName}' derived and registered.`);
   }
 }
 
-/**
- * Load environment variables based on whether LLM is required.
- */
-async function loadEnvironmentVars(requiresLLM: boolean): Promise<EnvVars> {
-  if (requiresLLM) {
-    return await loadEnvIncludingLLMVars();
-  } else {
-    return loadBaseEnvVarsOnly();
+function registerLlmModelFamily(): void {
+  const envVars = container.resolve<EnvVars>(TOKENS.EnvVars);
+  if (envVars.LLM && !container.isRegistered(TOKENS.LLMModelFamily)) {
+    container.registerInstance(TOKENS.LLMModelFamily, envVars.LLM);
+    console.log(`LLM model family '${envVars.LLM}' registered.`);
   }
 }
 
