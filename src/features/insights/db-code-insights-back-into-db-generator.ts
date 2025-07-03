@@ -101,7 +101,6 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     sourceFileSummaries: string[],
   ): Promise<void> {
     const categoryLabel = categoryPromptSchemaMappings[category].label;
-    // TODO: remove
     let validatedData: PartialAppSummaryRecord | null = null;
 
     try {
