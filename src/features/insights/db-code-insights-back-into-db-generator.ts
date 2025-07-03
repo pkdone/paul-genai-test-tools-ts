@@ -8,7 +8,8 @@ import type { AppSummariesRepository } from "../../repositories/app-summary/app-
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { PartialAppSummaryRecord } from "../../repositories/app-summary/app-summary.model";
 import { TOKENS } from "../../di/tokens";
-import { categoryPromptSchemaMappings, type AppSummaryCategory } from "./category-mappings";
+import { AppSummaryCategory, AppSummaryCategoryEnum, appSummaryCategoryConfig } from "./insights.config";
+import { createInsightsPrompt } from "./insights.prompts";
 
 /**
  * Generates metadata in database collections to capture application information,
@@ -53,14 +54,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       llmProvider: this.llmProviderDescription,
     });
 
-    // TODO: Factor out array or try to use AppSummaryCategory from category-mappings.ts
-    const categories: AppSummaryCategory[] = [
-      "appDescription",
-      "boundedContexts",
-      "businessEntities",
-      "businessProcesses",
-      "technologies",
-    ] as const;
+    const categories: AppSummaryCategory[] = AppSummaryCategoryEnum.options;
     await Promise.all(
       categories.map(async (category) =>
         this.generateAndRecordDataForCategory(category, sourceFileSummaries),
@@ -100,7 +94,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     category: AppSummaryCategory,
     sourceFileSummaries: string[],
   ): Promise<void> {
-    const categoryLabel = categoryPromptSchemaMappings[category].label;
+    const categoryLabel = appSummaryCategoryConfig[category].label;
     let validatedData: PartialAppSummaryRecord | null = null;
 
     try {
@@ -122,13 +116,13 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     category: AppSummaryCategory,
     sourceFileSummaries: string[],
   ): Promise<PartialAppSummaryRecord | null> {
-    const categoryLabel = categoryPromptSchemaMappings[category].label;
+    const categoryLabel = appSummaryCategoryConfig[category].label;
 
     try {
-      const { promptCreator, schema } = categoryPromptSchemaMappings[category];
+      const schema = appSummaryCategoryConfig[category].schema;
       const resourceName = `${String(category)} - generate-${String(category)}.prompt`;
       const content = joinArrayWithSeparators(sourceFileSummaries);
-      const prompt = promptCreator(content);
+      const prompt = createInsightsPrompt(category, content);
       const llmResponse: unknown = await this.llmUtilityService.getStructuredResponse(
         resourceName,
         prompt,

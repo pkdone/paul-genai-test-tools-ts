@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { appConfig } from "../../../config/app.config";
 import { reportingConfig } from "../reporting.config";
-import { categoryPromptSchemaMappings } from "../../insights/category-mappings";
+import { AppSummaryCategoryEnum, appSummaryCategoryConfig } from "../../insights/insights.config";
 import type { SourcesRepository } from "../../../repositories/source/sources.repository.interface";
 import type { AppSummariesRepository } from "../../../repositories/app-summary/app-summaries.repository.interface";
 import type {
@@ -153,22 +153,21 @@ export default class AppReportGenerator {
   private async getCategorizedData(
     projectName: string,
   ): Promise<{ category: string; label: string; data: AppSummaryNameDescArray }[]> {
-    const categoryKeys = Object.keys(categoryPromptSchemaMappings).filter(
+    const categoryKeys = AppSummaryCategoryEnum.options.filter(
       (key) => key !== reportingConfig.APP_DESCRIPTION_KEY,
     );
 
     const promises = categoryKeys.map(async (category) => {
-      const label =
-        categoryPromptSchemaMappings[category as keyof typeof categoryPromptSchemaMappings].label;
-      const data = await this.appSummariesRepository.getProjectAppSummaryField(
+      const label = appSummaryCategoryConfig[category].label;
+      const data: AppSummaryNameDescArray | null = await this.appSummariesRepository.getProjectAppSummaryField(
         projectName,
         category as keyof AppSummaryRecord,
-      );
+      ) as AppSummaryNameDescArray | null;
       console.log(`Generated ${label} table`);
       return {
         category,
         label,
-        data: Array.isArray(data) ? data : [],
+        data: data ?? [],
       };
     });
 
