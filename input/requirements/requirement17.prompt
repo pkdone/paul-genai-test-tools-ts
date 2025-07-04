@@ -1,9 +1,0 @@
-Additional data to capture and show. Act as a senior programmer analyzing the code in a TypeScript application where the content of each file in the application's codebase is shown below in a code block.
-
-Your job come up with detailed plan to inform a senior developer how to chnage the code and then ensure evertyhing passes compile, lint and unit test checksfor the following new functionality:
-
-* In databaseIntegrationSchema in src/schemas/sources.schema.ts add a new field called codeExample describing this field as "A single very small redacted example of some code that performs the database integration (if no database integration, just state 'n/a')"
-* In sources captures into the database, ensure this field is captured.
-* In the report generation, ensue this field is shown in the relevant HTML table
-
-In your plan, include the list or relative file paths of each source file affected.
