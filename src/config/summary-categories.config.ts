@@ -6,42 +6,42 @@ import {
   businessEntitiesKeyValPairSchema,
   businessProcessesKeyValPairSchema,
   technologiesKeyValPairSchema,
-} from "../../schemas/app-summaries.schema";
+} from "../schemas/app-summaries.schema";
 
-export type AppSummaryCategory = z.infer<typeof AppSummaryCategoryEnum>;
+export type SummaryCategory = z.infer<typeof AppSummaryCategoryEnum>;
 
-export const appSummaryCategoryConfig: Record<
-  AppSummaryCategory,
+export const summaryCategoriesConfig: Record<
+  SummaryCategory,
   {
     label: string;
-    promptDetails: string;
+    description: string;
     schema: z.ZodType;
   }
 > = {
   appDescription: {
     label: "Application Description",
-    promptDetails: "the detailed description of the application's purpose and implementation.",
+    description: "the detailed description of the application's purpose and implementation.",
     schema: appDescriptionKeyValPairSchema,
   },
   boundedContexts: {
     label: "Bounded Contexts",
-    promptDetails:
+    description:
       "a concise list of the bounded contexts from a Domain Driven Design perspective.",
     schema: boundedContextsKeyValPairSchema,
   },
   businessEntities: {
     label: "Business Entities",
-    promptDetails: "a concise list of the application's main business entities.",
+    description: "a concise list of the application's main business entities.",
     schema: businessEntitiesKeyValPairSchema,
   },
   businessProcesses: {
     label: "Business Processes",
-    promptDetails: "a concise list of the application's main business processes.",
+    description: "a concise list of the application's main business processes.",
     schema: businessProcessesKeyValPairSchema,
   },
   technologies: {
     label: "Technologies",
-    promptDetails:
+    description:
       "a concise list of key external and host platform technologies depended on by the application.",
     schema: technologiesKeyValPairSchema,
   },

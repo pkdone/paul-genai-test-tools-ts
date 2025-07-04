@@ -310,7 +310,7 @@ describe("FileSummarizer", () => {
 
         expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
           filepath,
-          expect.stringContaining("database DDL/SQL source code"),
+          expect.stringContaining("database DDL/SQL code shown below"),
           expect.any(Object),
           filepath,
         );
@@ -338,7 +338,7 @@ describe("FileSummarizer", () => {
         const testCases = [
           { type: "JAVA", expectedPrompt: "Java code shown below" },
           { type: "JavaScript", expectedPrompt: "JavaScript/TypeScript code shown below" },
-          { type: "SQL", expectedPrompt: "database DDL/SQL source code" },
+          { type: "SQL", expectedPrompt: "database DDL/SQL code shown below" },
         ];
 
         for (const testCase of testCases) {
@@ -393,7 +393,7 @@ describe("FileSummarizer", () => {
         expect(result.success).toBe(true);
         expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
           filepath,
-          expect.stringContaining("application source file"), // Default prompt pattern
+          expect.stringContaining("project file content shown below"), // Default prompt pattern
           expect.any(Object),
           filepath,
         );

@@ -1,9 +1,17 @@
 import { createSummaryPrompt } from "../../../../src/features/capture/ingestion.prompts";
-import * as promptFactory from "../../../../src/llm/utils/prompting/prompt-factory";
+import * as promptTemplator from "../../../../src/llm/utils/prompting/prompt-templator";
 
 // Mock the dependency
-jest.mock("../../../../src/llm/utils/prompting/prompt-factory", () => ({
+jest.mock("../../../../src/llm/utils/prompting/prompt-templator", () => ({
   createPromptFromConfig: jest.fn(),
+  promptConfig: {
+    FORCE_JSON_RESPONSE_TEXT: `
+In your response, only include JSON and do not include any additional text explanations outside the JSON object.
+NEVER ever respond with XML. NEVER use Markdown code blocks to wrap the JSON in your response.
+NEVER use " or ' quote symbols as part of the text you use for JSON description values, even if you want to quote a piece of existing text, existing message or show a path
+ONLY provide an RFC8259 compliant JSON response that strictly follows the provided JSON schema.
+`,
+  },
 }));
 
 describe("Prompts", () => {
@@ -24,29 +32,27 @@ describe("Prompts", () => {
 
   beforeEach(() => {
     // Reset mocks before each test
-    (promptFactory.createPromptFromConfig as jest.Mock).mockClear();
+    (promptTemplator.createPromptFromConfig as jest.Mock).mockClear();
 
     // Mock implementation
-    (promptFactory.createPromptFromConfig as jest.Mock).mockImplementation(
+    (promptTemplator.createPromptFromConfig as jest.Mock).mockImplementation(
       (
-        baseTemplates: promptFactory.TemplateMap,
-        config: promptFactory.PromptConfig,
+        template: string,
+        config: promptTemplator.PromptConfig,
         code: string,
       ) => {
-        let template = "";
-        if (config.templateType === "detailed" && baseTemplates.detailed) {
-          template = baseTemplates.detailed;
-          template = template.replace("{{fileType}}", config.fileType);
-          template = template.replace("{{specificInstructions}}", config.instructions);
-        } else if (config.templateType === "basic" && baseTemplates.basic) {
-          template = baseTemplates.basic;
-          template = template.replace("{{specificInstructions}}", config.instructions);
-        }
-        template = template.replace(
+        let processedTemplate = template;
+        processedTemplate = processedTemplate.replace("{{fileContentDesc}}", config.fileContentDesc);
+        processedTemplate = processedTemplate.replace(
+          "{{specificInstructions}}",
+          config.instructions,
+        );
+        processedTemplate = processedTemplate.replace(
           "{{jsonSchema}}",
           JSON.stringify({ mocked: "schema", type: "unknown" }, null, 2),
         );
-        return `${template}\nCODE:\n${code}`;
+        processedTemplate = processedTemplate.replace("{{codeContent}}", code);
+        return processedTemplate;
       },
     );
   });
@@ -69,7 +75,7 @@ describe("Prompts", () => {
 
       // Check for specific Java requirements
       expect(result).toContain(
-        "very detailed definition of its purpose (you must write at least 6 sentences",
+        "A very detailed definition of its purpose",
       );
       expect(result).toContain("internal references to classpaths");
       expect(result).toContain("public constants");
@@ -111,10 +117,10 @@ describe("Prompts", () => {
 
       // Check for specific JS/TS requirements
       expect(result).toContain(
-        "very detailed definition of its purpose (you must write at least 6 sentences",
+        "A very detailed definition of its purpose",
       );
       expect(result).toContain(
-        "very detailed definition of its implementation (you must write at least 6 sentences",
+        "A very detailed definition of its implementation",
       );
       expect(result).toContain("direct database integration via a driver/library/API");
     });
@@ -134,12 +140,12 @@ describe("Prompts", () => {
       const result = createSummaryPrompt("default", testCodeContent);
 
       expect(result).toContain("Act as a programmer");
-      expect(result).toContain("application source file");
+      expect(result).toContain("project file content shown below");
       expect(result).toContain(
-        "detailed definition of its purpose (you must write at least 4 sentences",
+        "A detailed definition of its purpose",
       );
       expect(result).toContain(
-        "detailed definition of its implementation (you must write at least 3 sentences",
+        "A detailed definition of its implementation",
       );
       expect(result).toContain("direct database integration");
       expect(result).toContain(testCodeContent);
@@ -163,7 +169,7 @@ describe("Prompts", () => {
       const result = createSummaryPrompt("ddl", ddlCode);
 
       expect(result).toContain("Act as a programmer");
-      expect(result).toContain("database DDL/SQL source code");
+      expect(result).toContain("database DDL/SQL code shown below");
       expect(result).toContain("list of the tables");
       expect(result).toContain("stored procedure");
       expect(result).toContain("triggers");
@@ -180,10 +186,10 @@ describe("Prompts", () => {
 
       // Check for specific DDL requirements
       expect(result).toContain(
-        "detailed definition of its purpose (you must write at least 2 sentences",
+        "detailed definition of its purpose",
       );
       expect(result).toContain(
-        "detailed definition of its implementation (you must write at least 2 sentences",
+        "detailed definition of its implementation",
       );
       expect(result).toContain("DDL");
       expect(result).toContain("DML");
@@ -212,7 +218,7 @@ describe("Prompts", () => {
       const result = createSummaryPrompt("xml", xmlCode);
 
       expect(result).toContain("Act as a programmer");
-      expect(result).toContain("source code");
+      expect(result).toContain("XML code shown below");
       expect(result).toContain(xmlCode);
 
       // Check for base instructions
@@ -234,7 +240,7 @@ describe("Prompts", () => {
       const result = createSummaryPrompt("jsp", jspCode);
 
       expect(result).toContain("Act as a programmer");
-      expect(result).toContain("source code");
+      expect(result).toContain("JSP code shown below");
       expect(result).toContain(jspCode);
 
       // Check for base instructions
@@ -258,7 +264,7 @@ describe("Prompts", () => {
       const result = createSummaryPrompt("markdown", markdownCode);
 
       expect(result).toContain("Act as a programmer");
-      expect(result).toContain("source code");
+      expect(result).toContain("Markdown content shown below");
       expect(result).toContain(markdownCode);
 
       // Check for base instructions

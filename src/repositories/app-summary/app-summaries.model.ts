@@ -1,29 +1,18 @@
 import { z } from "zod";
 import { generateMDBJSONSchema, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
 import {
-  AppSummaryCategory,
-  appSummaryCategoryConfig,
-} from "../../features/insights/insights.config";
-import { AppSummaryCategoryEnum, nameDescSchema } from "../../schemas/app-summaries.schema";
+  nameDescSchema,
+  appDescriptionKeyValPairSchema,
+  boundedContextsKeyValPairSchema,
+  businessEntitiesKeyValPairSchema,
+  businessProcessesKeyValPairSchema,
+  technologiesKeyValPairSchema,
+} from "../../schemas/app-summaries.schema";
 
 /**
  * Schema for arrays of name-description pairs used in app summaries
  */
 export const appSummaryNameDescArraySchema = z.array(nameDescSchema);
-
-const dynamicProperties = AppSummaryCategoryEnum.options.reduce(
-  (acc, category) => {
-    // The schema for the LLM response is a key-value pair, but the DB stores the value under the key.
-    // We extract the value's schema from the key-value pair schema.
-    const keyValSchema = appSummaryCategoryConfig[category].schema as z.ZodObject<
-      Record<string, z.ZodTypeAny>
-    >;
-    const valueSchema = keyValSchema.shape[category];
-    acc[category] = valueSchema.optional();
-    return acc;
-  },
-  {} as Record<AppSummaryCategory, z.ZodOptional<z.ZodTypeAny>>,
-);
 
 /**
  * Zod schema for application summary records in the database
@@ -33,7 +22,11 @@ export const appSummaryRecordSchema = z
     _id: zBsonObjectId,
     projectName: z.string(),
     llmProvider: z.string(),
-    ...dynamicProperties,
+    appDescription: appDescriptionKeyValPairSchema.shape.appDescription.optional(),
+    boundedContexts: boundedContextsKeyValPairSchema.shape.boundedContexts.optional(),
+    businessEntities: businessEntitiesKeyValPairSchema.shape.businessEntities.optional(),
+    businessProcesses: businessProcessesKeyValPairSchema.shape.businessProcesses.optional(),
+    technologies: technologiesKeyValPairSchema.shape.technologies.optional(),
   })
   .passthrough();
 

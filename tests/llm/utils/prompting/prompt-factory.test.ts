@@ -1,50 +1,81 @@
 import { z } from "zod";
 import {
-  schemaToJsonString,
-  buildPrompt,
-} from "../../../../src/llm/utils/prompting/prompt-factory";
+  createPromptFromConfig,
+  PromptConfig,
+} from "../../../../src/llm/utils/prompting/prompt-templator";
 
 describe("prompt-utils", () => {
-  describe("schemaToJsonString", () => {
-    it("should convert a simple string schema to JSON string", () => {
-      const schema = z.string();
-      const result = schemaToJsonString(schema);
+  describe("createPromptFromConfig", () => {
+    it("should create a prompt with simple string schema", () => {
+      const template = "Generate JSON following this schema: {{jsonSchema}}\n\nContent: {{codeContent}}";
+      const config: PromptConfig = {
+        schema: z.string(),
+        fileContentDesc: "text file",
+        instructions: "process this text",
+      };
+      const content = "test content";
+
+      const result = createPromptFromConfig(template, config, content);
 
       expect(typeof result).toBe("string");
       expect(result).toContain('"type": "string"');
-
-      // Verify it's valid JSON
-      expect(() => {
-        JSON.parse(result);
-      }).not.toThrow();
+      expect(result).toContain("test content");
     });
 
-    it("should convert an object schema to JSON string", () => {
-      const schema = z.object({
-        name: z.string(),
-        age: z.number(),
-      });
-      const result = schemaToJsonString(schema);
+    it("should create a prompt with object schema", () => {
+      const template = "Schema: {{jsonSchema}}\nContent: {{codeContent}}";
+      const config: PromptConfig = {
+        schema: z.object({
+          name: z.string(),
+          age: z.number(),
+        }),
+        fileContentDesc: "user data",
+        instructions: "extract user information",
+      };
+      const content = "John Doe, 30 years old";
 
-      expect(typeof result).toBe("string");
+      const result = createPromptFromConfig(template, config, content);
+
       expect(result).toContain('"type": "object"');
       expect(result).toContain('"properties"');
       expect(result).toContain('"name"');
       expect(result).toContain('"age"');
-
-      // Verify it's valid JSON
-      expect(() => {
-        JSON.parse(result);
-      }).not.toThrow();
+      expect(result).toContain("John Doe, 30 years old");
     });
 
-    it("should format JSON with proper indentation", () => {
-      const schema = z.object({
-        nested: z.object({
+    it("should handle template placeholders correctly", () => {
+      const template = "File Type: {{fileContentDesc}}\nInstructions: {{specificInstructions}}\nSchema: {{jsonSchema}}\nCode: {{codeContent}}";
+      const config: PromptConfig = {
+        schema: z.object({
           value: z.string(),
         }),
-      });
-      const result = schemaToJsonString(schema);
+        fileContentDesc: "JavaScript file",
+        instructions: "analyze this code",
+      };
+      const content = "const x = 5;";
+
+      const result = createPromptFromConfig(template, config, content);
+
+      expect(result).toContain("File Type: JavaScript file");
+      expect(result).toContain("Instructions: analyze this code");
+      expect(result).toContain('"type": "object"');
+      expect(result).toContain("const x = 5;");
+    });
+
+    it("should format JSON schema with proper indentation", () => {
+      const template = "{{jsonSchema}}";
+      const config: PromptConfig = {
+        schema: z.object({
+          nested: z.object({
+            value: z.string(),
+          }),
+        }),
+        fileContentDesc: "config file",
+        instructions: "parse config",
+      };
+      const content = "{}";
+
+      const result = createPromptFromConfig(template, config, content);
 
       // Check that the result has proper formatting (includes newlines and spaces)
       expect(result).toContain("\n");
@@ -52,64 +83,51 @@ describe("prompt-utils", () => {
     });
 
     it("should handle array schemas", () => {
-      const schema = z.array(z.string());
-      const result = schemaToJsonString(schema);
+      const template = "{{jsonSchema}}";
+      const config: PromptConfig = {
+        schema: z.array(z.string()),
+        fileContentDesc: "list file",
+        instructions: "extract items",
+      };
+      const content = "item1, item2, item3";
 
-      expect(typeof result).toBe("string");
+      const result = createPromptFromConfig(template, config, content);
+
       expect(result).toContain('"type": "array"');
       expect(result).toContain('"items"');
-
-      // Verify it's valid JSON
-      expect(() => {
-        JSON.parse(result);
-      }).not.toThrow();
     });
 
-    it("should handle optional fields", () => {
-      const schema = z.object({
-        required: z.string(),
-        optional: z.string().optional(),
-      });
-      const result = schemaToJsonString(schema);
+    it("should handle optional fields in object schemas", () => {
+      const template = "{{jsonSchema}}";
+      const config: PromptConfig = {
+        schema: z.object({
+          required: z.string(),
+          optional: z.string().optional(),
+        }),
+        fileContentDesc: "data file",
+        instructions: "extract data",
+      };
+      const content = "required: value1";
 
-      expect(typeof result).toBe("string");
+      const result = createPromptFromConfig(template, config, content);
+
       expect(result).toContain('"type": "object"');
       expect(result).toContain('"properties"');
       expect(result).toContain('"required"');
       expect(result).toContain('"optional"'); // Optional fields appear in properties
       expect(result).toContain('[\n    "required"\n  ]'); // Only required field is in the required array
-
-      // Verify it's valid JSON
-      expect(() => {
-        JSON.parse(result);
-      }).not.toThrow();
-    });
-  });
-
-  describe("buildPrompt", () => {
-    it("should build a prompt with template, schema, and content", () => {
-      const template =
-        "Generate JSON following this schema: {{jsonSchema}}\n\nContent: {{codeContent}}";
-      const schema = z.object({
-        name: z.string(),
-        age: z.number(),
-      });
-      const content = "test content";
-
-      const result = buildPrompt(template, schema, content);
-
-      expect(result).toContain("Generate JSON following this schema:");
-      expect(result).toContain('"type": "object"');
-      expect(result).toContain('"properties"');
-      expect(result).toContain("test content");
     });
 
     it("should handle empty content", () => {
       const template = "Schema: {{jsonSchema}}\nContent: {{codeContent}}";
-      const schema = z.string();
+      const config: PromptConfig = {
+        schema: z.string(),
+        fileContentDesc: "empty file",
+        instructions: "handle empty content",
+      };
       const content = "";
 
-      const result = buildPrompt(template, schema, content);
+      const result = createPromptFromConfig(template, config, content);
 
       expect(result).toContain('"type": "string"');
       expect(result).toContain("Content: ");
@@ -117,16 +135,20 @@ describe("prompt-utils", () => {
 
     it("should handle complex nested schemas", () => {
       const template = "{{jsonSchema}}\n{{codeContent}}";
-      const schema = z.object({
-        user: z.object({
-          profile: z.object({
-            settings: z.array(z.string()),
+      const config: PromptConfig = {
+        schema: z.object({
+          user: z.object({
+            profile: z.object({
+              settings: z.array(z.string()),
+            }),
           }),
         }),
-      });
+        fileContentDesc: "user profile",
+        instructions: "extract user profile data",
+      };
       const content = "complex nested data";
 
-      const result = buildPrompt(template, schema, content);
+      const result = createPromptFromConfig(template, config, content);
 
       expect(result).toContain('"type": "object"');
       expect(result).toContain('"properties"');

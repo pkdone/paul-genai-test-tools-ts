@@ -8,7 +8,7 @@ import type { AppSummariesRepository } from "../../repositories/app-summary/app-
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { PartialAppSummaryRecord } from "../../repositories/app-summary/app-summaries.model";
 import { TOKENS } from "../../di/tokens";
-import { AppSummaryCategory, appSummaryCategoryConfig } from "./insights.config";
+import { SummaryCategory, summaryCategoriesConfig } from "../../config/summary-categories.config";
 import { AppSummaryCategoryEnum } from "../../schemas/app-summaries.schema";
 import { createInsightsPrompt } from "./insights.prompts";
 
@@ -54,7 +54,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       projectName: this.projectName,
       llmProvider: this.llmProviderDescription,
     });
-    const categories: AppSummaryCategory[] = AppSummaryCategoryEnum.options;
+    const categories: SummaryCategory[] = AppSummaryCategoryEnum.options;
     await Promise.all(
       categories.map(async (category) =>
         this.generateAndRecordDataForCategory(category, sourceFileSummaries),
@@ -91,10 +91,10 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    * dataset under a named field of the main application summary record.
    */
   private async generateAndRecordDataForCategory(
-    category: AppSummaryCategory,
+    category: SummaryCategory,
     sourceFileSummaries: string[],
   ): Promise<void> {
-    const categoryLabel = appSummaryCategoryConfig[category].label;
+    const categoryLabel = summaryCategoriesConfig[category].label;
     let validatedData: PartialAppSummaryRecord | null = null;
 
     try {
@@ -113,13 +113,13 @@ export default class DBCodeInsightsBackIntoDBGenerator {
    * dataset under a named field of the main application summary record.
    */
   private async getCategorySummaryAsJSON(
-    category: AppSummaryCategory,
+    category: SummaryCategory,
     sourceFileSummaries: string[],
   ): Promise<PartialAppSummaryRecord | null> {
-    const categoryLabel = appSummaryCategoryConfig[category].label;
+    const categoryLabel = summaryCategoriesConfig[category].label;
 
     try {
-      const schema = appSummaryCategoryConfig[category].schema;
+      const schema = summaryCategoriesConfig[category].schema;
       const resourceName = `${String(category)} - generate-${String(category)}.prompt`;
       const content = joinArrayWithSeparators(sourceFileSummaries);
       const prompt = createInsightsPrompt(category, content);
