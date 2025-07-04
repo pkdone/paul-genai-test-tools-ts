@@ -2,7 +2,7 @@ import {
   AppSummaryRecord,
   ProjectedAppSummaryDescAndLLMProvider,
   PartialAppSummaryRecord,
-} from "./app-summary.model";
+} from "./app-summaries.model";
 
 /**
  * Interface for the App Summaries repository

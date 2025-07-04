@@ -10,7 +10,7 @@ import {
   ProjectedDatabaseIntegrationFields,
   ProjectedFilePath,
   ProjectedFileTypesCountAndLines,
-} from "./source.model";
+} from "./sources.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config/database.config";
 import { logErrorMsgAndDetail } from "../../common/utils/error-utils";

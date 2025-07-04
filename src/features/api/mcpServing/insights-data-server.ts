@@ -1,8 +1,8 @@
 import { injectable, inject } from "tsyringe";
 import type { AppSummariesRepository } from "../../../repositories/app-summary/app-summaries.repository.interface";
-import type { AppSummaryNameDescArray } from "../../../repositories/app-summary/app-summary.model";
+import type { AppSummaryNameDescArray } from "../../../repositories/app-summary/app-summaries.model";
 import { TOKENS } from "../../../di/tokens";
-import { appSummaryNameDescArraySchema } from "../../../repositories/app-summary/app-summary.model";
+import { appSummaryNameDescArraySchema } from "../../../repositories/app-summary/app-summaries.model";
 
 /**
  * Class to handle analysis data server operations.

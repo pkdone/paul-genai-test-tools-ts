@@ -6,9 +6,10 @@ import { joinArrayWithSeparators } from "../../common/utils/text-utils";
 import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
-import type { PartialAppSummaryRecord } from "../../repositories/app-summary/app-summary.model";
+import type { PartialAppSummaryRecord } from "../../repositories/app-summary/app-summaries.model";
 import { TOKENS } from "../../di/tokens";
-import { AppSummaryCategory, AppSummaryCategoryEnum, appSummaryCategoryConfig } from "./insights.config";
+import { AppSummaryCategory, appSummaryCategoryConfig } from "./insights.config";
+import { AppSummaryCategoryEnum } from "../../schemas/app-summaries.schema";
 import { createInsightsPrompt } from "./insights.prompts";
 
 /**
@@ -53,7 +54,6 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       projectName: this.projectName,
       llmProvider: this.llmProviderDescription,
     });
-
     const categories: AppSummaryCategory[] = AppSummaryCategoryEnum.options;
     await Promise.all(
       categories.map(async (category) =>

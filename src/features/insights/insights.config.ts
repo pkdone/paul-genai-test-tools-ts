@@ -1,19 +1,13 @@
 import { z } from "zod";
 import {
   appDescriptionKeyValPairSchema,
+  AppSummaryCategoryEnum,
   boundedContextsKeyValPairSchema,
   businessEntitiesKeyValPairSchema,
   businessProcessesKeyValPairSchema,
   technologiesKeyValPairSchema,
 } from "../../schemas/app-summaries.schema";
 
-export const AppSummaryCategoryEnum = z.enum([
-  "appDescription",
-  "boundedContexts",
-  "businessEntities",
-  "businessProcesses",
-  "technologies",
-]);
 export type AppSummaryCategory = z.infer<typeof AppSummaryCategoryEnum>;
 
 export const appSummaryCategoryConfig: Record<
@@ -31,7 +25,8 @@ export const appSummaryCategoryConfig: Record<
   },
   boundedContexts: {
     label: "Bounded Contexts",
-    promptDetails: "a concise list of the bounded contexts from a Domain Driven Design perspective.",
+    promptDetails:
+      "a concise list of the bounded contexts from a Domain Driven Design perspective.",
     schema: boundedContextsKeyValPairSchema,
   },
   businessEntities: {
@@ -46,7 +41,8 @@ export const appSummaryCategoryConfig: Record<
   },
   technologies: {
     label: "Technologies",
-    promptDetails: "a concise list of key external and host platform technologies depended on by the application.",
+    promptDetails:
+      "a concise list of key external and host platform technologies depended on by the application.",
     schema: technologiesKeyValPairSchema,
   },
 };

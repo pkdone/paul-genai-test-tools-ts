@@ -9,7 +9,7 @@ import pLimit from "p-limit";
 import { logErrorMsg, logErrorMsgAndDetail } from "../../common/utils/error-utils";
 import { FileSummarizer } from "./file-summarizer";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
-import type { SourceRecord } from "../../repositories/source/source.model";
+import type { SourceRecord } from "../../repositories/source/sources.model";
 import { TOKENS } from "../../di/tokens";
 
 /**

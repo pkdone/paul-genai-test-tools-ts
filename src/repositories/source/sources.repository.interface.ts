@@ -6,7 +6,7 @@ import {
   ProjectedSourceFilePathAndSummary,
   ProjectedSourceSummaryFields,
   ProjectedFileTypesCountAndLines,
-} from "./source.model";
+} from "./sources.model";
 
 /**
  * Interface for the Sources repository

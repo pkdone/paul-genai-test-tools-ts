@@ -1,6 +1,18 @@
 import { z } from "zod";
 
 /**
+ * Zod schema for application summary categories
+ * This is used to validate the category names in app summaries
+ */
+export const AppSummaryCategoryEnum = z.enum([
+  "appDescription",
+  "boundedContexts",
+  "businessEntities",
+  "businessProcesses",
+  "technologies",
+]);
+
+/**
  * Schema for name-description pairs used for insights
  */
 export const nameDescSchema = z

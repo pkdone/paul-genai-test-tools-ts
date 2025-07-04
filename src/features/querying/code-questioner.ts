@@ -4,7 +4,7 @@ import type LLMRouter from "../../llm/core/llm-router";
 import { appConfig } from "../../config/app.config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../../common/mdb/mdb-utils";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
-import type { ProjectedSourceMetataContentAndSummary } from "../../repositories/source/source.model";
+import type { ProjectedSourceMetataContentAndSummary } from "../../repositories/source/sources.model";
 import { TOKENS } from "../../di/tokens";
 
 /**

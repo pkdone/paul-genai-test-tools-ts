@@ -1,13 +1,14 @@
 import { injectable, inject } from "tsyringe";
 import { appConfig } from "../../../config/app.config";
 import { reportingConfig } from "../reporting.config";
-import { AppSummaryCategoryEnum, appSummaryCategoryConfig } from "../../insights/insights.config";
+import { appSummaryCategoryConfig } from "../../insights/insights.config";
+import { AppSummaryCategoryEnum } from "../../../schemas/app-summaries.schema";
 import type { SourcesRepository } from "../../../repositories/source/sources.repository.interface";
 import type { AppSummariesRepository } from "../../../repositories/app-summary/app-summaries.repository.interface";
 import type {
   AppSummaryRecord,
   AppSummaryNameDescArray,
-} from "../../../repositories/app-summary/app-summary.model";
+} from "../../../repositories/app-summary/app-summaries.model";
 import { TOKENS } from "../../../di/tokens";
 import { HtmlReportFormatter } from "./html-report-formatter";
 import type { AppStatistics, ProcsAndTriggers } from "./types";
@@ -143,7 +144,10 @@ export default class AppReportGenerator {
       llmProvider: appSummaryRecord.llmProvider,
       fileCount: await this.sourcesRepository.getProjectFilesCount(projectName),
       linesOfCode: await this.sourcesRepository.getProjectTotalLinesOfCode(projectName),
-      appDescription: appSummaryRecord.appDescription ?? "No description available",
+      appDescription:
+        typeof appSummaryRecord.appDescription === "string"
+          ? appSummaryRecord.appDescription
+          : "No description available",
     };
   }
 
@@ -159,10 +163,11 @@ export default class AppReportGenerator {
 
     const promises = categoryKeys.map(async (category) => {
       const label = appSummaryCategoryConfig[category].label;
-      const data: AppSummaryNameDescArray | null = await this.appSummariesRepository.getProjectAppSummaryField(
-        projectName,
-        category as keyof AppSummaryRecord,
-      ) as AppSummaryNameDescArray | null;
+      const data: AppSummaryNameDescArray | null =
+        (await this.appSummariesRepository.getProjectAppSummaryField(
+          projectName,
+          category as keyof AppSummaryRecord,
+        )) as AppSummaryNameDescArray | null;
       console.log(`Generated ${label} table`);
       return {
         category,

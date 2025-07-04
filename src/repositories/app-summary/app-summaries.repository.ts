@@ -5,7 +5,7 @@ import {
   AppSummaryRecord,
   ProjectedAppSummaryDescAndLLMProvider,
   PartialAppSummaryRecord,
-} from "./app-summary.model";
+} from "./app-summaries.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config/database.config";
 import { BaseRepository } from "../base.repository";

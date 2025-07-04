@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { sourceFileSummarySchema } from "../../schemas/source-summary.schema";
+import { sourceFileSummarySchema } from "../../schemas/sources.schema";
 
 // Schema for `java-file-summary.prompt`
 export const javaFileSummarySchema = sourceFileSummarySchema
