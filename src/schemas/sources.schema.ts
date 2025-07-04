@@ -28,7 +28,7 @@ export const databaseIntegrationSchema = z
     description: z
       .string()
       .describe(
-        "A detailed description of the way database integration is achived (or a note saying no database integration related code exists).",
+        "A detailed description of the way database integration is achieved (or a note saying no database integration related code exists).",
       ),
     codeExample: z
       .string()

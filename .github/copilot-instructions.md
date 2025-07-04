@@ -30,8 +30,8 @@ This document outlines the inferred coding standards, architectural patterns, an
         *   Typically, one blank line is used between top-level constructs (import blocks, functions, classes).
         *   One blank line between methods within a class.
         *   Blank lines are within functions/methods when multi-line if/else or for/while clauses occur (before and after that group)
-    *   **Line Length:** No strict enforced limit found in ESLint configuration. However, lines are generally kept to a reasonable length (often under 120 characters) for readability. Longer lines primarily occur in string literals (especially prompts) or complex type definitions.
-    *   **Trailing Commas:** Preferred in multi-line array and object literals where applicable (e.g., in some `config` files). The `eslint.config.mjs` includes `tseslint.configs.stylisticTypeChecked`, which typically encourages trailing commas. However, historical consistency varies. New code should use trailing commas for multi-line structures.
+    *   **Line Length:** 100 characters.
+    *   **Trailing Commas:** Preferred in multi-line array and object literals where applicable (e.g., in some `config` files). The `eslint.config.mjs` includes `tseslint.configs.stylisticTypeChecked`, which typically encourages trailing commas. 
 *   **Braces and Parentheses:**
     *   **Braces:** Opening braces (`{`) are placed on the **same line** as the declaration or control structure statement (a K&R style variant). This applies to functions, classes, methods, `if/else`, `for`, `while`, `try/catch/finally` blocks.
         ```typescript
@@ -217,3 +217,7 @@ This document outlines the inferred coding standards, architectural patterns, an
     *   **Command:** `npm run validate`
     *   **Action:** This script runs a sequence of checks: `npm run compile && npm run lint && npm run test && npm run test:int`.
     *   Developers should run this command before committing changes to ensure code quality and correctness.
+*   **Formatting:**
+    *   **Command:** `npm run format`.
+    *   **Tool:** Prettier.
+    *   **Action:** Automatically formats all `.ts` and `.tsx` files according to the rules in `.prettierrc.json`.    

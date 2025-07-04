@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { sourceFileSummarySchema } from "../../schemas/sources.schema";
+import { sourceFileSummarySchema, databaseIntegrationSchema } from "../../schemas/sources.schema";
 
 // Schema for `java-file-summary.prompt`
 export const javaFileSummarySchema = sourceFileSummarySchema
@@ -53,11 +53,8 @@ export const ddlFileSummarySchema = sourceFileSummarySchema
     databaseIntegration: true,
   })
   .extend({
-    databaseIntegration: z.object({
+    databaseIntegration: databaseIntegrationSchema.extend({
       mechanism: z.enum(["NONE", "DDL", "DML", "SQL", "STORED-PROCEDURE", "TRIGGER", "FUNCTION"]),
-      description: z
-        .string()
-        .describe("A detailed description of the way database integration is achived."),
     }),
   });
 export type DdlFileSummary = z.infer<typeof ddlFileSummarySchema>;

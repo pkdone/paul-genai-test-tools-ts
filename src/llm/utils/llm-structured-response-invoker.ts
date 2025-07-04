@@ -30,7 +30,7 @@ export class LLMStructuredResponseInvoker {
 
     // Try to use the LLM to correct the LLM response and return that if valid
     logErrorMsgAndDetail(
-      `JSON validation failed for '${taskLabel}', so attempting self-correction with an the LLM...`,
+      `Structured validation of the response for a particular schema failed for '${taskLabel}', so attempting self-correction with an the LLM...`,
       validation.error.format(),
     );
     const correctionPrompt = this.buildCorrectionPrompt(response, schema, validation.error);
@@ -39,12 +39,14 @@ export class LLMStructuredResponseInvoker {
       correctionPrompt,
     );
     const retryValidation = schema.safeParse(correctedResponse);
-    console.log(`Suceeded in using an LLM to fix the JSON format for '${taskLabel}' and geting a corrected response`);
+    console.log(
+      `Suceeded in using an LLM to fix the schema structured format for '${taskLabel}' and geting a corrected response`,
+    );
     if (retryValidation.success) return retryValidation.data;
 
     // Otherwise assume failure
     throw new Error(
-      `Failed to get schema valid LLM JSON response even after retry for ${taskLabel}: ${retryValidation.error.message}`,
+      `Failed to get schema valid LLM schema structured response even after retry for ${taskLabel}: ${retryValidation.error.message}`,
     );
   }
 
@@ -80,7 +82,7 @@ export class LLMStructuredResponseInvoker {
     schema: z.ZodType<T>,
     validationError: z.ZodError,
   ): string {
-    return `The previous JSON response had validation errors. Please fix the following JSON to strictly match the provided schema.
+    return `The previous JSON response had schema validation errors. Please fix the following JSON to strictly match the provided schema.
 ---
 ORIGINAL JSON:
 ${JSON.stringify(originalResponse)}

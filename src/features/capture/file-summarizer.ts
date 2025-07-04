@@ -9,6 +9,21 @@ import { fileTypeMetataDataAndPromptTemplate } from "./ingestion.config";
 import { createPromptFromConfig } from "../../llm/utils/prompting/prompt-templator";
 import { appConfig } from "../../config/app.config";
 
+// Base template for detailed file summary prompts (Java, JS, etc.)
+const SOURCES_SUMMARY_CAPTURE_TEMPLATE = `Act as a programmer. Take the {{fileContentDesc}} shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
+
+{{specificInstructions}}
+
+The JSON response must follow this JSON schema:
+\`\`\`json
+{{jsonSchema}}
+\`\`\`
+
+{{forceJSON}}
+
+CODE:
+{{codeContent}}`;
+
 // Result type for better error handling
 export type SummaryResult<T = SummaryType> =
   | { success: true; data: T }
@@ -25,20 +40,6 @@ export interface FileHandler<T extends SummaryType = SummaryType> {
  */
 @injectable()
 export class FileSummarizer {
-  // Base template for detailed file summary prompts (Java, JS, etc.)
-  private readonly SOURCES_SUMMARY_CAPTURE_TEMPLATE = `Act as a programmer. Take the {{fileContentDesc}} shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
-
-{{specificInstructions}}
-
-The JSON response must follow this JSON schema:
-\`\`\`json
-{{jsonSchema}}
-\`\`\`
-
-{{forceJSON}}
-
-CODE:
-{{codeContent}}`;
   constructor(
     @inject(TOKENS.LLMStructuredResponseInvoker)
     private readonly llmUtilityService: LLMStructuredResponseInvoker,
@@ -80,7 +81,6 @@ CODE:
       fileType = "markdown";
     }
 
-    // Create file handler (merged from createFileHandler logic)
     // Use the prompt type to determine the schema, ensuring consistency
     const promptType =
       appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ?? "default";
@@ -102,6 +102,6 @@ CODE:
     const promptType =
       appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ?? "default";
     const config = fileTypeMetataDataAndPromptTemplate[promptType];
-    return createPromptFromConfig(this.SOURCES_SUMMARY_CAPTURE_TEMPLATE, config, content);
+    return createPromptFromConfig(SOURCES_SUMMARY_CAPTURE_TEMPLATE, config, content);
   }
 }

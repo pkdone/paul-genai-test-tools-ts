@@ -369,7 +369,11 @@ describe("FileSummarizer", () => {
           tables: [],
           storedProcedures: [],
           triggers: [],
-          databaseIntegration: { mechanism: "DDL", description: "Schema definition", codeExample: "CREATE TABLE test (id INT);" },
+          databaseIntegration: {
+            mechanism: "DDL",
+            description: "Schema definition",
+            codeExample: "CREATE TABLE test (id INT);",
+          },
         });
 
         await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
