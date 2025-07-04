@@ -171,6 +171,8 @@ export class HtmlReportFormatter {
 
         if (key === "link") {
           html.push(`<td><a href="${stringValue}" target="_blank">Link</a></td>`);
+        } else if (key === "codeExample") {
+          html.push(`<td><pre><code>${stringValue}</code></pre></td>`);
         } else {
           html.push(`<td>${stringValue}</td>`);
         }
