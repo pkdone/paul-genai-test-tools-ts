@@ -63,15 +63,11 @@ export const ddlFileSummarySchema = sourceFileSummarySchema
 export type DdlFileSummary = z.infer<typeof ddlFileSummarySchema>;
 
 // Schema for `xml-file-summary.prompt`
-export const xmlFileSummarySchema = sourceFileSummarySchema
-  .pick({
-    purpose: true,
-    implementation: true,
-    databaseIntegration: true,
-  })
-  .extend({
-    fileType: z.literal("xml").describe("The file type identifier"),
-  });
+export const xmlFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  databaseIntegration: true,
+});
 export type XmlFileSummary = z.infer<typeof xmlFileSummarySchema>;
 
 // Schema for `jsp-file-summary.prompt`
@@ -85,13 +81,23 @@ export const jspFileSummarySchema = sourceFileSummarySchema.pick({
 export type JspFileSummary = z.infer<typeof jspFileSummarySchema>;
 
 // Schema for `markdown-file-summary.prompt`More actions
-export const markdownFileSummarySchema = sourceFileSummarySchema
-  .pick({
-    purpose: true,
-    implementation: true,
-    databaseIntegration: true,
-  })
-  .extend({
-    fileType: z.literal("markdown").describe("The file type identifier"),
-  });
+export const markdownFileSummarySchema = sourceFileSummarySchema.pick({
+  purpose: true,
+  implementation: true,
+  databaseIntegration: true,
+});
 export type MarkdownFileSummary = z.infer<typeof markdownFileSummarySchema>;
+
+// Strong typing for all possible summary types - need to block lint because it complains that some
+// of the types are duplicate but we want to keep them all in case one of the types diverges in the
+// future, rather than dropping one of then arbitrarily.
+/* eslint-disable @typescript-eslint/no-duplicate-type-constituents */
+export type SummaryType =
+  | JavaFileSummary
+  | JsFileSummary
+  | DefaultFileSummary
+  | DdlFileSummary
+  | XmlFileSummary
+  | JspFileSummary
+  | MarkdownFileSummary;
+/* eslint-enable @typescript-eslint/no-duplicate-type-constituents */

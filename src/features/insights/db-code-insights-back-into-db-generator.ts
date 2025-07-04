@@ -10,7 +10,7 @@ import type { PartialAppSummaryRecord } from "../../repositories/app-summary/app
 import { TOKENS } from "../../di/tokens";
 import { SummaryCategory, summaryCategoriesConfig } from "../../config/summary-categories.config";
 import { AppSummaryCategoryEnum } from "../../schemas/app-summaries.schema";
-import { createInsightsPrompt } from "./insights.prompts";
+import { createPromptFromConfig } from "../../llm/utils/prompting/prompt-templator";
 
 /**
  * Generates metadata in database collections to capture application information,
@@ -18,6 +18,9 @@ import { createInsightsPrompt } from "./insights.prompts";
  */
 @injectable()
 export default class DBCodeInsightsBackIntoDBGenerator {
+  // Base template for all insights generation prompts
+  private readonly APP_CATEGORY_SUMMARIZER_TEMPLATE =
+    "Act as a programmer analyzing the code in a legacy application. Take the list of paths and descriptions of its {{fileContentDesc}} shown below in the section marked 'SOURCES', and based on their content, return a JSON response that contains {{specificInstructions}}.\n\nThe JSON response must follow this JSON schema:\n```json\n{{jsonSchema}}\n```\n\n{{forceJSON}}\n\nSOURCES:\n{{codeContent}}";
   private readonly llmProviderDescription: string;
 
   /**
@@ -122,7 +125,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       const schema = summaryCategoriesConfig[category].schema;
       const resourceName = `${String(category)} - generate-${String(category)}.prompt`;
       const content = joinArrayWithSeparators(sourceFileSummaries);
-      const prompt = createInsightsPrompt(category, content);
+      const prompt = this.createInsightsPrompt(category, content);
       const llmResponse: unknown = await this.llmUtilityService.getStructuredResponse(
         resourceName,
         prompt,
@@ -136,5 +139,21 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       );
       return null;
     }
+  }
+
+  /**
+   * Generic function to create any insights prompt using the data-driven approach
+   */
+  private createInsightsPrompt(type: SummaryCategory, codeContent: string): string {
+    const config = summaryCategoriesConfig[type];
+    return createPromptFromConfig(
+      this.APP_CATEGORY_SUMMARIZER_TEMPLATE,
+      {
+        instructions: config.description,
+        schema: config.schema,
+        fileContentDesc: "source files",
+      },
+      codeContent,
+    );
   }
 }

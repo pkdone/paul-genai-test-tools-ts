@@ -1,23 +1,9 @@
-Improve handling of App Summary Categories. Act as a senior programmer analyzing the code in a TypeScript application where the content of each file in the application's codebase is shown below in a code block.
+Additional data to capture and show. Act as a senior programmer analyzing the code in a TypeScript application where the content of each file in the application's codebase is shown below in a code block.
 
-The code builds prompts for an LLM to get various insights for an application, including:
+Your job come up with detailed plan to inform a senior developer how to chnage the code and then ensure evertyhing passes compile, lint and unit test checksfor the following new functionality:
 
- * "appDescription"
- * "boundedContexts"
- * "businessEntities"
- * "businessProcesses"
- * "technologies";
-
- The current code hanging off the source code folder `src/features/insights` is problematic in multiple ways, including:
-
-  * `insightsPromptTemplates` in src/features/insights/insights.prompts.ts and `categoryPromptSchemaMappings` in src/features/insights/category-mappings.ts both define the same schema mappings which is duplication
-  * The declarations and use of "appDescription" | "boundedContexts" | "businessEntities" | "businessProcesses" | "technologies"  happen in multiple places in subtley different ways including defining types and interfaces, defining keys for records, defining promptTypes, etc. 
-  * The solution is too verbose
-
-I've added `// TODO:` comments for examples of problematic parts of the code.
-
-Prefer to use Zod for places you need to define schema.
-
-Your job is to generate a full plan of code improvements (to be given to a senior developer to implement) to address the issues and then how to validate that the improved code is still fit for purpose and correct.
+* In databaseIntegrationSchema in src/schemas/sources.schema.ts add a new field called codeExample describing this field as "A single very small redacted example of some code that performs the database integration (if no database integration, just state 'n/a')"
+* In sources captures into the database, ensure this field is captured.
+* In the report generation, ensue this field is shown in the relevant HTML table
 
 In your plan, include the list or relative file paths of each source file affected.

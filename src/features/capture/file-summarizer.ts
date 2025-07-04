@@ -1,14 +1,12 @@
 import path from "path";
 import { injectable, inject } from "tsyringe";
+import { z } from "zod";
 import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-utils";
 import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import { TOKENS } from "../../di/tokens";
-import {
-  SummaryType,
-  FileHandler,
-  filePromptSchemaMappings,
-  defaultHandler,
-} from "./file-handler-mappings";
+import { SummaryType } from "./ingestion.schemas";
+import { fileTypeMetataDataAndPromptTemplate } from "./ingestion.config";
+import { createPromptFromConfig } from "../../llm/utils/prompting/prompt-templator";
 import { appConfig } from "../../config/app.config";
 
 // Result type for better error handling
@@ -16,11 +14,31 @@ export type SummaryResult<T = SummaryType> =
   | { success: true; data: T }
   | { success: false; error: string };
 
+// Type-safe file handler configuration
+export interface FileHandler<T extends SummaryType = SummaryType> {
+  promptCreator: (content: string) => string;
+  schema: z.ZodType<T>;
+}
+
 /**
  * Responsible for LLM-based file summarization with strong typing and robust error handling.
  */
 @injectable()
 export class FileSummarizer {
+  // Base template for detailed file summary prompts (Java, JS, etc.)
+  private readonly SOURCES_SUMMARY_CAPTURE_TEMPLATE = `Act as a programmer. Take the {{fileContentDesc}} shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
+
+{{specificInstructions}}
+
+The JSON response must follow this JSON schema:
+\`\`\`json
+{{jsonSchema}}
+\`\`\`
+
+{{forceJSON}}
+
+CODE:
+{{codeContent}}`;
   constructor(
     @inject(TOKENS.LLMStructuredResponseInvoker)
     private readonly llmUtilityService: LLMStructuredResponseInvoker,
@@ -36,7 +54,7 @@ export class FileSummarizer {
   ): Promise<SummaryResult> {
     try {
       if (content.trim().length === 0) return { success: false, error: "File is empty" };
-      const handler = this.getFileHandler(filepath, type);
+      const handler = this.getFileTemplatorAndSchema(filepath, type);
       const prompt = handler.promptCreator(content);
       const llmResponse = await this.llmUtilityService.getStructuredResponse(
         filepath,
@@ -55,13 +73,35 @@ export class FileSummarizer {
   /**
    * Get appropriate file handler based on filepath and type.
    */
-  private getFileHandler(filepath: string, type: string): FileHandler {
+  private getFileTemplatorAndSchema(filepath: string, type: string): FileHandler {
+    // Handle README files by treating them as markdown
+    let fileType = type;
     if (path.basename(filepath).toUpperCase() === appConfig.README_FILE_NAME) {
-      const readmeHandler = filePromptSchemaMappings.get(appConfig.README_FILE_NAME);
-      return readmeHandler ?? defaultHandler;
-    } else {
-      const handler = filePromptSchemaMappings.get(type.toLowerCase());
-      return handler ?? defaultHandler;
+      fileType = "markdown";
     }
+
+    // Create file handler (merged from createFileHandler logic)
+    // Use the prompt type to determine the schema, ensuring consistency
+    const promptType =
+      appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ?? "default";
+    const config =
+      fileTypeMetataDataAndPromptTemplate[promptType] ??
+      fileTypeMetataDataAndPromptTemplate.default;
+    const schema = config.schema as z.ZodType<SummaryType>;
+    return {
+      promptCreator: (content: string) => this.createPromptForFileType(fileType, content),
+      schema,
+    };
+  }
+
+  /**
+   * Create prompts for file types.
+   */
+  private createPromptForFileType(fileType: string, content: string): string {
+    // Normalize file type to supported prompt types
+    const promptType =
+      appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ?? "default";
+    const config = fileTypeMetataDataAndPromptTemplate[promptType];
+    return createPromptFromConfig(this.SOURCES_SUMMARY_CAPTURE_TEMPLATE, config, content);
   }
 }

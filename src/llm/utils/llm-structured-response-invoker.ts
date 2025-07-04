@@ -39,6 +39,7 @@ export class LLMStructuredResponseInvoker {
       correctionPrompt,
     );
     const retryValidation = schema.safeParse(correctedResponse);
+    console.log(`Suceeded in using an LLM to fix the JSON format for '${taskLabel}' and geting a corrected response`);
     if (retryValidation.success) return retryValidation.data;
 
     // Otherwise assume failure

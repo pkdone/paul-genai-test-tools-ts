@@ -25,8 +25,7 @@ export const summaryCategoriesConfig: Record<
   },
   boundedContexts: {
     label: "Bounded Contexts",
-    description:
-      "a concise list of the bounded contexts from a Domain Driven Design perspective.",
+    description: "a concise list of the bounded contexts from a Domain Driven Design perspective.",
     schema: boundedContextsKeyValPairSchema,
   },
   businessEntities: {

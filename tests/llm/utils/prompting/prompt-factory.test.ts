@@ -7,7 +7,8 @@ import {
 describe("prompt-utils", () => {
   describe("createPromptFromConfig", () => {
     it("should create a prompt with simple string schema", () => {
-      const template = "Generate JSON following this schema: {{jsonSchema}}\n\nContent: {{codeContent}}";
+      const template =
+        "Generate JSON following this schema: {{jsonSchema}}\n\nContent: {{codeContent}}";
       const config: PromptConfig = {
         schema: z.string(),
         fileContentDesc: "text file",
@@ -44,7 +45,8 @@ describe("prompt-utils", () => {
     });
 
     it("should handle template placeholders correctly", () => {
-      const template = "File Type: {{fileContentDesc}}\nInstructions: {{specificInstructions}}\nSchema: {{jsonSchema}}\nCode: {{codeContent}}";
+      const template =
+        "File Type: {{fileContentDesc}}\nInstructions: {{specificInstructions}}\nSchema: {{jsonSchema}}\nCode: {{codeContent}}";
       const config: PromptConfig = {
         schema: z.object({
           value: z.string(),

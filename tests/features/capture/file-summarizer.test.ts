@@ -19,6 +19,70 @@ jest.mock("../../../src/common/utils/error-utils", () => ({
 jest.mock("../../../src/config/app.config", () => ({
   appConfig: {
     README_FILE_NAME: "README",
+    FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS: new Map<string, string>([
+      ["java", "java"],
+      ["js", "javascript"],
+      ["ts", "javascript"],
+      ["javascript", "javascript"],
+      ["typescript", "javascript"],
+      ["ddl", "ddl"],
+      ["sql", "ddl"],
+      ["xml", "xml"],
+      ["jsp", "jsp"],
+      ["markdown", "markdown"],
+      ["md", "markdown"],
+    ]),
+  },
+}));
+
+jest.mock("../../../src/features/capture/ingestion.config", () => ({
+  fileTypeMetataDataAndPromptTemplate: {
+    java: {
+      fileContentDesc: "Java code",
+      instructions: "Java instructions",
+      schema: { _def: { typeName: "ZodObject" } },
+    },
+    javascript: {
+      fileContentDesc: "JavaScript/TypeScript code",
+      instructions: "JavaScript instructions",
+      schema: { _def: { typeName: "ZodObject" } },
+    },
+    default: {
+      fileContentDesc: "project file content",
+      instructions: "Default instructions",
+      schema: { _def: { typeName: "ZodObject" } },
+    },
+    ddl: {
+      fileContentDesc: "database DDL/DML/SQL code",
+      instructions: "DDL instructions",
+      schema: { _def: { typeName: "ZodObject" } },
+    },
+    xml: {
+      fileContentDesc: "XML code",
+      instructions: "XML instructions",
+      schema: { _def: { typeName: "ZodObject" } },
+    },
+    jsp: {
+      fileContentDesc: "JSP code",
+      instructions: "JSP instructions",
+      schema: { _def: { typeName: "ZodObject" } },
+    },
+    markdown: {
+      fileContentDesc: "Markdown content",
+      instructions: "Markdown instructions",
+      schema: { _def: { typeName: "ZodObject" } },
+    },
+  },
+}));
+
+jest.mock("../../../src/llm/utils/prompting/prompt-templator", () => ({
+  createPromptFromConfig: jest.fn(
+    (_template: string, config: { fileContentDesc: string }, content: string) => {
+      return `Mock prompt for ${config.fileContentDesc} with content: ${content}`;
+    },
+  ),
+  promptConfig: {
+    FORCE_JSON_RESPONSE_TEXT: "Mock JSON response text",
   },
 }));
 
@@ -76,7 +140,7 @@ describe("FileSummarizer", () => {
         }
         expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
           filepath,
-          expect.stringContaining("Act as a programmer"),
+          expect.stringContaining("Mock prompt for Java code"),
           expect.any(Object),
           filepath,
         );
@@ -269,7 +333,7 @@ describe("FileSummarizer", () => {
 
         expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
           filepath,
-          expect.stringContaining("Java code shown below"),
+          expect.stringContaining("Mock prompt for Java code"),
           expect.any(Object),
           filepath,
         );
@@ -286,7 +350,7 @@ describe("FileSummarizer", () => {
 
         expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
           filepath,
-          expect.stringContaining("JavaScript/TypeScript code shown below"),
+          expect.stringContaining("Mock prompt for JavaScript/TypeScript code"),
           expect.any(Object),
           filepath,
         );
@@ -310,7 +374,7 @@ describe("FileSummarizer", () => {
 
         expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
           filepath,
-          expect.stringContaining("database DDL/SQL code shown below"),
+          expect.stringContaining("Mock prompt for database DDL/DML/SQL code"),
           expect.any(Object),
           filepath,
         );
@@ -336,9 +400,9 @@ describe("FileSummarizer", () => {
 
       test("should handle case variations in file types", async () => {
         const testCases = [
-          { type: "JAVA", expectedPrompt: "Java code shown below" },
-          { type: "JavaScript", expectedPrompt: "JavaScript/TypeScript code shown below" },
-          { type: "SQL", expectedPrompt: "database DDL/SQL code shown below" },
+          { type: "JAVA", expectedPrompt: "Mock prompt for Java code" },
+          { type: "JavaScript", expectedPrompt: "Mock prompt for JavaScript/TypeScript code" },
+          { type: "SQL", expectedPrompt: "Mock prompt for database DDL/DML/SQL code" },
         ];
 
         for (const testCase of testCases) {
@@ -363,7 +427,7 @@ describe("FileSummarizer", () => {
     });
 
     describe("integration with file handler mappings", () => {
-      test("should correctly integrate with filePromptSchemaMappings", async () => {
+      test("should correctly integrate with file handler mappings", async () => {
         const filepath = "src/component.jsx";
         const type = "js"; // JSX would map to JS handler
         const content = "const Component = () => <div>Hello</div>;";
@@ -393,7 +457,7 @@ describe("FileSummarizer", () => {
         expect(result.success).toBe(true);
         expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
           filepath,
-          expect.stringContaining("project file content shown below"), // Default prompt pattern
+          expect.stringContaining("Mock prompt for project file content"), // Default prompt pattern
           expect.any(Object),
           filepath,
         );

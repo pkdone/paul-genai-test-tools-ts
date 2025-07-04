@@ -1,29 +1,10 @@
 import * as schemas from "./ingestion.schemas";
-import {
-  createPromptFromConfig,
-  PromptConfig,
-} from "../../llm/utils/prompting/prompt-templator";
-import { promptConfig } from "../../llm/utils/prompting/prompt-templator";
-
-// Base template for detailed file summary prompts (Java, JS, etc.)
-const SOURCES_SUMMARY_CAPTURE_TEMPLATE = `Act as a programmer. Take the {{fileContentDesc}} shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
-
-{{specificInstructions}}
-
-The JSON response must follow this JSON schema:
-\`\`\`json
-{{jsonSchema}}
-\`\`\`
-
-${promptConfig.FORCE_JSON_RESPONSE_TEXT}
-
-CODE:
-{{codeContent}}`;
+import { PromptConfig } from "../../llm/utils/prompting/prompt-templator";
 
 /**
  * Data-driven mapping of prompt types to their templates and schemas
  */
-export const sourceSummaryCapturePromptTemplates: Record<string, PromptConfig> = {
+export const fileTypeMetataDataAndPromptTemplate: Record<string, PromptConfig> = {
   java: {
     fileContentDesc: "Java code",
     instructions: `* The name of the main public class/interface of the file
@@ -47,7 +28,7 @@ export const sourceSummaryCapturePromptTemplates: Record<string, PromptConfig> =
     (note, JMS and JNDI are not related to interacting with a dataase)`,
     schema: schemas.javaFileSummarySchema,
   },
-  js: {
+  javascript: {
     fileContentDesc: "JavaScript/TypeScript code",
     instructions: `* A very detailed definition of its purpose
  * A very detailed definition of its implementation
@@ -63,8 +44,8 @@ export const sourceSummaryCapturePromptTemplates: Record<string, PromptConfig> =
 * The type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.`,
     schema: schemas.defaultFileSummarySchema,
   },
-  ddl: {
-    fileContentDesc: "database DDL/SQL code",
+  sql: {
+    fileContentDesc: "database DDL/DML/SQL code",
     instructions: `* A detailed definition of its purpose
  * A detailed definition of its implementation
  * A list of the tables (if any) it defines - for each table, include the table's name and a copy of the command that creates the file used to create the table
@@ -98,20 +79,3 @@ export const sourceSummaryCapturePromptTemplates: Record<string, PromptConfig> =
     schema: schemas.markdownFileSummarySchema,
   },
 } as const;
-
-/**
- * Type for valid prompt template keys
- */
-export type SummaryPromptType = keyof typeof sourceSummaryCapturePromptTemplates;
-
-/**
- * Generic function to create any summary prompt using the data-driven approach
- */
-export const createSummaryPrompt = (type: SummaryPromptType, codeContent: string): string => {
-  const config = sourceSummaryCapturePromptTemplates[type];
-  return createPromptFromConfig(
-    SOURCES_SUMMARY_CAPTURE_TEMPLATE,
-    config,
-    codeContent,
-  );
-};
