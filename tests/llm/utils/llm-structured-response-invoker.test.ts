@@ -225,11 +225,11 @@ describe("LLMStructuredResponseInvoker", () => {
             "user generation task",
           ),
         ).rejects.toThrow(
-          /Failed to get schema valid LLM schema structured response even after retry for user generation task/,
+          /LLM returned non-object JSON for test-resource: object/,
         );
 
-        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(2);
-        expect(mockLogErrorMsgAndDetail).toHaveBeenCalledTimes(1);
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(1);
+        expect(mockLogErrorMsgAndDetail).not.toHaveBeenCalled();
       });
       test("should throw error when LLM returns array", async () => {
         const arrayResponse: number[] = [1, 2, 3];

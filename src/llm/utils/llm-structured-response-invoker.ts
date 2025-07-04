@@ -63,7 +63,7 @@ export class LLMStructuredResponseInvoker {
       requireJSON: true,
     });
 
-    if (Array.isArray(response) || typeof response !== "object") {
+    if (Array.isArray(response) || typeof response !== "object" || response === null) {
       logErrorMsg(
         `Error - LLM response processing '${resourceName}' is not JSON - value returned was: ${JSON.stringify(response)}`,
       );

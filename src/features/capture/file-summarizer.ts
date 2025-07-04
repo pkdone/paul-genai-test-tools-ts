@@ -5,7 +5,7 @@ import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-uti
 import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import { TOKENS } from "../../di/tokens";
 import { SummaryType } from "./ingestion.schemas";
-import { fileTypeMetataDataAndPromptTemplate } from "./ingestion.config";
+import { fileTypeMetataDataAndPromptTemplate } from "./file-handler.config";
 import { createPromptFromConfig } from "../../llm/utils/prompting/prompt-templator";
 import { appConfig } from "../../config/app.config";
 

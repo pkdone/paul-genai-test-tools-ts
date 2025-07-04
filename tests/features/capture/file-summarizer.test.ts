@@ -35,7 +35,7 @@ jest.mock("../../../src/config/app.config", () => ({
   },
 }));
 
-jest.mock("../../../src/features/capture/ingestion.config", () => ({
+jest.mock("../../../src/features/capture/file-handler.config", () => ({
   fileTypeMetataDataAndPromptTemplate: {
     java: {
       fileContentDesc: "Java code",

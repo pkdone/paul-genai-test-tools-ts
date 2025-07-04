@@ -36,7 +36,12 @@ export function getErrorText(error: unknown): string {
   } else if (typeof error === "object" && "message" in error) {
     return `${errType}. ${String(error.message)}`;
   } else {
-    return `${errType}. ${JSON.stringify(error)}`;
+    // Use safe stringification to prevent circular reference errors
+    try {
+      return `${errType}. ${JSON.stringify(error)}`;
+    } catch {
+      return `${errType}. (Unserializable object)`;
+    }
   }
 }
 
@@ -49,6 +54,12 @@ export function getErrorStack(obj: unknown): string {
     return obj.stack ?? `Error: ${obj.message} (Stack trace not available)`;
   } else {
     // For non-Error objects, provide a generic message or a new stack trace indicating it's for a non-Error
-    return `Stack trace for non-Error object (details: ${JSON.stringify(obj)}): \n${new Error().stack ?? "No stack trace available"}`;
+    let details: string;
+    try {
+      details = JSON.stringify(obj);
+    } catch {
+      details = "(Unserializable object)";
+    }
+    return `Stack trace for non-Error object (details: ${details}): \n${new Error().stack ?? "No stack trace available"}`;
   }
 }

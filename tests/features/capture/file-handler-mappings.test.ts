@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { fileTypeMetataDataAndPromptTemplate } from "../../../src/features/capture/ingestion.config";
+import { fileTypeMetataDataAndPromptTemplate } from "../../../src/features/capture/file-handler.config";
 import { appConfig } from "../../../src/config/app.config";
 import { SummaryType } from "../../../src/features/capture/ingestion.schemas";
 import * as summarySchemas from "../../../src/features/capture/ingestion.schemas";

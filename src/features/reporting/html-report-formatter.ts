@@ -34,7 +34,6 @@ export class HtmlReportFormatter {
     for (const categoryData of categorizedData) {
       html.push(
         ...this.formatHTMLTableForCategory(
-          categoryData.category,
           categoryData.label,
           categoryData.data,
         ),
@@ -66,7 +65,6 @@ export class HtmlReportFormatter {
    * Format a category's data as an HTML table
    */
   formatHTMLTableForCategory(
-    _category: string,
     label: string,
     data: AppSummaryNameDescArray,
   ): string[] {
