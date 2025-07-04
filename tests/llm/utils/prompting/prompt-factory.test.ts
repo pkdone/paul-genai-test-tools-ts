@@ -1,7 +1,7 @@
 import { z } from "zod";
 import {
   createPromptFromConfig,
-  PromptConfig,
+  DynamicPromptReplaceVars,
 } from "../../../../src/llm/utils/prompting/prompt-templator";
 
 describe("prompt-utils", () => {
@@ -9,7 +9,7 @@ describe("prompt-utils", () => {
     it("should create a prompt with simple string schema", () => {
       const template =
         "Generate JSON following this schema: {{jsonSchema}}\n\nContent: {{codeContent}}";
-      const config: PromptConfig = {
+      const config: DynamicPromptReplaceVars = {
         schema: z.string(),
         fileContentDesc: "text file",
         instructions: "process this text",
@@ -25,7 +25,7 @@ describe("prompt-utils", () => {
 
     it("should create a prompt with object schema", () => {
       const template = "Schema: {{jsonSchema}}\nContent: {{codeContent}}";
-      const config: PromptConfig = {
+      const config: DynamicPromptReplaceVars = {
         schema: z.object({
           name: z.string(),
           age: z.number(),
@@ -47,7 +47,7 @@ describe("prompt-utils", () => {
     it("should handle template placeholders correctly", () => {
       const template =
         "File Type: {{fileContentDesc}}\nInstructions: {{specificInstructions}}\nSchema: {{jsonSchema}}\nCode: {{codeContent}}";
-      const config: PromptConfig = {
+      const config: DynamicPromptReplaceVars = {
         schema: z.object({
           value: z.string(),
         }),
@@ -66,7 +66,7 @@ describe("prompt-utils", () => {
 
     it("should format JSON schema with proper indentation", () => {
       const template = "{{jsonSchema}}";
-      const config: PromptConfig = {
+      const config: DynamicPromptReplaceVars = {
         schema: z.object({
           nested: z.object({
             value: z.string(),
@@ -86,7 +86,7 @@ describe("prompt-utils", () => {
 
     it("should handle array schemas", () => {
       const template = "{{jsonSchema}}";
-      const config: PromptConfig = {
+      const config: DynamicPromptReplaceVars = {
         schema: z.array(z.string()),
         fileContentDesc: "list file",
         instructions: "extract items",
@@ -101,7 +101,7 @@ describe("prompt-utils", () => {
 
     it("should handle optional fields in object schemas", () => {
       const template = "{{jsonSchema}}";
-      const config: PromptConfig = {
+      const config: DynamicPromptReplaceVars = {
         schema: z.object({
           required: z.string(),
           optional: z.string().optional(),
@@ -122,7 +122,7 @@ describe("prompt-utils", () => {
 
     it("should handle empty content", () => {
       const template = "Schema: {{jsonSchema}}\nContent: {{codeContent}}";
-      const config: PromptConfig = {
+      const config: DynamicPromptReplaceVars = {
         schema: z.string(),
         fileContentDesc: "empty file",
         instructions: "handle empty content",
@@ -137,7 +137,7 @@ describe("prompt-utils", () => {
 
     it("should handle complex nested schemas", () => {
       const template = "{{jsonSchema}}\n{{codeContent}}";
-      const config: PromptConfig = {
+      const config: DynamicPromptReplaceVars = {
         schema: z.object({
           user: z.object({
             profile: z.object({

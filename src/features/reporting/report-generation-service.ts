@@ -7,7 +7,7 @@ import { appConfig } from "../../config/app.config";
 import { reportingConfig } from "./reporting.config";
 import { clearDirectory, writeFile } from "../../common/utils/fs-utils";
 import path from "path";
-import AppReportGenerator from "./reportGeneration/app-report-generator";
+import AppReportGenerator from "./app-report-generator";
 
 /**
  * Service to generate a report of an application's composition.

@@ -9,9 +9,9 @@ import { AppSummariesRepository } from "../../repositories/app-summary/app-summa
 
 // Component imports
 import { FileSummarizer } from "../../features/capture/file-summarizer";
-import { HtmlReportFormatter } from "../../features/reporting/reportGeneration/html-report-formatter";
+import { HtmlReportFormatter } from "../../features/reporting/html-report-formatter";
 import { RawCodeToInsightsFileGenerator } from "../../features/oneShot/one-shot-insights-generator";
-import AppReportGenerator from "../../features/reporting/reportGeneration/app-report-generator";
+import AppReportGenerator from "../../features/reporting/app-report-generator";
 import CodebaseToDBLoader from "../../features/capture/codebase-to-db-loader";
 import CodeQuestioner from "../../features/querying/code-questioner";
 import DBCodeInsightsBackIntoDBGenerator from "../../features/insights/db-code-insights-back-into-db-generator";

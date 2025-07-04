@@ -1,5 +1,5 @@
 import * as schemas from "./ingestion.schemas";
-import { PromptConfig } from "../../llm/utils/prompting/prompt-templator";
+import { DynamicPromptReplaceVars } from "../../llm/utils/prompting/prompt-templator";
 
 /**
  * Common instruction phrases used across multiple file type templates
@@ -22,7 +22,7 @@ const COMMON_INSTRUCTIONS = {
 /**
  * Data-driven mapping of prompt types to their templates and schemas
  */
-export const fileTypeMetataDataAndPromptTemplate: Record<string, PromptConfig> = {
+export const fileTypeMetataDataAndPromptTemplate: Record<string, DynamicPromptReplaceVars> = {
   java: {
     fileContentDesc: "Java code",
     instructions: `* The name of the main public class/interface of the file

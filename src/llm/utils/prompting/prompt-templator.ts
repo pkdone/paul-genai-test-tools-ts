@@ -12,7 +12,7 @@ ONLY provide an RFC8259 compliant JSON response that strictly follows the provid
 /**
  * Configuration for prompts that need file type and instructions
  */
-export interface PromptConfig {
+export interface DynamicPromptReplaceVars {
   schema: z.ZodType;
   fileContentDesc: string;
   instructions: string;
@@ -23,23 +23,14 @@ export interface PromptConfig {
  */
 export function createPromptFromConfig(
   template: string,
-  config: PromptConfig,
+  config: DynamicPromptReplaceVars,
   codeContent: string,
 ): string {
   return fillPrompt(template, {
     fileContentDesc: config.fileContentDesc,
     specificInstructions: config.instructions,
     forceJSON: FORCE_JSON_RESPONSE_TEXT,
-    jsonSchema: schemaToJsonString(config.schema),
+    jsonSchema: JSON.stringify(zodToJsonSchema(config.schema), null, 2),
     codeContent: codeContent,
   });
-}
-
-/**
- * Helper function to convert a Zod schema to a JSON string for use in prompts
- * @param schema - The Zod schema to convert
- * @returns A formatted JSON string representation of the schema
- */
-function schemaToJsonString(schema: z.ZodType): string {
-  return JSON.stringify(zodToJsonSchema(schema), null, 2);
 }
