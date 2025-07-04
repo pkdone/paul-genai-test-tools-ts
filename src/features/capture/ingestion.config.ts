@@ -25,7 +25,8 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, PromptConfig> =
     - Code has a Java class integrating with a database by an Enterprise Java Bean (EJB), which also could be CMP or BMP based (set mechanism: 'EJB')
     - Code uses a 3rd party framework/library for database access (set mechanism: 'OTHER')
     - Otherwise, if the code does not use a database, then set mechanism: 'NONE'
-    (note, JMS and JNDI are not related to interacting with a dataase)`,
+    (note, JMS and JNDI are not related to interacting with a dataase)
+ * A single very small redacted example of some code that performs the database integration (if no database integration, just state 'n/a')`,
     schema: schemas.javaFileSummarySchema,
   },
   javascript: {
@@ -34,14 +35,16 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, PromptConfig> =
  * A very detailed definition of its implementation
  * A list of the internal references to other modules used by this source file (by using \`require\` or \`import\` keywords) belonging to the same application referenced by the code in this source file (do not include external or 3rd party modules/libraries in the list of internal references)
  * A list of the external references to other external modules/libraries used by this source file (by using \`require\` or \`import\` keywords), which do not belong to this same application that this source file is part of
- * The type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.`,
+ * The type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.
+ * A single very small redacted example of some code that performs the database integration (if no database integration, just state 'n/a')`,
     schema: schemas.jsFileSummarySchema,
   },
   default: {
     fileContentDesc: "project file content",
     instructions: `* A detailed definition of its purpose
 * A detailed definition of its implementation 
-* The type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.`,
+* The type of direct database integration via a driver/library/API it employs, if any (stating the mechanism used in capitals, or NONE if no code does not interact with a database directly) and a description of the database integration.
+* A single very small redacted example of some code that performs the database integration (if no database integration, just state 'n/a')`,
     schema: schemas.defaultFileSummarySchema,
   },
   sql: {
@@ -52,14 +55,16 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, PromptConfig> =
  * A list of the stored procedure (if any) it defines - for each stored procedure, include the stored procedure's name, its purpose in detail, the number of lines of code in the stored procedure, and a complexity score or how complex the stored procedure's code is (the score must be have one of the following values: 'LOW', 'MEDIUM', 'HIGH') along with a reason for the chosen complexity score.
  * A list of the triggers (if any) it defines - for each trigger, include the trigger's name, its purpose in detail, the number of lines of code in the trigger, and a complexity score or how complex the trigger's code is (the score must be have one of the following values: 'LOW', 'MEDIUM', 'HIGH') along with a reason for the chosen complexity score.
  * The most prominent type of database integration it employs (if any), stating the mechanism used ('NONE', 'DDL', 'DML', 'SQL', 'STORED-PROCEDURE', or 'TRIGGER') and a description of the integration 
- * The type of database integration it employs (if any), stating the mechanism used and a description of the integration`,
+ * The type of database integration it employs (if any), stating the mechanism used and a description of the integration
+ * A single very small redacted example of some code that performs the database integration (if no database integration, just state 'n/a')`,
     schema: schemas.ddlFileSummarySchema,
   },
   xml: {
     fileContentDesc: "XML code",
     instructions: `* Details about its purpose
 * Details about its implementation
-* The type of database integration it employs (if any), stating the mechanism used and a description of the integration`,
+* The type of database integration it employs (if any), stating the mechanism used and a description of the integration
+* A single very small redacted example of some code that performs the database integration (if no database integration, just state 'n/a')`,
     schema: schemas.xmlFileSummarySchema,
   },
   jsp: {
@@ -75,7 +80,8 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, PromptConfig> =
     fileContentDesc: "Markdown content",
     instructions: `* Details about its purpose
 * Details about its implementation
-* The type of database integration the markdown content implies that the application uses (if any), stating the mechanism used and a description of the integration`,
+* The type of database integration the markdown content implies that the application uses (if any), stating the mechanism used and a description of the integration
+* A single very small redacted example of some code that performs the database integration (if no database integration, just state 'n/a')`,
     schema: schemas.markdownFileSummarySchema,
   },
 } as const;

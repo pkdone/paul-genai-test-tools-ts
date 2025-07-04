@@ -139,6 +139,7 @@ export interface DatabaseIntegrationInfo {
   readonly path: string;
   readonly mechanism: string;
   readonly description: string;
+  readonly codeExample: string;
 }
 
 /**

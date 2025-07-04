@@ -121,6 +121,7 @@ describe("FileSummarizer", () => {
       databaseIntegration: {
         mechanism: "NONE",
         description: "No database integration",
+        codeExample: "n/a",
       },
     };
 
@@ -190,6 +191,7 @@ describe("FileSummarizer", () => {
           databaseIntegration: {
             mechanism: "DDL",
             description: "Database schema definition",
+            codeExample: "CREATE TABLE users (id INT PRIMARY KEY);",
           },
         };
 
@@ -367,7 +369,7 @@ describe("FileSummarizer", () => {
           tables: [],
           storedProcedures: [],
           triggers: [],
-          databaseIntegration: { mechanism: "DDL", description: "Schema definition" },
+          databaseIntegration: { mechanism: "DDL", description: "Schema definition", codeExample: "CREATE TABLE test (id INT);" },
         });
 
         await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
@@ -534,7 +536,7 @@ describe("FileSummarizer", () => {
       const testSuccessResponse = {
         purpose: "Test function",
         implementation: "Simple test implementation",
-        databaseIntegration: { mechanism: "NONE", description: "No database" },
+        databaseIntegration: { mechanism: "NONE", description: "No database", codeExample: "n/a" },
       };
 
       mockLLMInvoker.getStructuredResponse.mockResolvedValue(testSuccessResponse);

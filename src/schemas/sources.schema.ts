@@ -30,6 +30,11 @@ export const databaseIntegrationSchema = z
       .describe(
         "A detailed description of the way database integration is achived (or a note saying no database integration related code exists).",
       ),
+    codeExample: z
+      .string()
+      .describe(
+        "A single very small redacted example of some code that performs the database integration (if no database integration, just state 'n/a')",
+      ),
   })
   .passthrough();
 

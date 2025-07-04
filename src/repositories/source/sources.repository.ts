@@ -108,6 +108,7 @@ export default class SourcesRepositoryImpl
         "summary.classpath": 1,
         "summary.databaseIntegration.mechanism": 1,
         "summary.databaseIntegration.description": 1,
+        "summary.databaseIntegration.codeExample": 1,
         filepath: 1,
       },
       sort: {
@@ -129,6 +130,7 @@ export default class SourcesRepositoryImpl
             path: summary.classpath ?? filepath,
             mechanism: databaseIntegration.mechanism,
             description: databaseIntegration.description,
+            codeExample: databaseIntegration.codeExample,
           };
         }
         // This should not happen due to the filter above, but satisfies TypeScript
