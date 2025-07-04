@@ -138,7 +138,9 @@ describe("LLMStructuredResponseInvoker", () => {
         // Verify correction prompt was built correctly
         const correctionCall = mockLLMRouter.executeCompletion.mock.calls[1];
         expect(correctionCall[0]).toBe("test-resource-fix");
-        expect(correctionCall[1]).toContain("The previous JSON response had schema validation errors");
+        expect(correctionCall[1]).toContain(
+          "The previous JSON response had schema validation errors",
+        );
         expect(correctionCall[1]).toContain("ORIGINAL JSON:");
         expect(correctionCall[1]).toContain("SCHEMA:");
         expect(correctionCall[1]).toContain("VALIDATION ERRORS:");
@@ -408,7 +410,9 @@ describe("LLMStructuredResponseInvoker", () => {
         const correctionCall = mockLLMRouter.executeCompletion.mock.calls[1];
         const correctionPrompt = correctionCall[1];
 
-        expect(correctionPrompt).toContain("The previous JSON response had schema validation errors");
+        expect(correctionPrompt).toContain(
+          "The previous JSON response had schema validation errors",
+        );
         expect(correctionPrompt).toContain("ORIGINAL JSON:");
         expect(correctionPrompt).toContain(JSON.stringify(invalidResponse));
         expect(correctionPrompt).toContain("SCHEMA:");
