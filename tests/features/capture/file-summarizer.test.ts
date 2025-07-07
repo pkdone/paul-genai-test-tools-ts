@@ -18,7 +18,6 @@ jest.mock("../../../src/common/utils/error-utils", () => ({
 
 jest.mock("../../../src/config/app.config", () => ({
   appConfig: {
-    README_FILE_NAME: "README",
     FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS: new Map<string, string>([
       ["java", "java"],
       ["js", "javascript"],
@@ -32,6 +31,12 @@ jest.mock("../../../src/config/app.config", () => ({
       ["markdown", "markdown"],
       ["md", "markdown"],
     ]),
+    FILENAME_TO_CANONICAL_TYPE_MAPPINGS: new Map<string, string>([
+      ["readme", "markdown"],
+      ["license", "markdown"],
+      ["changelog", "markdown"],
+    ]),
+    DEFAULT_FILE_TYPE: "default",
   },
 }));
 
@@ -399,6 +404,24 @@ describe("FileSummarizer", () => {
         expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
           filepath,
           expect.any(String), // Would be markdown prompt
+          expect.any(Object),
+          filepath,
+        );
+      });
+
+      test("should handle LICENSE file with data-driven configuration", async () => {
+        const filepath = "LICENSE";
+        const type = "txt";
+        const content = "MIT License\n\nCopyright (c) 2024";
+
+        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+
+        await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
+
+        // Should use markdown handler due to LICENSE filename mapping
+        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+          filepath,
+          expect.stringContaining("Mock prompt for Markdown content"),
           expect.any(Object),
           filepath,
         );

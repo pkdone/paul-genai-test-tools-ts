@@ -91,7 +91,7 @@ export default class AppReportGenerator {
       for (const sp of summary.storedProcedures ?? []) {
         procsAndTriggers.procs.total++;
 
-        // Call incrementComplexityCount unconditionally since it now handles null/undefined internally
+        // Trust incrementComplexityCount to handle all cases including invalid ones
         this.incrementComplexityCount(procsAndTriggers.procs, sp.complexity);
 
         procsAndTriggers.procs.list.push({
@@ -99,7 +99,7 @@ export default class AppReportGenerator {
           type: "STORED PROCEDURE",
           functionName: sp.name,
           complexity: isComplexity(sp.complexity) ? sp.complexity : Complexity.LOW,
-          complexityReason: isComplexity(sp.complexity) ? sp.complexityReason : "N/A",
+          complexityReason: sp.complexityReason || "N/A",
           linesOfCode: sp.linesOfCode,
           purpose: sp.purpose,
         });
@@ -109,7 +109,7 @@ export default class AppReportGenerator {
       for (const trig of summary.triggers ?? []) {
         procsAndTriggers.trigs.total++;
 
-        // Call incrementComplexityCount unconditionally since it now handles null/undefined internally
+        // Trust incrementComplexityCount to handle all cases including invalid ones
         this.incrementComplexityCount(procsAndTriggers.trigs, trig.complexity);
 
         procsAndTriggers.trigs.list.push({
@@ -117,7 +117,7 @@ export default class AppReportGenerator {
           type: "TRIGGER",
           functionName: trig.name,
           complexity: isComplexity(trig.complexity) ? trig.complexity : Complexity.LOW,
-          complexityReason: isComplexity(trig.complexity) ? trig.complexityReason : "N/A",
+          complexityReason: trig.complexityReason || "N/A",
           linesOfCode: trig.linesOfCode,
           purpose: trig.purpose,
         });

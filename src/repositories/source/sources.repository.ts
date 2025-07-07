@@ -121,7 +121,6 @@ export default class SourcesRepositoryImpl
       .toArray();
 
     return records
-      .filter((record) => record.summary?.databaseIntegration)
       .map((record) => {
         const { summary, filepath } = record;
         const databaseIntegration = summary?.databaseIntegration;

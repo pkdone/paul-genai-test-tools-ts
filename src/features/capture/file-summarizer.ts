@@ -75,15 +75,20 @@ export class FileSummarizer {
    * Get appropriate file handler based on filepath and type.
    */
   private getFileTemplatorAndSchema(filepath: string, type: string): FileHandler {
-    // Handle README files by treating them as markdown
+    // Handle special filename cases using data-driven configuration
     let fileType = type;
-    if (path.basename(filepath).toUpperCase() === appConfig.README_FILE_NAME) {
-      fileType = "markdown";
+    const filename = path.basename(filepath).toLowerCase();
+    
+    // Check if this specific filename has a canonical type mapping
+    const canonicalType = appConfig.FILENAME_TO_CANONICAL_TYPE_MAPPINGS.get(filename);
+    
+    if (canonicalType) {
+      fileType = canonicalType;
     }
 
     // Use the prompt type to determine the schema, ensuring consistency
     const promptType =
-      appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ?? "default";
+      appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ?? appConfig.DEFAULT_FILE_TYPE;
     const config =
       fileTypeMetataDataAndPromptTemplate[promptType] ??
       fileTypeMetataDataAndPromptTemplate.default;
@@ -100,7 +105,7 @@ export class FileSummarizer {
   private createPromptForFileType(fileType: string, content: string): string {
     // Normalize file type to supported prompt types
     const promptType =
-      appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ?? "default";
+      appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ?? appConfig.DEFAULT_FILE_TYPE;
     const config = fileTypeMetataDataAndPromptTemplate[promptType];
     return createPromptFromConfig(SOURCES_SUMMARY_CAPTURE_TEMPLATE, config, content);
   }

@@ -9,14 +9,8 @@ export const TOKENS = {
   LLMRouter: Symbol.for("LLMRouter"),
   LLMService: Symbol.for("LLMService"),
   LLMModelFamily: Symbol.for("LLMModelFamily"),
-  LLMProvider: Symbol.for("LLMProvider"),
-  CompletionCandidates: Symbol.for("CompletionCandidates"),
-  RetryConfig: Symbol.for("RetryConfig"),
   EnvVars: Symbol.for("EnvVars"),
   ProjectName: Symbol.for("ProjectName"),
-
-  // Configuration
-  ServiceRunnerConfig: Symbol.for("ServiceRunnerConfig"),
 
   // Repositories
   SourcesRepository: Symbol.for("SourcesRepository"),

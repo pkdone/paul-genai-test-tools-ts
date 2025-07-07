@@ -82,7 +82,6 @@ export const appConfig = {
     "tgz",
   ] as const,
   SOURCE_FILES_FOR_CODE: ["js", "ts", "java", "py", "sql"] as const,
-  README_FILE_NAME: "README",
   FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS: new Map<string, string>([
     ["java", "java"],
     ["js", "javascript"],
@@ -96,6 +95,12 @@ export const appConfig = {
     ["markdown", "markdown"],
     ["md", "markdown"],
   ]),
+  FILENAME_TO_CANONICAL_TYPE_MAPPINGS: new Map<string, string>([
+    ["readme", "markdown"],
+    ["license", "markdown"],
+    ["changelog", "markdown"],
+  ]),
+  DEFAULT_FILE_TYPE: "default",
   JAVA_FILE_TYPE: "java",
   MANIFEST_FILE_SUFFIX: ".manifest.js",
   PROVIDER_MANIFEST_KEY: "ProviderManifest",
