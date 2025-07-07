@@ -1,7 +1,0 @@
-Tweak To Data Capture Structure For Class Type: Act as a senior programmer analyzing the code in a TypeScript application where the content of each file in the application's codebase is shown below in a code block to come up with an implementation plan for a peer senior programmer. 
-
-For sourceFileSummarySchema we need to change the name of the field `type` to be named `classType` instead. This will likely mean changes to code that captures it, runs aggregations/queries with this field filtered and/or projected and maybe even how the field is reported. 
-
-Create a very detailed implementation plan for a senior developer to subsequently be able to implement the necessary additions and changes to the codebase to deliver on this feature change.
-
-Provide references to the specific part(s) of the code that needs these changes with details on what these changes should be. Include the list or relative file paths of each source file affected.
