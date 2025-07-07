@@ -163,4 +163,4 @@ describe("File Handler Configuration", () => {
       expect(fileTypeMetataDataAndPromptTemplate).toHaveProperty("default");
     });
   });
-}); 
+});

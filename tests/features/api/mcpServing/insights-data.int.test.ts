@@ -13,7 +13,9 @@ describe("AnalysisDataServer", () => {
 
   afterAll(async () => {
     // Clean up resources
-    const mongoDBClientFactory = container.resolve<MongoDBClientFactory>(TOKENS.MongoDBClientFactory);
+    const mongoDBClientFactory = container.resolve<MongoDBClientFactory>(
+      TOKENS.MongoDBClientFactory,
+    );
     await mongoDBClientFactory.closeAll();
     container.clearInstances();
   });

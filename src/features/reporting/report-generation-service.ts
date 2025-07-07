@@ -4,7 +4,6 @@ import { Service } from "../../lifecycle/service.types";
 import type { EnvVars } from "../../lifecycle/env.types";
 import { TOKENS } from "../../di/tokens";
 import { appConfig } from "../../config/app.config";
-import { reportingConfig } from "./reporting.config";
 import { clearDirectory, writeFile } from "../../common/utils/fs-utils";
 import path from "path";
 import AppReportGenerator from "./app-report-generator";
@@ -39,7 +38,7 @@ export class ReportGenerationService implements Service {
     console.log(cleanSrcDirPath);
     await clearDirectory(appConfig.OUTPUT_DIR);
     console.log(`Creating report for project: ${this.projectName}`);
-    const htmlFilePath = path.join(appConfig.OUTPUT_DIR, reportingConfig.OUTPUT_SUMMARY_HTML_FILE);
+    const htmlFilePath = path.join(appConfig.OUTPUT_DIR, appConfig.OUTPUT_SUMMARY_HTML_FILE);
 
     await writeFile(
       htmlFilePath,

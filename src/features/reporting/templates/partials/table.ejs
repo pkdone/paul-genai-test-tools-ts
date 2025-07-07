@@ -1,0 +1,27 @@
+<% if (data && data.length > 0) { %>
+  <p><table>
+    <thead>
+      <tr>
+        <% Object.keys(data[0]).forEach(key => { %>
+          <th><%= convertToDisplayName(key) %></th>
+        <% }); %>
+      </tr>
+    </thead>
+    <tbody>
+      <% data.forEach(row => { %>
+        <tr>
+          <% Object.keys(row).forEach(key => { %>
+            <% const value = row[key]; %>
+            <% if (key === 'link') { %>
+              <td><a href="<%= value %>" target="_blank">Link</a></td>
+            <% } else if (key === 'codeExample') { %>
+              <td><pre><code><%- value %></code></pre></td>
+            <% } else { %>
+              <td><%- value %></td>
+            <% } %>
+          <% }); %>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table></p>
+<% } %> 

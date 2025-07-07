@@ -77,11 +77,17 @@ export const publicConstantSchema = z
 /**
  * Schema for a single data input field from a UI form.
  */
-export const dataInputFieldSchema = z.object({
-  name: z.string().describe("The name attribute of the input field (of there is no name, suggest and use an approximate indicative name that reflects its purpose)."),
-  type: z.string().describe("The type of the input field (e.g., 'text', 'password', 'hidden')."),
-  description: z.string().describe("A detailed description of the input field's purpose."),
-}).passthrough();
+export const dataInputFieldSchema = z
+  .object({
+    name: z
+      .string()
+      .describe(
+        "The name attribute of the input field (of there is no name, suggest and use an approximate indicative name that reflects its purpose).",
+      ),
+    type: z.string().describe("The type of the input field (e.g., 'text', 'password', 'hidden')."),
+    description: z.string().describe("A detailed description of the input field's purpose."),
+  })
+  .passthrough();
 
 /**
  * Provides type safety for method parameter definitions
@@ -126,7 +132,10 @@ export const sourceFileSummarySchema = z
       .describe("A detailed definition of the file's implementation in at least 3 sentences."),
     classname: z.string().optional().describe("The name of the main public class or interface."),
     classpath: z.string().optional().describe("The fully qualified classpath."),
-    classType: z.enum(["class", "interface"]).optional().describe("The type of the main entity, e.g., 'class' or 'interface'."),
+    classType: z
+      .enum(["class", "interface"])
+      .optional()
+      .describe("The type of the main entity, e.g., 'class' or 'interface'."),
     internalReferences: z
       .array(z.string())
       .optional()
@@ -157,6 +166,9 @@ export const sourceFileSummarySchema = z
     databaseIntegration: databaseIntegrationSchema
       .optional()
       .describe("Information about how the file interacts with a database."),
-    dataInputFields: z.array(dataInputFieldSchema).optional().describe("A list of data input fields."),
+    dataInputFields: z
+      .array(dataInputFieldSchema)
+      .optional()
+      .describe("A list of data input fields."),
   })
   .passthrough();

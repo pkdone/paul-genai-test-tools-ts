@@ -27,31 +27,31 @@ describe("Service Runner Integration Tests", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Mock service
     mockService = {
       execute: jest.fn().mockResolvedValue(undefined),
     };
-    
+
     // Mock MongoDB client factory
     mockMongoDBClientFactory = {
       connect: jest.fn(),
       getClient: jest.fn(),
       closeAll: jest.fn().mockResolvedValue(undefined),
     } as unknown as MongoDBClientFactory;
-    
+
     // Mock LLM router
     mockLLMRouter = {
       close: jest.fn().mockResolvedValue(undefined),
       getModelFamily: jest.fn().mockReturnValue("TestProvider"),
     } as unknown as LLMRouter;
-    
+
     // Mock console.log
-    mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
-    
+    mockConsoleLog = jest.spyOn(console, "log").mockImplementation();
+
     // Set up default mocks
     (gracefulShutdown as jest.Mock).mockResolvedValue(undefined);
-    
+
     // Mock container.resolve with proper implementation
     (container.resolve as jest.Mock).mockImplementation((token: symbol): unknown => {
       switch (token) {
@@ -177,7 +177,9 @@ describe("Service Runner Integration Tests", () => {
 
       (getServiceConfiguration as jest.Mock).mockReturnValue(config);
 
-      await expect(runService(TEST_SERVICE_TOKEN)).rejects.toThrow("Failed to resolve MongoDB client factory");
+      await expect(runService(TEST_SERVICE_TOKEN)).rejects.toThrow(
+        "Failed to resolve MongoDB client factory",
+      );
 
       expect(container.resolve).toHaveBeenCalledWith(TOKENS.MongoDBClientFactory);
       expect(gracefulShutdown).toHaveBeenCalledWith(undefined, undefined);
@@ -258,7 +260,9 @@ describe("Service Runner Integration Tests", () => {
         throw configError;
       });
 
-      await expect(runService(TEST_SERVICE_TOKEN)).rejects.toThrow("Service configuration not found");
+      await expect(runService(TEST_SERVICE_TOKEN)).rejects.toThrow(
+        "Service configuration not found",
+      );
 
       expect(getServiceConfiguration).toHaveBeenCalledWith(TEST_SERVICE_TOKEN);
       expect(gracefulShutdown).toHaveBeenCalledWith(undefined, undefined);
@@ -290,8 +294,12 @@ describe("Service Runner Integration Tests", () => {
 
       await runService(TEST_SERVICE_TOKEN);
 
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringMatching(/^START: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/));
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringMatching(/^END: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/));
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringMatching(/^START: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
+      );
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringMatching(/^END: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
+      );
     });
 
     it("should handle partial dependency failures gracefully", async () => {
@@ -323,7 +331,7 @@ describe("Service Runner Integration Tests", () => {
       expect(container.resolve).toHaveBeenCalledWith(TOKENS.LLMRouter);
       // Service should not be resolved due to LLM failure
       expect(container.resolve).not.toHaveBeenCalledWith(TEST_SERVICE_TOKEN);
-      
+
       // Graceful shutdown should still be called with the MongoDB client that was resolved
       expect(gracefulShutdown).toHaveBeenCalledWith(undefined, mockMongoDBClientFactory);
     });
@@ -393,4 +401,4 @@ describe("Service Runner Integration Tests", () => {
       expect(gracefulShutdown).toHaveBeenCalledWith(undefined, undefined);
     });
   });
-}); 
+});

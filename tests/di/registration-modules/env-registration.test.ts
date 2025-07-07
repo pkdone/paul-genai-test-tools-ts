@@ -3,9 +3,9 @@ import "reflect-metadata";
 import { z } from "zod";
 import { container } from "tsyringe";
 import { TOKENS } from "../../../src/di/tokens";
-import { 
-  registerBaseEnvDependencies, 
-  registerLlmEnvDependencies 
+import {
+  registerBaseEnvDependencies,
+  registerLlmEnvDependencies,
 } from "../../../src/di/registration-modules/env-registration";
 import { LLMService } from "../../../src/llm/core/llm-service";
 import { BadConfigurationLLMError } from "../../../src/llm/errors/llm-errors.types";
@@ -60,14 +60,14 @@ describe("Environment Registration Module", () => {
     jest.clearAllMocks();
     container.clearInstances();
     container.reset();
-    
+
     // Reset process.env for each test
     delete process.env.LLM;
     delete process.env.TEST_API_KEY;
     delete process.env.TEST_ENDPOINT;
     delete process.env.MONGODB_URL;
     delete process.env.CODEBASE_DIR_PATH;
-    
+
     // Mock default implementations
     (dotenv.config as jest.Mock).mockReturnValue({ parsed: {} });
     (loadBaseEnvVarsOnly as jest.Mock).mockReturnValue(mockBaseEnvVars);
@@ -81,10 +81,10 @@ describe("Environment Registration Module", () => {
       expect(loadBaseEnvVarsOnly).toHaveBeenCalledTimes(1);
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
       expect(container.isRegistered(TOKENS.ProjectName)).toBe(true);
-      
+
       const envVars = container.resolve(TOKENS.EnvVars);
       expect(envVars).toEqual(mockBaseEnvVars);
-      
+
       const projectName = container.resolve(TOKENS.ProjectName);
       expect(projectName).toBe("test-project");
     });
@@ -92,7 +92,7 @@ describe("Environment Registration Module", () => {
     it("should not register environment variables when already registered", () => {
       // Pre-register environment variables
       container.registerInstance(TOKENS.EnvVars, mockBaseEnvVars);
-      
+
       registerBaseEnvDependencies();
 
       expect(loadBaseEnvVarsOnly).not.toHaveBeenCalled();
@@ -102,7 +102,7 @@ describe("Environment Registration Module", () => {
     it("should not register project name when already registered", () => {
       container.registerInstance(TOKENS.EnvVars, mockBaseEnvVars);
       container.registerInstance(TOKENS.ProjectName, "existing-project");
-      
+
       registerBaseEnvDependencies();
 
       expect(getProjectNameFromPath).not.toHaveBeenCalled();
@@ -118,7 +118,7 @@ describe("Environment Registration Module", () => {
       process.env.TEST_API_KEY = "test-key";
       process.env.MONGODB_URL = "mongodb://localhost:27017/test";
       process.env.CODEBASE_DIR_PATH = "/test/project";
-      
+
       (LLMService.loadManifestForModelFamily as jest.Mock).mockResolvedValue(mockManifest);
 
       await registerLlmEnvDependencies();
@@ -127,12 +127,12 @@ describe("Environment Registration Module", () => {
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
       expect(container.isRegistered(TOKENS.ProjectName)).toBe(true);
       expect(container.isRegistered(TOKENS.LLMModelFamily)).toBe(true);
-      
+
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const envVars = container.resolve(TOKENS.EnvVars) as Record<string, unknown>;
       expect(envVars.LLM).toBe("TestProvider");
       expect(envVars.TEST_API_KEY).toBe("test-key");
-      
+
       const llmModelFamily = container.resolve(TOKENS.LLMModelFamily);
       expect(llmModelFamily).toBe("TestProvider");
     });
@@ -143,7 +143,7 @@ describe("Environment Registration Module", () => {
       process.env.CODEBASE_DIR_PATH = "/test/project";
 
       await expect(registerLlmEnvDependencies()).rejects.toThrow(
-        "LLM environment variable is not set or is empty in your .env file."
+        "LLM environment variable is not set or is empty in your .env file.",
       );
     });
 
@@ -153,7 +153,7 @@ describe("Environment Registration Module", () => {
       process.env.CODEBASE_DIR_PATH = "/test/project";
 
       await expect(registerLlmEnvDependencies()).rejects.toThrow(
-        "LLM environment variable is not set or is empty in your .env file."
+        "LLM environment variable is not set or is empty in your .env file.",
       );
     });
 
@@ -167,7 +167,7 @@ describe("Environment Registration Module", () => {
 
       await expect(registerLlmEnvDependencies()).rejects.toThrow(BadConfigurationLLMError);
       await expect(registerLlmEnvDependencies()).rejects.toThrow(
-        "Missing required environment variables for TestProvider provider: TEST_API_KEY"
+        "Missing required environment variables for TestProvider provider: TEST_API_KEY",
       );
     });
 
@@ -181,7 +181,7 @@ describe("Environment Registration Module", () => {
 
       await expect(registerLlmEnvDependencies()).rejects.toThrow(BadConfigurationLLMError);
       await expect(registerLlmEnvDependencies()).rejects.toThrow(
-        "LLM environment variable ('DifferentProvider') does not precisely match modelFamily ('TestProvider')"
+        "LLM environment variable ('DifferentProvider') does not precisely match modelFamily ('TestProvider')",
       );
     });
 
@@ -195,7 +195,7 @@ describe("Environment Registration Module", () => {
 
       await expect(registerLlmEnvDependencies()).rejects.toThrow(BadConfigurationLLMError);
       await expect(registerLlmEnvDependencies()).rejects.toThrow(
-        "Failed to load and validate environment variables for LLM configuration"
+        "Failed to load and validate environment variables for LLM configuration",
       );
     });
 
@@ -219,7 +219,7 @@ describe("Environment Registration Module", () => {
 
       expect(LLMService.loadManifestForModelFamily).not.toHaveBeenCalled();
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
-      
+
       const envVars = container.resolve(TOKENS.EnvVars);
       expect(envVars).toEqual(existingEnvVars);
     });
@@ -232,7 +232,7 @@ describe("Environment Registration Module", () => {
 
       // Pre-register LLM model family
       container.registerInstance(TOKENS.LLMModelFamily, "ExistingProvider");
-      
+
       (LLMService.loadManifestForModelFamily as jest.Mock).mockResolvedValue(mockManifest);
 
       await registerLlmEnvDependencies();
@@ -267,7 +267,7 @@ describe("Environment Registration Module", () => {
       await registerLlmEnvDependencies();
 
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
-      
+
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const envVars = container.resolve(TOKENS.EnvVars) as Record<string, unknown>;
       expect(envVars.TEST_API_KEY).toBe("test-key");
@@ -286,7 +286,7 @@ describe("Environment Registration Module", () => {
       await registerLlmEnvDependencies();
 
       expect(container.isRegistered(TOKENS.EnvVars)).toBe(true);
-      
+
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const envVars = container.resolve(TOKENS.EnvVars) as Record<string, unknown>;
       expect(envVars.TEST_API_KEY).toBe("test-key");
@@ -343,4 +343,4 @@ describe("Environment Registration Module", () => {
       expect(llmModelFamily).toBe("TestProvider");
     });
   });
-}); 
+});

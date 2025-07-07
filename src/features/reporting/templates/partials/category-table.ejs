@@ -1,0 +1,6 @@
+<h2><%= label %></h2>
+<% if (data && data.length > 0) { %>
+  <%- include('table', { data: data, convertToDisplayName: convertToDisplayName }) %>
+<% } else { %>
+  <p>None Found</p>
+<% } %> 

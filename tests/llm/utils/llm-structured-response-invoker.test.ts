@@ -224,9 +224,7 @@ describe("LLMStructuredResponseInvoker", () => {
             userSchema,
             "user generation task",
           ),
-        ).rejects.toThrow(
-          /LLM returned non-object JSON for test-resource: object/,
-        );
+        ).rejects.toThrow(/LLM returned non-object JSON for test-resource: object/);
 
         expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(1);
         expect(mockLogErrorMsgAndDetail).not.toHaveBeenCalled();

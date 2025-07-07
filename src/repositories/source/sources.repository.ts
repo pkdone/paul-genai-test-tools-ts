@@ -100,7 +100,7 @@ export default class SourcesRepositoryImpl
     const query = {
       projectName,
       type: { $in: fileTypes },
-      "summary.databaseIntegration": { $exists: true, $ne: null },      
+      "summary.databaseIntegration": { $exists: true, $ne: null },
       "summary.databaseIntegration.mechanism": { $ne: "NONE" },
     };
     const options = {
@@ -121,21 +121,20 @@ export default class SourcesRepositoryImpl
       .find<ProjectedDatabaseIntegrationFields>(query, options)
       .toArray();
 
-    return records
-      .map((record) => {
-        const { summary, filepath } = record;
-        const databaseIntegration = summary?.databaseIntegration;
-        if (summary && databaseIntegration) {
-          return {
-            path: summary.classpath ?? filepath,
-            mechanism: databaseIntegration.mechanism,
-            description: databaseIntegration.description,
-            codeExample: databaseIntegration.codeExample,
-          };
-        }
-        // This should not happen due to the filter above, but satisfies TypeScript
-        throw new Error("Record missing required summary or databaseIntegration");
-      });
+    return records.map((record) => {
+      const { summary, filepath } = record;
+      const databaseIntegration = summary?.databaseIntegration;
+      if (summary && databaseIntegration) {
+        return {
+          path: summary.classpath ?? filepath,
+          mechanism: databaseIntegration.mechanism,
+          description: databaseIntegration.description,
+          codeExample: databaseIntegration.codeExample,
+        };
+      }
+      // This should not happen due to the filter above, but satisfies TypeScript
+      throw new Error("Record missing required summary or databaseIntegration");
+    });
   }
 
   /**

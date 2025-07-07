@@ -114,4 +114,8 @@ export const appConfig = {
   DEFAULT_VECTOR_DIMENSIONS_AMOUNT: 1536,
   VECTOR_SEARCH_NUM_CANDIDATES: 150,
   VECTOR_SEARCH_NUM_LIMIT: 6,
+  OUTPUT_SUMMARY_HTML_FILE: "codebase-report.html",
+  APP_DESCRIPTION_KEY: "appDescription",
+  HTML_TEMPLATES_DIR: "templates",
+  HTML_MAIN_TEMPLATE_FILE: "main.ejs",
 } as const;

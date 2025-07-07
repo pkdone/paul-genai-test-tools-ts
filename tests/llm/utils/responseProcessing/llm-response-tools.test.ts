@@ -138,8 +138,6 @@ describe("llm-response-tools", () => {
     });
   });
 
-
-
   describe("postProcessAsJSONIfNeededGeneratingNewResult", () => {
     const skeletonResult: LLMFunctionResponse = {
       status: LLMResponseStatus.UNKNOWN,

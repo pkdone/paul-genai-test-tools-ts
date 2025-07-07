@@ -1,6 +1,5 @@
 import { injectable, inject } from "tsyringe";
 import { appConfig } from "../../config/app.config";
-import { reportingConfig } from "./reporting.config";
 import { summaryCategoriesConfig } from "../../config/summary-categories.config";
 import { AppSummaryCategoryEnum } from "../../schemas/app-summaries.schema";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
@@ -45,7 +44,7 @@ export default class AppReportGenerator {
     const categorizedData = await this.getCategorizedData(projectName);
     const dbInteractions = await this.buildDBInteractionList(projectName);
     const procsAndTriggers = await this.buildDBStoredProcsTriggersSummaryList(projectName);
-    return this.htmlFormatter.generateCompleteHTMLReport(
+    return await this.htmlFormatter.generateCompleteHTMLReport(
       appStats,
       fileTypesData,
       categorizedData,
@@ -158,7 +157,7 @@ export default class AppReportGenerator {
     projectName: string,
   ): Promise<{ category: string; label: string; data: AppSummaryNameDescArray }[]> {
     const categoryKeys = AppSummaryCategoryEnum.options.filter(
-      (key) => key !== reportingConfig.APP_DESCRIPTION_KEY,
+      (key) => key !== appConfig.APP_DESCRIPTION_KEY,
     );
 
     const promises = categoryKeys.map(async (category) => {
