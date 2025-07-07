@@ -1,0 +1,7 @@
+Better HTML Reporting Templating: Act as a senior programmer analyzing the code in a TypeScript application, where the content of each file in the application's codebase is shown below in a code block, and provide an implementation plan for a peer senior programmer to subsequently implement.
+
+The code in the "src/features/reporting" folder concatenates bits of hardcoded HTML and dyanmic bits of data together to generate a static HMTL report. This code needs to be changed to use a templating engine or libarary instead, to factor our the HTML from the code in an elegant way.
+
+Come up with a detailed implementation plan, using an appropriate common modern lightweight JavaScript/TypeScropt templating engine. Ensure you providing instructions for installing the relvant new packages and also for compiling, linting and running the unit tests towards the end, for validation.
+
+Identify the places in the code that would benefit from unit test coverage and/or integration test coverage. Provide references to the specific part(s) of the code that needs these improvements with suggestions on how to improve. Include the list or relative file paths of each source file affected.
