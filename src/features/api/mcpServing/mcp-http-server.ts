@@ -1,19 +1,23 @@
 import { injectable, inject } from "tsyringe";
-import { createServer, IncomingMessage, ServerResponse } from "node:http";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { randomUUID } from "node:crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { logErrorMsgAndDetail } from "../../../common/utils/error-utils";
-import { httpConfig } from "./http.config";
 import { mcpConfig } from "./mcp.config";
 import McpDataServer from "./mcp-data-server";
 import { TOKENS } from "../../../di/tokens";
+import type { IncomingMessage, ServerResponse } from "node:http";
 
 /**
- * Class to handle HTTP requests and responses for the Model Context Protocol (MCP) server.
+ * Class to handle HTTP requests and responses for the Model Context Protocol (MCP) server using Hono.
  */
 @injectable()
 export default class McpHttpServer {
   private readonly mcpServer: McpServer;
+  private readonly transports = new Map<string, StreamableHTTPServerTransport>();
 
   /**
    * Constructor.
@@ -23,138 +27,134 @@ export default class McpHttpServer {
   }
 
   /**
-   * Configures the HTTP server to handle incoming requests.
+   * Configures the Hono server to handle incoming MCP requests.
    */
   configure() {
-    const asyncHandler = this.getHttpAsyncHandler();
-    return createServer((req: IncomingMessage, res: ServerResponse) => {
-      asyncHandler(req, res).catch((error: unknown) => {
-        this.sendHTTPError(
-          res,
-          httpConfig.HTTP_INTERNAL_SERVER_ERROR_CODE,
-          "Internal Server Error",
-          "Error handling request:",
-          error,
-        );
-      });
+    const app = new Hono();
+
+    // Add CORS middleware
+    app.use(
+      `${mcpConfig.URL_PATH_MCP}/*`,
+      cors({
+        origin: "*", // Adjust for production
+        allowHeaders: ["Content-Type", "Mcp-Session-Id"],
+        exposeHeaders: ["Mcp-Session-Id"],
+      }),
+    );
+
+    // Handle MCP requests - this will be replaced by the raw Node.js handler in the service
+    app.all(mcpConfig.URL_PATH_MCP, (c) => {
+      return c.json(
+        {
+          jsonrpc: "2.0",
+          error: { code: -32603, message: "Internal Server Error: This endpoint should be handled by the raw Node.js handler" },
+          id: null,
+        },
+        500,
+      );
     });
+
+    return app;
   }
 
   /**
-   * Handles incoming HTTP requests asynchronously.
+   * Creates a raw Node.js HTTP handler for MCP requests.
+   * This bypasses Hono's request/response handling to work directly with the MCP SDK.
    */
-  private getHttpAsyncHandler() {
-    const transports = new Map<string, SSEServerTransport>();
-
-    return async (req: IncomingMessage, res: ServerResponse) => {
+  createMcpHandler() {
+    return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
       try {
-        const url = new URL(
-          req.url ?? "",
-          `http://${req.headers.host ?? mcpConfig.DEFAULT_MCP_HOSTNAME}`,
-        );
-        const { pathname, searchParams } = url;
-        const method = req.method;
+        // Check for existing session ID
+        const sessionId = req.headers["mcp-session-id"] as string;
+        let transport: StreamableHTTPServerTransport;
+        let body: unknown;
 
-        if (method === httpConfig.METHOD_GET && pathname === mcpConfig.URL_PATH_SSE) {
-          if (res.writableEnded) return;
-          const transport = new SSEServerTransport(mcpConfig.URL_PATH_MESSAGES, res);
-          transports.set(transport.sessionId, transport);
-          res.on("close", () => transports.delete(transport.sessionId));
-          try {
+        if (sessionId && this.transports.has(sessionId)) {
+          // Reuse existing transport
+          const existingTransport = this.transports.get(sessionId);
+          if (existingTransport) {
+            transport = existingTransport;
+            body = await this.parseRequestBody(req);
+          } else {
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+              jsonrpc: "2.0",
+              error: { code: -32000, message: "Bad Request: Invalid session ID" },
+              id: null,
+            }));
+            return;
+          }
+        } else {
+          // Parse request body
+          body = await this.parseRequestBody(req);
+          
+          if (req.method === "POST" && isInitializeRequest(body)) {
+            // Create new transport for initialization request
+            transport = new StreamableHTTPServerTransport({
+              sessionIdGenerator: () => randomUUID(),
+              onsessioninitialized: (newSessionId) => {
+                this.transports.set(newSessionId, transport);
+                console.log(`MCP session initialized with ID: ${newSessionId}`);
+              },
+            });
+
+            // Set up onclose handler to clean up transport when closed
+            transport.onclose = () => {
+              if (transport.sessionId) {
+                this.transports.delete(transport.sessionId);
+                console.log(`MCP session ${transport.sessionId} closed and removed.`);
+              }
+            };
+
+            // Connect the transport to the MCP server
             await this.mcpServer.connect(transport);
-          } catch (err: unknown) {
-            this.sendHTTPError(
-              res,
-              httpConfig.HTTP_INTERNAL_SERVER_ERROR_CODE,
-              "SSE Connection Error",
-              `SSE connect error for ${transport.sessionId}:`,
-              err,
-            );
+          } else {
+            // Invalid request - no session ID or not initialization request
+            res.writeHead(400, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+              jsonrpc: "2.0",
+              error: { code: -32000, message: "Bad Request: No valid session ID provided" },
+              id: null,
+            }));
+            return;
           }
-        } else if (method === httpConfig.METHOD_POST && pathname === mcpConfig.URL_PATH_MESSAGES) {
-          if (res.writableEnded) return;
-          const body = await this.buildHTTPBody(req);
-          let parsedData: unknown;
-
-          try {
-            parsedData = JSON.parse(body);
-            const sessionId = searchParams.get("sessionId");
-            const transport = sessionId && transports.get(sessionId);
-
-            if (!transport) {
-              this.sendHTTPError(
-                res,
-                httpConfig.HTTP_BAD_REQUEST_CODE,
-                "No session",
-                `No active session found for ID: ${sessionId ?? "unknown"}`,
-              );
-            } else {
-              await transport.handlePostMessage(req, res, parsedData);
-            }
-          } catch (parseError: unknown) {
-            this.sendHTTPError(
-              res,
-              httpConfig.HTTP_BAD_REQUEST_CODE,
-              "Bad Request: Invalid JSON",
-              "Error parsing JSON:",
-              parseError,
-            );
-          }
-        } else if (!res.writableEnded) {
-          this.sendHTTPError(
-            res,
-            httpConfig.HTTP_NOT_FOUND_CODE,
-            "Not Found",
-            "Non writableEnded response for unknown path",
-          );
         }
+
+        // Handle the request with the transport
+        await transport.handleRequest(req, res, body);
       } catch (error: unknown) {
-        if (!res.writableEnded)
-          this.sendHTTPError(
-            res,
-            httpConfig.HTTP_INTERNAL_SERVER_ERROR_CODE,
-            "Internal Server Error",
-            "Unhandled error in HTTP request handler:",
-            error,
-          );
+        logErrorMsgAndDetail("Error in MCP request handler", error);
+        if (!res.headersSent) {
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({
+            jsonrpc: "2.0",
+            error: { code: -32603, message: "Internal Server Error" },
+            id: null,
+          }));
+        }
       }
     };
   }
 
   /**
-   * Sends an HTTP error response.
+   * Parses the request body from an IncomingMessage.
    */
-  private sendHTTPError(
-    res: ServerResponse,
-    code: number,
-    externalMsg: string,
-    errMsg: string,
-    error: unknown = null,
-  ) {
-    logErrorMsgAndDetail(errMsg, error);
-
-    if (!res.headersSent) {
-      res.writeHead(code).end(externalMsg);
-    } else {
-      res.end();
-    }
-  }
-
-  /**
-   * Builds the HTTP body from the incoming request.
-   */
-  private async buildHTTPBody(req: IncomingMessage) {
-    return await new Promise<string>((resolve, reject) => {
+  private async parseRequestBody(req: IncomingMessage): Promise<unknown> {
+    return new Promise((resolve, reject) => {
       let data = "";
-      req.setEncoding(httpConfig.ENCODING_UTF8);
-      req.on(mcpConfig.EVENT_DATA, (chunk: string) => {
+      req.setEncoding("utf8");
+      req.on("data", (chunk: string) => {
         data += chunk;
       });
-      req.on(mcpConfig.EVENT_END, () => {
-        resolve(data);
+      req.on("end", () => {
+        try {
+          resolve(data ? JSON.parse(data) : {});
+        } catch (parseError) {
+          reject(new Error(`Failed to parse JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
+        }
       });
-      req.on(mcpConfig.EVENT_ERROR, (err: Error) => {
-        reject(err);
+      req.on("error", (error) => {
+        reject(error);
       });
     });
   }
