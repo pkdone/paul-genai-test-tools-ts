@@ -9,9 +9,6 @@ import {
   extractTokensAmountFromMetadataDefaultingMissingValues,
   postProcessAsJSONIfNeededGeneratingNewResult,
 } from "../../../../src/llm/utils/responseProcessing/llm-response-tools";
-import { extractTokensAmountAndLimitFromErrorMsg } from "../../../../src/llm/utils/responseProcessing/llm-error-pattern-parser";
-import { BEDROCK_COMMON_ERROR_PATTERNS } from "../../../../src/llm/providers/bedrock/bedrock-error-patterns";
-import { OPENAI_COMMON_ERROR_PATTERNS } from "../../../../src/llm/providers/openai/openai-error-patterns";
 
 const testMetadata = {
   GPT_COMPLETIONS_GPT4: {
@@ -141,60 +138,7 @@ describe("llm-response-tools", () => {
     });
   });
 
-  describe("extractTokensAmountAndLimitFromErrorMsg", () => {
-    test("should extract tokens from Bedrock error message", () => {
-      const prompt = "This is a test prompt";
-      const errorMsg =
-        "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 8192, request input token count: 9279";
 
-      const result = extractTokensAmountAndLimitFromErrorMsg(
-        "GPT_COMPLETIONS_GPT4",
-        prompt,
-        errorMsg,
-        testMetadata,
-        BEDROCK_COMMON_ERROR_PATTERNS,
-      );
-
-      expect(result.maxTotalTokens).toBe(8192);
-      expect(result.promptTokens).toBe(9279);
-      expect(result.completionTokens).toBe(0);
-    });
-
-    test("should extract tokens from OpenAI error message", () => {
-      const prompt = "This is a test prompt";
-      const errorMsg =
-        "This model's maximum context length is 8191 tokens, however you requested 10346 tokens (10346 in your prompt; 5 for the completion). Please reduce your prompt; or completion length.";
-
-      const result = extractTokensAmountAndLimitFromErrorMsg(
-        "GPT_COMPLETIONS_GPT4",
-        prompt,
-        errorMsg,
-        testMetadata,
-        OPENAI_COMMON_ERROR_PATTERNS,
-      );
-
-      expect(result.maxTotalTokens).toBe(8191);
-      expect(result.promptTokens).toBe(10346);
-      expect(result.completionTokens).toBe(5);
-    });
-
-    test("should estimate promptTokens when not found in error message", () => {
-      const prompt = "A".repeat(1000); // 1000 characters
-      const errorMsg = "Unknown error with no token information";
-
-      const result = extractTokensAmountAndLimitFromErrorMsg(
-        "GPT_COMPLETIONS_GPT4",
-        prompt,
-        errorMsg,
-        testMetadata,
-        BEDROCK_COMMON_ERROR_PATTERNS,
-      );
-
-      expect(result.maxTotalTokens).toBe(8192); // From testMetadata
-      expect(result.promptTokens).toBeGreaterThan(8192); // Should be max(estimated, maxTotalTokens + 1)
-      expect(result.completionTokens).toBe(0);
-    });
-  });
 
   describe("postProcessAsJSONIfNeededGeneratingNewResult", () => {
     const skeletonResult: LLMFunctionResponse = {

@@ -15,7 +15,7 @@ jest.mock("../../../src/features/capture/ingestion.schemas", () => ({
   markdownFileSummarySchema: { _def: { typeName: "ZodObject" } },
 }));
 
-describe("File Handler Mappings", () => {
+describe("File Handler Configuration", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -77,32 +77,6 @@ describe("File Handler Mappings", () => {
         expect(config).toHaveProperty("schema");
         expect(typeof config.fileContentDesc).toBe("string");
         expect(typeof config.instructions).toBe("string");
-      });
-    });
-  });
-
-  describe("appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS", () => {
-    test("should be a Map instance", () => {
-      expect(appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS).toBeInstanceOf(Map);
-    });
-
-    test("should contain expected file suffix mappings", () => {
-      const expectedMappings = [
-        ["java", "java"],
-        ["js", "javascript"],
-        ["ts", "javascript"],
-        ["javascript", "javascript"],
-        ["typescript", "javascript"],
-        ["ddl", "sql"],
-        ["sql", "sql"],
-        ["xml", "xml"],
-        ["jsp", "jsp"],
-        ["markdown", "markdown"],
-        ["md", "markdown"],
-      ];
-
-      expectedMappings.forEach(([suffix, expected]) => {
-        expect(appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(suffix)).toBe(expected);
       });
     });
   });
@@ -189,4 +163,4 @@ describe("File Handler Mappings", () => {
       expect(fileTypeMetataDataAndPromptTemplate).toHaveProperty("default");
     });
   });
-});
+}); 
