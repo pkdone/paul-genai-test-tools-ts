@@ -26,7 +26,7 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, DynamicPromptRe
   java: {
     fileContentDesc: "Java code",
     instructions: `* The name of the main public class/interface of the file
- * Its type ('class' or 'interface')
+ * Its class type ('class' or 'interface')
  * Its classpath
  * ${COMMON_INSTRUCTIONS.PURPOSE}
  * ${COMMON_INSTRUCTIONS.IMPLEMENTATION}

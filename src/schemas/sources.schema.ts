@@ -126,7 +126,7 @@ export const sourceFileSummarySchema = z
       .describe("A detailed definition of the file's implementation in at least 3 sentences."),
     classname: z.string().optional().describe("The name of the main public class or interface."),
     classpath: z.string().optional().describe("The fully qualified classpath."),
-    type: z.enum(["class", "interface"]).optional().describe("The type of the main entity."),
+    classType: z.enum(["class", "interface"]).optional().describe("The type of the main entity, e.g., 'class' or 'interface'."),
     internalReferences: z
       .array(z.string())
       .optional()

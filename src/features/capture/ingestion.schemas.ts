@@ -5,7 +5,7 @@ import { sourceFileSummarySchema, databaseIntegrationSchema } from "../../schema
 export const javaFileSummarySchema = sourceFileSummarySchema
   .pick({
     classname: true,
-    type: true,
+    classType: true,
     classpath: true,
     purpose: true,
     implementation: true,

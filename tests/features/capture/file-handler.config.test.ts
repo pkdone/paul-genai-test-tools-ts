@@ -112,7 +112,7 @@ describe("File Handler Configuration", () => {
 
       const javaSummary: SummaryType = {
         classname: "TestClass",
-        type: "class",
+        classType: "class",
         classpath: "com.example.TestClass",
         purpose: "Test purpose",
         implementation: "Test implementation",
