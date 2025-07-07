@@ -16,7 +16,7 @@ import {
   BadConfigurationLLMError,
   BadResponseMetadataLLMError,
   RejectionResponseLLMError,
-} from "../utils/llm-errors.types";
+} from "../errors/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
 import type { PromptAdapter } from "../utils/prompting/prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";

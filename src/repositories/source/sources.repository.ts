@@ -100,6 +100,7 @@ export default class SourcesRepositoryImpl
     const query = {
       projectName,
       type: { $in: fileTypes },
+      "summary.databaseIntegration": { $exists: true, $ne: null },      
       "summary.databaseIntegration.mechanism": { $ne: "NONE" },
     };
     const options = {

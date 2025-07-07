@@ -5,7 +5,7 @@ import {
   LLMFunctionResponse,
   ResolvedLLMModelMetadata,
 } from "../../llm.types";
-import { BadResponseMetadataLLMError } from "../llm-errors.types";
+import { BadResponseMetadataLLMError } from "../../errors/llm-errors.types";
 
 /**
  * Strategy interface for prompt adaptation approaches.

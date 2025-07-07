@@ -7,7 +7,7 @@ import {
   LLMContext,
   ResolvedLLMModelMetadata,
 } from "../../llm.types";
-import { BadResponseContentLLMError } from "../llm-errors.types";
+import { BadResponseContentLLMError } from "../../errors/llm-errors.types";
 import { convertTextToJSON } from "../../../common/utils/json-tools";
 import { getErrorText } from "../../../common/utils/error-utils";
 

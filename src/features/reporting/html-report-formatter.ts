@@ -113,12 +113,18 @@ export class HtmlReportFormatter {
     const html: string[] = [];
     html.push(`\n<h2>Database Stored Procedures & Triggers</h2>\n`);
     html.push(
-      this.generateHTMLKeyValueParagraph("Stored Procedures", String(procsAndTriggers.procs.total)),
-      `(complexity: low = ${procsAndTriggers.procs.low}, medium = ${procsAndTriggers.procs.medium}, high = ${procsAndTriggers.procs.high})`,
+      this.generateHTMLKeyValueParagraph(
+        "Stored Procedures",
+        String(procsAndTriggers.procs.total),
+        `(complexity: low = ${procsAndTriggers.procs.low}, medium = ${procsAndTriggers.procs.medium}, high = ${procsAndTriggers.procs.high})`,
+      ),
     );
     html.push(
-      this.generateHTMLKeyValueParagraph("Triggers", String(procsAndTriggers.trigs.total)),
-      `(complexity: low = ${procsAndTriggers.trigs.low}, medium = ${procsAndTriggers.trigs.medium}, high = ${procsAndTriggers.trigs.high})`,
+      this.generateHTMLKeyValueParagraph(
+        "Triggers",
+        String(procsAndTriggers.trigs.total),
+        `(complexity: low = ${procsAndTriggers.trigs.low}, medium = ${procsAndTriggers.trigs.medium}, high = ${procsAndTriggers.trigs.high})`,
+      ),
     );
 
     if (procsAndTriggers.procs.list.length > 0 || procsAndTriggers.trigs.list.length > 0) {

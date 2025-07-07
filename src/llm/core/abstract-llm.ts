@@ -19,7 +19,7 @@ import {
   postProcessAsJSONIfNeededGeneratingNewResult,
 } from "../utils/responseProcessing/llm-response-tools";
 import { extractTokensAmountAndLimitFromErrorMsg } from "../utils/responseProcessing/llm-error-pattern-parser";
-import { BadConfigurationLLMError } from "../utils/llm-errors.types";
+import { BadConfigurationLLMError } from "../errors/llm-errors.types";
 
 /**
  * Abstract class for any LLM provider services - provides outline of abstract methods to be

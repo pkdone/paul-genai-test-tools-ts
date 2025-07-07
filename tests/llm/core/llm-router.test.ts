@@ -12,7 +12,7 @@ import {
 import {
   BadResponseMetadataLLMError,
   RejectionResponseLLMError,
-} from "../../../src/llm/utils/llm-errors.types";
+} from "../../../src/llm/errors/llm-errors.types";
 import { z } from "zod";
 import LLMRouter from "../../../src/llm/core/llm-router";
 import LLMStats from "../../../src/llm/utils/routerTracking/llm-stats";

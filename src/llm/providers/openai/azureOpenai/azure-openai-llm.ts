@@ -7,7 +7,7 @@ import {
   LLMErrorMsgRegExPattern,
 } from "../../../llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
-import { BadConfigurationLLMError } from "../../../utils/llm-errors.types";
+import { BadConfigurationLLMError } from "../../../errors/llm-errors.types";
 import { AZURE_OPENAI } from "./azure-openai.manifest";
 import { LLMProviderSpecificConfig } from "../../llm-provider.types";
 

@@ -22,7 +22,7 @@ import {
   BadConfigurationLLMError,
   BadResponseContentLLMError,
   RejectionResponseLLMError,
-} from "../../../utils/llm-errors.types";
+} from "../../../errors/llm-errors.types";
 import { VERTEX_GEMINI } from "./vertex-ai-gemini.manifest";
 import { LLMProviderSpecificConfig } from "../../llm-provider.types";
 const VERTEXAI_TERMINAL_FINISH_REASONS = [
