@@ -1,13 +1,7 @@
-Change Capture Of JSP Source Data Feature: Act as a senior programmer analyzing the code in a TypeScript application where the content of each file in the application's codebase is shown below in a code block. 
+Tweak To Data Capture Structure For Class Type: Act as a senior programmer analyzing the code in a TypeScript application where the content of each file in the application's codebase is shown below in a code block to come up with an implementation plan for a peer senior programmer. 
 
-The project currently captures source code data for JSP files, amongst others file types and then genrates a report containing this data. For JSPs, one of the fileds captured is `dataInputFields` which is currently an array of strings. Change the format of this field both captured and reported, to be and array of sub-elements like:
+For sourceFileSummarySchema we need to change the name of the field `type` to be named `classType` instead. This will likely mean changes to code that captures it, runs aggregations/queries with this field filtered and/or projected and maybe even how the field is reported. 
 
-    {
-      name: "xxxx",
-      type: "yyy",
-      description: "Zzzz zzzz zzzz zzz.",
-    },
-
-Create a very detailed implementation plan for a senior developer to subsequently be able to implement the necessary additions and changes to the codebase to delivery on this feature change.
+Create a very detailed implementation plan for a senior developer to subsequently be able to implement the necessary additions and changes to the codebase to deliver on this feature change.
 
 Provide references to the specific part(s) of the code that needs these changes with details on what these changes should be. Include the list or relative file paths of each source file affected.
