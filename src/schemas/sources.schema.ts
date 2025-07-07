@@ -75,6 +75,15 @@ export const publicConstantSchema = z
   .passthrough();
 
 /**
+ * Schema for a single data input field from a UI form.
+ */
+export const dataInputFieldSchema = z.object({
+  name: z.string().describe("The name attribute of the input field (of there is no name, suggest and use an approximate indicative name that reflects its purpose)."),
+  type: z.string().describe("The type of the input field (e.g., 'text', 'password', 'hidden')."),
+  description: z.string().describe("A detailed description of the input field's purpose."),
+}).passthrough();
+
+/**
  * Provides type safety for method parameter definitions
  */
 export const methodParameterSchema = z
@@ -148,6 +157,6 @@ export const sourceFileSummarySchema = z
     databaseIntegration: databaseIntegrationSchema
       .optional()
       .describe("Information about how the file interacts with a database."),
-    dataInputFields: z.array(z.string()).optional().describe("A list of data input fields."),
+    dataInputFields: z.array(dataInputFieldSchema).optional().describe("A list of data input fields."),
   })
   .passthrough();

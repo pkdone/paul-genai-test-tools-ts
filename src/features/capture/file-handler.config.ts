@@ -85,7 +85,7 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, DynamicPromptRe
 * ${COMMON_INSTRUCTIONS.IMPLEMENTATION}
 * ${COMMON_INSTRUCTIONS.INTERNAL_REFS_JAVA}
 * ${COMMON_INSTRUCTIONS.EXTERNAL_REFS_JAVA}    
-* A list of detailed descriptions of the data input fields it contains (if any)`,
+* A list of data input fields it contains (if any). For each field, provide its name (or an approximate name), its type (e.g., 'text', 'hidden', 'password'), and a detailed description of its purpose.`,
     schema: schemas.jspFileSummarySchema,
   },
   markdown: {
