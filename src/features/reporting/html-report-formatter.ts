@@ -142,8 +142,8 @@ export class HtmlReportFormatter {
     html.push("<tr>");
 
     for (const key of keysOfInterest) {
-      const capitalizedKey = key.replace(/\b\w/g, (char) => char.toUpperCase());
-      html.push(`<th>${capitalizedKey}</th>`);
+      const displayName = this.convertToDisplayName(key);
+      html.push(`<th>${displayName}</th>`);
     }
 
     html.push("</tr>");
@@ -211,5 +211,18 @@ export class HtmlReportFormatter {
     }
 
     return html;
+  }
+
+  /**
+   * Convert camelCase or compound words to space-separated words with proper capitalization
+   * @param text - The text to convert (e.g., "camelCaseWord", "CompoundWord")
+   * @returns Space-separated words with proper capitalization (e.g., "Camel Case Word", "Compound Word")
+   */
+  private convertToDisplayName(text: string): string {
+    // Add spaces before capital letters (except the first character)
+    const spacedText = text.replace(/([a-z])([A-Z])/g, '$1 $2');
+    
+    // Capitalize the first letter of each word
+    return spacedText.replace(/\b\w/g, (char) => char.toUpperCase());
   }
 }
