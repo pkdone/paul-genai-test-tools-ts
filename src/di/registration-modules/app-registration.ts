@@ -29,7 +29,7 @@ import { MDBConnectionTestService } from "../../features/diagnostics/mdb-connect
 import { PluggableLLMsTestService } from "../../features/diagnostics/test-pluggable-llms.service";
 import { McpServerService } from "../../features/api/mcp-server.service";
 import { ReportGenerationService } from "../../features/reporting/report-generation-service";
-import { DBInitializerService } from "../../repositories/db-initializer.service";
+import { DBInitializerService } from "../../lifecycle/db-initializer.service";
 
 // Type imports
 import type LLMRouter from "../../llm/core/llm-router";

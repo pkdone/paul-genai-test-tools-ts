@@ -5,9 +5,9 @@ import { TOKENS } from "../di/tokens";
 import { databaseConfig } from "../config/database.config";
 import { logErrorMsgAndDetail } from "../common/utils/error-utils";
 import { createVectorSearchIndexDefinition } from "../common/mdb/mdb-utils";
-import { Service } from "../lifecycle/service.types";
-import * as sourceSchema from "./source/sources.model";
-import * as appSummarySchema from "./app-summary/app-summaries.model";
+import { Service } from "./service.types";
+import * as sourceSchema from "../repositories/source/sources.model";
+import * as appSummarySchema from "../repositories/app-summary/app-summaries.model";
 
 /**
  * Service responsible for database schema initialization and management.
@@ -178,4 +178,4 @@ export class DBInitializerService implements Service {
       filters,
     );
   }
-}
+} 
