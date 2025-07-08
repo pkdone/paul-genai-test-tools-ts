@@ -1,6 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { Hono } from "hono";
-import { cors } from "hono/cors";
+import { createServer, Server } from "node:http";
 import { randomUUID } from "node:crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
@@ -12,12 +11,13 @@ import { TOKENS } from "../../../di/tokens";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 /**
- * Class to handle HTTP requests and responses for the Model Context Protocol (MCP) server using Hono.
+ * Class to handle HTTP requests and responses for the Model Context Protocol (MCP) server using raw Node.js HTTP server.
  */
 @injectable()
 export default class McpHttpServer {
   private readonly mcpServer: McpServer;
   private readonly transports = new Map<string, StreamableHTTPServerTransport>();
+  private server?: Server;
 
   /**
    * Constructor.
@@ -27,43 +27,95 @@ export default class McpHttpServer {
   }
 
   /**
-   * Configures the Hono server to handle incoming MCP requests.
+   * Starts the MCP HTTP server.
    */
-  configure() {
-    const app = new Hono();
-
-    // Add CORS middleware
-    app.use(
-      `${mcpConfig.URL_PATH_MCP}/*`,
-      cors({
-        origin: "*", // Adjust for production
-        allowHeaders: ["Content-Type", "Mcp-Session-Id"],
-        exposeHeaders: ["Mcp-Session-Id"],
-      }),
-    );
-
-    // Handle MCP requests - this will be replaced by the raw Node.js handler in the service
-    app.all(mcpConfig.URL_PATH_MCP, (c) => {
-      return c.json(
-        {
-          jsonrpc: "2.0",
-          error: { code: -32603, message: "Internal Server Error: This endpoint should be handled by the raw Node.js handler" },
-          id: null,
-        },
-        500,
-      );
+  async start(): Promise<void> {
+    const mcpHandler = this.createMcpHandler();
+    
+    // Create HTTP server with MCP handler
+    this.server = createServer((req, res) => {
+      const url = new URL(req.url ?? "", `http://${req.headers.host ?? "localhost"}`);
+      
+      // Handle MCP requests
+      if (url.pathname === mcpConfig.URL_PATH_MCP) {
+        // Handle MCP requests asynchronously
+        mcpHandler(req, res).catch((error: unknown) => {
+          logErrorMsgAndDetail("Error handling MCP request", error);
+          if (!res.headersSent) {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({
+              jsonrpc: "2.0",
+              error: { code: -32603, message: "Internal Server Error" },
+              id: null,
+            }));
+          }
+        });
+      } else {
+        // Handle other requests with a simple 404 response
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          error: "Not Found",
+          message: `Path ${url.pathname} not found. Available endpoints: ${mcpConfig.URL_PATH_MCP}`,
+        }));
+      }
     });
 
-    return app;
+    // Start listening on the configured port
+    return new Promise<void>((resolve, reject) => {
+      if (this.server) {
+        this.server.listen(mcpConfig.DEFAULT_MCP_PORT, (error?: Error) => {
+          if (error) {
+            reject(error);
+          } else {
+            console.log(`MCP server listening on http://localhost:${mcpConfig.DEFAULT_MCP_PORT}`);
+            resolve();
+          }
+        });
+      } else {
+        reject(new Error("Server not initialized"));
+      }
+    });
+  }
+
+  /**
+   * Stops the MCP HTTP server.
+   */
+  async stop(): Promise<void> {
+    if (this.server) {
+      const server = this.server;
+      return new Promise<void>((resolve, reject) => {
+        server.close((error?: Error) => {
+          if (error) {
+            reject(error);
+          } else {
+            console.log("MCP server stopped");
+            resolve();
+          }
+        });
+      });
+    }
   }
 
   /**
    * Creates a raw Node.js HTTP handler for MCP requests.
-   * This bypasses Hono's request/response handling to work directly with the MCP SDK.
+   * This includes CORS handling and session management.
    */
   createMcpHandler() {
     return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
       try {
+        // Set CORS headers for all MCP requests
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Mcp-Session-Id");
+        res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id");
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+        
+        // Handle preflight requests
+        if (req.method === "OPTIONS") {
+          res.writeHead(200);
+          res.end();
+          return;
+        }
+
         // Check for existing session ID
         const sessionId = req.headers["mcp-session-id"] as string;
         let transport: StreamableHTTPServerTransport;

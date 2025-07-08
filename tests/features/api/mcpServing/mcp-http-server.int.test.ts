@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-explicit-any, @typescript-eslint/unbound-method */
 import "reflect-metadata";
 import { randomUUID } from "node:crypto";
-import { IncomingMessage, ServerResponse } from "node:http";
+import { IncomingMessage, ServerResponse, createServer } from "node:http";
 import { Readable } from "node:stream";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
@@ -12,6 +12,11 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 // Mock the MCP SDK
 jest.mock("@modelcontextprotocol/sdk/server/streamableHttp.js");
 jest.mock("@modelcontextprotocol/sdk/types.js");
+
+// Mock node:http module
+jest.mock("node:http", () => ({
+  createServer: jest.fn(),
+}));
 
 // Create a mock request helper
 const createMockRequest = (method: string, url: string, headers: Record<string, string>, body?: unknown): IncomingMessage => {
@@ -74,7 +79,63 @@ describe("McpHttpServer Integration Tests", () => {
     jest.clearAllMocks();
   });
 
+  describe("start and stop methods", () => {
+    it("should start and stop the server successfully", async () => {
+      // Mock the listen method
+      const mockListen = jest.fn().mockImplementation((_port: number, callback: (error?: Error) => void) => {
+        callback();
+      });
+      
+      // Mock the close method
+      const mockClose = jest.fn().mockImplementation((callback: (error?: Error) => void) => {
+        callback();
+      });
+
+      // Mock createServer to return a mock server
+      const mockServer = {
+        listen: mockListen,
+        close: mockClose,
+      } as any;
+
+      // Mock the createServer function
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      jest.mocked(createServer).mockReturnValue(mockServer);
+
+      // Start the server
+      await mcpHttpServer.start();
+
+      // Verify server was created and is listening
+      expect(createServer).toHaveBeenCalledWith(expect.any(Function));
+      expect(mockListen).toHaveBeenCalledWith(expect.any(Number), expect.any(Function));
+
+      // Stop the server
+      await mcpHttpServer.stop();
+
+      // Verify server was closed
+      expect(mockClose).toHaveBeenCalledWith(expect.any(Function));
+    });
+  });
+
   describe("createMcpHandler", () => {
+    it("should handle CORS preflight requests", async () => {
+      // Arrange
+      const req = createMockRequest("OPTIONS", "/mcp", {});
+      const res = createMockResponse();
+
+      const handler = mcpHttpServer.createMcpHandler();
+
+      // Act
+      await handler(req, res);
+
+      // Assert
+      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Origin", "*");
+      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Headers", "Content-Type, Mcp-Session-Id");
+      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Expose-Headers", "Mcp-Session-Id");
+      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+      expect(res.writeHead).toHaveBeenCalledWith(200);
+      expect(res.end).toHaveBeenCalledWith();
+    });
+
     it("should handle initialization request and create new session", async () => {
       // Arrange
       const mockTransport = {
@@ -108,6 +169,7 @@ describe("McpHttpServer Integration Tests", () => {
       await handler(req, res);
 
       // Assert
+      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Origin", "*");
       expect(StreamableHTTPServerTransport).toHaveBeenCalledWith({
         sessionIdGenerator: expect.any(Function),
         onsessioninitialized: expect.any(Function),
@@ -136,6 +198,7 @@ describe("McpHttpServer Integration Tests", () => {
       await handler(req, res);
 
       // Assert
+      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Origin", "*");
       expect(res.writeHead).toHaveBeenCalledWith(400, { "Content-Type": "application/json" });
       expect(res.end).toHaveBeenCalledWith(JSON.stringify({
         jsonrpc: "2.0",
@@ -204,6 +267,7 @@ describe("McpHttpServer Integration Tests", () => {
       await handler(req, res);
 
       // Assert
+      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Origin", "*");
       expect(StreamableHTTPServerTransport).not.toHaveBeenCalled(); // Should reuse existing transport
       expect(mockTransport.handleRequest).toHaveBeenCalledWith(req, res, resourceRequest);
     });
@@ -229,6 +293,7 @@ describe("McpHttpServer Integration Tests", () => {
       await handler(req, res);
 
       // Assert
+      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Origin", "*");
       expect(res.writeHead).toHaveBeenCalledWith(500, { "Content-Type": "application/json" });
       expect(res.end).toHaveBeenCalledWith(JSON.stringify({
         jsonrpc: "2.0",
@@ -299,17 +364,6 @@ describe("McpHttpServer Integration Tests", () => {
 
       // Cleanup
       consoleLogSpy.mockRestore();
-    });
-  });
-
-  describe("configure", () => {
-    it("should return a Hono app instance", () => {
-      // Act
-      const app = mcpHttpServer.configure();
-
-      // Assert
-      expect(app).toBeDefined();
-      expect(typeof app.fetch).toBe("function");
     });
   });
 }); 
