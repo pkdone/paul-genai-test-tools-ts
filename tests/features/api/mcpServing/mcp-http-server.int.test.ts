@@ -19,7 +19,12 @@ jest.mock("node:http", () => ({
 }));
 
 // Create a mock request helper
-const createMockRequest = (method: string, url: string, headers: Record<string, string>, body?: unknown): IncomingMessage => {
+const createMockRequest = (
+  method: string,
+  url: string,
+  headers: Record<string, string>,
+  body?: unknown,
+): IncomingMessage => {
   const req = new Readable({
     read() {
       if (body) {
@@ -82,10 +87,12 @@ describe("McpHttpServer Integration Tests", () => {
   describe("start and stop methods", () => {
     it("should start and stop the server successfully", async () => {
       // Mock the listen method
-      const mockListen = jest.fn().mockImplementation((_port: number, callback: (error?: Error) => void) => {
-        callback();
-      });
-      
+      const mockListen = jest
+        .fn()
+        .mockImplementation((_port: number, callback: (error?: Error) => void) => {
+          callback();
+        });
+
       // Mock the close method
       const mockClose = jest.fn().mockImplementation((callback: (error?: Error) => void) => {
         callback();
@@ -129,9 +136,15 @@ describe("McpHttpServer Integration Tests", () => {
 
       // Assert
       expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Origin", "*");
-      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Headers", "Content-Type, Mcp-Session-Id");
+      expect(res.setHeader).toHaveBeenCalledWith(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Mcp-Session-Id",
+      );
       expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Expose-Headers", "Mcp-Session-Id");
-      expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+      expect(res.setHeader).toHaveBeenCalledWith(
+        "Access-Control-Allow-Methods",
+        "GET, POST, DELETE, OPTIONS",
+      );
       expect(res.writeHead).toHaveBeenCalledWith(200);
       expect(res.end).toHaveBeenCalledWith();
     });
@@ -200,11 +213,13 @@ describe("McpHttpServer Integration Tests", () => {
       // Assert
       expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Origin", "*");
       expect(res.writeHead).toHaveBeenCalledWith(400, { "Content-Type": "application/json" });
-      expect(res.end).toHaveBeenCalledWith(JSON.stringify({
-        jsonrpc: "2.0",
-        error: { code: -32000, message: "Bad Request: No valid session ID provided" },
-        id: null,
-      }));
+      expect(res.end).toHaveBeenCalledWith(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          error: { code: -32000, message: "Bad Request: No valid session ID provided" },
+          id: null,
+        }),
+      );
     });
 
     it("should reuse existing transport for requests with valid session ID", async () => {
@@ -260,7 +275,12 @@ describe("McpHttpServer Integration Tests", () => {
         id: 2,
       };
 
-      const req = createMockRequest("POST", "/mcp", { "mcp-session-id": sessionId }, resourceRequest);
+      const req = createMockRequest(
+        "POST",
+        "/mcp",
+        { "mcp-session-id": sessionId },
+        resourceRequest,
+      );
       const res = createMockResponse();
 
       // Act
@@ -295,18 +315,20 @@ describe("McpHttpServer Integration Tests", () => {
       // Assert
       expect(res.setHeader).toHaveBeenCalledWith("Access-Control-Allow-Origin", "*");
       expect(res.writeHead).toHaveBeenCalledWith(500, { "Content-Type": "application/json" });
-      expect(res.end).toHaveBeenCalledWith(JSON.stringify({
-        jsonrpc: "2.0",
-        error: { code: -32603, message: "Internal Server Error" },
-        id: null,
-      }));
+      expect(res.end).toHaveBeenCalledWith(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          error: { code: -32603, message: "Internal Server Error" },
+          id: null,
+        }),
+      );
     });
 
     it("should clean up transport on session close", async () => {
       // Arrange
       const sessionId = randomUUID();
       let capturedOnCloseCallback: (() => void) | undefined;
-      
+
       const mockTransport = {
         handleRequest: jest.fn(),
         sessionId,
@@ -366,4 +388,4 @@ describe("McpHttpServer Integration Tests", () => {
       consoleLogSpy.mockRestore();
     });
   });
-}); 
+});

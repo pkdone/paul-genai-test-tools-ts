@@ -14,9 +14,7 @@ export class McpServerService implements Service {
   /**
    * Constructor with dependency injection.
    */
-  constructor(
-    @inject(TOKENS.McpHttpServer) private readonly mcpHttpServer: McpHttpServer,
-  ) {}
+  constructor(@inject(TOKENS.McpHttpServer) private readonly mcpHttpServer: McpHttpServer) {}
 
   /**
    * Execute the service - starts the MCP insights server and keeps it running.
@@ -29,15 +27,15 @@ export class McpServerService implements Service {
     // This keeps the service alive until explicitly stopped
     return new Promise<void>((resolve) => {
       this.shutdownResolve = resolve;
-      
+
       // Set up process signal handlers for graceful shutdown
       const handleShutdown = () => {
         console.log("Received shutdown signal, stopping MCP server...");
         void this.stopService();
       };
 
-      process.on('SIGINT', handleShutdown);
-      process.on('SIGTERM', handleShutdown);
+      process.on("SIGINT", handleShutdown);
+      process.on("SIGTERM", handleShutdown);
     });
   }
 

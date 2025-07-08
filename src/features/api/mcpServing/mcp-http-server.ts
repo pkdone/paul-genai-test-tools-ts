@@ -31,32 +31,43 @@ export default class McpHttpServer {
    */
   async start(): Promise<void> {
     const mcpHandler = this.createMcpHandler();
-    
+
     // Create HTTP server with MCP handler
     this.server = createServer((req, res) => {
-      const url = new URL(req.url ?? "", `http://${req.headers.host ?? "localhost"}`);
-      
+      const url = new URL(
+        req.url ?? "",
+        `${mcpConfig.HTTP_PROTOCOL}${req.headers.host ?? mcpConfig.DEFAULT_MCP_HOSTNAME}`,
+      );
+
       // Handle MCP requests
       if (url.pathname === mcpConfig.URL_PATH_MCP) {
         // Handle MCP requests asynchronously
         mcpHandler(req, res).catch((error: unknown) => {
           logErrorMsgAndDetail("Error handling MCP request", error);
           if (!res.headersSent) {
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({
-              jsonrpc: "2.0",
-              error: { code: -32603, message: "Internal Server Error" },
-              id: null,
-            }));
+            res.writeHead(mcpConfig.HTTP_STATUS_INTERNAL_ERROR, {
+              [mcpConfig.CONTENT_TYPE_HEADER]: mcpConfig.APPLICATION_JSON,
+            });
+            res.end(
+              JSON.stringify({
+                jsonrpc: mcpConfig.JSONRPC_VERSION,
+                error: { code: mcpConfig.JSONRPC_INTERNAL_ERROR, message: "Internal Server Error" },
+                id: null,
+              }),
+            );
           }
         });
       } else {
         // Handle other requests with a simple 404 response
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({
-          error: "Not Found",
-          message: `Path ${url.pathname} not found. Available endpoints: ${mcpConfig.URL_PATH_MCP}`,
-        }));
+        res.writeHead(mcpConfig.HTTP_STATUS_NOT_FOUND, {
+          [mcpConfig.CONTENT_TYPE_HEADER]: mcpConfig.APPLICATION_JSON,
+        });
+        res.end(
+          JSON.stringify({
+            error: "Not Found",
+            message: `Path ${url.pathname} not found. Available endpoints: ${mcpConfig.URL_PATH_MCP}`,
+          }),
+        );
       }
     });
 
@@ -67,7 +78,9 @@ export default class McpHttpServer {
           if (error) {
             reject(error);
           } else {
-            console.log(`MCP server listening on http://localhost:${mcpConfig.DEFAULT_MCP_PORT}`);
+            console.log(
+              `MCP server listening on ${mcpConfig.HTTP_PROTOCOL}${mcpConfig.DEFAULT_MCP_HOSTNAME}:${mcpConfig.DEFAULT_MCP_PORT}`,
+            );
             resolve();
           }
         });
@@ -104,20 +117,20 @@ export default class McpHttpServer {
     return async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
       try {
         // Set CORS headers for all MCP requests
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Mcp-Session-Id");
-        res.setHeader("Access-Control-Expose-Headers", "Mcp-Session-Id");
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-        
+        res.setHeader(mcpConfig.CORS_ALLOW_ORIGIN, mcpConfig.CORS_ALLOW_ALL);
+        res.setHeader(mcpConfig.CORS_ALLOW_HEADERS, mcpConfig.CORS_ALLOWED_HEADERS_VALUE);
+        res.setHeader(mcpConfig.CORS_EXPOSE_HEADERS, mcpConfig.CORS_EXPOSED_HEADERS_VALUE);
+        res.setHeader(mcpConfig.CORS_ALLOW_METHODS, mcpConfig.CORS_ALLOWED_METHODS_VALUE);
+
         // Handle preflight requests
-        if (req.method === "OPTIONS") {
-          res.writeHead(200);
+        if (req.method === mcpConfig.HTTP_METHOD_OPTIONS) {
+          res.writeHead(mcpConfig.HTTP_STATUS_OK);
           res.end();
           return;
         }
 
         // Check for existing session ID
-        const sessionId = req.headers["mcp-session-id"] as string;
+        const sessionId = req.headers[mcpConfig.MCP_SESSION_ID_HEADER] as string;
         let transport: StreamableHTTPServerTransport;
         let body: unknown;
 
@@ -128,19 +141,26 @@ export default class McpHttpServer {
             transport = existingTransport;
             body = await this.parseRequestBody(req);
           } else {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({
-              jsonrpc: "2.0",
-              error: { code: -32000, message: "Bad Request: Invalid session ID" },
-              id: null,
-            }));
+            res.writeHead(mcpConfig.HTTP_STATUS_BAD_REQUEST, {
+              [mcpConfig.CONTENT_TYPE_HEADER]: mcpConfig.APPLICATION_JSON,
+            });
+            res.end(
+              JSON.stringify({
+                jsonrpc: mcpConfig.JSONRPC_VERSION,
+                error: {
+                  code: mcpConfig.JSONRPC_SERVER_ERROR,
+                  message: "Bad Request: Invalid session ID",
+                },
+                id: null,
+              }),
+            );
             return;
           }
         } else {
           // Parse request body
           body = await this.parseRequestBody(req);
-          
-          if (req.method === "POST" && isInitializeRequest(body)) {
+
+          if (req.method === mcpConfig.HTTP_METHOD_POST && isInitializeRequest(body)) {
             // Create new transport for initialization request
             transport = new StreamableHTTPServerTransport({
               sessionIdGenerator: () => randomUUID(),
@@ -162,12 +182,19 @@ export default class McpHttpServer {
             await this.mcpServer.connect(transport);
           } else {
             // Invalid request - no session ID or not initialization request
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({
-              jsonrpc: "2.0",
-              error: { code: -32000, message: "Bad Request: No valid session ID provided" },
-              id: null,
-            }));
+            res.writeHead(mcpConfig.HTTP_STATUS_BAD_REQUEST, {
+              [mcpConfig.CONTENT_TYPE_HEADER]: mcpConfig.APPLICATION_JSON,
+            });
+            res.end(
+              JSON.stringify({
+                jsonrpc: mcpConfig.JSONRPC_VERSION,
+                error: {
+                  code: mcpConfig.JSONRPC_SERVER_ERROR,
+                  message: "Bad Request: No valid session ID provided",
+                },
+                id: null,
+              }),
+            );
             return;
           }
         }
@@ -177,12 +204,16 @@ export default class McpHttpServer {
       } catch (error: unknown) {
         logErrorMsgAndDetail("Error in MCP request handler", error);
         if (!res.headersSent) {
-          res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({
-            jsonrpc: "2.0",
-            error: { code: -32603, message: "Internal Server Error" },
-            id: null,
-          }));
+          res.writeHead(mcpConfig.HTTP_STATUS_INTERNAL_ERROR, {
+            [mcpConfig.CONTENT_TYPE_HEADER]: mcpConfig.APPLICATION_JSON,
+          });
+          res.end(
+            JSON.stringify({
+              jsonrpc: mcpConfig.JSONRPC_VERSION,
+              error: { code: mcpConfig.JSONRPC_INTERNAL_ERROR, message: "Internal Server Error" },
+              id: null,
+            }),
+          );
         }
       }
     };
@@ -194,18 +225,22 @@ export default class McpHttpServer {
   private async parseRequestBody(req: IncomingMessage): Promise<unknown> {
     return new Promise((resolve, reject) => {
       let data = "";
-      req.setEncoding("utf8");
-      req.on("data", (chunk: string) => {
+      req.setEncoding(mcpConfig.UTF8_ENCODING);
+      req.on(mcpConfig.DATA_EVENT, (chunk: string) => {
         data += chunk;
       });
-      req.on("end", () => {
+      req.on(mcpConfig.END_EVENT, () => {
         try {
           resolve(data ? JSON.parse(data) : {});
         } catch (parseError) {
-          reject(new Error(`Failed to parse JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`));
+          reject(
+            new Error(
+              `Failed to parse JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
+            ),
+          );
         }
       });
-      req.on("error", (error) => {
+      req.on(mcpConfig.ERROR_EVENT, (error) => {
         reject(error);
       });
     });

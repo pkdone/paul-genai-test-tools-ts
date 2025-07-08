@@ -64,10 +64,9 @@ describe("McpDataServer", () => {
       mcpDataServer.configure();
 
       // Assert
-      expect(ResourceTemplate).toHaveBeenCalledWith(
-        mcpConfig.BUSPROCS_RSC_TEMPLATE,
-        { list: undefined },
-      );
+      expect(ResourceTemplate).toHaveBeenCalledWith(mcpConfig.BUSPROCS_RSC_TEMPLATE, {
+        list: undefined,
+      });
 
       expect(mockRegisterResource).toHaveBeenCalledWith(
         mcpConfig.BUSPROCS_RSC_NAME,
@@ -141,4 +140,4 @@ describe("McpDataServer", () => {
       await expect(resourceHandler(mockUri)).rejects.toThrow("Database error");
     });
   });
-}); 
+});
