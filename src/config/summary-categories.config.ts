@@ -6,7 +6,7 @@ import {
   businessEntitiesKeyValPairSchema,
   businessProcessesKeyValPairSchema,
   technologiesKeyValPairSchema,
-} from "../schemas/app-summaries.schema";
+} from "../schemas/app-summary-categories.schema";
 
 export type SummaryCategory = z.infer<typeof AppSummaryCategoryEnum>;
 

@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { fileTypeMetataDataAndPromptTemplate } from "../../../src/features/capture/file-handler.config";
 import { appConfig } from "../../../src/config/app.config";
-import { SourceSummaryType } from "../../../src/schemas/sources.schema";
-import * as summarySchemas from "../../../src/schemas/sources.schema";
+import { SourceSummaryType } from "../../../src/schemas/source-summaries.schema";
+import * as summarySchemas from "../../../src/schemas/source-summaries.schema";
 import { FileHandler } from "../../../src/features/capture/file-summarizer";
 
-jest.mock("../../../src/schemas/sources.schema", () => ({
+jest.mock("../../../src/schemas/source-summaries.schema", () => ({
   javaFileSummarySchema: { _def: { typeName: "ZodObject" } },
   jsFileSummarySchema: { _def: { typeName: "ZodObject" } },
   defaultFileSummarySchema: { _def: { typeName: "ZodObject" } },

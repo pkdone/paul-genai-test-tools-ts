@@ -7,7 +7,7 @@ import {
   businessEntitiesKeyValPairSchema,
   businessProcessesKeyValPairSchema,
   technologiesKeyValPairSchema,
-} from "../../schemas/app-summaries.schema";
+} from "../../schemas/app-summary-categories.schema";
 
 /**
  * Schema for arrays of name-description pairs used in app summaries

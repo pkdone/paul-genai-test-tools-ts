@@ -1,4 +1,4 @@
-import * as schemas from "../../schemas/sources.schema";
+import * as schemas from "../../schemas/source-summaries.schema";
 import { DynamicPromptReplaceVars } from "../../llm/utils/prompting/prompt-templator";
 
 /**

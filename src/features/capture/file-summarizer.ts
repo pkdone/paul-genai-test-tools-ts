@@ -4,7 +4,7 @@ import { z } from "zod";
 import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-utils";
 import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import { TOKENS } from "../../di/tokens";
-import { SourceSummaryType } from "../../schemas/sources.schema";
+import { SourceSummaryType } from "../../schemas/source-summaries.schema";
 import { fileTypeMetataDataAndPromptTemplate } from "./file-handler.config";
 import { createPromptFromConfig } from "../../llm/utils/prompting/prompt-templator";
 import { appConfig } from "../../config/app.config";
