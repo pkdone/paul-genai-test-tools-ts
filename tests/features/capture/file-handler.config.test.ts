@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { fileTypeMetataDataAndPromptTemplate } from "../../../src/features/capture/file-handler.config";
 import { appConfig } from "../../../src/config/app.config";
-import { SummaryType } from "../../../src/features/capture/ingestion.schemas";
-import * as summarySchemas from "../../../src/features/capture/ingestion.schemas";
+import { SourceSummaryType } from "../../../src/schemas/sources.schema";
+import * as summarySchemas from "../../../src/schemas/sources.schema";
 import { FileHandler } from "../../../src/features/capture/file-summarizer";
 
-jest.mock("../../../src/features/capture/ingestion.schemas", () => ({
+jest.mock("../../../src/schemas/sources.schema", () => ({
   javaFileSummarySchema: { _def: { typeName: "ZodObject" } },
   jsFileSummarySchema: { _def: { typeName: "ZodObject" } },
   defaultFileSummarySchema: { _def: { typeName: "ZodObject" } },
@@ -110,7 +110,7 @@ describe("File Handler Configuration", () => {
       // This is a compile-time test that ensures the union type includes all expected types
       // We can't directly test the type at runtime, but we can verify it works with assignments
 
-      const javaSummary: SummaryType = {
+      const javaSummary: SourceSummaryType = {
         classname: "TestClass",
         classType: "class",
         classpath: "com.example.TestClass",
@@ -123,7 +123,7 @@ describe("File Handler Configuration", () => {
         databaseIntegration: { mechanism: "NONE", description: "No database" },
       };
 
-      const jsSummary: SummaryType = {
+      const jsSummary: SourceSummaryType = {
         purpose: "JS test purpose",
         implementation: "JS test implementation",
         internalReferences: [],
@@ -131,7 +131,7 @@ describe("File Handler Configuration", () => {
         databaseIntegration: { mechanism: "NONE", description: "No database" },
       };
 
-      const defaultSummary: SummaryType = {
+      const defaultSummary: SourceSummaryType = {
         purpose: "Default test purpose",
         implementation: "Default test implementation",
         databaseIntegration: { mechanism: "NONE", description: "No database" },

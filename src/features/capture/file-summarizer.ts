@@ -4,7 +4,7 @@ import { z } from "zod";
 import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-utils";
 import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import { TOKENS } from "../../di/tokens";
-import { SummaryType } from "./ingestion.schemas";
+import { SourceSummaryType } from "../../schemas/sources.schema";
 import { fileTypeMetataDataAndPromptTemplate } from "./file-handler.config";
 import { createPromptFromConfig } from "../../llm/utils/prompting/prompt-templator";
 import { appConfig } from "../../config/app.config";
@@ -25,12 +25,12 @@ CODE:
 {{codeContent}}`;
 
 // Result type for better error handling
-export type SummaryResult<T = SummaryType> =
+export type SummaryResult<T = SourceSummaryType> =
   | { success: true; data: T }
   | { success: false; error: string };
 
 // Type-safe file handler configuration
-export interface FileHandler<T extends SummaryType = SummaryType> {
+export interface FileHandler<T extends SourceSummaryType = SourceSummaryType> {
   promptCreator: (content: string) => string;
   schema: z.ZodType<T>;
 }
@@ -93,7 +93,7 @@ export class FileSummarizer {
     const config =
       fileTypeMetataDataAndPromptTemplate[promptType] ??
       fileTypeMetataDataAndPromptTemplate.default;
-    const schema = config.schema as z.ZodType<SummaryType>;
+    const schema = config.schema as z.ZodType<SourceSummaryType>;
     return {
       promptCreator: (content: string) => this.createPromptForFileType(fileType, content),
       schema,
