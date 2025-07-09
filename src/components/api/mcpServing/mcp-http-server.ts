@@ -130,12 +130,13 @@ export default class McpHttpServer {
         }
 
         // Check for existing session ID
-        const sessionId = req.headers[mcpConfig.MCP_SESSION_ID_HEADER] as string;
+        const sessionIdHeader = req.headers[mcpConfig.MCP_SESSION_ID_HEADER];
         let transport: StreamableHTTPServerTransport;
         let body: unknown;
 
-        if (sessionId && this.transports.has(sessionId)) {
+        if (typeof sessionIdHeader === 'string' && this.transports.has(sessionIdHeader)) {
           // Reuse existing transport
+          const sessionId = sessionIdHeader; // Safely typed as string
           const existingTransport = this.transports.get(sessionId);
           if (existingTransport) {
             transport = existingTransport;
