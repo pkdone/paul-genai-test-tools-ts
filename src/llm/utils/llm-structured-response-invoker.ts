@@ -39,10 +39,12 @@ export class LLMStructuredResponseInvoker {
       correctionPrompt,
     );
     const retryValidation = schema.safeParse(correctedResponse);
-    console.log(
-      `Suceeded in using an LLM to fix the schema structured format for '${taskLabel}' and geting a corrected response`,
-    );
-    if (retryValidation.success) return retryValidation.data;
+    if (retryValidation.success) {
+      console.log(
+        `Succeeded in using an LLM to fix the schema structured format for '${taskLabel}' and getting a corrected response`,
+      );
+      return retryValidation.data;
+    }
 
     // Otherwise assume failure
     throw new Error(
