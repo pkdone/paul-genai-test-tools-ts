@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { MongoClient, Double, Sort } from "mongodb";
+import { MongoClient, Double, Sort, Document } from "mongodb";
 import { SourcesRepository } from "./sources.repository.interface";
 import {
   SourceRecord,
@@ -76,7 +76,7 @@ export default class SourcesRepositoryImpl
       projectName,
       type: { $in: fileTypes },
     };
-    const options = {
+    const options: { projection: Document; sort: Sort } = {
       projection: {
         _id: 0,
         "summary.classpath": 1,
@@ -84,7 +84,7 @@ export default class SourcesRepositoryImpl
         "summary.implementation": 1,
         filepath: 1,
       },
-      sort: { "summary.classpath": 1 } as Sort,
+      sort: { "summary.classpath": 1 },
     };
     return this.collection.find<ProjectedSourceSummaryFields>(query, options).toArray();
   }
@@ -102,7 +102,7 @@ export default class SourcesRepositoryImpl
       "summary.databaseIntegration": { $exists: true, $ne: null },
       "summary.databaseIntegration.mechanism": { $ne: "NONE" },
     };
-    const options = {
+    const options: { projection: Document; sort: Sort } = {
       projection: {
         _id: 0,
         "summary.classpath": 1,
@@ -114,7 +114,7 @@ export default class SourcesRepositoryImpl
       sort: {
         "summary.databaseIntegration.mechanism": 1,
         "summary.classpath": 1,
-      } as Sort,
+      },
     };
     return await this.collection
       .find<ProjectedDatabaseIntegrationFields>(query, options)

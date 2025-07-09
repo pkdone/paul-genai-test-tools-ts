@@ -63,31 +63,47 @@ export type ProjectedSourceMetataContentAndSummary = z.infer<
 >;
 
 /**
- * Interface for MongoDB projected document with filepath and partial summary fields
+ * Schema for MongoDB projected document with filepath and specific summary fields
+ * This schema ensures type safety for source summaries projection
+ * Reflects the actual projection structure where nested fields are selected
  */
-export interface ProjectedSourceSummaryFields {
-  filepath: string;
-  summary?: z.infer<
-    ReturnType<typeof sourceFileSummarySchema.pick<{
-      classpath: true;
-      purpose: true;
-      implementation: true;
-    }>>
-  >;
-}
+export const projectedSourceSummaryFieldsSchema = z.object({
+  filepath: z.string(),
+  summary: z.object({
+    classpath: z.string().optional(),
+    purpose: z.string().optional(),
+    implementation: z.string().optional(),
+  }).optional(),
+});
 
 /**
- * Interface for MongoDB projected document with database integration fields
+ * Type for MongoDB projected document with filepath and partial summary fields
+ * Uses precise Zod schema instead of interface with optional fields
  */
-export interface ProjectedDatabaseIntegrationFields {
-  filepath: string;
-  summary?: z.infer<
-    ReturnType<typeof sourceFileSummarySchema.pick<{
-      classpath: true;
-      databaseIntegration: true;
-    }>>
-  >;
-}
+export type ProjectedSourceSummaryFields = z.infer<typeof projectedSourceSummaryFieldsSchema>;
+
+/**
+ * Schema for MongoDB projected document with database integration fields
+ * This schema ensures type safety for database integration projection
+ * Reflects the actual projection structure where nested fields are selected
+ */
+export const projectedDatabaseIntegrationFieldsSchema = z.object({
+  filepath: z.string(),
+  summary: z.object({
+    classpath: z.string().optional(),
+    databaseIntegration: z.object({
+      mechanism: z.string().optional(),
+      description: z.string().optional(),
+      codeExample: z.string().optional(),
+    }).optional(),
+  }).optional(),
+});
+
+/**
+ * Type for MongoDB projected document with database integration fields
+ * Uses precise Zod schema instead of interface with optional fields
+ */
+export type ProjectedDatabaseIntegrationFields = z.infer<typeof projectedDatabaseIntegrationFieldsSchema>;
 
 /**
  * Interface representing
@@ -97,8 +113,6 @@ export interface ProjectedFileTypesCountAndLines {
   readonly lines: number;
   readonly files: number;
 }
-
-
 
 /**
  * Generate JSON schema for source file records

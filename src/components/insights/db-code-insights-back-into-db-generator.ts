@@ -81,8 +81,10 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       }
 
       const fileLabel = record.summary.classpath ?? record.filepath;
+      const purpose = record.summary.purpose ?? "No purpose available";
+      const implementation = record.summary.implementation ?? "No implementation details available";
       srcFilesList.push(
-        `* ${fileLabel}: ${record.summary.purpose} ${record.summary.implementation}`,
+        `* ${fileLabel}: ${purpose} ${implementation}`,
       );
     }
 
