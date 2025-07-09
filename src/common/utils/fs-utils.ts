@@ -1,5 +1,6 @@
 import { promises as fs, Dirent } from "fs";
 import path from "path";
+import glob from "fast-glob";
 import { logErrorMsgAndDetail } from "./error-utils";
 const UTF8_ENCODING = "utf8";
 
@@ -87,33 +88,17 @@ export async function buildDirDescendingListOfFiles(
   folderIgnoreList: readonly string[],
   filenameIgnorePrefix: string,
 ): Promise<string[]> {
-  const files: string[] = [];
-  const queue: string[] = [srcDirPath];
+  const ignorePatterns = [
+    ...folderIgnoreList.map(folder => `**/${folder}/**`),
+    `**/${filenameIgnorePrefix}*`,
+  ];
+  
+  const files = await glob('**/*', {
+    cwd: srcDirPath,
+    absolute: true,
+    onlyFiles: true,
+    ignore: ignorePatterns,
+  });
 
-  while (queue.length) {
-    const directory = queue.pop();
-    if (!directory) continue;
-
-    try {
-      const entries = await readDirContents(directory);
-
-      for (const entry of entries) {
-        const fullPath = path.join(directory, entry.name);
-
-        if (entry.isDirectory()) {
-          if (!folderIgnoreList.includes(entry.name)) {
-            queue.push(fullPath);
-          }
-        } else if (entry.isFile()) {
-          if (!entry.name.toLowerCase().startsWith(filenameIgnorePrefix)) {
-            files.push(fullPath);
-          }
-        }
-      }
-    } catch (error: unknown) {
-      logErrorMsgAndDetail(`Failed to read directory: ${directory}`, error);
-    }
-  }
-
-  return files;
+  return files.sort((a, b) => b.localeCompare(a));
 }
