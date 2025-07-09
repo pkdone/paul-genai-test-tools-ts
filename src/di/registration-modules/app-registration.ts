@@ -31,10 +31,6 @@ import { McpServerService } from "../../services/mcp-server.service";
 import { ReportGenerationService } from "../../services/report-generation-service";
 import { DBInitializerService } from "../../lifecycle/db-initializer.service";
 
-// Type imports
-import type LLMRouter from "../../llm/core/llm-router";
-import type { EnvVars } from "../../lifecycle/env.types";
-
 /**
  * Register all application-level dependencies (repositories, components, and services).
  * This consolidated registration function handles the core business logic dependencies.
@@ -63,7 +59,7 @@ function registerRepositories(): void {
 
 /**
  * Register internal helper components.
- * Components that depend on LLMRouter use async factories, others use singletons.
+ * Components that depend on LLMRouter use simplified singleton registrations.
  */
 function registerComponents(): void {
   // Register components that don't depend on LLMRouter as regular singletons
@@ -77,75 +73,23 @@ function registerComponents(): void {
   container.registerSingleton(TOKENS.McpDataServer, McpDataServer);
   container.registerSingleton(TOKENS.McpHttpServer, McpHttpServer);
 
-  // Register components that depend on LLMRouter with async factories
+  // Register components that depend on LLMRouter with simplified singleton registrations
   registerLLMDependentComponents();
 
   console.log("Internal helper components registered");
 }
 
 /**
- * Register components that depend on LLMRouter using synchronous factories since LLMRouter is now registered as a singleton.
- * This eliminates the need for complex async dependency chains.
+ * Register components that depend on LLMRouter using simplified singleton registrations.
+ * Since these classes use @injectable(), tsyringe will automatically handle dependency injection.
  */
 function registerLLMDependentComponents(): void {
-  // LLMStructuredResponseInvoker
-  container.register(TOKENS.LLMStructuredResponseInvoker, {
-    useFactory: (c) => {
-      const llmRouter = c.resolve<LLMRouter>(TOKENS.LLMRouter);
-      return new LLMStructuredResponseInvoker(llmRouter);
-    },
-  });
-
-  // FileSummarizer
-  container.register(TOKENS.FileSummarizer, {
-    useFactory: (c) => {
-      const llmStructuredResponseInvoker = c.resolve<LLMStructuredResponseInvoker>(
-        TOKENS.LLMStructuredResponseInvoker,
-      );
-      return new FileSummarizer(llmStructuredResponseInvoker);
-    },
-  });
-
-  // CodebaseToDBLoader
-  container.register(TOKENS.CodebaseToDBLoader, {
-    useFactory: (c) => {
-      const sourcesRepository = c.resolve<SourcesRepository>(TOKENS.SourcesRepository);
-      const llmRouter = c.resolve<LLMRouter>(TOKENS.LLMRouter);
-      const fileSummarizer = c.resolve<FileSummarizer>(TOKENS.FileSummarizer);
-      return new CodebaseToDBLoader(sourcesRepository, llmRouter, fileSummarizer);
-    },
-  });
-
-  // CodeQuestioner
-  container.register(TOKENS.CodeQuestioner, {
-    useFactory: (c) => {
-      const sourcesRepository = c.resolve<SourcesRepository>(TOKENS.SourcesRepository);
-      const llmRouter = c.resolve<LLMRouter>(TOKENS.LLMRouter);
-      return new CodeQuestioner(sourcesRepository, llmRouter);
-    },
-  });
-
-  // DBCodeInsightsBackIntoDBGenerator
-  container.register(TOKENS.DBCodeInsightsBackIntoDBGenerator, {
-    useFactory: (c) => {
-      const appSummariesRepository = c.resolve<AppSummariesRepository>(
-        TOKENS.AppSummariesRepository,
-      );
-      const llmRouter = c.resolve<LLMRouter>(TOKENS.LLMRouter);
-      const sourcesRepository = c.resolve<SourcesRepository>(TOKENS.SourcesRepository);
-      const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const llmStructuredResponseInvoker = c.resolve<LLMStructuredResponseInvoker>(
-        TOKENS.LLMStructuredResponseInvoker,
-      );
-      return new DBCodeInsightsBackIntoDBGenerator(
-        appSummariesRepository,
-        llmRouter,
-        sourcesRepository,
-        projectName,
-        llmStructuredResponseInvoker,
-      );
-    },
-  });
+  // Simplified registrations using tsyringe's automatic dependency injection
+  container.registerSingleton(TOKENS.LLMStructuredResponseInvoker, LLMStructuredResponseInvoker);
+  container.registerSingleton(TOKENS.FileSummarizer, FileSummarizer);
+  container.registerSingleton(TOKENS.CodebaseToDBLoader, CodebaseToDBLoader);
+  container.registerSingleton(TOKENS.CodeQuestioner, CodeQuestioner);
+  container.registerSingleton(TOKENS.DBCodeInsightsBackIntoDBGenerator, DBCodeInsightsBackIntoDBGenerator);
 }
 
 /**
@@ -159,79 +103,23 @@ function registerServices(): void {
   container.registerSingleton(TOKENS.MDBConnectionTestService, MDBConnectionTestService);
   container.registerSingleton(TOKENS.McpServerService, McpServerService);
 
-  // Register services that depend on LLMRouter with async factories
+  // Register services that depend on LLMRouter with simplified singleton registrations
   registerLLMDependentServices();
 
   console.log("Main executable services registered");
 }
 
 /**
- * Register services that depend on LLMRouter using synchronous factories since LLMRouter is now registered as a singleton.
- * This eliminates the need for complex async dependency chains.
+ * Register services that depend on LLMRouter using simplified singleton registrations.
+ * Since these classes use @injectable(), tsyringe will automatically handle dependency injection.
  */
 function registerLLMDependentServices(): void {
-  // CodebaseQueryService
-  container.register(TOKENS.CodebaseQueryService, {
-    useFactory: (c) => {
-      const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const codeQuestioner = c.resolve<CodeQuestioner>(TOKENS.CodeQuestioner);
-      return new CodebaseQueryService(projectName, codeQuestioner);
-    },
-  });
+  // Simplified registrations using tsyringe's automatic dependency injection
+  container.registerSingleton(TOKENS.CodebaseQueryService, CodebaseQueryService);
+  container.registerSingleton(TOKENS.CodebaseCaptureService, CodebaseCaptureService);
+  container.registerSingleton(TOKENS.InsightsFromDBGenerationService, InsightsFromDBGenerationService);
+  container.registerSingleton(TOKENS.OneShotGenerateInsightsService, OneShotGenerateInsightsService);
+  container.registerSingleton(TOKENS.PluggableLLMsTestService, PluggableLLMsTestService);
 
-  // CodebaseCaptureService
-  container.register(TOKENS.CodebaseCaptureService, {
-    useFactory: (c) => {
-      const llmRouter = c.resolve<LLMRouter>(TOKENS.LLMRouter);
-      const dbInitializerService = c.resolve<DBInitializerService>(TOKENS.DBInitializerService);
-      const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
-      const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const codebaseToDBLoader = c.resolve<CodebaseToDBLoader>(TOKENS.CodebaseToDBLoader);
-      return new CodebaseCaptureService(
-        llmRouter,
-        dbInitializerService,
-        envVars,
-        projectName,
-        codebaseToDBLoader,
-      );
-    },
-  });
-
-  // InsightsFromDBGenerationService
-  container.register(TOKENS.InsightsFromDBGenerationService, {
-    useFactory: (c) => {
-      const llmRouter = c.resolve<LLMRouter>(TOKENS.LLMRouter);
-      const projectName = c.resolve<string>(TOKENS.ProjectName);
-      const dbCodeInsightsBackIntoDBGenerator = c.resolve<DBCodeInsightsBackIntoDBGenerator>(
-        TOKENS.DBCodeInsightsBackIntoDBGenerator,
-      );
-      return new InsightsFromDBGenerationService(
-        llmRouter,
-        projectName,
-        dbCodeInsightsBackIntoDBGenerator,
-      );
-    },
-  });
-
-  // OneShotGenerateInsightsService
-  container.register(TOKENS.OneShotGenerateInsightsService, {
-    useFactory: (c) => {
-      const llmRouter = c.resolve<LLMRouter>(TOKENS.LLMRouter);
-      const envVars = c.resolve<EnvVars>(TOKENS.EnvVars);
-      const rawCodeToInsightsFileGenerator = c.resolve<RawCodeToInsightsFileGenerator>(
-        TOKENS.RawCodeToInsightsFileGenerator,
-      );
-      return new OneShotGenerateInsightsService(llmRouter, envVars, rawCodeToInsightsFileGenerator);
-    },
-  });
-
-  // PluggableLLMsTestService
-  container.register(TOKENS.PluggableLLMsTestService, {
-    useFactory: (c) => {
-      const llmRouter = c.resolve<LLMRouter>(TOKENS.LLMRouter);
-      return new PluggableLLMsTestService(llmRouter);
-    },
-  });
-
-  console.log("LLM-dependent services registered with synchronous factories");
+  console.log("LLM-dependent services registered with simplified singleton registrations");
 }
