@@ -137,10 +137,21 @@ export default class DBCodeInsightsBackIntoDBGenerator {
         schema,
         categoryLabel,
       );
-      return llmResponse as PartialAppSummaryRecord;
+      
+      // Use the category-specific schema to validate the response
+      const parsed = schema.safeParse(llmResponse);
+      
+      if (!parsed.success) {
+        console.warn(
+          `Schema validation failed for ${categoryLabel}: ${parsed.error.message}`,
+        );
+        return null;
+      }
+      
+      return parsed.data as PartialAppSummaryRecord;
     } catch (error) {
       console.warn(
-        `WARNING: ${error instanceof Error ? error.message : "Unknown error"} for ${categoryLabel}`,
+        `${error instanceof Error ? error.message : "Unknown error"} for ${categoryLabel}`,
       );
       return null;
     }

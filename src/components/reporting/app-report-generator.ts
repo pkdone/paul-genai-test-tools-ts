@@ -8,6 +8,7 @@ import type {
   AppSummaryRecord,
   AppSummaryNameDescArray,
 } from "../../repositories/app-summary/app-summaries.model";
+import { appSummaryNameDescArraySchema } from "../../repositories/app-summary/app-summaries.model";
 import { TOKENS } from "../../di/tokens";
 import { HtmlReportFormatter } from "./html-report-formatter";
 import type { AppStatistics, ProcsAndTriggers, DatabaseIntegrationInfo } from "./report-gen.types";
@@ -177,16 +178,19 @@ export default class AppReportGenerator {
 
     const promises = categoryKeys.map(async (category) => {
       const label = summaryCategoriesConfig[category].label;
-      const data: AppSummaryNameDescArray | null =
-        (await this.appSummariesRepository.getProjectAppSummaryField(
-          projectName,
-          category as keyof AppSummaryRecord,
-        )) as AppSummaryNameDescArray | null;
+      const result = await this.appSummariesRepository.getProjectAppSummaryField(
+        projectName,
+        category as keyof AppSummaryRecord,
+      );
+
+      // Use Zod's safeParse as a type guard
+      const parsed = appSummaryNameDescArraySchema.safeParse(result);
+      
       console.log(`Generated ${label} table`);
       return {
         category,
         label,
-        data: data ?? [],
+        data: parsed.success ? parsed.data : [], // Use validated data or an empty array
       };
     });
 

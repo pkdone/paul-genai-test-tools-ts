@@ -1,5 +1,6 @@
 import path from "path";
 import { promises as fs } from "fs";
+import os from "os";
 import { injectable } from "tsyringe";
 import { appConfig } from "../../config/app.config";
 import { readFile, writeFile, readDirContents } from "../../common/utils/fs-utils";
@@ -140,7 +141,7 @@ export class RawCodeToInsightsFileGenerator {
   private async dumpCodeBlocksToTempFile(codeBlocksContent: string): Promise<void> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const tempFileName = `codebase-dump-${timestamp}.txt`;
-    const tempFilePath = path.join('/tmp', tempFileName);
+    const tempFilePath = path.join(os.tmpdir(), tempFileName);
     
     try {
       await writeFile(tempFilePath, codeBlocksContent);
