@@ -2,10 +2,12 @@ import { LLMPurpose, ResolvedLLMModelMetadata, LLMModelKeysSet } from "../../../
 import { extractTokensAmountAndLimitFromErrorMsg } from "../../../../../src/llm/utils/responseProcessing/llm-error-pattern-parser";
 import {
   azureOpenAIProviderManifest,
-  GPT_COMPLETIONS_GPT4,
-  GPT_COMPLETIONS_GPT4_32k,
 } from "../../../../../src/llm/providers/openai/azureOpenai/azure-openai.manifest";
 import { loadBaseEnvVarsOnly } from "../../../../../src/lifecycle/env";
+
+// Test-only constants
+const GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4";
+const GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k";
 
 // Load environment variables (including MongoDB URL) from .env file
 const baseEnv = loadBaseEnvVarsOnly();

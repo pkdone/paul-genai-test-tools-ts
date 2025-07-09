@@ -3,16 +3,20 @@ import { parseTokenUsageFromLLMError } from "../../../../src/llm/utils/responseP
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../../../../src/llm/providers/bedrock/bedrock-error-patterns";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../../../../src/llm/providers/openai/openai-error-patterns";
 
+// Test-only constants
+const GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4";
+const GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k";
+
 const testMetadata = {
-  GPT_COMPLETIONS_GPT4: {
-    modelKey: "GPT_COMPLETIONS_GPT4",
+  [GPT_COMPLETIONS_GPT4]: {
+    modelKey: GPT_COMPLETIONS_GPT4,
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
-  GPT_COMPLETIONS_GPT4_32k: {
-    modelKey: "GPT_COMPLETIONS_GPT4_32k",
+  [GPT_COMPLETIONS_GPT4_32k]: {
+    modelKey: GPT_COMPLETIONS_GPT4_32k,
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
@@ -27,7 +31,7 @@ describe("parseTokenUsageFromLLMError", () => {
       const errorMsg =
         "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 8192, request input token count: 9279";
       const result = parseTokenUsageFromLLMError(
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         errorMsg,
         testMetadata,
         BEDROCK_COMMON_ERROR_PATTERNS,

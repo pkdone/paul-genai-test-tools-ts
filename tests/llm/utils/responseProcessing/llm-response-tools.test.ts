@@ -10,9 +10,12 @@ import {
   postProcessAsJSONIfNeededGeneratingNewResult,
 } from "../../../../src/llm/utils/responseProcessing/llm-response-tools";
 
+// Test-only constants
+const GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4";
+
 const testMetadata = {
-  GPT_COMPLETIONS_GPT4: {
-    modelKey: "GPT_COMPLETIONS_GPT4",
+  [GPT_COMPLETIONS_GPT4]: {
+    modelKey: GPT_COMPLETIONS_GPT4,
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
@@ -37,7 +40,7 @@ describe("llm-response-tools", () => {
       };
 
       const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         tokenUsage,
         testMetadata,
       );
@@ -55,7 +58,7 @@ describe("llm-response-tools", () => {
       };
 
       const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         tokenUsage,
         testMetadata,
       );
@@ -73,7 +76,7 @@ describe("llm-response-tools", () => {
       };
 
       const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         tokenUsage,
         testMetadata,
       );
@@ -91,7 +94,7 @@ describe("llm-response-tools", () => {
       };
 
       const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         tokenUsage,
         testMetadata,
       );
@@ -109,7 +112,7 @@ describe("llm-response-tools", () => {
       };
 
       const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         tokenUsage,
         testMetadata,
       );
@@ -127,7 +130,7 @@ describe("llm-response-tools", () => {
       };
 
       const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         tokenUsage,
         testMetadata,
       );
@@ -142,7 +145,7 @@ describe("llm-response-tools", () => {
     const skeletonResult: LLMFunctionResponse = {
       status: LLMResponseStatus.UNKNOWN,
       request: "test request",
-      modelKey: "GPT_COMPLETIONS_GPT4",
+      modelKey: GPT_COMPLETIONS_GPT4,
       context: {},
       tokensUage: { promptTokens: 100, completionTokens: 50, maxTotalTokens: 8192 },
     };
@@ -153,7 +156,7 @@ describe("llm-response-tools", () => {
 
       const result = postProcessAsJSONIfNeededGeneratingNewResult(
         skeletonResult,
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         LLMPurpose.COMPLETIONS,
         responseContent,
         false,
@@ -171,7 +174,7 @@ describe("llm-response-tools", () => {
 
       const result = postProcessAsJSONIfNeededGeneratingNewResult(
         skeletonResult,
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         LLMPurpose.COMPLETIONS,
         responseContent,
         true,
@@ -189,7 +192,7 @@ describe("llm-response-tools", () => {
 
       const result = postProcessAsJSONIfNeededGeneratingNewResult(
         skeletonResult,
-        "GPT_COMPLETIONS_GPT4",
+        GPT_COMPLETIONS_GPT4,
         LLMPurpose.COMPLETIONS,
         responseContent,
         true,

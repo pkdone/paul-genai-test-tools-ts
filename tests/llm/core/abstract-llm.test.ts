@@ -1,11 +1,11 @@
 import { LLMPurpose, ResolvedLLMModelMetadata } from "../../../src/llm/llm.types";
 import { extractTokensAmountFromMetadataDefaultingMissingValues } from "../../../src/llm/utils/responseProcessing/llm-response-tools";
 import {
-  GPT_COMPLETIONS_GPT4_32k,
-} from "../../../src/llm/providers/openai/azureOpenai/azure-openai.manifest";
-import {
   AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,
 } from "../../../src/llm/providers/bedrock/bedrockLlama/bedrock-llama.manifest";
+
+// Test-only constants
+const GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k";
 
 // Test models metadata for generic token extraction tests
 const testModelsMetadata: Record<string, ResolvedLLMModelMetadata> = {

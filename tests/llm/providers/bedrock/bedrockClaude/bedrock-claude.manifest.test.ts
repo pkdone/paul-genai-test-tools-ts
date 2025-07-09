@@ -2,9 +2,11 @@ import { LLMPurpose, ResolvedLLMModelMetadata, LLMModelKeysSet } from "../../../
 import { extractTokensAmountAndLimitFromErrorMsg } from "../../../../../src/llm/utils/responseProcessing/llm-error-pattern-parser";
 import {
   bedrockClaudeProviderManifest,
-  AWS_COMPLETIONS_CLAUDE_V35,
 } from "../../../../../src/llm/providers/bedrock/bedrockClaude/bedrock-claude.manifest";
 import { loadBaseEnvVarsOnly } from "../../../../../src/lifecycle/env";
+
+// Test-only constants
+const AWS_COMPLETIONS_CLAUDE_V35 = "AWS_COMPLETIONS_CLAUDE_V35";
 
 // Load environment variables (including MongoDB URL) from .env file
 const baseEnv = loadBaseEnvVarsOnly();
@@ -76,7 +78,7 @@ describe("Bedrock Claude Provider Tests", () => {
         "ValidationException: 400 Bad Request: Too many input tokens. Max input tokens: 1048576, request input token count: 1049999 ";
       expect(
         extractTokensAmountAndLimitFromErrorMsg(
-          "AWS_COMPLETIONS_CLAUDE_V35",
+          AWS_COMPLETIONS_CLAUDE_V35,
           "dummy prompt",
           errorMsg,
           bedrockClaudeModelsMetadata,
@@ -94,7 +96,7 @@ describe("Bedrock Claude Provider Tests", () => {
         "ValidationException: Malformed input request: expected maxLength: 2097152, actual: 2300000, please reformat your input and try again.";
       expect(
         extractTokensAmountAndLimitFromErrorMsg(
-          "AWS_COMPLETIONS_CLAUDE_V35",
+          AWS_COMPLETIONS_CLAUDE_V35,
           "dummy prompt",
           errorMsg,
           bedrockClaudeModelsMetadata,
@@ -111,7 +113,7 @@ describe("Bedrock Claude Provider Tests", () => {
       const errorMsg = "Input is too long for requested model.";
       expect(
         extractTokensAmountAndLimitFromErrorMsg(
-          "AWS_COMPLETIONS_CLAUDE_V35",
+          AWS_COMPLETIONS_CLAUDE_V35,
           "dummy prompt",
           errorMsg,
           bedrockClaudeModelsMetadata,

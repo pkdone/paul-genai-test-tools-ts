@@ -12,16 +12,20 @@ import {
   PromptAdaptationStrategy,
 } from "../../../../src/llm/utils/prompting/prompt-adapter";
 
+// Test-only constants
+const GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4";
+const GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k";
+
 const testMetadata = {
-  GPT_COMPLETIONS_GPT4: {
-    modelKey: "GPT_COMPLETIONS_GPT4",
+  [GPT_COMPLETIONS_GPT4]: {
+    modelKey: GPT_COMPLETIONS_GPT4,
     urn: "gpt-4",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
     maxTotalTokens: 8192,
   },
-  GPT_COMPLETIONS_GPT4_32k: {
-    modelKey: "GPT_COMPLETIONS_GPT4_32k",
+  [GPT_COMPLETIONS_GPT4_32k]: {
+    modelKey: GPT_COMPLETIONS_GPT4_32k,
     urn: "gpt-4-32k",
     purpose: LLMPurpose.COMPLETIONS,
     maxCompletionTokens: 4096,
@@ -47,7 +51,7 @@ describe("PromptAdapter", () => {
       const prompt = "1234 1234 1234 1234";
       const tokensUsage = { promptTokens: 4, completionTokens: 10, maxTotalTokens: 8192 };
       const adapter = new PromptAdapter();
-      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      const mockResponse = createMockLLMResponse(GPT_COMPLETIONS_GPT4, tokensUsage);
       expect(adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata)).toBe(
         "1234 1234 1234 1",
       );
@@ -57,7 +61,7 @@ describe("PromptAdapter", () => {
       const prompt = "1234 ".repeat(25);
       const tokensUsage = { promptTokens: 100, completionTokens: 4096, maxTotalTokens: 8192 };
       const adapter = new PromptAdapter();
-      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      const mockResponse = createMockLLMResponse(GPT_COMPLETIONS_GPT4, tokensUsage);
       expect(adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata).length).toBe(93);
     });
 
@@ -65,7 +69,7 @@ describe("PromptAdapter", () => {
       const prompt = "A".repeat(57865); // random string
       const tokensUsage = { promptTokens: 8000, completionTokens: 500, maxTotalTokens: 8192 };
       const adapter = new PromptAdapter();
-      const mockResponse = createMockLLMResponse("GPT_COMPLETIONS_GPT4", tokensUsage);
+      const mockResponse = createMockLLMResponse(GPT_COMPLETIONS_GPT4, tokensUsage);
       const result = adapter.adaptPromptFromResponse(prompt, mockResponse, testMetadata);
       expect(result.length).toBe(49185);
     });
