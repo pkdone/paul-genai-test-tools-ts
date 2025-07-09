@@ -6,13 +6,15 @@ import { Service } from "./service.types";
 import { container } from "../di/container";
 import { TOKENS } from "../di/tokens";
 import { getServiceConfiguration } from "../di/registration-modules/service-config-registration";
+import { initializeAndRegisterLLMRouter } from "../di/registration-modules/llm-registration";
 
 /**
  * Generic service runner function that handles service execution:
  * 1. Resolve service configuration from DI container based on service token
- * 2. Resolve required resources from the pre-bootstrapped DI container
- * 3. Create and execute service using DI container
- * 4. Handle graceful shutdown
+ * 2. Initialize and register LLMRouter if required (isolating async logic)
+ * 3. Resolve required resources from the pre-bootstrapped DI container
+ * 4. Create and execute service using DI container
+ * 5. Handle graceful shutdown
  *
  * Note: This function assumes the DI container has already been bootstrapped.
  * Use bootstrapContainer() before calling this function.
@@ -30,10 +32,18 @@ export async function runService(serviceToken: symbol): Promise<void> {
     }
 
     if (config.requiresLLM) {
-      llmRouter = await container.resolve<Promise<LLMRouter>>(TOKENS.LLMRouter);
+      // Check if LLMRouter is already registered, otherwise initialize it
+      if (container.isRegistered(TOKENS.LLMRouter)) {
+        llmRouter = container.resolve<LLMRouter>(TOKENS.LLMRouter);
+      } else {
+        llmRouter = await initializeAndRegisterLLMRouter();
+      }
     }
 
-    const service = await container.resolve<Promise<Service>>(serviceToken);
+    // Resolve service (may be async or sync depending on registration)
+    const serviceResult = container.resolve<Service | Promise<Service>>(serviceToken);
+    const service = serviceResult instanceof Promise ? await serviceResult : serviceResult;
+    
     await service.execute();
   } finally {
     console.log(`END: ${new Date().toISOString()}`);

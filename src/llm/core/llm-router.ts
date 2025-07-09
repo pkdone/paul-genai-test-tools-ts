@@ -1,4 +1,3 @@
-import { injectable, inject } from "tsyringe";
 import { llmConfig } from "../llm.config";
 import {
   LLMContext,
@@ -24,7 +23,6 @@ import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
-import { TOKENS } from "../../di/tokens";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -33,7 +31,6 @@ import { TOKENS } from "../../di/tokens";
  *
  * See the `README` for the LLM non-functional behaviours abstraction / protection applied.
  */
-@injectable()
 export default class LLMRouter {
   // Private fields
   private readonly llm: LLMProviderImpl;
@@ -50,10 +47,10 @@ export default class LLMRouter {
    * @param promptAdapter The prompt adapter for handling token limits
    */
   constructor(
-    @inject(TOKENS.LLMService) private readonly llmService: LLMService,
-    @inject(TOKENS.EnvVars) private readonly envVars: EnvVars,
-    @inject(TOKENS.LLMStats) private readonly llmStats: LLMStats,
-    @inject(TOKENS.PromptAdapter) private readonly promptAdapter: PromptAdapter,
+    private readonly llmService: LLMService,
+    private readonly envVars: EnvVars,
+    private readonly llmStats: LLMStats,
+    private readonly promptAdapter: PromptAdapter,
   ) {
     // Derive the LLM provider and related configuration from the service
     this.llm = this.llmService.getLLMProvider(this.envVars);
