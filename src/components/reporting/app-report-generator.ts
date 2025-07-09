@@ -10,7 +10,7 @@ import type {
 } from "../../repositories/app-summary/app-summaries.model";
 import { TOKENS } from "../../di/tokens";
 import { HtmlReportFormatter } from "./html-report-formatter";
-import type { AppStatistics, ProcsAndTriggers } from "./report-gen.types";
+import type { AppStatistics, ProcsAndTriggers, DatabaseIntegrationInfo } from "./report-gen.types";
 import { Complexity, isComplexity } from "./report-gen.types";
 
 /**
@@ -56,10 +56,25 @@ export default class AppReportGenerator {
   /**
    * Returns a list of database integrations.
    */
-  async buildDBInteractionList(projectName: string) {
-    return await this.sourcesRepository.getProjectDatabaseIntegrations(projectName, [
+  async buildDBInteractionList(projectName: string): Promise<DatabaseIntegrationInfo[]> {
+    const records = await this.sourcesRepository.getProjectDatabaseIntegrations(projectName, [
       ...appConfig.SOURCE_FILES_FOR_CODE,
     ]);
+
+    return records.map((record) => {
+      const { summary, filepath } = record;
+      const databaseIntegration = summary?.databaseIntegration;
+      if (summary && databaseIntegration) {
+        return {
+          path: summary.classpath ?? filepath,
+          mechanism: databaseIntegration.mechanism,
+          description: databaseIntegration.description,
+          codeExample: databaseIntegration.codeExample,
+        };
+      }
+      // This should not happen due to the filter above, but satisfies TypeScript
+      throw new Error("Record missing required summary or databaseIntegration");
+    });
   }
 
   /**

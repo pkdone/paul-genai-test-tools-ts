@@ -2,9 +2,9 @@ import { Double } from "mongodb";
 import {
   SourceRecord,
   ProjectedSourceMetataContentAndSummary,
-  DatabaseIntegrationInfo,
   ProjectedSourceFilePathAndSummary,
   ProjectedSourceSummaryFields,
+  ProjectedDatabaseIntegrationFields,
   ProjectedFileTypesCountAndLines,
 } from "./sources.model";
 
@@ -41,7 +41,7 @@ export interface SourcesRepository {
   getProjectDatabaseIntegrations(
     projectName: string,
     fileTypes: string[],
-  ): Promise<DatabaseIntegrationInfo[]>;
+  ): Promise<ProjectedDatabaseIntegrationFields[]>;
 
   /**
    * Get stored procedures and triggers information for a project

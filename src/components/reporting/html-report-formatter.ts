@@ -2,11 +2,8 @@ import { injectable } from "tsyringe";
 import path from "path";
 import { appConfig } from "../../config/app.config";
 import type { AppSummaryNameDescArray } from "../../repositories/app-summary/app-summaries.model";
-import type { AppStatistics, ProcsAndTriggers } from "./report-gen.types";
-import {
-  DatabaseIntegrationInfo,
-  ProjectedFileTypesCountAndLines,
-} from "../../repositories/source/sources.model";
+import type { AppStatistics, ProcsAndTriggers, DatabaseIntegrationInfo } from "./report-gen.types";
+import { ProjectedFileTypesCountAndLines } from "../../repositories/source/sources.model";
 
 interface EjsTemplateData {
   appStats: AppStatistics;

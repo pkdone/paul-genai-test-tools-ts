@@ -98,15 +98,7 @@ export interface ProjectedFileTypesCountAndLines {
   readonly files: number;
 }
 
-/**
- * Interface representing database integration information
- */
-export interface DatabaseIntegrationInfo {
-  readonly path: string;
-  readonly mechanism: string;
-  readonly description: string;
-  readonly codeExample: string;
-}
+
 
 /**
  * Generate JSON schema for source file records

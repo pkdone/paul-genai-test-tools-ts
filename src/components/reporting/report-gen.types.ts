@@ -58,3 +58,11 @@ export interface AppStatistics {
   linesOfCode: number;
   appDescription: string;
 }
+
+// Interface representing database integration information
+export interface DatabaseIntegrationInfo {
+  readonly path: string;
+  readonly mechanism: string;
+  readonly description: string;
+  readonly codeExample: string;
+}

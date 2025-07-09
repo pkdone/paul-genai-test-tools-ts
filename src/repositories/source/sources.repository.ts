@@ -4,7 +4,6 @@ import { SourcesRepository } from "./sources.repository.interface";
 import {
   SourceRecord,
   ProjectedSourceMetataContentAndSummary,
-  DatabaseIntegrationInfo,
   ProjectedSourceFilePathAndSummary,
   ProjectedSourceSummaryFields,
   ProjectedDatabaseIntegrationFields,
@@ -96,7 +95,7 @@ export default class SourcesRepositoryImpl
   async getProjectDatabaseIntegrations(
     projectName: string,
     fileTypes: string[],
-  ): Promise<DatabaseIntegrationInfo[]> {
+  ): Promise<ProjectedDatabaseIntegrationFields[]> {
     const query = {
       projectName,
       type: { $in: fileTypes },
@@ -117,24 +116,9 @@ export default class SourcesRepositoryImpl
         "summary.classpath": 1,
       } as Sort,
     };
-    const records = await this.collection
+    return await this.collection
       .find<ProjectedDatabaseIntegrationFields>(query, options)
       .toArray();
-
-    return records.map((record) => {
-      const { summary, filepath } = record;
-      const databaseIntegration = summary?.databaseIntegration;
-      if (summary && databaseIntegration) {
-        return {
-          path: summary.classpath ?? filepath,
-          mechanism: databaseIntegration.mechanism,
-          description: databaseIntegration.description,
-          codeExample: databaseIntegration.codeExample,
-        };
-      }
-      // This should not happen due to the filter above, but satisfies TypeScript
-      throw new Error("Record missing required summary or databaseIntegration");
-    });
   }
 
   /**
