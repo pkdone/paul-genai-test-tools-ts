@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import McpHttpServer from "./mcpServing/mcp-http-server";
-import { Service } from "../../lifecycle/service.types";
-import { TOKENS } from "../../di/tokens";
+import McpHttpServer from "../components/api/mcpServing/mcp-http-server";
+import { Service } from "../lifecycle/service.types";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service to run the MCP insights server.

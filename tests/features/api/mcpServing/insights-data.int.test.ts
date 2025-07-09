@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { container, bootstrapContainer } from "../../../../src/di/container";
 import { TOKENS } from "../../../../src/di/tokens";
-import InsightsDataServer from "../../../../src/features/api/mcpServing/insights-data-server";
+import InsightsDataServer from "../../../../src/components/api/mcpServing/insights-data-server";
 import { MongoDBClientFactory } from "../../../../src/common/mdb/mdb-client-factory";
 
 describe("AnalysisDataServer", () => {

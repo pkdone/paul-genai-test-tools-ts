@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { appConfig } from "../../config/app.config";
-import { readFile } from "../../common/utils/fs-utils";
-import { LLMModelQuality } from "../../llm/llm.types";
-import type LLMRouter from "../../llm/core/llm-router";
-import { Service } from "../../lifecycle/service.types";
-import { TOKENS } from "../../di/tokens";
+import { appConfig } from "../config/app.config";
+import { readFile } from "../common/utils/fs-utils";
+import { LLMModelQuality } from "../llm/llm.types";
+import type LLMRouter from "../llm/core/llm-router";
+import { Service } from "../lifecycle/service.types";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service to test the LLM functionality.

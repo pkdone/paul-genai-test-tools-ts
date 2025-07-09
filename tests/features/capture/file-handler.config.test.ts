@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { fileTypeMetataDataAndPromptTemplates } from "../../../src/features/capture/file-handler.config";
+import { filesTypeMetatadataConfig } from "../../../src/components/capture/files-types-metadata.config";
 import { appConfig } from "../../../src/config/app.config";
 import { SourceSummaryType, sourceFileSummarySchema } from "../../../src/schemas/source-summaries.schema";
-import { FileHandler } from "../../../src/features/capture/file-summarizer";
+import { FileHandler } from "../../../src/components/capture/file-summarizer";
 
 describe("File Handler Configuration", () => {
   beforeEach(() => {
@@ -11,8 +11,8 @@ describe("File Handler Configuration", () => {
 
   describe("fileTypeMetataDataAndPromptTemplate", () => {
     test("should be a Record with expected file types", () => {
-      expect(typeof fileTypeMetataDataAndPromptTemplates).toBe("object");
-      expect(fileTypeMetataDataAndPromptTemplates).not.toBeNull();
+      expect(typeof filesTypeMetatadataConfig).toBe("object");
+      expect(filesTypeMetatadataConfig).not.toBeNull();
     });
 
     test("should contain expected prompt template keys", () => {
@@ -27,16 +27,16 @@ describe("File Handler Configuration", () => {
       ];
 
       expectedPromptTypes.forEach((type) => {
-        expect(fileTypeMetataDataAndPromptTemplates).toHaveProperty(type);
+        expect(filesTypeMetatadataConfig).toHaveProperty(type);
       });
     });
 
     test("should have correct number of mappings", () => {
-      expect(Object.keys(fileTypeMetataDataAndPromptTemplates).length).toBe(7);
+      expect(Object.keys(filesTypeMetatadataConfig).length).toBe(7);
     });
 
     test("should have valid Zod schemas for each file type", () => {
-      Object.entries(fileTypeMetataDataAndPromptTemplates).forEach(([, config]) => {
+      Object.entries(filesTypeMetatadataConfig).forEach(([, config]) => {
         expect(config.schema).toBeDefined();
         expect(config.schema._def).toBeDefined();
         // Schema should have a parse method indicating it's a Zod schema
@@ -45,7 +45,7 @@ describe("File Handler Configuration", () => {
     });
 
     test("should have fileContentDesc and instructions for each type", () => {
-      Object.entries(fileTypeMetataDataAndPromptTemplates).forEach(([, config]) => {
+      Object.entries(filesTypeMetatadataConfig).forEach(([, config]) => {
         expect(config).toHaveProperty("fileContentDesc");
         expect(config).toHaveProperty("instructions");
         expect(config).toHaveProperty("schema");
@@ -123,7 +123,7 @@ describe("File Handler Configuration", () => {
       const canonicalTypes = new Set(appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.values());
 
       canonicalTypes.forEach((canonicalType) => {
-        expect(fileTypeMetataDataAndPromptTemplates).toHaveProperty(canonicalType);
+        expect(filesTypeMetatadataConfig).toHaveProperty(canonicalType);
       });
     });
 
@@ -134,7 +134,7 @@ describe("File Handler Configuration", () => {
         appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(unknownSuffix) ?? "default";
 
       expect(canonicalType).toBe("default");
-      expect(fileTypeMetataDataAndPromptTemplates).toHaveProperty("default");
+      expect(filesTypeMetatadataConfig).toHaveProperty("default");
     });
   });
 });

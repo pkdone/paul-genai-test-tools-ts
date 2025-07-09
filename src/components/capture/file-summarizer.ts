@@ -5,7 +5,7 @@ import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-uti
 import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import { TOKENS } from "../../di/tokens";
 import { SourceSummaryType } from "../../schemas/source-summaries.schema";
-import { fileTypeMetataDataAndPromptTemplates } from "./file-handler.config";
+import { filesTypeMetatadataConfig } from "./files-types-metadata.config";
 import { createPromptFromConfig } from "../../llm/utils/prompting/prompt-templator";
 import { appConfig } from "../../config/app.config";
 
@@ -91,8 +91,8 @@ export class FileSummarizer {
       appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ??
       appConfig.DEFAULT_FILE_TYPE;
     const config =
-      fileTypeMetataDataAndPromptTemplates[promptType] ??
-      fileTypeMetataDataAndPromptTemplates.default;
+      filesTypeMetatadataConfig[promptType] ??
+      filesTypeMetatadataConfig.default;
     const schema = config.schema as z.ZodType<SourceSummaryType>;
     return {
       promptCreator: (content: string) => this.createPromptForFileType(fileType, content),
@@ -108,7 +108,7 @@ export class FileSummarizer {
     const promptType =
       appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(fileType.toLowerCase()) ??
       appConfig.DEFAULT_FILE_TYPE;
-    const config = fileTypeMetataDataAndPromptTemplates[promptType];
+    const config = filesTypeMetatadataConfig[promptType];
     return createPromptFromConfig(SOURCES_SUMMARY_CAPTURE_TEMPLATE, config, content);
   }
 }

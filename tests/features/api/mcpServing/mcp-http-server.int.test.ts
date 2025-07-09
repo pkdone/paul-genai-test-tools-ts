@@ -5,8 +5,8 @@ import { IncomingMessage, ServerResponse, createServer } from "node:http";
 import { Readable } from "node:stream";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
-import McpHttpServer from "../../../../src/features/api/mcpServing/mcp-http-server";
-import type McpDataServer from "../../../../src/features/api/mcpServing/mcp-data-server";
+import McpHttpServer from "../../../../src/components/api/mcpServing/mcp-http-server";
+import type McpDataServer from "../../../../src/components/api/mcpServing/mcp-data-server";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 // Mock the MCP SDK

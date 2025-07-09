@@ -23,7 +23,7 @@ const COMMON_INSTRUCTIONS = {
 /**
  * Data-driven mapping of prompt types to their templates and schemas
  */
-export const fileTypeMetataDataAndPromptTemplates: Record<string, DynamicPromptReplaceVars> = {
+export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars> = {
   java: {
     fileContentDesc: "Java code",
     instructions: `* The name of the main public class/interface of the file

@@ -1,12 +1,12 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { appConfig } from "../../config/app.config";
-import { clearDirectory, buildDirDescendingListOfFiles } from "../../common/utils/fs-utils";
-import { RawCodeToInsightsFileGenerator } from "./one-shot-insights-generator";
-import type LLMRouter from "../../llm/core/llm-router";
-import { Service } from "../../lifecycle/service.types";
-import type { EnvVars } from "../../lifecycle/env.types";
-import { TOKENS } from "../../di/tokens";
+import { appConfig } from "../config/app.config";
+import { clearDirectory, buildDirDescendingListOfFiles } from "../common/utils/fs-utils";
+import { RawCodeToInsightsFileGenerator } from "../components/insights/one-shot-insights-generator";
+import type LLMRouter from "../llm/core/llm-router";
+import { Service } from "../lifecycle/service.types";
+import type { EnvVars } from "../lifecycle/env.types";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service to generate inline insights.

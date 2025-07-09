@@ -8,27 +8,27 @@ import { SourcesRepository } from "../../repositories/source/sources.repository.
 import { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
 
 // Component imports
-import { FileSummarizer } from "../../features/capture/file-summarizer";
-import { HtmlReportFormatter } from "../../features/reporting/html-report-formatter";
-import { RawCodeToInsightsFileGenerator } from "../../features/oneShot/one-shot-insights-generator";
-import AppReportGenerator from "../../features/reporting/app-report-generator";
-import CodebaseToDBLoader from "../../features/capture/codebase-to-db-loader";
-import CodeQuestioner from "../../features/querying/code-questioner";
-import DBCodeInsightsBackIntoDBGenerator from "../../features/insights/db-code-insights-back-into-db-generator";
+import { FileSummarizer } from "../../components/capture/file-summarizer";
+import { HtmlReportFormatter } from "../../components/reporting/html-report-formatter";
+import { RawCodeToInsightsFileGenerator } from "../../components/insights/one-shot-insights-generator";
+import CodeQuestioner from "../../components/querying/code-questioner";
+import AppReportGenerator from "../../components/reporting/app-report-generator";
+import CodebaseToDBLoader from "../../components/capture/codebase-to-db-loader";
+import DBCodeInsightsBackIntoDBGenerator from "../../components/insights/db-code-insights-back-into-db-generator";
 import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
-import InsightsDataServer from "../../features/api/mcpServing/insights-data-server";
-import McpDataServer from "../../features/api/mcpServing/mcp-data-server";
-import McpHttpServer from "../../features/api/mcpServing/mcp-http-server";
+import InsightsDataServer from "../../components/api/mcpServing/insights-data-server";
+import McpDataServer from "../../components/api/mcpServing/mcp-data-server";
+import McpHttpServer from "../../components/api/mcpServing/mcp-http-server";
 
-// Service imports
-import { CodebaseCaptureService } from "../../features/capture/codebase-capture.service";
-import { CodebaseQueryService } from "../../features/querying/code-query.service";
-import { InsightsFromDBGenerationService } from "../../features/insights/insights-from-db-generation.service";
-import { OneShotGenerateInsightsService } from "../../features/oneShot/one-shot-generate-insights.service";
-import { MDBConnectionTestService } from "../../features/diagnostics/mdb-connection-test.service";
-import { PluggableLLMsTestService } from "../../features/diagnostics/test-pluggable-llms.service";
-import { McpServerService } from "../../features/api/mcp-server.service";
-import { ReportGenerationService } from "../../features/reporting/report-generation-service";
+// Service imports (flattened structure)
+import { CodebaseCaptureService } from "../../services/codebase-capture.service";
+import { CodebaseQueryService } from "../../services/code-query.service";
+import { InsightsFromDBGenerationService } from "../../services/insights-from-db-generation.service";
+import { OneShotGenerateInsightsService } from "../../services/one-shot-generate-insights.service";
+import { MDBConnectionTestService } from "../../services/mdb-connection-test.service";
+import { PluggableLLMsTestService } from "../../services/test-pluggable-llms.service";
+import { McpServerService } from "../../services/mcp-server.service";
+import { ReportGenerationService } from "../../services/report-generation-service";
 import { DBInitializerService } from "../../lifecycle/db-initializer.service";
 
 // Type imports

@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import DBCodeInsightsBackIntoDBGenerator from "./db-code-insights-back-into-db-generator";
-import type LLMRouter from "../../llm/core/llm-router";
-import { Service } from "../../lifecycle/service.types";
-import { TOKENS } from "../../di/tokens";
+import DBCodeInsightsBackIntoDBGenerator from "../components/insights/db-code-insights-back-into-db-generator";
+import type LLMRouter from "../llm/core/llm-router";
+import { Service } from "../lifecycle/service.types";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service to generate insights.

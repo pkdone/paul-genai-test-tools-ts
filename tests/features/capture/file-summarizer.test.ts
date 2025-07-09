@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import "reflect-metadata";
-import { FileSummarizer, SummaryResult } from "../../../src/features/capture/file-summarizer";
+import { FileSummarizer, SummaryResult } from "../../../src/components/capture/file-summarizer";
 import { LLMStructuredResponseInvoker } from "../../../src/llm/utils/llm-structured-response-invoker";
 import * as errorUtils from "../../../src/common/utils/error-utils";
 
@@ -24,8 +24,8 @@ jest.mock("../../../src/config/app.config", () => ({
       ["ts", "javascript"],
       ["javascript", "javascript"],
       ["typescript", "javascript"],
-      ["ddl", "ddl"],
-      ["sql", "ddl"],
+      ["ddl", "sql"],
+      ["sql", "sql"],
       ["xml", "xml"],
       ["jsp", "jsp"],
       ["markdown", "markdown"],
@@ -40,47 +40,64 @@ jest.mock("../../../src/config/app.config", () => ({
   },
 }));
 
-jest.mock("../../../src/features/capture/file-handler.config", () => ({
-  fileTypeMetataDataAndPromptTemplates: {
+// Fix the mock to use the correct export name
+jest.mock("../../../src/components/capture/files-types-metadata.config", () => ({
+  filesTypeMetatadataConfig: {
     java: {
       fileContentDesc: "Java code",
       instructions: "Java instructions",
-      schema: { _def: { typeName: "ZodObject" } },
+      schema: {
+        parse: jest.fn().mockReturnValue({}),
+        safeParse: jest.fn().mockReturnValue({ success: true, data: {} }),
+      },
     },
     javascript: {
       fileContentDesc: "JavaScript/TypeScript code",
       instructions: "JavaScript instructions",
-      schema: { _def: { typeName: "ZodObject" } },
+      schema: {
+        parse: jest.fn().mockReturnValue({}),
+        safeParse: jest.fn().mockReturnValue({ success: true, data: {} }),
+      },
     },
     default: {
       fileContentDesc: "project file content",
       instructions: "Default instructions",
-      schema: { _def: { typeName: "ZodObject" } },
-    },
-    ddl: {
-      fileContentDesc: "database DDL/DML/SQL code",
-      instructions: "DDL instructions",
-      schema: { _def: { typeName: "ZodObject" } },
+      schema: {
+        parse: jest.fn().mockReturnValue({}),
+        safeParse: jest.fn().mockReturnValue({ success: true, data: {} }),
+      },
     },
     sql: {
       fileContentDesc: "database DDL/DML/SQL code",
       instructions: "SQL instructions",
-      schema: { _def: { typeName: "ZodObject" } },
+      schema: {
+        parse: jest.fn().mockReturnValue({}),
+        safeParse: jest.fn().mockReturnValue({ success: true, data: {} }),
+      },
     },
     xml: {
       fileContentDesc: "XML code",
       instructions: "XML instructions",
-      schema: { _def: { typeName: "ZodObject" } },
+      schema: {
+        parse: jest.fn().mockReturnValue({}),
+        safeParse: jest.fn().mockReturnValue({ success: true, data: {} }),
+      },
     },
     jsp: {
       fileContentDesc: "JSP code",
       instructions: "JSP instructions",
-      schema: { _def: { typeName: "ZodObject" } },
+      schema: {
+        parse: jest.fn().mockReturnValue({}),
+        safeParse: jest.fn().mockReturnValue({ success: true, data: {} }),
+      },
     },
     markdown: {
       fileContentDesc: "Markdown content",
       instructions: "Markdown instructions",
-      schema: { _def: { typeName: "ZodObject" } },
+      schema: {
+        parse: jest.fn().mockReturnValue({}),
+        safeParse: jest.fn().mockReturnValue({ success: true, data: {} }),
+      },
     },
   },
 }));

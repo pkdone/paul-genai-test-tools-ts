@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
-import { Service } from "../../lifecycle/service.types";
-import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
-import { TOKENS } from "../../di/tokens";
+import { Service } from "../lifecycle/service.types";
+import type { SourcesRepository } from "../repositories/source/sources.repository.interface";
+import { TOKENS } from "../di/tokens";
 
 /**
  * Service to test the MongoDB connection.
