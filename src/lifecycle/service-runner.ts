@@ -40,9 +40,8 @@ export async function runService(serviceToken: symbol): Promise<void> {
       }
     }
 
-    // Resolve service (may be async or sync depending on registration)
-    const serviceResult = container.resolve<Service | Promise<Service>>(serviceToken);
-    const service = serviceResult instanceof Promise ? await serviceResult : serviceResult;
+    // Resolve service (await handles both sync and async resolution)
+    const service = await container.resolve<Service | Promise<Service>>(serviceToken);
     
     await service.execute();
   } finally {
