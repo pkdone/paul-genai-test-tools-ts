@@ -128,6 +128,9 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       const resourceName = `${String(category)} - generate-${String(category)}.prompt`;
       const content = joinArrayWithSeparators(sourceFileSummaries);
       const prompt = this.createInsightsPrompt(category, content);
+      
+      // Note: The explicit 'unknown' typing is needed to avoid unsafe assignment lint errors
+      // because the schema config uses generic z.ZodType which resolves to 'any'
       const llmResponse: unknown = await this.llmUtilityService.getStructuredResponse(
         resourceName,
         prompt,
