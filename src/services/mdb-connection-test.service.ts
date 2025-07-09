@@ -20,8 +20,9 @@ export class MDBConnectionTestService implements Service {
   /**
    * Execute the service - tests the MongoDB connection.
    */
-  async execute(): Promise<void> {
-    await this.testConnection();
+  // eslint-disable-next-line @typescript-eslint/promise-function-async
+  execute(): Promise<void> {
+    return this.testConnection();
   }
 
   private async testConnection(): Promise<void> {

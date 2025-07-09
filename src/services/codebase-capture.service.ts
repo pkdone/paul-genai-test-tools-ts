@@ -28,8 +28,9 @@ export class CodebaseCaptureService implements Service {
   /**
    * Execute the service - captures the codebase.
    */
-  async execute(): Promise<void> {
-    await this.captureCodebase(this.env.CODEBASE_DIR_PATH, this.env.IGNORE_ALREADY_PROCESSED_FILES);
+  // eslint-disable-next-line @typescript-eslint/promise-function-async
+  execute(): Promise<void> {
+    return this.captureCodebase(this.env.CODEBASE_DIR_PATH, this.env.IGNORE_ALREADY_PROCESSED_FILES);
   }
 
   /**
