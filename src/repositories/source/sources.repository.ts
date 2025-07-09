@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { MongoClient, Double, Sort, Document } from "mongodb";
+import { MongoClient, Double, Sort, Document, Collection } from "mongodb";
 import { SourcesRepository } from "./sources.repository.interface";
 import {
   SourceRecord,
@@ -13,22 +13,22 @@ import {
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config/database.config";
 import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
-import { BaseRepository } from "../base.repository";
 import { logMongoValidationErrorIfPresent } from "../../common/mdb/mdb-utils";
 
 /**
  * MongoDB implementation of the Sources repository
  */
 @injectable()
-export default class SourcesRepositoryImpl
-  extends BaseRepository<SourceRecord>
-  implements SourcesRepository
-{
+export default class SourcesRepositoryImpl implements SourcesRepository {
+  // Protected field accessible by subclasses
+  protected readonly collection: Collection<SourceRecord>;
+
   /**
    * Constructor.
    */
   constructor(@inject(TOKENS.MongoClient) mongoClient: MongoClient) {
-    super(mongoClient, databaseConfig.SOURCES_COLLCTN_NAME);
+    const db = mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
+    this.collection = db.collection<SourceRecord>(databaseConfig.SOURCES_COLLCTN_NAME);
   }
 
   /**

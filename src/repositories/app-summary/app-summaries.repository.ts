@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { MongoClient } from "mongodb";
+import { MongoClient, Collection } from "mongodb";
 import { AppSummariesRepository } from "./app-summaries.repository.interface";
 import {
   AppSummaryRecord,
@@ -8,22 +8,22 @@ import {
 } from "./app-summaries.model";
 import { TOKENS } from "../../di/tokens";
 import { databaseConfig } from "../../config/database.config";
-import { BaseRepository } from "../base.repository";
 import { logMongoValidationErrorIfPresent } from "../../common/mdb/mdb-utils";
 
 /**
  * MongoDB implementation of the App Summaries repository
  */
 @injectable()
-export default class AppSummariesRepositoryImpl
-  extends BaseRepository<AppSummaryRecord>
-  implements AppSummariesRepository
-{
+export default class AppSummariesRepositoryImpl implements AppSummariesRepository {
+  // Protected field accessible by subclasses
+  protected readonly collection: Collection<AppSummaryRecord>;
+
   /**
    * Constructor.
    */
   constructor(@inject(TOKENS.MongoClient) mongoClient: MongoClient) {
-    super(mongoClient, databaseConfig.SUMMARIES_COLLCTN_NAME);
+    const db = mongoClient.db(databaseConfig.CODEBASE_DB_NAME);
+    this.collection = db.collection<AppSummaryRecord>(databaseConfig.SUMMARIES_COLLCTN_NAME);
   }
 
   /**

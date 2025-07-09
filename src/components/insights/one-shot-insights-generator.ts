@@ -32,6 +32,7 @@ export class RawCodeToInsightsFileGenerator {
     llmName: string,
   ): Promise<string[]> {
     const codeBlocksContent = await this.mergeSourceFilesContent(srcFilepaths, srcDirPath);
+    await this.dumpCodeBlocksToTempFile(codeBlocksContent);
     const limit = pLimit(appConfig.MAX_CONCURRENCY);
 
     const tasks = prompts.map(async (prompt) => {
@@ -131,5 +132,21 @@ export class RawCodeToInsightsFileGenerator {
     }
 
     return response;
+  }
+
+  /**
+   * Dump code blocks content to a temporary file for debugging/inspection purposes.
+   */
+  private async dumpCodeBlocksToTempFile(codeBlocksContent: string): Promise<void> {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const tempFileName = `codebase-dump-${timestamp}.txt`;
+    const tempFilePath = path.join('/tmp', tempFileName);
+    
+    try {
+      await writeFile(tempFilePath, codeBlocksContent);
+      console.log(`Project code has been dumped to: ${tempFilePath}`);
+    } catch (error: unknown) {
+      logErrorMsgAndDetail("Failed to dump code blocks to temp file", error);
+    }
   }
 }
