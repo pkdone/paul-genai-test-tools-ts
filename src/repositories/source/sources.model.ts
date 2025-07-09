@@ -26,8 +26,7 @@ export const sourceRecordSchema = z
  * Interface representing a source file record in the database
  * (making it optional for _id)
  */
-type SourceRecordTmp = z.infer<typeof sourceRecordSchema>;
-export type SourceRecord = Omit<SourceRecordTmp, "_id"> & Partial<Pick<SourceRecordTmp, "_id">>;
+export type SourceRecord = Omit<z.infer<typeof sourceRecordSchema>, "_id"> & Partial<Pick<z.infer<typeof sourceRecordSchema>, "_id">>;
 
 /**
  * Note: For non-simple projects, and especially for partial projections of nested fields, we need
