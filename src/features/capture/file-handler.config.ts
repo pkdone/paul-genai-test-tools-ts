@@ -1,4 +1,5 @@
-import * as schemas from "../../schemas/source-summaries.schema";
+import { sourceFileSummarySchema, databaseIntegrationSchema } from "../../schemas/source-summaries.schema";
+import { z } from "zod";
 import { DynamicPromptReplaceVars } from "../../llm/utils/prompting/prompt-templator";
 
 /**
@@ -22,7 +23,7 @@ const COMMON_INSTRUCTIONS = {
 /**
  * Data-driven mapping of prompt types to their templates and schemas
  */
-export const fileTypeMetataDataAndPromptTemplate: Record<string, DynamicPromptReplaceVars> = {
+export const fileTypeMetataDataAndPromptTemplates: Record<string, DynamicPromptReplaceVars> = {
   java: {
     fileContentDesc: "Java code",
     instructions: `* The name of the main public class/interface of the file
@@ -44,7 +45,22 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, DynamicPromptRe
     - Code uses a 3rd party framework/library for database access (set mechanism: 'OTHER')
     - Otherwise, if the code does not use a database, then set mechanism: 'NONE'
     (note, JMS and JNDI are not related to interacting with a dataase)`,
-    schema: schemas.javaFileSummarySchema,
+    schema: sourceFileSummarySchema.pick({
+      classname: true,
+      classType: true,
+      classpath: true,
+      purpose: true,
+      implementation: true,
+      internalReferences: true,
+      externalReferences: true,
+      publicConstants: true,
+      publicMethods: true,
+      databaseIntegration: true,
+    }).extend({
+      // Add descriptions for LLM prompts
+      internalReferences: z.array(z.string()).describe("A list of internal classpaths referenced."),
+      externalReferences: z.array(z.string()).describe("A list of third-party classpaths referenced."),
+    }),
   },
   javascript: {
     fileContentDesc: "JavaScript/TypeScript code",
@@ -53,14 +69,24 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, DynamicPromptRe
  * ${COMMON_INSTRUCTIONS.INTERNAL_REFS_JS}
  * ${COMMON_INSTRUCTIONS.EXTERNAL_REFS_JS}
  * ${COMMON_INSTRUCTIONS.DB_INTEGRATION}.`,
-    schema: schemas.jsFileSummarySchema,
+    schema: sourceFileSummarySchema.pick({
+      purpose: true,
+      implementation: true,
+      internalReferences: true,
+      externalReferences: true,
+      databaseIntegration: true,
+    }),
   },
   default: {
     fileContentDesc: "project file content",
     instructions: `* ${COMMON_INSTRUCTIONS.PURPOSE}
 * ${COMMON_INSTRUCTIONS.IMPLEMENTATION} 
 * ${COMMON_INSTRUCTIONS.DB_INTEGRATION}.`,
-    schema: schemas.defaultFileSummarySchema,
+    schema: sourceFileSummarySchema.pick({
+      purpose: true,
+      implementation: true,
+      databaseIntegration: true,
+    }),
   },
   sql: {
     fileContentDesc: "database DDL/DML/SQL code",
@@ -70,14 +96,29 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, DynamicPromptRe
  * A list of the stored procedure (if any) it defines - for each stored procedure, include the stored procedure's name, its purpose in detail, the number of lines of code in the stored procedure, and a complexity score or how complex the stored procedure's code is (the score must be have one of the following values: 'LOW', 'MEDIUM', 'HIGH') along with a reason for the chosen complexity score.
  * A list of the triggers (if any) it defines - for each trigger, include the trigger's name, its purpose in detail, the number of lines of code in the trigger, and a complexity score or how complex the trigger's code is (the score must be have one of the following values: 'LOW', 'MEDIUM', 'HIGH') along with a reason for the chosen complexity score.
  * The most prominent type of database integration it employs (if any), stating the mechanism used ('NONE', 'DDL', 'DML', 'SQL', 'STORED-PROCEDURE', or 'TRIGGER'), a description of the integration and an example code snippet that performs the database integration`,
-    schema: schemas.ddlFileSummarySchema,
+    schema: sourceFileSummarySchema.pick({
+      purpose: true,
+      implementation: true,
+      tables: true,
+      storedProcedures: true,
+      triggers: true,
+      databaseIntegration: true,
+    }).extend({
+      databaseIntegration: databaseIntegrationSchema.extend({
+        mechanism: z.enum(["NONE", "DDL", "DML", "SQL", "STORED-PROCEDURE", "TRIGGER", "FUNCTION"]),
+      }),
+    }),
   },
   xml: {
     fileContentDesc: "XML code",
     instructions: `* ${COMMON_INSTRUCTIONS.PURPOSE}
 * ${COMMON_INSTRUCTIONS.IMPLEMENTATION}
 * ${COMMON_INSTRUCTIONS.DB_INTEGRATION}`,
-    schema: schemas.xmlFileSummarySchema,
+    schema: sourceFileSummarySchema.pick({
+      purpose: true,
+      implementation: true,
+      databaseIntegration: true,
+    }),
   },
   jsp: {
     fileContentDesc: "JSP code",
@@ -86,13 +127,23 @@ export const fileTypeMetataDataAndPromptTemplate: Record<string, DynamicPromptRe
 * ${COMMON_INSTRUCTIONS.INTERNAL_REFS_JAVA}
 * ${COMMON_INSTRUCTIONS.EXTERNAL_REFS_JAVA}    
 * A list of data input fields it contains (if any). For each field, provide its name (or an approximate name), its type (e.g., 'text', 'hidden', 'password'), and a detailed description of its purpose.`,
-    schema: schemas.jspFileSummarySchema,
+    schema: sourceFileSummarySchema.pick({
+      purpose: true,
+      implementation: true,
+      internalReferences: true,
+      externalReferences: true,
+      dataInputFields: true,
+    }),
   },
   markdown: {
     fileContentDesc: "Markdown content",
     instructions: `* ${COMMON_INSTRUCTIONS.PURPOSE}
 * ${COMMON_INSTRUCTIONS.IMPLEMENTATION}
 * The type of database integration the markdown content implies that the application uses (if any), stating the mechanism used, a description of the integration and an example code snippet that performs the database integration`,
-    schema: schemas.markdownFileSummarySchema,
+    schema: sourceFileSummarySchema.pick({
+      purpose: true,
+      implementation: true,
+      databaseIntegration: true,
+    }),
   },
 } as const;

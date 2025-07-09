@@ -23,69 +23,6 @@ export const sourceRecordSchema = z
   .passthrough();
 
 /**
- * Schema for MongoDB projected document with just filepath
- * Note: For non-simple projects, and especially for partial projections of nested fields, we need
- * to create a custom schema since MongoDB projections revert to returning field types of 'unknown'.*
- */
-export const projectedFilePathSchema = sourceRecordSchema.pick({
-  filepath: true,
-});
-
-/**
- * Schema for MongoDB projected document with filepath and summary fields
- * Note: For non-simple projects, and especially for partial projections of nested fields, we need
- * to create a custom schema since MongoDB projections revert to returning field types of 'unknown'.*
- */
-export const projectedSourceFilePathAndSummarySchema = sourceRecordSchema.pick({
-  filepath: true,
-  summary: true,
-});
-
-/**
- * Schema for MongoDB projected document with metadata, content and summary for vector search
- * Note: For non-simple projects, and especially for partial projections of nested fields, we need
- * to create a custom schema since MongoDB projections revert to returning field types of 'unknown'.*
- */
-export const projectedSourceMetataContentAndSummarySchema = sourceRecordSchema.pick({
-  projectName: true,
-  type: true,
-  filepath: true,
-  content: true,
-  summary: true,
-});
-
-/**
- * Schema for MongoDB projected document with filepath and partial summary fields
- * Note: For non-simple projects, and especially for partial projections of nested fields, we need
- * to create a custom schema since MongoDB projections revert to returning field types of 'unknown'.*
- */
-export const projectedSourceSummaryFieldsSchema = z.object({
-  filepath: z.string(),
-  summary: sourceFileSummarySchema
-    .pick({
-      classpath: true,
-      purpose: true,
-      implementation: true,
-    })
-    .optional(),
-});
-
-/**
- * Schema for MongoDB projected document with database integration fields
- * Note: For non-simple projects, and especially for partial projections of nested fields, we need
- * to create a custom schema since MongoDB projections revert to returning field types of 'unknown'.
- */
-export const projectedDatabaseIntegrationFieldsSchema = z.object({
-  filepath: z.string(),
-  summary: sourceFileSummarySchema
-    .pick({
-      classpath: true,
-      databaseIntegration: true,
-    })
-    .optional(),
-});
-
-/**
  * Interface representing a source file record in the database
  * (making it optional for _id)
  */
@@ -93,35 +30,64 @@ type SourceRecordTmp = z.infer<typeof sourceRecordSchema>;
 export type SourceRecord = Omit<SourceRecordTmp, "_id"> & Partial<Pick<SourceRecordTmp, "_id">>;
 
 /**
+ * Note: For non-simple projects, and especially for partial projections of nested fields, we need
+ * to create schemas inline using sourceRecordSchema.pick() or z.object() since MongoDB projections
+ * revert to returning field types of 'unknown'.
+ */
+
+/**
  * Type for MongoDB projected document with just filepath
  */
-export type ProjectedFilePath = z.infer<typeof projectedFilePathSchema>;
+export type ProjectedFilePath = z.infer<
+  ReturnType<typeof sourceRecordSchema.pick<{ filepath: true }>>
+>;
 
 /**
  * Type for MongoDB projected document with filepath and summary fields
  */
 export type ProjectedSourceFilePathAndSummary = z.infer<
-  typeof projectedSourceFilePathAndSummarySchema
->;
-
-/**
- * Type for MongoDB projected document with filepath, summary, and partial summary fields
- */
-export type ProjectedSourceSummaryFields = z.infer<typeof projectedSourceSummaryFieldsSchema>;
-
-/**
- * Type for MongoDB projected document with database integration fields
- */
-export type ProjectedDatabaseIntegrationFields = z.infer<
-  typeof projectedDatabaseIntegrationFieldsSchema
+  ReturnType<typeof sourceRecordSchema.pick<{ filepath: true; summary: true }>>
 >;
 
 /**
  * Type for MongoDB projected document with metadata, content and summary for vector search
  */
 export type ProjectedSourceMetataContentAndSummary = z.infer<
-  typeof projectedSourceMetataContentAndSummarySchema
+  ReturnType<typeof sourceRecordSchema.pick<{
+    projectName: true;
+    type: true;
+    filepath: true;
+    content: true;
+    summary: true;
+  }>>
 >;
+
+/**
+ * Interface for MongoDB projected document with filepath and partial summary fields
+ */
+export interface ProjectedSourceSummaryFields {
+  filepath: string;
+  summary?: z.infer<
+    ReturnType<typeof sourceFileSummarySchema.pick<{
+      classpath: true;
+      purpose: true;
+      implementation: true;
+    }>>
+  >;
+}
+
+/**
+ * Interface for MongoDB projected document with database integration fields
+ */
+export interface ProjectedDatabaseIntegrationFields {
+  filepath: string;
+  summary?: z.infer<
+    ReturnType<typeof sourceFileSummarySchema.pick<{
+      classpath: true;
+      databaseIntegration: true;
+    }>>
+  >;
+}
 
 /**
  * Interface representing

@@ -41,7 +41,7 @@ jest.mock("../../../src/config/app.config", () => ({
 }));
 
 jest.mock("../../../src/features/capture/file-handler.config", () => ({
-  fileTypeMetataDataAndPromptTemplate: {
+  fileTypeMetataDataAndPromptTemplates: {
     java: {
       fileContentDesc: "Java code",
       instructions: "Java instructions",
@@ -60,6 +60,11 @@ jest.mock("../../../src/features/capture/file-handler.config", () => ({
     ddl: {
       fileContentDesc: "database DDL/DML/SQL code",
       instructions: "DDL instructions",
+      schema: { _def: { typeName: "ZodObject" } },
+    },
+    sql: {
+      fileContentDesc: "database DDL/DML/SQL code",
+      instructions: "SQL instructions",
       schema: { _def: { typeName: "ZodObject" } },
     },
     xml: {
@@ -115,7 +120,7 @@ describe("FileSummarizer", () => {
 
     MockedLLMStructuredResponseInvoker.mockImplementation(() => mockLLMInvoker);
 
-    // Create FileSummarizer instance
+    // Create FileSummarizer instance using dependency injection
     fileSummarizer = new FileSummarizer(mockLLMInvoker);
   });
 

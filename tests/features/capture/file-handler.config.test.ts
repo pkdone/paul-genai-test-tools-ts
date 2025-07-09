@@ -1,19 +1,8 @@
 import "reflect-metadata";
-import { fileTypeMetataDataAndPromptTemplate } from "../../../src/features/capture/file-handler.config";
+import { fileTypeMetataDataAndPromptTemplates } from "../../../src/features/capture/file-handler.config";
 import { appConfig } from "../../../src/config/app.config";
-import { SourceSummaryType } from "../../../src/schemas/source-summaries.schema";
-import * as summarySchemas from "../../../src/schemas/source-summaries.schema";
+import { SourceSummaryType, sourceFileSummarySchema } from "../../../src/schemas/source-summaries.schema";
 import { FileHandler } from "../../../src/features/capture/file-summarizer";
-
-jest.mock("../../../src/schemas/source-summaries.schema", () => ({
-  javaFileSummarySchema: { _def: { typeName: "ZodObject" } },
-  jsFileSummarySchema: { _def: { typeName: "ZodObject" } },
-  defaultFileSummarySchema: { _def: { typeName: "ZodObject" } },
-  ddlFileSummarySchema: { _def: { typeName: "ZodObject" } },
-  xmlFileSummarySchema: { _def: { typeName: "ZodObject" } },
-  jspFileSummarySchema: { _def: { typeName: "ZodObject" } },
-  markdownFileSummarySchema: { _def: { typeName: "ZodObject" } },
-}));
 
 describe("File Handler Configuration", () => {
   beforeEach(() => {
@@ -22,8 +11,8 @@ describe("File Handler Configuration", () => {
 
   describe("fileTypeMetataDataAndPromptTemplate", () => {
     test("should be a Record with expected file types", () => {
-      expect(typeof fileTypeMetataDataAndPromptTemplate).toBe("object");
-      expect(fileTypeMetataDataAndPromptTemplate).not.toBeNull();
+      expect(typeof fileTypeMetataDataAndPromptTemplates).toBe("object");
+      expect(fileTypeMetataDataAndPromptTemplates).not.toBeNull();
     });
 
     test("should contain expected prompt template keys", () => {
@@ -38,40 +27,25 @@ describe("File Handler Configuration", () => {
       ];
 
       expectedPromptTypes.forEach((type) => {
-        expect(fileTypeMetataDataAndPromptTemplate).toHaveProperty(type);
+        expect(fileTypeMetataDataAndPromptTemplates).toHaveProperty(type);
       });
     });
 
     test("should have correct number of mappings", () => {
-      expect(Object.keys(fileTypeMetataDataAndPromptTemplate).length).toBe(7);
+      expect(Object.keys(fileTypeMetataDataAndPromptTemplates).length).toBe(7);
     });
 
-    test("should map prompt types to correct schemas", () => {
-      expect(fileTypeMetataDataAndPromptTemplate.java.schema).toBe(
-        summarySchemas.javaFileSummarySchema,
-      );
-      expect(fileTypeMetataDataAndPromptTemplate.javascript.schema).toBe(
-        summarySchemas.jsFileSummarySchema,
-      );
-      expect(fileTypeMetataDataAndPromptTemplate.default.schema).toBe(
-        summarySchemas.defaultFileSummarySchema,
-      );
-      expect(fileTypeMetataDataAndPromptTemplate.sql.schema).toBe(
-        summarySchemas.ddlFileSummarySchema,
-      );
-      expect(fileTypeMetataDataAndPromptTemplate.xml.schema).toBe(
-        summarySchemas.xmlFileSummarySchema,
-      );
-      expect(fileTypeMetataDataAndPromptTemplate.jsp.schema).toBe(
-        summarySchemas.jspFileSummarySchema,
-      );
-      expect(fileTypeMetataDataAndPromptTemplate.markdown.schema).toBe(
-        summarySchemas.markdownFileSummarySchema,
-      );
+    test("should have valid Zod schemas for each file type", () => {
+      Object.entries(fileTypeMetataDataAndPromptTemplates).forEach(([, config]) => {
+        expect(config.schema).toBeDefined();
+        expect(config.schema._def).toBeDefined();
+        // Schema should have a parse method indicating it's a Zod schema
+        expect(typeof config.schema.parse).toBe("function");
+      });
     });
 
     test("should have fileContentDesc and instructions for each type", () => {
-      Object.entries(fileTypeMetataDataAndPromptTemplate).forEach(([, config]) => {
+      Object.entries(fileTypeMetataDataAndPromptTemplates).forEach(([, config]) => {
         expect(config).toHaveProperty("fileContentDesc");
         expect(config).toHaveProperty("instructions");
         expect(config).toHaveProperty("schema");
@@ -85,7 +59,7 @@ describe("File Handler Configuration", () => {
     test("should enforce correct structure", () => {
       const testHandler: FileHandler = {
         promptCreator: jest.fn(),
-        schema: summarySchemas.defaultFileSummarySchema,
+        schema: sourceFileSummarySchema,
       };
 
       expect(testHandler).toHaveProperty("promptCreator");
@@ -94,13 +68,13 @@ describe("File Handler Configuration", () => {
     });
 
     test("should work with type compatibility", () => {
-      // Test that FileHandler can work with existing schema types
+      // Test that FileHandler can work with inline schema types
       const typedHandler: FileHandler = {
         promptCreator: jest.fn(),
-        schema: summarySchemas.javaFileSummarySchema,
+        schema: sourceFileSummarySchema.pick({ purpose: true, implementation: true }),
       };
 
-      expect(typedHandler.schema).toBe(summarySchemas.javaFileSummarySchema);
+      expect(typedHandler.schema).toBeDefined();
       expect(typeof typedHandler.promptCreator).toBe("function");
     });
   });
@@ -120,7 +94,7 @@ describe("File Handler Configuration", () => {
         externalReferences: [],
         publicConstants: [],
         publicMethods: [],
-        databaseIntegration: { mechanism: "NONE", description: "No database" },
+        databaseIntegration: { mechanism: "NONE", description: "No database", codeExample: "n/a" },
       };
 
       const jsSummary: SourceSummaryType = {
@@ -128,13 +102,13 @@ describe("File Handler Configuration", () => {
         implementation: "JS test implementation",
         internalReferences: [],
         externalReferences: [],
-        databaseIntegration: { mechanism: "NONE", description: "No database" },
+        databaseIntegration: { mechanism: "NONE", description: "No database", codeExample: "n/a" },
       };
 
       const defaultSummary: SourceSummaryType = {
         purpose: "Default test purpose",
         implementation: "Default test implementation",
-        databaseIntegration: { mechanism: "NONE", description: "No database" },
+        databaseIntegration: { mechanism: "NONE", description: "No database", codeExample: "n/a" },
       };
 
       // These should all compile without errors
@@ -149,7 +123,7 @@ describe("File Handler Configuration", () => {
       const canonicalTypes = new Set(appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.values());
 
       canonicalTypes.forEach((canonicalType) => {
-        expect(fileTypeMetataDataAndPromptTemplate).toHaveProperty(canonicalType);
+        expect(fileTypeMetataDataAndPromptTemplates).toHaveProperty(canonicalType);
       });
     });
 
@@ -160,7 +134,7 @@ describe("File Handler Configuration", () => {
         appConfig.FILE_SUFFIX_TO_CANONICAL_TYPE_MAPPINGS.get(unknownSuffix) ?? "default";
 
       expect(canonicalType).toBe("default");
-      expect(fileTypeMetataDataAndPromptTemplate).toHaveProperty("default");
+      expect(fileTypeMetataDataAndPromptTemplates).toHaveProperty("default");
     });
   });
 });
