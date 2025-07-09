@@ -40,7 +40,7 @@ describe("Error utilities", () => {
 
     test("with non-Error object", () => {
       const stack = getErrorStack("not an error");
-      expect(stack).toContain("Error");
+      expect(stack).toBe("No stack trace available for the provided non-Error object.");
     });
   });
 });

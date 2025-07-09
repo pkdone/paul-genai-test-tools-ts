@@ -46,20 +46,13 @@ export function getErrorText(error: unknown): string {
 }
 
 /**
- * Get the stack trace from a thrown variable if it is an Error object otherwise get the current
- * stack.
+ * Get the stack trace from a thrown variable if it is an Error object otherwise indicate
+ * that no stack trace is available.
  */
 export function getErrorStack(obj: unknown): string {
-  if (obj instanceof Error) {
-    return obj.stack ?? `Error: ${obj.message} (Stack trace not available)`;
-  } else {
-    // For non-Error objects, provide a generic message or a new stack trace indicating it's for a non-Error
-    let details: string;
-    try {
-      details = JSON.stringify(obj);
-    } catch {
-      details = "(Unserializable object)";
-    }
-    return `Stack trace for non-Error object (details: ${details}): \n${new Error().stack ?? "No stack trace available"}`;
+  if (obj instanceof Error && obj.stack) {
+    return obj.stack;
   }
+  // For non-errors or errors without a stack, just return a descriptive message.
+  return `No stack trace available for the provided non-Error object.`;
 }
