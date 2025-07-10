@@ -15,7 +15,6 @@ import CodeQuestioner from "../../components/querying/code-questioner";
 import AppReportGenerator from "../../components/reporting/app-report-generator";
 import CodebaseToDBLoader from "../../components/capture/codebase-to-db-loader";
 import DBCodeInsightsBackIntoDBGenerator from "../../components/insights/db-code-insights-back-into-db-generator";
-import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import InsightsDataServer from "../../components/api/mcpServing/insights-data-server";
 import McpDataServer from "../../components/api/mcpServing/mcp-data-server";
 import McpHttpServer from "../../components/api/mcpServing/mcp-http-server";
@@ -85,7 +84,6 @@ function registerComponents(): void {
  */
 function registerLLMDependentComponents(): void {
   // Simplified registrations using tsyringe's automatic dependency injection
-  container.registerSingleton(TOKENS.LLMStructuredResponseInvoker, LLMStructuredResponseInvoker);
   container.registerSingleton(TOKENS.FileSummarizer, FileSummarizer);
   container.registerSingleton(TOKENS.CodebaseToDBLoader, CodebaseToDBLoader);
   container.registerSingleton(TOKENS.CodeQuestioner, CodeQuestioner);

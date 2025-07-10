@@ -7,6 +7,7 @@ import {
   BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
   AWS_EMBEDDINGS_TITAN_V1,
 } from "../bedrock-models.constants";
+import { LLMJsonModeSupport } from "../../llm-provider.types";
 
 // Environment variable name constants
 const BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_NOVA_COMPLETIONS_MODEL_PRIMARY";
@@ -49,6 +50,7 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
+  jsonModeSupport: LLMJsonModeSupport.NONE,
   providerSpecificConfig: {
     requestTimeoutMillis: 9 * 60 * 1000, // 9 minutes - Nova models can be slower
     maxRetryAttempts: 4, // More retries for newer models

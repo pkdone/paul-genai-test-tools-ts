@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { LLMProviderManifest } from "../../llm-provider.types";
+import { LLMJsonModeSupport } from "../../llm-provider.types";
 import BedrockClaudeLLM from "./bedrock-claude-llm";
 import { LLMPurpose } from "../../../llm.types";
 import { BEDROCK_COMMON_ERROR_PATTERNS } from "../bedrock-error-patterns";
@@ -59,6 +60,7 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
+  jsonModeSupport: LLMJsonModeSupport.NONE,
   providerSpecificConfig: {
     apiVersion: "bedrock-2023-05-31",
     temperature: llmConfig.DEFAULT_ZERO_TEMP,

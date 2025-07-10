@@ -1,6 +1,6 @@
 import { OpenAI, RateLimitError, InternalServerError } from "openai";
 import { APIError } from "openai/error";
-import { LLMPurpose } from "../../llm.types";
+import { LLMPurpose, LLMCompletionOptions } from "../../llm.types";
 import AbstractLLM from "../../core/abstract-llm";
 
 /**
@@ -15,8 +15,9 @@ export default abstract class BaseOpenAILLM extends AbstractLLM {
     taskType: LLMPurpose,
     modelKey: string,
     prompt: string,
+    options?: LLMCompletionOptions,
   ) {
-    const params = this.buildFullLLMParameters(taskType, modelKey, prompt);
+    const params = this.buildFullLLMParameters(taskType, modelKey, prompt, options);
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
       return this.invokeImplementationSpecificEmbeddingsLLM(params as OpenAI.EmbeddingCreateParams);
@@ -105,11 +106,12 @@ export default abstract class BaseOpenAILLM extends AbstractLLM {
   protected abstract getClient(): OpenAI;
 
   /**
-   * Abstract method to assemble the OpenAI API parameters structure for the given model and prompt.
+   * Abstract method to build the full LLM parameters for the given model and prompt.
    */
   protected abstract buildFullLLMParameters(
     taskType: LLMPurpose,
     modelKey: string,
     prompt: string,
-  ): OpenAI.EmbeddingCreateParams | OpenAI.ChatCompletionCreateParams;
+    options?: LLMCompletionOptions,
+  ): OpenAI.EmbeddingCreateParams | OpenAI.Chat.ChatCompletionCreateParams;
 }

@@ -1,6 +1,7 @@
 import { llmConfig } from "../../../llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { BEDROCK_TITAN } from "./bedrock-titan.manifest";
+import { LLMCompletionOptions } from "../../../llm.types";
 
 /**
  * Class for the AWS Bedrock Titan LLMs.
@@ -16,7 +17,12 @@ export default class BedrockTitanLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Claude completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(
+    modelKey: string,
+    prompt: string,
+    options?: LLMCompletionOptions,
+  ) {
+    void options; // Bedrock providers don't support JSON mode options
     return JSON.stringify({
       inputText: prompt,
       textGenerationConfig: {

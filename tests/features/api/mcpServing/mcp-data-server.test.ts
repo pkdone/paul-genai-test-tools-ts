@@ -74,7 +74,7 @@ describe("McpDataServer", () => {
         {
           title: "Business Processes",
           description: "Lists the main business processes of the application.",
-          mimeType: "application/json",
+          mimeType: mcpConfig.APPLICATION_JSON,
         },
         expect.any(Function), // Resource handler function
       );

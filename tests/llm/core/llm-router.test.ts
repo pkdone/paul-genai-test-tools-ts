@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import "reflect-metadata";
 import {
   LLMPurpose,
@@ -8,6 +13,7 @@ import {
   LLMModelQuality,
   ResolvedLLMModelMetadata,
   LLMResponseTokensUsage,
+  LLMOutputFormat,
 } from "../../../src/llm/llm.types";
 import {
   BadResponseMetadataLLMError,
@@ -19,6 +25,9 @@ import LLMStats from "../../../src/llm/utils/routerTracking/llm-stats";
 import { PromptAdapter } from "../../../src/llm/utils/prompting/prompt-adapter";
 import { LLMService } from "../../../src/llm/core/llm-service";
 import type { EnvVars } from "../../../src/lifecycle/env.types";
+import { describe, test, expect, jest } from "@jest/globals";
+import { LLMJsonModeSupport } from "../../../src/llm/providers/llm-provider.types";
+import type { LLMProviderManifest } from "../../../src/llm/providers/llm-provider.types";
 
 // Mock the dependencies
 jest.mock("../../../src/llm/utils/responseProcessing/llm-response-tools", () => ({
@@ -88,54 +97,71 @@ const llmModelMetadataSchema = z
   );
 
 describe("LLM Router tests", () => {
-  // Helper function to create a mock LLM provider
-  const createMockLLMProvider = (): LLMProviderImpl => ({
-    generateEmbeddings: jest.fn().mockResolvedValue({
+  // Mock model metadata for testing
+  const mockEmbeddingModelMetadata: ResolvedLLMModelMetadata = {
+    modelKey: "GPT_EMBEDDINGS_ADA002",
+    urn: "text-embedding-ada-002",
+    purpose: LLMPurpose.EMBEDDINGS,
+    dimensions: 1536,
+    maxTotalTokens: 8191,
+  };
+
+  const mockPrimaryModelMetadata: ResolvedLLMModelMetadata = {
+    modelKey: "GPT_COMPLETIONS_GPT4",
+    urn: "gpt-4",
+    purpose: LLMPurpose.COMPLETIONS,
+    maxCompletionTokens: 4096,
+    maxTotalTokens: 8192,
+  };
+
+  // Helper function to create a mock LLM provider with proper typing
+  const createMockLLMProvider = (): LLMProviderImpl => {
+    const mockProvider = {
+      generateEmbeddings: jest.fn(),
+      executeCompletionPrimary: jest.fn(),
+      executeCompletionSecondary: jest.fn(),
+      getModelsNames: jest.fn(() => ["text-embedding-ada-002", "gpt-4", "gpt-3.5-turbo"]),
+      getAvailableCompletionModelQualities: jest.fn(() => [
+        LLMModelQuality.PRIMARY,
+        LLMModelQuality.SECONDARY,
+      ]),
+      getEmbeddedModelDimensions: jest.fn(() => 1536),
+      getModelFamily: jest.fn(() => "OpenAI"),
+      getModelsMetadata: jest.fn(() => ({
+        GPT_COMPLETIONS_GPT4: mockPrimaryModelMetadata,
+        GPT_EMBEDDINGS_ADA002: mockEmbeddingModelMetadata,
+      })),
+      getProviderSpecificConfig: jest.fn().mockReturnValue({}),
+      close: jest.fn(),
+    } as unknown as LLMProviderImpl;
+
+    // Set up default mock return values with proper typing
+    (mockProvider.generateEmbeddings as any).mockResolvedValue({
       status: LLMResponseStatus.COMPLETED,
       generated: [0.1, 0.2, 0.3, 0.4],
       request: "default test content",
       modelKey: "GPT_EMBEDDINGS_ADA002",
       context: {},
-    }),
-    executeCompletionPrimary: jest.fn().mockResolvedValue({
+    });
+
+    (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
       status: LLMResponseStatus.COMPLETED,
       generated: "Default test completion",
       request: "default test prompt",
       modelKey: "GPT_COMPLETIONS_GPT4",
       context: {},
-    }),
-    executeCompletionSecondary: jest.fn().mockResolvedValue({
+    });
+
+    (mockProvider.executeCompletionSecondary as any).mockResolvedValue({
       status: LLMResponseStatus.COMPLETED,
       generated: "Default secondary completion",
       request: "default test prompt",
       modelKey: "GPT_COMPLETIONS_GPT35",
       context: {},
-    }),
-    getModelsNames: jest.fn(() => ["text-embedding-ada-002", "gpt-4", "gpt-3.5-turbo"]),
-    getAvailableCompletionModelQualities: jest.fn(() => [
-      LLMModelQuality.PRIMARY,
-      LLMModelQuality.SECONDARY,
-    ]),
-    getEmbeddedModelDimensions: jest.fn(() => 1536),
-    getModelFamily: jest.fn(() => "OpenAI"),
-    getModelsMetadata: jest.fn(() => ({
-      GPT_COMPLETIONS_GPT4: {
-        modelKey: "GPT_COMPLETIONS_GPT4",
-        urn: "gpt-4",
-        purpose: LLMPurpose.COMPLETIONS,
-        maxCompletionTokens: 4096,
-        maxTotalTokens: 8192,
-      } as ResolvedLLMModelMetadata,
-      GPT_EMBEDDINGS_ADA002: {
-        modelKey: "GPT_EMBEDDINGS_ADA002",
-        urn: "text-embedding-ada-002",
-        purpose: LLMPurpose.EMBEDDINGS,
-        dimensions: 1536,
-        maxTotalTokens: 8191,
-      } as ResolvedLLMModelMetadata,
-    })),
-    close: jest.fn(),
-  });
+    });
+
+    return mockProvider;
+  };
 
   // Helper function to create LLMRouter instance
   const createLLMRouter = (retryConfig: Record<string, unknown> = {}) => {
@@ -152,12 +178,13 @@ describe("LLM Router tests", () => {
 
     // Create mock LLMService
     const mockLLMService: Partial<LLMService> = {
-      getLLMProvider: jest.fn().mockReturnValue(mockProvider),
+      getLLMProvider: jest.fn().mockReturnValue(mockProvider) as jest.MockedFunction<(env: EnvVars) => LLMProviderImpl>,
       getLLMManifest: jest.fn().mockReturnValue({
         modelFamily: "OpenAI",
         providerName: "Mock OpenAI",
+        jsonModeSupport: LLMJsonModeSupport.NATIVE,
         providerSpecificConfig: testRetryConfig,
-      }),
+      }) as jest.MockedFunction<() => LLMProviderManifest>,
     };
 
     // Create mock EnvVars
@@ -411,65 +438,58 @@ describe("LLM Router tests", () => {
   });
 
   describe("generateEmbeddings method", () => {
-    test("should generate embeddings successfully", async () => {
-      const { router, mockProvider } = createLLMRouter();
-      const mockEmbeddings = [0.1, 0.2, 0.3, 0.4];
-      mockProvider.generateEmbeddings = jest.fn().mockResolvedValue({
-        status: LLMResponseStatus.COMPLETED,
-        generated: mockEmbeddings,
-        request: "test content",
-        modelKey: "GPT_EMBEDDINGS_ADA002",
-        context: {},
+          test("should generate embeddings successfully", async () => {
+        const { router, mockProvider } = createLLMRouter();
+        const mockEmbeddings = [0.1, 0.2, 0.3, 0.4];
+        (mockProvider.generateEmbeddings as any).mockResolvedValue({
+          status: LLMResponseStatus.COMPLETED,
+          generated: mockEmbeddings,
+          request: "test content",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
+          context: {},
+        });
+
+        const result = await router.generateEmbeddings("test-resource", "test content");
+
+        expect(result).toEqual(mockEmbeddings);
+        expect(mockProvider.generateEmbeddings).toHaveBeenCalled();
       });
 
-      const result = await router.generateEmbeddings("test-resource", "test content");
-
-      expect(result).toEqual(mockEmbeddings);
-      expect(mockProvider.generateEmbeddings).toHaveBeenCalled();
-    });
-
-    test("should handle null response", async () => {
-      const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
-      mockProvider.generateEmbeddings = jest
-        .fn()
-        .mockResolvedValueOnce({
+      test("should handle null response", async () => {
+        const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
+        (mockProvider.generateEmbeddings as any).mockResolvedValueOnce({
           status: LLMResponseStatus.OVERLOADED,
           request: "test content",
           modelKey: "GPT_EMBEDDINGS_ADA002",
           context: {},
-        })
-        .mockResolvedValue(null);
+        }).mockResolvedValue(null);
 
-      const result = await router.generateEmbeddings("test-resource", "test content");
+        const result = await router.generateEmbeddings("test-resource", "test content");
 
-      expect(result).toBeNull();
-    });
-
-    test("should throw error for invalid embeddings response", async () => {
-      const { router, mockProvider } = createLLMRouter();
-      mockProvider.generateEmbeddings = jest.fn().mockResolvedValue({
-        status: LLMResponseStatus.COMPLETED,
-        generated: "invalid response",
-        request: "test content",
-        modelKey: "GPT_EMBEDDINGS_ADA002",
-        context: {},
+        expect(result).toBeNull();
       });
 
-      await expect(router.generateEmbeddings("test-resource", "test content")).rejects.toThrow(
-        BadResponseMetadataLLMError,
-      );
-    });
+      test("should throw error for invalid embeddings response", async () => {
+        const { router, mockProvider } = createLLMRouter();
+        (mockProvider.generateEmbeddings as any).mockResolvedValue({
+          status: LLMResponseStatus.COMPLETED,
+          generated: "invalid response",
+          request: "test content",
+          modelKey: "GPT_EMBEDDINGS_ADA002",
+          context: {},
+        });
+
+        await expect(router.generateEmbeddings("test-resource", "test content")).rejects.toThrow(
+          BadResponseMetadataLLMError,
+        );
+      });
   });
 
   describe("executeCompletion method", () => {
     test("should execute completion successfully", async () => {
       const { router, mockProvider } = createLLMRouter();
       const mockCompletion = "This is a test completion";
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -477,7 +497,9 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt");
+      const result = await router.executeCompletion("test-resource", "test prompt", {
+        outputFormat: LLMOutputFormat.TEXT,
+      }, null);
 
       expect(result).toBe(mockCompletion);
       expect(mockProvider.executeCompletionPrimary).toHaveBeenCalled();
@@ -486,11 +508,7 @@ describe("LLM Router tests", () => {
     test("should execute completion with JSON response", async () => {
       const { router, mockProvider } = createLLMRouter();
       const mockCompletion = { key: "value", number: 42 };
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -498,24 +516,24 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt", true);
+      const result = await router.executeCompletion("test-resource", "test prompt", {
+        outputFormat: LLMOutputFormat.JSON,
+      }, null);
 
       expect(result).toEqual(mockCompletion);
       expect(mockProvider.executeCompletionPrimary).toHaveBeenCalledWith(
         "test prompt",
-        true,
         expect.any(Object),
+        {
+          outputFormat: LLMOutputFormat.JSON,
+        },
       );
     });
 
     test("should use model quality override", async () => {
       const { router, mockProvider } = createLLMRouter();
       const mockCompletion = "This is a test completion";
-      (
-        mockProvider.executeCompletionSecondary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionSecondary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionSecondary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -526,8 +544,9 @@ describe("LLM Router tests", () => {
       const result = await router.executeCompletion(
         "test-resource",
         "test prompt",
-        false,
-        {},
+        {
+          outputFormat: LLMOutputFormat.JSON,
+        },
         LLMModelQuality.SECONDARY,
       );
 
@@ -537,46 +556,34 @@ describe("LLM Router tests", () => {
 
     test("should handle null response", async () => {
       const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      )
-        .mockResolvedValueOnce({
-          status: LLMResponseStatus.OVERLOADED,
-          request: "test prompt",
-          modelKey: "GPT_COMPLETIONS_GPT4",
-          context: {},
-        })
-        .mockResolvedValue({
-          status: LLMResponseStatus.OVERLOADED,
-          request: "test prompt",
-          modelKey: "GPT_COMPLETIONS_GPT4",
-          context: {},
-        });
-      (
-        mockProvider.executeCompletionSecondary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionSecondary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as any).mockResolvedValueOnce({
+        status: LLMResponseStatus.OVERLOADED,
+        request: "test prompt",
+        modelKey: "GPT_COMPLETIONS_GPT4",
+        context: {},
+      }).mockResolvedValue({
+        status: LLMResponseStatus.OVERLOADED,
+        request: "test prompt",
+        modelKey: "GPT_COMPLETIONS_GPT4",
+        context: {},
+      });
+      (mockProvider.executeCompletionSecondary as any).mockResolvedValue({
         status: LLMResponseStatus.OVERLOADED,
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT35",
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt");
+      const result = await router.executeCompletion("test-resource", "test prompt", {
+        outputFormat: LLMOutputFormat.TEXT,
+      }, null);
 
       expect(result).toBeNull();
     });
 
     test("should throw error for invalid completion response", async () => {
       const { router, mockProvider } = createLLMRouter();
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
         generated: 12345 as any, // Invalid response type - number instead of string/object
@@ -585,7 +592,9 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      await expect(router.executeCompletion("test-resource", "test prompt")).rejects.toThrow(
+      await expect(router.executeCompletion("test-resource", "test prompt", {
+        outputFormat: LLMOutputFormat.TEXT,
+      }, null)).rejects.toThrow(
         BadResponseMetadataLLMError,
       );
     });
@@ -633,7 +642,7 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 0,
         totalLLMCount: 2,
-        context: { test: "context" } as LLMContext,
+        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: false,
@@ -651,7 +660,7 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 1,
         totalLLMCount: 2,
-        context: { test: "context" } as LLMContext,
+        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: true,
@@ -674,7 +683,7 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 0,
         totalLLMCount: 2,
-        context: { test: "context" } as LLMContext,
+        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: false,
@@ -711,7 +720,7 @@ describe("LLM Router tests", () => {
         llmResponse: null,
         currentLLMIndex: 1,
         totalLLMCount: 2,
-        context: { test: "context" } as LLMContext,
+        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: true,
@@ -734,7 +743,7 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 1,
         totalLLMCount: 2,
-        context: { test: "context" } as LLMContext,
+        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: false,
@@ -752,7 +761,7 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 0,
         totalLLMCount: 2,
-        context: { test: "context" } as LLMContext,
+        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
         resourceName: "test-resource",
         shouldThrow: true,
         expectedError: RejectionResponseLLMError,
@@ -992,18 +1001,12 @@ describe("LLM Router tests", () => {
   describe("Error handling and edge cases", () => {
     test("should handle LLM provider throwing unexpected errors", async () => {
       const { router, mockProvider } = createLLMRouter();
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      ).mockRejectedValue(new Error("Unexpected LLM error"));
-      (
-        mockProvider.executeCompletionSecondary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionSecondary
-        >
-      ).mockRejectedValue(new Error("Unexpected LLM error"));
+      (mockProvider.executeCompletionPrimary as any).mockRejectedValue(new Error("Unexpected LLM error"));
+      (mockProvider.executeCompletionSecondary as any).mockRejectedValue(new Error("Unexpected LLM error"));
 
-      const result = await router.executeCompletion("test-resource", "test prompt");
+      const result = await router.executeCompletion("test-resource", "test prompt", {
+        outputFormat: LLMOutputFormat.TEXT,
+      }, null);
 
       expect(result).toBeNull();
     });
@@ -1012,11 +1015,7 @@ describe("LLM Router tests", () => {
       const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
 
       // First call returns EXCEEDED status
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      ).mockResolvedValueOnce({
+      (mockProvider.executeCompletionPrimary as any).mockResolvedValueOnce({
         status: LLMResponseStatus.EXCEEDED,
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT4",
@@ -1027,11 +1026,7 @@ describe("LLM Router tests", () => {
           maxTotalTokens: 8192,
         } as LLMResponseTokensUsage,
       });
-      (
-        mockProvider.executeCompletionSecondary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionSecondary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionSecondary as any).mockResolvedValue({
         status: LLMResponseStatus.OVERLOADED,
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT35",
@@ -1042,25 +1037,25 @@ describe("LLM Router tests", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
       (router as any).promptAdapter.adaptPromptFromResponse = jest.fn().mockReturnValue("");
 
-      const result = await router.executeCompletion("test-resource", "test prompt");
+      const result = await router.executeCompletion("test-resource", "test prompt", {
+        outputFormat: LLMOutputFormat.TEXT,
+      }, null);
 
       expect(result).toBeNull();
     });
 
     test("should handle completion with null generated content", async () => {
       const { router, mockProvider } = createLLMRouter();
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: null,
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT4",
         context: {},
       });
-      const result = await router.executeCompletion("test-resource", "test prompt");
+      const result = await router.executeCompletion("test-resource", "test prompt", {
+        outputFormat: LLMOutputFormat.TEXT,
+      }, null);
 
       expect(result).toBeNull();
     });
@@ -1068,11 +1063,7 @@ describe("LLM Router tests", () => {
     test("should properly handle context modification during execution", async () => {
       const { router, mockProvider } = createLLMRouter();
       const mockCompletion = "Test completion";
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -1080,12 +1071,11 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const context = { initialValue: "test" };
-      const result = await router.executeCompletion("test-resource", "test prompt", false, context);
+      const result = await router.executeCompletion("test-resource", "test prompt", {
+        outputFormat: LLMOutputFormat.TEXT,
+      }, null);
 
       expect(result).toBe(mockCompletion);
-      expect(context).toHaveProperty("purpose", LLMPurpose.COMPLETIONS);
-      expect(context).toHaveProperty("modelQuality", LLMModelQuality.PRIMARY);
     });
   });
 
@@ -1099,11 +1089,7 @@ describe("LLM Router tests", () => {
       });
 
       // Primary fails with overloaded
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
         status: LLMResponseStatus.OVERLOADED,
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT4",
@@ -1112,11 +1098,7 @@ describe("LLM Router tests", () => {
 
       // Secondary succeeds
       const mockCompletion = "Secondary completion success";
-      (
-        mockProvider.executeCompletionSecondary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionSecondary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionSecondary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockCompletion,
         request: "test prompt",
@@ -1124,7 +1106,9 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt");
+      const result = await router.executeCompletion("test-resource", "test prompt", {
+        outputFormat: LLMOutputFormat.TEXT,
+      }, null);
 
       expect(result).toBe(mockCompletion);
       expect(mockProvider.executeCompletionPrimary).toHaveBeenCalled();
@@ -1140,11 +1124,7 @@ describe("LLM Router tests", () => {
       });
 
       // Simplified test: primary returns exceeded, fallback to secondary succeeds
-      (
-        mockProvider.executeCompletionPrimary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionPrimary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
         status: LLMResponseStatus.EXCEEDED,
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT4",
@@ -1155,11 +1135,7 @@ describe("LLM Router tests", () => {
           maxTotalTokens: 8192,
         } as LLMResponseTokensUsage,
       });
-      (
-        mockProvider.executeCompletionSecondary as jest.MockedFunction<
-          typeof mockProvider.executeCompletionSecondary
-        >
-      ).mockResolvedValue({
+      (mockProvider.executeCompletionSecondary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: "Secondary completion success",
         request: "test prompt",
@@ -1170,6 +1146,10 @@ describe("LLM Router tests", () => {
       const result = await router.executeCompletion(
         "test-resource",
         "Very long test prompt that exceeds token limits",
+        {
+          outputFormat: LLMOutputFormat.TEXT,
+        },
+        null,
       );
 
       expect(result).toBe("Secondary completion success");
@@ -1177,15 +1157,11 @@ describe("LLM Router tests", () => {
       expect(mockProvider.executeCompletionSecondary).toHaveBeenCalled();
     });
 
-    test("should handle embeddings workflow with context", async () => {
+    test("should handle embeddings workflow", async () => {
       const { router, mockProvider } = createLLMRouter();
       const mockEmbeddings = [0.1, 0.2, 0.3];
 
-      (
-        mockProvider.generateEmbeddings as jest.MockedFunction<
-          typeof mockProvider.generateEmbeddings
-        >
-      ).mockResolvedValue({
+      (mockProvider.generateEmbeddings as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
         generated: mockEmbeddings,
         request: "test content",
@@ -1193,18 +1169,16 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const context = { testContext: "embeddings" };
-      const result = await router.generateEmbeddings("test-resource", "test content", context);
+      const result = await router.generateEmbeddings("test-resource", "test content");
 
       expect(result).toEqual(mockEmbeddings);
-      expect(context).toHaveProperty("purpose", LLMPurpose.EMBEDDINGS);
       expect(mockProvider.generateEmbeddings).toHaveBeenCalledWith(
         "test content",
-        false,
         expect.objectContaining({
-          testContext: "embeddings",
+          resource: "test-resource",
           purpose: LLMPurpose.EMBEDDINGS,
         }),
+        undefined,
       );
     });
   });

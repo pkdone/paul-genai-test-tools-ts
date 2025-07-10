@@ -1,6 +1,7 @@
 import { llmConfig } from "../../../llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
-import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT, BEDROCK_LLAMA } from "./bedrock-llama.manifest";
+import { BEDROCK_LLAMA, AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT } from "./bedrock-llama.manifest";
+import { LLMCompletionOptions } from "../../../llm.types";
 
 /**
  * Class for the AWS Bedrock Llama LLMs.
@@ -17,7 +18,12 @@ export default class BedrockLlamaLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Llama completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(
+    modelKey: string,
+    prompt: string,
+    options?: LLMCompletionOptions,
+  ) {
+    void options; // Bedrock providers don't support JSON mode options
     const bodyObj: { prompt: string; temperature: number; top_p: number; max_gen_len?: number } = {
       prompt: `<|begin_of_text|><|start_header_id|>${llmConfig.LLM_ROLE_SYSTEM}<|end_header_id|>
 You are a helpful software engineering and programming assistant, and you need to answer the question given without attempting to fill in any blanks in the question<|eot_id|>

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { LLMProviderManifest } from "../../llm-provider.types";
+import { LLMJsonModeSupport } from "../../llm-provider.types";
 import AzureOpenAILLM from "./azure-openai-llm";
 import { LLMPurpose } from "../../../llm.types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
@@ -62,6 +63,7 @@ export const azureOpenAIProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
+  jsonModeSupport: LLMJsonModeSupport.NATIVE,
   providerSpecificConfig: {
     apiVersion: "2025-01-01-preview",
     temperature: llmConfig.DEFAULT_ZERO_TEMP,

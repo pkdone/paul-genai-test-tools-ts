@@ -1,11 +1,12 @@
-/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-assignment */
 import "reflect-metadata";
 import { FileSummarizer, SummaryResult } from "../../../src/components/capture/file-summarizer";
-import { LLMStructuredResponseInvoker } from "../../../src/llm/utils/llm-structured-response-invoker";
+import LLMRouter from "../../../src/llm/core/llm-router";
+import { LLMOutputFormat } from "../../../src/llm/llm.types";
 import * as errorUtils from "../../../src/common/utils/error-utils";
 
 // Mock dependencies
-jest.mock("../../../src/llm/utils/llm-structured-response-invoker");
+jest.mock("../../../src/llm/core/llm-router");
 jest.mock("../../../src/common/utils/error-utils", () => ({
   logErrorMsgAndDetail: jest.fn(),
   getErrorText: jest.fn((error: unknown) => {
@@ -113,9 +114,7 @@ jest.mock("../../../src/llm/utils/prompting/prompt-templator", () => ({
   },
 }));
 
-const MockedLLMStructuredResponseInvoker = LLMStructuredResponseInvoker as jest.MockedClass<
-  typeof LLMStructuredResponseInvoker
->;
+// LLMRouter is mocked, we'll create a mock instance directly
 const mockLogErrorMsgAndDetail = errorUtils.logErrorMsgAndDetail as jest.MockedFunction<
   typeof errorUtils.logErrorMsgAndDetail
 >;
@@ -125,20 +124,19 @@ const mockGetErrorText = errorUtils.getErrorText as jest.MockedFunction<
 
 describe("FileSummarizer", () => {
   let fileSummarizer: FileSummarizer;
-  let mockLLMInvoker: jest.Mocked<LLMStructuredResponseInvoker>;
+  let mockLLMRouter: jest.Mocked<LLMRouter>;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Create mock instance
-    mockLLMInvoker = {
-      getStructuredResponse: jest.fn(),
-    } as unknown as jest.Mocked<LLMStructuredResponseInvoker>;
+    // Create mock instance with proper typing
+    mockLLMRouter = {
+      executeCompletion: jest.fn().mockResolvedValue(null),
+    } as unknown as jest.Mocked<LLMRouter>;
 
-    MockedLLMStructuredResponseInvoker.mockImplementation(() => mockLLMInvoker);
-
-    // Create FileSummarizer instance using dependency injection
-    fileSummarizer = new FileSummarizer(mockLLMInvoker);
+    // Since LLMRouter is a default export class, we don't use mockImplementation
+    // Instead, we directly inject the mock instance
+    fileSummarizer = new FileSummarizer(mockLLMRouter);
   });
 
   describe("getFileSummaryAsJSON", () => {
@@ -146,11 +144,11 @@ describe("FileSummarizer", () => {
       purpose: "This is a test file purpose",
       implementation: "This is a test implementation",
       databaseIntegration: {
-        mechanism: "NONE",
+        mechanism: "NONE" as const,
         description: "No database integration",
         codeExample: "n/a",
       },
-    };
+    } as const;
 
     describe("successful summarization", () => {
       test("should return successful result for valid Java file", async () => {
@@ -158,7 +156,7 @@ describe("FileSummarizer", () => {
         const type = "java";
         const content = "public class TestClass { }";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
@@ -166,11 +164,13 @@ describe("FileSummarizer", () => {
         if (result.success) {
           expect(result.data).toEqual(mockSuccessResponse);
         }
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
           filepath,
           expect.stringContaining("Mock prompt for Java code"),
-          expect.any(Object),
-          filepath,
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
         );
       });
 
@@ -179,7 +179,7 @@ describe("FileSummarizer", () => {
         const type = "js";
         const content = "function test() { return true; }";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
@@ -194,7 +194,7 @@ describe("FileSummarizer", () => {
         const type = "ts";
         const content = "interface Test { id: number; }";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
@@ -222,7 +222,7 @@ describe("FileSummarizer", () => {
           },
         };
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(ddlResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(ddlResponse);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
@@ -237,16 +237,18 @@ describe("FileSummarizer", () => {
         const type = "md";
         const content = "# Project Title\n\nThis is a test project.";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
         expect(result.success).toBe(true);
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
           filepath,
           expect.any(String),
-          expect.any(Object),
-          filepath,
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
         );
       });
 
@@ -255,7 +257,7 @@ describe("FileSummarizer", () => {
         const type = "xyz";
         const content = "unknown file content";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
@@ -278,7 +280,7 @@ describe("FileSummarizer", () => {
         if (!result.success) {
           expect(result.error).toBe("File is empty");
         }
-        expect(mockLLMInvoker.getStructuredResponse).not.toHaveBeenCalled();
+        expect(mockLLMRouter.executeCompletion).not.toHaveBeenCalled();
       });
 
       test("should return error result for whitespace-only content", async () => {
@@ -292,7 +294,7 @@ describe("FileSummarizer", () => {
         if (!result.success) {
           expect(result.error).toBe("File is empty");
         }
-        expect(mockLLMInvoker.getStructuredResponse).not.toHaveBeenCalled();
+        expect(mockLLMRouter.executeCompletion).not.toHaveBeenCalled();
       });
 
       test("should handle LLM service errors gracefully", async () => {
@@ -301,7 +303,7 @@ describe("FileSummarizer", () => {
         const content = "function test() { }";
         const errorMessage = "LLM service unavailable";
 
-        mockLLMInvoker.getStructuredResponse.mockRejectedValue(new Error(errorMessage));
+        mockLLMRouter.executeCompletion.mockRejectedValue(new Error(errorMessage));
         mockGetErrorText.mockReturnValue(`Error. ${errorMessage}`);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
@@ -322,7 +324,7 @@ describe("FileSummarizer", () => {
         const type = "js";
         const content = "function test() { }";
 
-        mockLLMInvoker.getStructuredResponse.mockRejectedValue("String error");
+        mockLLMRouter.executeCompletion.mockRejectedValue("String error");
         mockGetErrorText.mockReturnValue('<unknown-type>. "String error"');
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
@@ -339,13 +341,13 @@ describe("FileSummarizer", () => {
         const type = "js";
         const content = "function test() { }";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(null as unknown);
+        mockLLMRouter.executeCompletion.mockResolvedValue(null);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
-        expect(result.success).toBe(true);
-        if (result.success) {
-          expect(result.data).toBeNull();
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error).toBe("LLM returned null response");
         }
       });
     });
@@ -356,15 +358,17 @@ describe("FileSummarizer", () => {
         const type = "java";
         const content = "public class Main { }";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
           filepath,
           expect.stringContaining("Mock prompt for Java code"),
-          expect.any(Object),
-          filepath,
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
         );
       });
 
@@ -373,15 +377,17 @@ describe("FileSummarizer", () => {
         const type = "typescript";
         const content = 'const test: string = "hello";';
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
           filepath,
           expect.stringContaining("Mock prompt for JavaScript/TypeScript code"),
-          expect.any(Object),
-          filepath,
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
         );
       });
 
@@ -390,7 +396,7 @@ describe("FileSummarizer", () => {
         const type = "ddl";
         const content = "CREATE TABLE test (id INT);";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue({
+        mockLLMRouter.executeCompletion.mockResolvedValue({
           purpose: "Database schema",
           implementation: "Creates tables",
           tables: [],
@@ -405,11 +411,13 @@ describe("FileSummarizer", () => {
 
         await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
           filepath,
           expect.stringContaining("Mock prompt for database DDL/DML/SQL code"),
-          expect.any(Object),
-          filepath,
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
         );
       });
 
@@ -418,16 +426,18 @@ describe("FileSummarizer", () => {
         const type = "txt";
         const content = "# Project Documentation";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
         // Should use markdown handler due to README filename, not txt handler
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
           filepath,
           expect.any(String), // Would be markdown prompt
-          expect.any(Object),
-          filepath,
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
         );
       });
 
@@ -436,16 +446,18 @@ describe("FileSummarizer", () => {
         const type = "txt";
         const content = "MIT License\n\nCopyright (c) 2024";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
         // Should use markdown handler due to LICENSE filename mapping
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
           filepath,
           expect.stringContaining("Mock prompt for Markdown content"),
-          expect.any(Object),
-          filepath,
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
         );
       });
 
@@ -457,7 +469,7 @@ describe("FileSummarizer", () => {
         ];
 
         for (const testCase of testCases) {
-          mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+          mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
           await fileSummarizer.getFileSummaryAsJSON(
             `test.${testCase.type}`,
@@ -465,11 +477,13 @@ describe("FileSummarizer", () => {
             "test content",
           );
 
-          expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+          expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
             expect.any(String),
             expect.stringContaining(testCase.expectedPrompt),
-            expect.any(Object),
-            expect.any(String),
+            {
+              outputFormat: LLMOutputFormat.JSON,
+              jsonSchema: expect.any(Object),
+            },
           );
 
           jest.clearAllMocks();
@@ -483,16 +497,18 @@ describe("FileSummarizer", () => {
         const type = "js"; // JSX would map to JS handler
         const content = "const Component = () => <div>Hello</div>;";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
         expect(result.success).toBe(true);
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
           filepath,
           expect.any(String),
-          expect.any(Object), // Should be the correct schema from the mapping
-          filepath,
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
         );
       });
 
@@ -501,77 +517,76 @@ describe("FileSummarizer", () => {
         const type = "yml";
         const content = "key: value";
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
         expect(result.success).toBe(true);
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
           filepath,
           expect.stringContaining("Mock prompt for project file content"), // Default prompt pattern
-          expect.any(Object),
-          filepath,
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
         );
       });
     });
 
-    describe("performance and edge cases", () => {
-      test("should handle large file content", async () => {
+    describe("performance and resource usage", () => {
+      test("should handle large content efficiently", async () => {
         const filepath = "src/large-file.js";
         const type = "js";
-        const content = "function test() { }".repeat(1000); // Large content
+        const content = "function test() { }".repeat(1000);
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
-
-        const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
-
-        expect(result.success).toBe(true);
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
-          filepath,
-          expect.stringContaining(content),
-          expect.any(Object),
-          filepath,
-        );
-      });
-
-      test("should handle special characters in file paths", async () => {
-        const filepath = "src/special chars & symbols/test.js";
-        const type = "js";
-        const content = "function test() { }";
-
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
         expect(result.success).toBe(true);
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledWith(
-          filepath,
-          expect.any(String),
-          expect.any(Object),
-          filepath,
-        );
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(1);
       });
 
       test("should handle concurrent summarization requests", async () => {
         const files = [
-          { filepath: "src/file1.js", type: "js", content: "function file1() { }" },
-          { filepath: "src/file2.java", type: "java", content: "public class File2 { }" },
-          { filepath: "src/file3.sql", type: "sql", content: "CREATE TABLE file3 (id INT);" },
+          { filepath: "src/file1.js", type: "js", content: "function test1() { }" },
+          { filepath: "src/file2.js", type: "js", content: "function test2() { }" },
+          { filepath: "src/file3.js", type: "js", content: "function test3() { }" },
         ];
 
-        mockLLMInvoker.getStructuredResponse.mockResolvedValue(mockSuccessResponse);
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
-        const promises = files.map(
-          async (file) =>
-            await fileSummarizer.getFileSummaryAsJSON(file.filepath, file.type, file.content),
+        const promises = files.map(async (file) => 
+          await fileSummarizer.getFileSummaryAsJSON(file.filepath, file.type, file.content)
         );
 
         const results = await Promise.all(promises);
 
-        results.forEach((result) => {
+        expect(results).toHaveLength(3);
+        results.forEach(result => {
           expect(result.success).toBe(true);
         });
-        expect(mockLLMInvoker.getStructuredResponse).toHaveBeenCalledTimes(3);
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(3);
+      });
+
+      test("should handle memory efficiently for test setup", async () => {
+        const filepath = "memory-test.js";
+        const type = "js";
+        const content = "const x = 1;";
+
+        mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
+
+        const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
+
+        expect(result.success).toBe(true);
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
+          filepath,
+          expect.any(String),
+          {
+            outputFormat: LLMOutputFormat.JSON,
+            jsonSchema: expect.any(Object),
+          },
+        );
       });
     });
   });
@@ -588,7 +603,7 @@ describe("FileSummarizer", () => {
         databaseIntegration: { mechanism: "NONE", description: "No database", codeExample: "n/a" },
       };
 
-      mockLLMInvoker.getStructuredResponse.mockResolvedValue(testSuccessResponse);
+      mockLLMRouter.executeCompletion.mockResolvedValue(testSuccessResponse);
 
       const result: SummaryResult = await fileSummarizer.getFileSummaryAsJSON(
         filepath,

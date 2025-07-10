@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { LLMProviderManifest } from "../../llm-provider.types";
+import { LLMJsonModeSupport } from "../../llm-provider.types";
 import OpenAILLM from "./openai-llm";
 import { LLMPurpose } from "../../../llm.types";
 import { OPENAI_COMMON_ERROR_PATTERNS } from "../openai-error-patterns";
@@ -50,6 +51,7 @@ export const openAIProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: OPENAI_COMMON_ERROR_PATTERNS,
+  jsonModeSupport: LLMJsonModeSupport.NATIVE,
   providerSpecificConfig: {
     requestTimeoutMillis: 5 * 60 * 1000, // 5 minutes - OpenAI is generally faster than Azure
     maxRetryAttempts: 3, // Standard retry attempts

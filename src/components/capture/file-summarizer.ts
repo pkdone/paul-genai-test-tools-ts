@@ -2,12 +2,13 @@ import path from "path";
 import { injectable, inject } from "tsyringe";
 import { z } from "zod";
 import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-utils";
-import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
+import type LLMRouter from "../../llm/core/llm-router";
 import { TOKENS } from "../../di/tokens";
 import { SourceSummaryType } from "../../schemas/source-summaries.schema";
 import { filesTypeMetatadataConfig } from "./files-types-metadata.config";
 import { createPromptFromConfig } from "../../llm/utils/prompting/prompt-templator";
 import { appConfig } from "../../config/app.config";
+import { LLMOutputFormat } from "../../llm/llm.types";
 
 // Base template for detailed file summary prompts (Java, JS, etc.)
 const SOURCES_SUMMARY_CAPTURE_TEMPLATE = `Act as a programmer. Take the {{fileContentDesc}} shown below in the section marked 'CODE' and based on its content, return a JSON response containing data that includes the following:
@@ -41,8 +42,8 @@ export interface FileHandler<T extends SourceSummaryType = SourceSummaryType> {
 @injectable()
 export class FileSummarizer {
   constructor(
-    @inject(TOKENS.LLMStructuredResponseInvoker)
-    private readonly llmUtilityService: LLMStructuredResponseInvoker,
+    @inject(TOKENS.LLMRouter)
+    private readonly llmRouter: LLMRouter,
   ) {}
 
   /**
@@ -57,12 +58,19 @@ export class FileSummarizer {
       if (content.trim().length === 0) return { success: false, error: "File is empty" };
       const handler = this.getFileTemplatorAndSchema(filepath, type);
       const prompt = handler.promptCreator(content);
-      const llmResponse = await this.llmUtilityService.getStructuredResponse(
+      const llmResponse = await this.llmRouter.executeCompletion<SourceSummaryType>(
         filepath,
         prompt,
-        handler.schema,
-        filepath,
+        {
+          outputFormat: LLMOutputFormat.JSON,
+          jsonSchema: handler.schema,
+        },
       );
+      
+      if (llmResponse === null) {
+        return { success: false, error: "LLM returned null response" };
+      }
+      
       return { success: true, data: llmResponse };
     } catch (error) {
       const errorMsg = `Failed to generate summary for '${filepath}'`;

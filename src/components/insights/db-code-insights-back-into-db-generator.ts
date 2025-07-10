@@ -1,9 +1,9 @@
 import { injectable, inject } from "tsyringe";
-import type LLMRouter from "../../llm/core/llm-router";
+import LLMRouter from "../../llm/core/llm-router";
+import { LLMOutputFormat } from "../../llm/llm.types";
 import { appConfig } from "../../config/app.config";
 import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
 import { joinArrayWithSeparators } from "../../common/utils/text-utils";
-import { LLMStructuredResponseInvoker } from "../../llm/utils/llm-structured-response-invoker";
 import type { AppSummariesRepository } from "../../repositories/app-summary/app-summaries.repository.interface";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { PartialAppSummaryRecord } from "../../repositories/app-summary/app-summaries.model";
@@ -32,8 +32,6 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     @inject(TOKENS.LLMRouter) private readonly llmRouter: LLMRouter,
     @inject(TOKENS.SourcesRepository) private readonly sourcesRepository: SourcesRepository,
     @inject(TOKENS.ProjectName) private readonly projectName: string,
-    @inject(TOKENS.LLMStructuredResponseInvoker)
-    private readonly llmUtilityService: LLMStructuredResponseInvoker,
   ) {
     this.llmProviderDescription = this.llmRouter.getModelsUsedDescription();
   }
@@ -131,11 +129,13 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       
       // Note: The explicit 'unknown' typing is needed to avoid unsafe assignment lint errors
       // because the schema config uses generic z.ZodType which resolves to 'any'
-      const llmResponse: unknown = await this.llmUtilityService.getStructuredResponse(
+      const llmResponse: unknown = await this.llmRouter.executeCompletion(
         resourceName,
         prompt,
-        schema,
-        categoryLabel,
+        {
+          outputFormat: LLMOutputFormat.JSON,
+          jsonSchema: schema,
+        },
       );
       
       // Use the category-specific schema to validate the response

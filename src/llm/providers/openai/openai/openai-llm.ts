@@ -5,6 +5,8 @@ import {
   LLMPurpose,
   ResolvedLLMModelMetadata,
   LLMErrorMsgRegExPattern,
+  LLMCompletionOptions,
+  LLMOutputFormat,
 } from "../../../llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { OPENAI } from "./openai.manifest";
@@ -46,7 +48,12 @@ export default class OpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
+  protected buildFullLLMParameters(
+    taskType: LLMPurpose,
+    modelKey: string,
+    prompt: string,
+    options?: LLMCompletionOptions,
+  ) {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       const params: OpenAI.EmbeddingCreateParams = {
         model: this.llmModelsMetadata[modelKey].urn,
@@ -60,6 +67,11 @@ export default class OpenAILLM extends BaseOpenAILLM {
         messages: [{ role: llmConfig.LLM_ROLE_USER as "user", content: prompt }],
         max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       };
+
+      if (options?.outputFormat === LLMOutputFormat.JSON) {
+        params.response_format = { type: "json_object" };
+      }
+
       return params;
     }
   }

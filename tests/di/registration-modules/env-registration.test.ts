@@ -14,6 +14,7 @@ import { getProjectNameFromPath } from "../../../src/common/utils/path-utils";
 import { loadBaseEnvVarsOnly } from "../../../src/lifecycle/env";
 import { LLMPurpose } from "../../../src/llm/llm.types";
 import dotenv from "dotenv";
+import { LLMJsonModeSupport } from "../../../src/llm/providers/llm-provider.types";
 
 // Mock dependencies
 jest.mock("../../../src/llm/core/llm-service");
@@ -47,6 +48,7 @@ describe("Environment Registration Module", () => {
     },
     errorPatterns: [],
     factory: jest.fn(),
+    jsonModeSupport: LLMJsonModeSupport.NONE,
   };
 
   const mockBaseEnvVars = {

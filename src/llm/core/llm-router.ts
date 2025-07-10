@@ -8,6 +8,8 @@ import {
   LLMGeneratedContent,
   LLMFunctionResponse,
   ResolvedLLMModelMetadata,
+  LLMCompletionOptions,
+  LLMOutputFormat,
 } from "../llm.types";
 import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
 import { RetryFunc } from "../../common/control/control.types";
@@ -21,8 +23,10 @@ import type { PromptAdapter } from "../utils/prompting/prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";
 import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
+import { LLMJsonModeSupport } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
+import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -112,16 +116,17 @@ export default class LLMRouter {
 
   /**
    * Send the content to the LLM for it to generate and return the content's embedding.
-   *
-   * Context is just an optional object of key value pairs which will be retained with the LLM
-   * request and subsequent response for convenient debugging and error logging context.
    */
   async generateEmbeddings(
     resourceName: string,
     content: string,
-    context: LLMContext = {},
   ): Promise<number[] | null> {
-    context.purpose = LLMPurpose.EMBEDDINGS;
+    // Construct context internally using available information
+    const context: LLMContext = {
+      resource: resourceName,
+      purpose: LLMPurpose.EMBEDDINGS,
+    };
+
     const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(
       resourceName,
       content,
@@ -129,10 +134,11 @@ export default class LLMRouter {
       [this.llm.generateEmbeddings.bind(this.llm)],
     );
 
-    if (
-      contentResponse !== null &&
-      !(Array.isArray(contentResponse) && contentResponse.every((item) => typeof item === "number"))
-    ) {
+    if (contentResponse === null) {
+      return null;
+    }
+
+    if (!(Array.isArray(contentResponse) && contentResponse.every((item) => typeof item === "number"))) {
       throw new BadResponseMetadataLLMError(
         "LLM response for embeddings was not an array of numbers",
         contentResponse,
@@ -144,19 +150,135 @@ export default class LLMRouter {
 
   /**
    * Send the prompt to the LLM for and retrieve the LLM's answer.
+   * 
+   * When options.jsonSchema is provided, this method will:
+   * - Use native JSON mode capabilities where available 
+   * - Fall back to text parsing for providers that don't support structured output
+   * - Validate the response against the provided Zod schema
+   * - Return the validated, typed result
    *
    * If a particular LLM quality is not specified, will try to use the completion candidates
    * in the order they were configured during construction.
-   *
-   * Context is just an optional object of key value pairs which will be retained with the LLM
-   * request and subsequent response for convenient debugging and error logging context.
    */
-  async executeCompletion(
+  async executeCompletion<T = LLMGeneratedContent>(
     resourceName: string,
     prompt: string,
-    asJson = false,
-    context: LLMContext = {},
+    options: LLMCompletionOptions,
     modelQualityOverride: LLMModelQuality | null = null,
+  ): Promise<T | null> {
+    // Handle structured response with schema validation
+    if (options.jsonSchema) {
+      return this.executeStructuredCompletion<T>(resourceName, prompt, options, modelQualityOverride);
+    }
+
+    // Regular completion flow
+    return this.executeRegularCompletion(resourceName, prompt, options, modelQualityOverride) as Promise<T | null>;
+  }
+
+  /**
+   * Print the accumulated statistics of LLM invocation result types.
+   */
+  displayLLMStatusSummary(): void {
+    console.log("LLM inovocation event types that will be recorded:");
+    console.table(this.llmStats.getStatusTypesStatistics(), ["description", "symbol"]);
+  }
+
+  /**
+   * Print the accumulated statistics of LLM invocation result types.
+   */
+  displayLLMStatusDetails(): void {
+    console.table(this.llmStats.getStatusTypesStatistics(true));
+  }
+
+  /**
+   * Crops the prompt to fit within token limits when the current LLM exceeds capacity.
+   */
+  cropPromptForTokenLimit(currentPrompt: string, llmResponse: LLMFunctionResponse): string {
+    this.llmStats.recordCrop();
+    return this.promptAdapter.adaptPromptFromResponse(
+      currentPrompt,
+      llmResponse,
+      this.modelsMetadata,
+    );
+  }
+
+  /**
+   * Execute a structured completion with schema validation
+   */
+  private async executeStructuredCompletion<T>(
+    resourceName: string,
+    prompt: string,
+    options: LLMCompletionOptions,
+    modelQualityOverride: LLMModelQuality | null,
+  ): Promise<T> {
+    const llmManifest = this.llmService.getLLMManifest();
+    const jsonModeSupport = llmManifest.jsonModeSupport;
+    let llmResponse: LLMGeneratedContent | null = null;
+
+    if (jsonModeSupport === LLMJsonModeSupport.NATIVE || jsonModeSupport === LLMJsonModeSupport.STRUCTURED) {
+      // Use native JSON mode
+      const jsonOptions = {
+        ...options,
+        outputFormat: LLMOutputFormat.JSON,
+      };
+      llmResponse = await this.executeRegularCompletion(
+        resourceName,
+        prompt,
+        jsonOptions,
+        modelQualityOverride,
+      );
+    } else {
+      // Fallback for providers with no native JSON mode
+      const textOptions = {
+        ...options,
+        outputFormat: LLMOutputFormat.TEXT,
+      };
+      const textResponse = await this.executeRegularCompletion(
+        resourceName,
+        prompt,
+        textOptions,
+        modelQualityOverride,
+      );
+
+      if (typeof textResponse === "string") {
+        llmResponse = this.parseJsonFromText(textResponse);
+      }
+    }
+
+    if (
+      llmResponse === null ||
+      typeof llmResponse !== "object" ||
+      Array.isArray(llmResponse)
+    ) {
+      throw new Error(
+        `Failed to get a valid JSON object response for '${resourceName}'.`,
+      );
+    }
+
+    if (!options.jsonSchema) {
+      throw new Error(`jsonSchema is required for structured completion but was not provided for '${resourceName}'.`);
+    }
+
+    const validation = options.jsonSchema.safeParse(llmResponse);
+    if (!validation.success) {
+      const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation.`;
+      logErrorMsgAndDetail(errorMessage, validation.error.issues);
+      throw new Error(
+        errorMessage + ` Details: ${JSON.stringify(validation.error.issues)}`,
+      );
+    }
+
+    return validation.data as T;
+  }
+
+  /**
+   * Execute a regular completion without schema validation
+   */
+  private async executeRegularCompletion(
+    resourceName: string,
+    prompt: string,
+    options: LLMCompletionOptions,
+    modelQualityOverride: LLMModelQuality | null,
   ): Promise<LLMGeneratedContent | null> {
     // Filter candidates based on model quality override if specified
     const candidatesToUse = modelQualityOverride
@@ -174,15 +296,19 @@ export default class LLMRouter {
     }
 
     const candidateFunctions = candidatesToUse.map((candidate) => candidate.func);
-    context.purpose = LLMPurpose.COMPLETIONS;
-    context.modelQuality = candidatesToUse[0].modelQuality;
+    const context: LLMContext = {
+      resource: resourceName,
+      purpose: LLMPurpose.COMPLETIONS,
+      modelQuality: candidatesToUse[0].modelQuality,
+      outputFormat: options.outputFormat,
+    };
     const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(
       resourceName,
       prompt,
       context,
       candidateFunctions,
-      asJson,
       candidatesToUse,
+      options,
     );
 
     if (typeof contentResponse !== "object" && typeof contentResponse !== "string") {
@@ -196,18 +322,25 @@ export default class LLMRouter {
   }
 
   /**
-   * Print the accumulated statistics of LLM invocation result types.
+   * Private method to parse JSON from text response, handling markdown fences and surrounding text.
    */
-  displayLLMStatusSummary(): void {
-    console.log("LLM inovocation event types that will be recorded:");
-    console.table(this.llmStats.getStatusTypesStatistics(), ["description", "symbol"]);
-  }
-
-  /**
-   * Print the accumulated statistics of LLM invocation result types.
-   */
-  displayLLMStatusDetails(): void {
-    console.table(this.llmStats.getStatusTypesStatistics(true));
+  private parseJsonFromText(text: string): Record<string, unknown> | null {
+    // This regex finds a JSON object, ignoring optional ```json... ``` fences
+    const jsonRegex = /```json\s*(.*?)\s*```|(\{.*\})/s;
+    const match = jsonRegex.exec(text);
+    if (!match) {
+      return null;
+    }
+    // The actual JSON content is in one of the capture groups
+    const jsonString = match[1] || match[2];
+    if (!jsonString) {
+      return null;
+    }
+    try {
+      return JSON.parse(jsonString) as Record<string, unknown>;
+    } catch {
+      return null; // Parsing failed
+    }
   }
 
   /**
@@ -248,8 +381,8 @@ export default class LLMRouter {
     prompt: string,
     context: LLMContext,
     llmFuncs: LLMFunction[],
-    asJson = false,
     candidates?: LLMCandidateFunction[],
+    options?: LLMCompletionOptions,
   ) {
     let result: LLMGeneratedContent | null = null;
     const currentPrompt = prompt;
@@ -260,8 +393,8 @@ export default class LLMRouter {
         currentPrompt,
         context,
         llmFuncs,
-        asJson,
         candidates,
+        options,
       );
 
       if (!result) {
@@ -290,8 +423,8 @@ export default class LLMRouter {
     initialPrompt: string,
     context: LLMContext,
     llmFuncs: LLMFunction[],
-    asJson: boolean,
     candidates?: LLMCandidateFunction[],
+    options?: LLMCompletionOptions,
   ): Promise<LLMGeneratedContent | null> {
     let currentPrompt = initialPrompt;
     let llmFuncIndex = 0;
@@ -302,8 +435,8 @@ export default class LLMRouter {
       const llmResponse = await this.executeLLMFuncWithRetries(
         llmFuncs[llmFuncIndex],
         currentPrompt,
-        asJson,
         context,
+        options,
       );
 
       if (llmResponse?.status === LLMResponseStatus.COMPLETED) {
@@ -390,32 +523,20 @@ export default class LLMRouter {
   }
 
   /**
-   * Crops the prompt to fit within token limits when the current LLM exceeds capacity.
-   */
-  private cropPromptForTokenLimit(currentPrompt: string, llmResponse: LLMFunctionResponse): string {
-    this.llmStats.recordCrop();
-    return this.promptAdapter.adaptPromptFromResponse(
-      currentPrompt,
-      llmResponse,
-      this.modelsMetadata,
-    );
-  }
-
-  /**
    * Send a prompt to an LLM for completion, retrying a number of times if the LLM is overloaded.
    */
   private async executeLLMFuncWithRetries(
     llmFunc: LLMFunction,
     prompt: string,
-    asJson: boolean,
     context: LLMContext,
+    options?: LLMCompletionOptions,
   ) {
     const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
     const retryConfig = this.getRetryConfiguration();
 
     const result = await withRetry(
-      llmFunc as RetryFunc<[string, boolean, LLMContext], LLMFunctionResponse>,
-      [prompt, asJson, context],
+      llmFunc as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,
+      [prompt, context, options],
       (result: LLMFunctionResponse) => result.status === LLMResponseStatus.OVERLOADED,
       recordRetryFunc,
       retryConfig.maxAttempts,

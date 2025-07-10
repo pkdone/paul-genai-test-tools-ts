@@ -2,8 +2,8 @@ import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { appConfig } from "../config/app.config";
 import { readFile } from "../common/utils/fs-utils";
-import { LLMModelQuality } from "../llm/llm.types";
-import type LLMRouter from "../llm/core/llm-router";
+import { LLMModelQuality, LLMOutputFormat } from "../llm/llm.types";
+import LLMRouter from "../llm/core/llm-router";
 import { Service } from "../lifecycle/service.types";
 import { TOKENS } from "../di/tokens";
 
@@ -45,8 +45,9 @@ export class PluggableLLMsTestService implements Service {
     const completionPrimaryResult = await this.llmRouter.executeCompletion(
       "hard-coded-test-input",
       prompt,
-      false,
-      {},
+      {
+        outputFormat: LLMOutputFormat.TEXT,
+      },
       LLMModelQuality.PRIMARY,
     );
     console.log(completionPrimaryResult ?? "<empty>");
@@ -56,8 +57,9 @@ export class PluggableLLMsTestService implements Service {
     const completionSecondaryResult = await this.llmRouter.executeCompletion(
       "hard-coded-test-input",
       prompt,
-      false,
-      {},
+      {
+        outputFormat: LLMOutputFormat.TEXT,
+      },
       LLMModelQuality.SECONDARY,
     );
     console.log(completionSecondaryResult ?? "<empty>");

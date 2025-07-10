@@ -1,6 +1,7 @@
 import { llmConfig } from "../../../llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { BEDROCK_MISTRAL } from "./bedrock-mistral.manifest";
+import { LLMCompletionOptions } from "../../../llm.types";
 
 /**
  * Class for the AWS Bedrock Mistral LLMs.
@@ -17,7 +18,12 @@ export default class BedrockMistralLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Mistral completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(
+    modelKey: string,
+    prompt: string,
+    options?: LLMCompletionOptions,
+  ) {
+    void options; // Bedrock providers don't support JSON mode options
     return JSON.stringify({
       messages: [
         {

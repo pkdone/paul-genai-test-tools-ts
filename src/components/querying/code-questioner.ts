@@ -1,6 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { fillPrompt } from "type-safe-prompt";
-import type LLMRouter from "../../llm/core/llm-router";
+import LLMRouter from "../../llm/core/llm-router";
+import { LLMOutputFormat } from "../../llm/llm.types";
 import { appConfig } from "../../config/app.config";
 import { convertArrayOfNumbersToArrayOfDoubles } from "../../common/mdb/mdb-utils";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
@@ -65,9 +66,8 @@ export default class CodeQuestioner {
     const codeBlocksAsText = this.mergeSourceCodeFilesContentIntoMarkdownText(bestMatchFiles);
     const resourceName = `Codebase query`;
     const prompt = createCodebaseQueryPrompt(question, codeBlocksAsText);
-    const response = await this.llmRouter.executeCompletion(resourceName, prompt, false, {
-      resource: resourceName,
-      requireJSON: false,
+    const response = await this.llmRouter.executeCompletion(resourceName, prompt, {
+      outputFormat: LLMOutputFormat.TEXT,
     });
 
     if (response) {

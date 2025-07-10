@@ -8,6 +8,8 @@ import {
   LLMFunctionResponse,
   ResolvedLLMModelMetadata,
   LLMErrorMsgRegExPattern,
+  LLMCompletionOptions,
+  LLMOutputFormat,
 } from "../llm.types";
 import {
   LLMImplSpecificResponseSummary,
@@ -55,6 +57,13 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
   }
 
   /**
+   * Get the provider-specific configuration in a readonly format.
+   */
+  getProviderSpecificConfig() {
+    return Object.freeze({ ...this.providerSpecificConfig });
+  }
+
+  /**
    * Get the model key for the embeddings model.
    */
   getAvailableCompletionModelQualities() {
@@ -90,15 +99,15 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
    */
   generateEmbeddings = async (
     content: string,
-    asJson = false,
-    context: LLMContext = {},
+    context: LLMContext,
+    options?: LLMCompletionOptions,
   ): Promise<LLMFunctionResponse> => {
     return this.executeLLMImplFunction(
       this.modelsKeys.embeddingsModelKey,
       LLMPurpose.EMBEDDINGS,
       content,
-      asJson,
       context,
+      options,
     );
   };
 
@@ -108,15 +117,15 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
    */
   executeCompletionPrimary = async (
     prompt: string,
-    asJson = false,
-    context: LLMContext = {},
+    context: LLMContext,
+    options?: LLMCompletionOptions,
   ): Promise<LLMFunctionResponse> => {
     return this.executeLLMImplFunction(
       this.modelsKeys.primaryCompletionModelKey,
       LLMPurpose.COMPLETIONS,
       prompt,
-      asJson,
       context,
+      options,
     );
   };
 
@@ -126,8 +135,8 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
    */
   executeCompletionSecondary = async (
     prompt: string,
-    asJson = false,
-    context: LLMContext = {},
+    context: LLMContext,
+    options?: LLMCompletionOptions,
   ): Promise<LLMFunctionResponse> => {
     const secondaryCompletion = this.modelsKeys.secondaryCompletionModelKey;
     if (!secondaryCompletion)
@@ -138,8 +147,8 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
       secondaryCompletion,
       LLMPurpose.COMPLETIONS,
       prompt,
-      asJson,
       context,
+      options,
     );
   };
 
@@ -168,14 +177,14 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
     modelKey: string,
     taskType: LLMPurpose,
     request: string,
-    asJson: boolean,
     context: LLMContext,
+    options?: LLMCompletionOptions,
   ): Promise<LLMFunctionResponse> {
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, modelKey };
 
     try {
       const { isIncompleteResponse, responseContent, tokenUsage } =
-        await this.invokeImplementationSpecificLLM(taskType, modelKey, request);
+        await this.invokeImplementationSpecificLLM(taskType, modelKey, request, options);
 
       if (isIncompleteResponse) {
         // Often occurs if combination of prompt + generated completion execeed the max token limit (e.g. actual internal LLM completion has been executed and the completion has been cut short)
@@ -189,6 +198,8 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
           ),
         };
       } else {
+        // Derive JSON requirement from options
+        const asJson = options?.outputFormat === LLMOutputFormat.JSON;
         return postProcessAsJSONIfNeededGeneratingNewResult(
           skeletonResponse,
           modelKey,
@@ -236,6 +247,7 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
     taskType: LLMPurpose,
     modelKey: string,
     prompt: string,
+    options?: LLMCompletionOptions,
   ): Promise<LLMImplSpecificResponseSummary>;
 
   /**

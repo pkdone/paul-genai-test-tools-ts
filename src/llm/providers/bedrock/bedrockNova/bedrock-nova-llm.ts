@@ -1,6 +1,7 @@
 import { llmConfig } from "../../../llm.config";
 import BaseBedrockLLM from "../base-bedrock-llm";
 import { BEDROCK_NOVA } from "./bedrock-nova.manifest";
+import { LLMCompletionOptions } from "../../../llm.types";
 
 /**
  * Class for the AWS Bedrock Nova LLMs.
@@ -16,7 +17,12 @@ export default class BedrockNovaLLM extends BaseBedrockLLM {
   /**
    * Assemble the Bedrock parameters for Nova completions only.
    */
-  protected buildCompletionModelSpecificParameters(modelKey: string, prompt: string) {
+  protected buildCompletionModelSpecificParameters(
+    modelKey: string,
+    prompt: string,
+    options?: LLMCompletionOptions,
+  ) {
+    void options; // Bedrock providers don't support JSON mode options
     return JSON.stringify({
       inferenceConfig: {
         max_new_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,

@@ -11,6 +11,7 @@ import {
   LLMPurpose,
   ResolvedLLMModelMetadata,
   LLMErrorMsgRegExPattern,
+  LLMCompletionOptions,
 } from "../../llm.types";
 import { llmConfig } from "../../llm.config";
 import { LLMImplSpecificResponseSummary, LLMProviderSpecificConfig } from "../llm-provider.types";
@@ -67,9 +68,10 @@ export default abstract class BaseBedrockLLM extends AbstractLLM {
     taskType: LLMPurpose,
     modelKey: string,
     prompt: string,
+    options?: LLMCompletionOptions,
   ) {
     // Invoke LLM
-    const fullParameters = this.buildFullLLMParameters(taskType, modelKey, prompt);
+    const fullParameters = this.buildFullLLMParameters(taskType, modelKey, prompt, options);
     const command = new InvokeModelCommand(fullParameters);
     const rawResponse = await this.client.send(command);
     const llmResponse = JSON.parse(
@@ -88,7 +90,12 @@ export default abstract class BaseBedrockLLM extends AbstractLLM {
    * Assemble the AWS Bedrock API parameters structure for embeddings and completions models with
    * the prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
+  protected buildFullLLMParameters(
+    taskType: LLMPurpose,
+    modelKey: string,
+    prompt: string,
+    options?: LLMCompletionOptions,
+  ) {
     let body;
 
     if (taskType === LLMPurpose.EMBEDDINGS) {
@@ -97,7 +104,7 @@ export default abstract class BaseBedrockLLM extends AbstractLLM {
         //dimensions: this.getEmbeddedModelDimensions(),  // Throws error but when moving to Titan Text Embeddings V2 should be able to set dimensions to 56, 512, 1024 according to: https://docs.aws.amazon.com/code-library/latest/ug/bedrock-runtime_example_bedrock-runtime_InvokeModelWithResponseStream_TitanTextEmbeddings_section.html
       });
     } else {
-      body = this.buildCompletionModelSpecificParameters(modelKey, prompt);
+      body = this.buildCompletionModelSpecificParameters(modelKey, prompt, options);
     }
 
     return {
@@ -163,6 +170,7 @@ export default abstract class BaseBedrockLLM extends AbstractLLM {
   protected abstract buildCompletionModelSpecificParameters(
     modelKey: string,
     prompt: string,
+    options?: LLMCompletionOptions,
   ): string;
 
   /**

@@ -8,6 +8,7 @@ import { getFileSuffix } from "../../common/utils/path-utils";
 import pLimit from "p-limit";
 import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-utils";
 import LLMRouter from "../../llm/core/llm-router";
+import { LLMOutputFormat } from "../../llm/llm.types";
 
 /**
  * Interface to define the filename and question of a file requirement prompt
@@ -109,7 +110,6 @@ export class RawCodeToInsightsFileGenerator {
     llmRouter: LLMRouter,
   ): Promise<string> {
     const resource = prompt.filename;
-    const context = { resource };
     const fullPrompt = `${prompt.question}\n${codeBlocksContents}`;
     let response = "";
 
@@ -117,8 +117,9 @@ export class RawCodeToInsightsFileGenerator {
       const executionResult = await llmRouter.executeCompletion(
         resource,
         fullPrompt,
-        false,
-        context,
+        { 
+          outputFormat: LLMOutputFormat.TEXT,
+        },
       );
 
       if (!executionResult) {

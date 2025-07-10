@@ -135,14 +135,13 @@ export default class CodebaseToDBLoader {
       const summaryVectorResult = await this.getContentEmbeddings(
         filepath,
         JSON.stringify(summary),
-        "summary",
       );
       summaryVector = summaryVectorResult ?? undefined;
     } else {
       summaryError = summaryResult.error;
     }
 
-    const contentVectorResult = await this.getContentEmbeddings(filepath, content, "content");
+    const contentVectorResult = await this.getContentEmbeddings(filepath, content);
     const contentVector = contentVectorResult ?? undefined;
 
     // Build the source file record with conditional optional fields
@@ -171,7 +170,7 @@ export default class CodebaseToDBLoader {
    * Get the embeddings vector for a piece of content, limiting the content's size if it is likely
    * to blow the LLM context window size.
    */
-  private async getContentEmbeddings(filepath: string, content: string, type: string) {
-    return await this.llmRouter.generateEmbeddings(filepath, content, { resource: filepath, type });
+  private async getContentEmbeddings(filepath: string, content: string) {
+    return await this.llmRouter.generateEmbeddings(filepath, content);
   }
 }

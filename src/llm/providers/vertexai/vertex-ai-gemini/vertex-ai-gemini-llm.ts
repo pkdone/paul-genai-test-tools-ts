@@ -9,12 +9,15 @@ import {
 } from "@google-cloud/vertexai";
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
+import { zodToJsonSchema } from "zod-to-json-schema";
 import { llmConfig } from "../../../llm.config";
 import {
   LLMModelKeysSet,
   LLMPurpose,
   ResolvedLLMModelMetadata,
   LLMErrorMsgRegExPattern,
+  LLMCompletionOptions,
+  LLMOutputFormat,
 } from "../../../llm.types";
 import { getErrorText, logErrorMsgAndDetail } from "../../../../common/utils/error-utils";
 import AbstractLLM from "../../../core/abstract-llm";
@@ -97,11 +100,12 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
     taskType: LLMPurpose,
     modelKey: string,
     prompt: string,
+    options?: LLMCompletionOptions,
   ) {
     if (taskType === LLMPurpose.EMBEDDINGS) {
       return await this.invokeImplementationSpecificEmbeddingsLLM(modelKey, prompt);
     } else {
-      return this.invokeImplementationSpecificCompletionLLM(modelKey, prompt);
+      return this.invokeImplementationSpecificCompletionLLM(modelKey, prompt, options);
     }
   }
 
@@ -130,9 +134,13 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Invoke the actuall LLM's completion API directly.
    */
-  protected async invokeImplementationSpecificCompletionLLM(modelKey: string, prompt: string) {
+  protected async invokeImplementationSpecificCompletionLLM(
+    modelKey: string,
+    prompt: string,
+    options?: LLMCompletionOptions,
+  ) {
     // Invoke LLM
-    const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(modelKey);
+    const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(modelKey, options);
     const llm = this.vertexAiApiClient.getGenerativeModel(modelParams, requestOptions);
     const llmResponses = await llm.generateContent(prompt);
     const usageMetadata = llmResponses.response.usageMetadata;
@@ -211,17 +219,27 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullCompletionLLMParameters(modelKey: string) {
+  private buildFullCompletionLLMParameters(modelKey: string, options?: LLMCompletionOptions) {
     const config = this.providerSpecificConfig;
+    const generationConfig = {
+      candidateCount: 1,
+      topP: config.topP ?? llmConfig.DEFAULT_TOP_P_LOWEST,
+      topK: config.topK ?? llmConfig.DEFAULT_TOP_K_LOWEST,
+      temperature: config.temperature ?? llmConfig.DEFAULT_ZERO_TEMP,
+      maxOutputTokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
+    };
+
+    // Add structured JSON output support
+    if (options?.outputFormat === LLMOutputFormat.JSON && options.jsonSchema) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      (generationConfig as any).responseMimeType = llmConfig.LLM_RESPONSE_JSON_CONTENT_TYPE;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      (generationConfig as any).responseSchema = zodToJsonSchema(options.jsonSchema);
+    }
+
     const modelParams = {
       model: this.llmModelsMetadata[modelKey].urn,
-      generationConfig: {
-        candidateCount: 1,
-        topP: config.topP ?? llmConfig.DEFAULT_TOP_P_LOWEST,
-        topK: config.topK ?? llmConfig.DEFAULT_TOP_K_LOWEST,
-        temperature: config.temperature ?? llmConfig.DEFAULT_ZERO_TEMP,
-        maxOutputTokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
-      },
+      generationConfig,
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
@@ -245,6 +263,7 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
         },
       ],
     };
+
     const requestOptions = {
       timeout: config.requestTimeoutMillis ?? llmConfig.DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS,
     } as RequestOptions;

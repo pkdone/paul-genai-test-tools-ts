@@ -146,13 +146,13 @@ describe("llm-response-tools", () => {
       status: LLMResponseStatus.UNKNOWN,
       request: "test request",
       modelKey: GPT_COMPLETIONS_GPT4,
-      context: {},
+      context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS },
       tokensUage: { promptTokens: 100, completionTokens: 50, maxTotalTokens: 8192 },
     };
 
     test("should return COMPLETED status for COMPLETIONS with string content and asJson=false", () => {
       const responseContent = "This is a plain text response";
-      const context: LLMContext = {};
+      const context: LLMContext = { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS };
 
       const result = postProcessAsJSONIfNeededGeneratingNewResult(
         skeletonResult,
@@ -170,7 +170,7 @@ describe("llm-response-tools", () => {
 
     test("should return COMPLETED status for COMPLETIONS with valid JSON content and asJson=true", () => {
       const responseContent = '{"key": "value", "number": 42}';
-      const context: LLMContext = {};
+      const context: LLMContext = { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS };
 
       const result = postProcessAsJSONIfNeededGeneratingNewResult(
         skeletonResult,
@@ -188,7 +188,7 @@ describe("llm-response-tools", () => {
 
     test("should return OVERLOADED status for COMPLETIONS with invalid JSON content and asJson=true", () => {
       const responseContent = "This is not valid JSON {";
-      const context: LLMContext = {};
+      const context: LLMContext = { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS };
 
       const result = postProcessAsJSONIfNeededGeneratingNewResult(
         skeletonResult,
@@ -207,7 +207,7 @@ describe("llm-response-tools", () => {
 
     test("should return COMPLETED status for non-COMPLETIONS task type", () => {
       const responseContent = [0.1, 0.2, 0.3]; // Embedding vector
-      const context: LLMContext = {};
+      const context: LLMContext = { resource: "test-resource", purpose: LLMPurpose.EMBEDDINGS };
 
       const result = postProcessAsJSONIfNeededGeneratingNewResult(
         skeletonResult,

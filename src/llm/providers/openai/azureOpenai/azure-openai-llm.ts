@@ -5,6 +5,8 @@ import {
   LLMPurpose,
   ResolvedLLMModelMetadata,
   LLMErrorMsgRegExPattern,
+  LLMCompletionOptions,
+  LLMOutputFormat,
 } from "../../../llm.types";
 import BaseOpenAILLM from "../base-openai-llm";
 import { BadConfigurationLLMError } from "../../../errors/llm-errors.types";
@@ -67,7 +69,12 @@ export default class AzureOpenAILLM extends BaseOpenAILLM {
   /**
    * Method to assemble the OpenAI API parameters structure for the given model and prompt.
    */
-  protected buildFullLLMParameters(taskType: LLMPurpose, modelKey: string, prompt: string) {
+  protected buildFullLLMParameters(
+    taskType: LLMPurpose,
+    modelKey: string,
+    prompt: string,
+    options?: LLMCompletionOptions,
+  ) {
     const deployment = this.modelToDeploymentMappings.get(modelKey);
     if (!deployment)
       throw new BadConfigurationLLMError(
@@ -88,6 +95,11 @@ export default class AzureOpenAILLM extends BaseOpenAILLM {
         messages: [{ role: llmConfig.LLM_ROLE_USER as "user", content: prompt }],
         max_tokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
       };
+
+      if (options?.outputFormat === LLMOutputFormat.JSON) {
+        params.response_format = { type: "json_object" };
+      }
+
       return params;
     }
   }

@@ -4,6 +4,7 @@ import { LLMPurpose, LLMProviderImpl, LLMModelQuality } from "../../../src/llm/l
 import { BadConfigurationLLMError } from "../../../src/llm/errors/llm-errors.types";
 import { LLMProviderManifest } from "../../../src/llm/providers/llm-provider.types";
 import { z } from "zod";
+import { LLMJsonModeSupport } from "../../../src/llm/providers/llm-provider.types";
 
 // Mock dependencies
 jest.mock("../../../src/common/utils/error-utils", () => ({
@@ -69,6 +70,7 @@ describe("LLM Service tests", () => {
     ],
     envSchema: z.object({}),
     providerSpecificConfig: {},
+    jsonModeSupport: LLMJsonModeSupport.NONE,
   };
 
   // Mock LLM Provider
@@ -84,6 +86,7 @@ describe("LLM Service tests", () => {
     getEmbeddedModelDimensions: jest.fn(() => 1536),
     getModelFamily: jest.fn(() => "OpenAI"),
     getModelsMetadata: jest.fn(() => ({})),
+    getProviderSpecificConfig: jest.fn(() => ({})),
     close: jest.fn(),
   };
 
@@ -445,6 +448,7 @@ describe("LLM Service tests", () => {
         errorPatterns: mockProviderManifest.errorPatterns,
         envSchema: z.object({}),
         providerSpecificConfig: {},
+        jsonModeSupport: LLMJsonModeSupport.NONE,
       };
 
       const service = new LLMService("Minimal");

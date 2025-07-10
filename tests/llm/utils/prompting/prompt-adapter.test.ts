@@ -42,7 +42,7 @@ describe("PromptAdapter", () => {
     status: LLMResponseStatus.EXCEEDED,
     request: "mock request",
     modelKey,
-    context: {},
+    context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS },
     tokensUage: tokensUsage,
   });
 
@@ -117,7 +117,7 @@ describe("PromptAdapter", () => {
         status: LLMResponseStatus.EXCEEDED,
         request: "mock request",
         modelKey: "GPT_COMPLETIONS_GPT4",
-        context: {},
+        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS },
         tokensUage: undefined,
       };
 

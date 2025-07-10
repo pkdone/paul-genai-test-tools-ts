@@ -1,5 +1,7 @@
 // EnvVars import removed as it's no longer needed after making manifests declarative
 
+import { z } from "zod";
+
 /**
  * Interface for LLM implementation provider
  */
@@ -12,6 +14,7 @@ export interface LLMProviderImpl {
   getEmbeddedModelDimensions(): number | undefined;
   getModelFamily(): string;
   getModelsMetadata(): Readonly<Record<string, ResolvedLLMModelMetadata>>;
+  getProviderSpecificConfig(): Readonly<Record<string, unknown>>;
   close(): Promise<void>;
 }
 
@@ -38,6 +41,25 @@ export interface LLMModelKeysSet {
 export enum LLMPurpose {
   EMBEDDINGS = "embeddings",
   COMPLETIONS = "completions",
+}
+
+/**
+ * Enum to define the desired output format for LLM responses
+ */
+export enum LLMOutputFormat {
+  JSON = "json",
+  TEXT = "text",
+  STRUCTURED = "structured",
+}
+
+/**
+ * Interface for LLM completion options that can be passed to control output format
+ */
+export interface LLMCompletionOptions {
+  /** Desired output format */
+  outputFormat: LLMOutputFormat;
+  /** Zod schema for structured output providers that support it */
+  jsonSchema?: z.ZodType<unknown>;
 }
 
 /**
@@ -80,9 +102,20 @@ export interface ResolvedLLMModelMetadata extends BaseLLMModelMetadata {
 }
 
 /**
- * Type to define the context object that is passed to and from the LLM provider
+ * Interface to define the context object that is passed to and from the LLM provider
  */
-export type LLMContext = Record<string, unknown>;
+export interface LLMContext {
+  /** The resource name being processed */
+  resource: string;
+  /** The LLM purpose (embeddings or completions) */
+  purpose: LLMPurpose;
+  /** The model quality being used (primary or secondary) */
+  modelQuality?: LLMModelQuality;
+  /** The desired output format */
+  outputFormat?: LLMOutputFormat;
+  /** Error text when JSON parsing fails during response processing */
+  jsonParseError?: string;
+}
 
 /**
  * Enum to define the LLM task type
@@ -125,8 +158,8 @@ export interface LLMFunctionResponse {
  */
 export type LLMFunction = (
   content: string,
-  asJson: boolean,
   context: LLMContext,
+  options?: LLMCompletionOptions,
 ) => Promise<LLMFunctionResponse>;
 
 /**
