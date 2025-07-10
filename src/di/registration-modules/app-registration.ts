@@ -9,6 +9,7 @@ import { AppSummariesRepository } from "../../repositories/app-summary/app-summa
 
 // Component imports
 import { FileSummarizer } from "../../components/capture/file-summarizer";
+import { FileHandlerFactory } from "../../components/capture/file-handler-factory";
 import { HtmlReportFormatter } from "../../components/reporting/html-report-formatter";
 import { RawCodeToInsightsFileGenerator } from "../../components/insights/one-shot-insights-generator";
 import CodeQuestioner from "../../components/querying/code-questioner";
@@ -62,6 +63,7 @@ function registerRepositories(): void {
  */
 function registerComponents(): void {
   // Register components that don't depend on LLMRouter as regular singletons
+  container.registerSingleton(TOKENS.FileHandlerFactory, FileHandlerFactory);
   container.registerSingleton(TOKENS.HtmlReportFormatter, HtmlReportFormatter);
   container.registerSingleton(TOKENS.AppReportGenerator, AppReportGenerator);
   container.registerSingleton(

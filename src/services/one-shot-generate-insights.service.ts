@@ -26,9 +26,8 @@ export class OneShotGenerateInsightsService implements Service {
   /**
    * Execute the service - generates inline insights.
    */
-  // eslint-disable-next-line @typescript-eslint/promise-function-async
-  execute(): Promise<void> {
-    return this.generateInlineInsights(this.env.CODEBASE_DIR_PATH, this.env.LLM);
+  async execute(): Promise<void> {
+    await this.generateInlineInsights(this.env.CODEBASE_DIR_PATH, this.env.LLM);
   }
 
   /**

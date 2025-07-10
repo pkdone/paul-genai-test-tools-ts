@@ -23,9 +23,8 @@ export class InsightsFromDBGenerationService implements Service {
   /**
    * Execute the service - generates insights.
    */
-  // eslint-disable-next-line @typescript-eslint/promise-function-async
-  execute(): Promise<void> {
-    return this.generateInsights();
+  async execute(): Promise<void> {
+    await this.generateInsights();
   }
 
   /**

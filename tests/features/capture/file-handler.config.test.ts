@@ -2,7 +2,8 @@ import "reflect-metadata";
 import { filesTypeMetatadataConfig } from "../../../src/components/capture/files-types-metadata.config";
 import { appConfig } from "../../../src/config/app.config";
 import { SourceSummaryType, sourceFileSummarySchema } from "../../../src/schemas/source-summaries.schema";
-import { FileHandler } from "../../../src/components/capture/file-summarizer";
+import { FileHandler } from "../../../src/components/capture/file-handler";
+import { DynamicPromptReplaceVars } from "../../../src/llm/utils/prompting/prompt-templator";
 
 describe("File Handler Configuration", () => {
   beforeEach(() => {
@@ -55,27 +56,31 @@ describe("File Handler Configuration", () => {
     });
   });
 
-  describe("FileHandler interface", () => {
+  describe("FileHandler class", () => {
     test("should enforce correct structure", () => {
-      const testHandler: FileHandler = {
-        promptCreator: jest.fn(),
+      const testConfig: DynamicPromptReplaceVars = {
+        fileContentDesc: "test content",
+        instructions: "test instructions",
         schema: sourceFileSummarySchema,
       };
+      const testHandler = new FileHandler(testConfig);
 
-      expect(testHandler).toHaveProperty("promptCreator");
+      expect(testHandler).toHaveProperty("createPrompt");
       expect(testHandler).toHaveProperty("schema");
-      expect(typeof testHandler.promptCreator).toBe("function");
+      expect(typeof testHandler.createPrompt).toBe("function");
     });
 
     test("should work with type compatibility", () => {
       // Test that FileHandler can work with inline schema types
-      const typedHandler: FileHandler = {
-        promptCreator: jest.fn(),
+      const typedConfig: DynamicPromptReplaceVars = {
+        fileContentDesc: "test content",
+        instructions: "test instructions",
         schema: sourceFileSummarySchema.pick({ purpose: true, implementation: true }),
       };
+      const typedHandler = new FileHandler(typedConfig);
 
       expect(typedHandler.schema).toBeDefined();
-      expect(typeof typedHandler.promptCreator).toBe("function");
+      expect(typeof typedHandler.createPrompt).toBe("function");
     });
   });
 

@@ -22,9 +22,8 @@ export class CodebaseQueryService implements Service {
   /**
    * Execute the service - queries the codebase.
    */
-  // eslint-disable-next-line @typescript-eslint/promise-function-async
-  execute(): Promise<void> {
-    return this.queryCodebase();
+  async execute(): Promise<void> {
+    await this.queryCodebase();
   }
 
   /**

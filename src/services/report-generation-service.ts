@@ -25,9 +25,8 @@ export class ReportGenerationService implements Service {
   /**
    * Execute the service - generates a report for the codebase.
    */
-  // eslint-disable-next-line @typescript-eslint/promise-function-async
-  execute(): Promise<void> {
-    return this.generateReport(this.env.CODEBASE_DIR_PATH);
+  async execute(): Promise<void> {
+    await this.generateReport(this.env.CODEBASE_DIR_PATH);
   }
 
   /**

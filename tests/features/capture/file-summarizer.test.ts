@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method, @typescript-eslint/no-unsafe-assignment */
 import "reflect-metadata";
 import { FileSummarizer, SummaryResult } from "../../../src/components/capture/file-summarizer";
+import { FileHandlerFactory } from "../../../src/components/capture/file-handler-factory";
+import { FileHandler } from "../../../src/components/capture/file-handler";
 import LLMRouter from "../../../src/llm/core/llm-router";
 import { LLMOutputFormat } from "../../../src/llm/llm.types";
 import * as errorUtils from "../../../src/common/utils/error-utils";
@@ -125,6 +127,7 @@ const mockGetErrorText = errorUtils.getErrorText as jest.MockedFunction<
 describe("FileSummarizer", () => {
   let fileSummarizer: FileSummarizer;
   let mockLLMRouter: jest.Mocked<LLMRouter>;
+  let mockFileHandlerFactory: jest.Mocked<FileHandlerFactory>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -134,9 +137,51 @@ describe("FileSummarizer", () => {
       executeCompletion: jest.fn().mockResolvedValue(null),
     } as unknown as jest.Mocked<LLMRouter>;
 
+    // Create mock FileHandlerFactory
+    mockFileHandlerFactory = {
+      createHandler: jest.fn(),
+    } as unknown as jest.Mocked<FileHandlerFactory>;
+
+    // Set up the factory to return the mock handler with proper type-based behavior
+    mockFileHandlerFactory.createHandler.mockImplementation((filepath: string, type: string) => {
+      // Determine the expected prompt based on file type (similar to real FileHandlerFactory logic)
+      let promptType = "project file content";
+      
+      // Map file types to expected prompts (matching the test expectations)
+      // Handle case variations by normalizing to lowercase
+      const normalizedType = type.toLowerCase();
+      if (normalizedType === "java") {
+        promptType = "Java code";
+      } else if (normalizedType === "js" || normalizedType === "javascript" || normalizedType === "ts" || normalizedType === "typescript") {
+        promptType = "JavaScript/TypeScript code";
+      } else if (normalizedType === "sql" || normalizedType === "ddl") {
+        promptType = "database DDL/DML/SQL code";
+      } else if (normalizedType === "md" || normalizedType === "markdown") {
+        promptType = "Markdown content";
+      }
+      
+      // Handle filename-based mappings
+      const filename = filepath.split("/").pop()?.toLowerCase();
+      if (filename === "readme.md" || filename === "readme.txt" || filename === "readme") {
+        promptType = "Markdown content";
+      } else if (filename === "license") {
+        promptType = "Markdown content";
+      }
+
+      return {
+        createPrompt: jest.fn().mockImplementation((content: string) => {
+          return `Mock prompt for ${promptType} with content: ${content}`;
+        }),
+        schema: {
+          parse: jest.fn().mockReturnValue({}),
+          safeParse: jest.fn().mockReturnValue({ success: true, data: {} }),
+        },
+      } as unknown as jest.Mocked<FileHandler>;
+    });
+
     // Since LLMRouter is a default export class, we don't use mockImplementation
     // Instead, we directly inject the mock instance
-    fileSummarizer = new FileSummarizer(mockLLMRouter);
+    fileSummarizer = new FileSummarizer(mockLLMRouter, mockFileHandlerFactory);
   });
 
   describe("getFileSummaryAsJSON", () => {

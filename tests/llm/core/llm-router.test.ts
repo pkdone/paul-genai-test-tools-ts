@@ -215,7 +215,6 @@ describe("LLM Router tests", () => {
       });
 
       expect(router).toBeInstanceOf(LLMRouter);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockProvider.getModelsMetadata).toHaveBeenCalled();
     });
 
@@ -241,7 +240,6 @@ describe("LLM Router tests", () => {
       const { router, mockProvider } = createLLMRouter();
 
       await router.close();
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockProvider.close).toHaveBeenCalled();
     });
   });
@@ -585,7 +583,6 @@ describe("LLM Router tests", () => {
       const { router, mockProvider } = createLLMRouter();
       (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
         generated: 12345 as any, // Invalid response type - number instead of string/object
         request: "test prompt",
         modelKey: "GPT_COMPLETIONS_GPT4",
@@ -1034,7 +1031,6 @@ describe("LLM Router tests", () => {
       });
 
       // Mock the prompt adapter to return empty string after cropping
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
       (router as any).promptAdapter.adaptPromptFromResponse = jest.fn().mockReturnValue("");
 
       const result = await router.executeCompletion("test-resource", "test prompt", {

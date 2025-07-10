@@ -29,6 +29,15 @@ describe("Error utilities", () => {
     test.each(errorTextTestData)("with $description", ({ input, expected }) => {
       expect(getErrorText(input)).toBe(expected);
     });
+
+    test("with circular reference object", () => {
+      // Create an object with circular reference
+      const circularObj: Record<string, unknown> = { name: "test" };
+      circularObj.self = circularObj;
+      
+      const result = getErrorText(circularObj);
+      expect(result).toBe("<unknown-type>. (Unserializable object)");
+    });
   });
 
   describe("getErrorStack", () => {
