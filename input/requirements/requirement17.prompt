@@ -75,4 +75,4 @@ private async executeStructuredCompletion<T>(...): Promise<T> {
 ```
 ---------
 
-Product a detailed implementation plan which a senior developer would follow to execute the solution changes you are recommending. Also, identify any places in the code that would benefit from unit test coverage and/or integration test coverage, relating to this solution. Provide references to the specific part(s) of the code that needs these improvements with suggestions on how to improve. Include the list or relative file paths of each source file affected.
+Produce a detailed implementation plan which a senior developer would follow to execute the solution changes you are recommending. Also, identify any places in the code that would benefit from unit test coverage and/or integration test coverage, relating to this solution. Provide references to the specific part(s) of the code that needs these improvements with suggestions on how to improve. Include the list or relative file paths of each source file affected.
