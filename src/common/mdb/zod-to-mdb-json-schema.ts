@@ -31,7 +31,7 @@ export function generateMDBJSONSchema(schema: z.ZodObject<z.ZodRawShape>) {
   const jsonSchema = zodToJsonSchema(schema, mongoSchemaOptions);
 
   // Remove the $schema property which MongoDB doesn't support
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { $schema, ...mdbSchema } = jsonSchema;
+  void $schema; // Avoid linting error
   return mdbSchema;
 }

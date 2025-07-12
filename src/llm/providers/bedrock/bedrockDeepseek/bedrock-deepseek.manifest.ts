@@ -47,8 +47,8 @@ export const bedrockDeepseekProviderManifest: LLMProviderManifest = {
     minRetryDelayMillis: 30 * 1000, // 30 seconds
     maxRetryAdditionalDelayMillis: 40 * 1000, // 40 seconds additional random delay
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
+    void _providerSpecificConfig; // Avoid linting error
     return new BedrockDeepseekLLM(modelsKeysSet, modelsMetadata, errorPatterns);
   },
 };

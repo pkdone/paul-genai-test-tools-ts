@@ -57,8 +57,8 @@ export const bedrockNovaProviderManifest: LLMProviderManifest = {
     minRetryDelayMillis: 25 * 1000, // 25 seconds
     maxRetryAdditionalDelayMillis: 40 * 1000, // 40 seconds additional random delay
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
+    void _providerSpecificConfig; // Avoid linting error
     return new BedrockNovaLLM(modelsKeysSet, modelsMetadata, errorPatterns);
   },
 };

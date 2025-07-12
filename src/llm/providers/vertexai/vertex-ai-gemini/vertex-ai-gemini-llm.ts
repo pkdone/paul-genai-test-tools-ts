@@ -198,8 +198,8 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
    * Check to see if error code indicates potential token limit has been execeeded - this should
    * not occur with error object thrown so always returns false
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected isTokenLimitExceeded(_error: unknown) {
+    void _error; // Avoid linting error
     return false;
   }
 
@@ -219,8 +219,8 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private buildFullCompletionLLMParameters(modelKey: string, _options?: LLMCompletionOptions) {
+    void _options; // Avoid linting error
     const config = this.providerSpecificConfig;
     const generationConfig = {
       candidateCount: 1,

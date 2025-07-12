@@ -47,8 +47,8 @@ export const bedrockTitanProviderManifest: LLMProviderManifest = {
     minRetryDelayMillis: 20 * 1000, // 20 seconds
     maxRetryAdditionalDelayMillis: 30 * 1000, // 30 seconds additional random delay
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
+    void _providerSpecificConfig; // Avoid linting error
     return new BedrockTitanLLM(modelsKeysSet, modelsMetadata, errorPatterns);
   },
 };

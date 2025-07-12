@@ -58,8 +58,8 @@ export const openAIProviderManifest: LLMProviderManifest = {
     minRetryDelayMillis: 15 * 1000, // 15 seconds - faster retry for OpenAI
     maxRetryAdditionalDelayMillis: 25 * 1000, // 25 seconds additional random delay
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
+    void _providerSpecificConfig; // Avoid linting error
     const env = envConfig as BaseEnvVars & {
       [OPENAI_LLM_API_KEY_KEY]: string;
       [OPENAI_TEXT_EMBEDDINGS_MODEL_KEY]: string;

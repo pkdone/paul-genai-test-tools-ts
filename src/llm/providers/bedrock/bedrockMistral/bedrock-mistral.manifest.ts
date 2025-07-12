@@ -58,8 +58,8 @@ export const bedrockMistralProviderManifest: LLMProviderManifest = {
     minRetryDelayMillis: 25 * 1000, // 25 seconds
     maxRetryAdditionalDelayMillis: 35 * 1000, // 35 seconds additional random delay
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   factory: (_envConfig, modelsKeysSet, modelsMetadata, errorPatterns, _providerSpecificConfig) => {
+    void _providerSpecificConfig; // Avoid linting error
     return new BedrockMistralLLM(modelsKeysSet, modelsMetadata, errorPatterns);
   },
 };
