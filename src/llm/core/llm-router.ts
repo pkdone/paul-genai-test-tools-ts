@@ -233,16 +233,12 @@ export default class LLMRouter {
         ...options,
         outputFormat: LLMOutputFormat.TEXT,
       };
-      const textResponse = await this.executeRegularCompletion(
+      llmResponse = await this.executeRegularCompletion(
         resourceName,
         prompt,
         textOptions,
         modelQualityOverride,
       );
-
-      if (typeof textResponse === "string") {
-        llmResponse = this.parseJsonFromText(textResponse);
-      }
     }
 
     if (
@@ -319,28 +315,6 @@ export default class LLMRouter {
     }
 
     return contentResponse;
-  }
-
-  /**
-   * Private method to parse JSON from text response, handling markdown fences and surrounding text.
-   */
-  private parseJsonFromText(text: string): Record<string, unknown> | null {
-    // This regex finds a JSON object, ignoring optional ```json... ``` fences
-    const jsonRegex = /```json\s*(.*?)\s*```|(\{.*\})/s;
-    const match = jsonRegex.exec(text);
-    if (!match) {
-      return null;
-    }
-    // The actual JSON content is in one of the capture groups
-    const jsonString = match[1] || match[2];
-    if (!jsonString) {
-      return null;
-    }
-    try {
-      return JSON.parse(jsonString) as Record<string, unknown>;
-    } catch {
-      return null; // Parsing failed
-    }
   }
 
   /**

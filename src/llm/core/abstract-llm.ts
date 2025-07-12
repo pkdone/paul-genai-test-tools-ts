@@ -198,14 +198,12 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
           ),
         };
       } else {
-        // Derive JSON requirement from options
-        const asJson = options?.outputFormat === LLMOutputFormat.JSON;
         return postProcessAsJSONIfNeededGeneratingNewResult(
           skeletonResponse,
           modelKey,
           taskType,
           responseContent,
-          asJson,
+          options?.outputFormat === LLMOutputFormat.JSON,
           context,
           this.llmModelsMetadata,
         );
