@@ -405,7 +405,7 @@ export default class LLMRouter {
       }
     } catch (error: unknown) {
       log(
-        `Unable to process the following resource with an LLM due to a non-recoverable error: '${resourceName}'`,
+        `Unable to process the following resource with an LLM due to a non-recoverable error for the following resource: '${resourceName}'`,
       );
       logErrWithContext(error, context);
       this.llmStats.recordFailure();
@@ -442,6 +442,9 @@ export default class LLMRouter {
       if (llmResponse?.status === LLMResponseStatus.COMPLETED) {
         this.llmStats.recordSuccess();
         return llmResponse.generated ?? null;
+      } else if (llmResponse?.status === LLMResponseStatus.ERRORED) {
+        logErrWithContext(llmResponse.error, context);
+        return null;
       }
 
       const nextAction = this.handleUnsuccessfulLLMCallOutcome(

@@ -125,6 +125,7 @@ export enum LLMResponseStatus {
   COMPLETED = "completed",
   EXCEEDED = "exceeded",
   OVERLOADED = "overloaded",
+  ERRORED = "error",
 }
 
 /**
@@ -151,6 +152,7 @@ export interface LLMFunctionResponse {
   readonly context: LLMContext;
   readonly generated?: LLMGeneratedContent;
   readonly tokensUage?: LLMResponseTokensUsage;
+  readonly error?: unknown;
 }
 
 /**

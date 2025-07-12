@@ -1,5 +1,5 @@
 import { injectable, inject } from "tsyringe";
-import { logErrorMsgAndDetail, getErrorText } from "../../common/utils/error-utils";
+import { getErrorText, logErrorMsg } from "../../common/utils/error-utils";
 import type LLMRouter from "../../llm/core/llm-router";
 import { TOKENS } from "../../di/tokens";
 import { SourceSummaryType } from "../../schemas/source-summaries.schema";
@@ -55,7 +55,7 @@ export class FileSummarizer {
       return { success: true, data: llmResponse };
     } catch (error) {
       const errorMsg = `Failed to generate summary for '${filepath}'`;
-      logErrorMsgAndDetail(errorMsg, error);
+      logErrorMsg(errorMsg);
       return { success: false, error: `${errorMsg}: ${getErrorText(error)}` };
     }
   }

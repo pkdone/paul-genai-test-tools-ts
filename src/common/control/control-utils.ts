@@ -48,7 +48,8 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
       {
         retries: maxAttempts - 1, // p-retry uses `retries` (number of retries, not total attempts)
         minTimeout: minRetryDelay,
-        onFailedAttempt: () => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        onFailedAttempt: (_error: FailedAttemptError) => {   // Keep _error around in case useful for debugging
           if (logRetryEventFunc) logRetryEventFunc();
         },
       } as RetryOptions,

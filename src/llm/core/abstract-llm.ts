@@ -230,7 +230,7 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
           ),
         };
       } else {
-        throw error;
+        return { ...skeletonResponse, status: LLMResponseStatus.ERRORED, error };
       }
     }
   }

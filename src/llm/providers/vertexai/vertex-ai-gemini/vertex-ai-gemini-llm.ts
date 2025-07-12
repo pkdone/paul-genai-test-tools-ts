@@ -9,7 +9,7 @@ import {
 } from "@google-cloud/vertexai";
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
-import { zodToJsonSchema } from "zod-to-json-schema";
+//import { zodToJsonSchema } from "zod-to-json-schema";
 import { llmConfig } from "../../../llm.config";
 import {
   LLMModelKeysSet,
@@ -17,7 +17,7 @@ import {
   ResolvedLLMModelMetadata,
   LLMErrorMsgRegExPattern,
   LLMCompletionOptions,
-  LLMOutputFormat,
+  //LLMOutputFormat,
 } from "../../../llm.types";
 import { getErrorText, logErrorMsgAndDetail } from "../../../../common/utils/error-utils";
 import AbstractLLM from "../../../core/abstract-llm";
@@ -219,7 +219,8 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullCompletionLLMParameters(modelKey: string, options?: LLMCompletionOptions) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private buildFullCompletionLLMParameters(modelKey: string, _options?: LLMCompletionOptions) {
     const config = this.providerSpecificConfig;
     const generationConfig = {
       candidateCount: 1,
@@ -229,6 +230,8 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
       maxOutputTokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
     };
 
+    // TODO: this needs fixing for JSON mode - throws error if set
+    /*
     // Add structured JSON output support
     if (options?.outputFormat === LLMOutputFormat.JSON && options.jsonSchema) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
@@ -236,6 +239,7 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
       (generationConfig as any).responseSchema = zodToJsonSchema(options.jsonSchema);
     }
+    */
 
     const modelParams = {
       model: this.llmModelsMetadata[modelKey].urn,
