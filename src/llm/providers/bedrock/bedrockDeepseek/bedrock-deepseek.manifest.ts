@@ -7,7 +7,6 @@ import {
   BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
   AWS_EMBEDDINGS_TITAN_V1,
 } from "../bedrock-models.constants";
-import { LLMJsonModeSupport } from "../../llm-provider.types";
 
 // Environment variable name constants
 const BEDROCK_DEEPSEEK_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_DEEPSEEK_COMPLETIONS_MODEL_PRIMARY";
@@ -40,7 +39,6 @@ export const bedrockDeepseekProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
-  jsonModeSupport: LLMJsonModeSupport.NONE,
   providerSpecificConfig: {
     requestTimeoutMillis: 8 * 60 * 1000, // 8 minutes - Deepseek models are reasonably fast
     maxRetryAttempts: 4, // More retries as it's a newer model that might have availability issues

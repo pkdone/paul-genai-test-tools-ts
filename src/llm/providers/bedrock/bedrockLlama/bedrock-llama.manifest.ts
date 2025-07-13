@@ -7,7 +7,6 @@ import {
   BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY,
   AWS_EMBEDDINGS_TITAN_V1,
 } from "../bedrock-models.constants";
-import { LLMJsonModeSupport } from "../../llm-provider.types";
 
 // Environment variable name constants
 const BEDROCK_LLAMA_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_LLAMA_COMPLETIONS_MODEL_PRIMARY";
@@ -56,7 +55,6 @@ export const bedrockLlamaProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
-  jsonModeSupport: LLMJsonModeSupport.NONE,
   providerSpecificConfig: {
     requestTimeoutMillis: 10 * 60 * 1000, // 10 minutes - Llama models can be very slow for large requests
     maxRetryAttempts: 4, // More retries for large models that may have capacity issues

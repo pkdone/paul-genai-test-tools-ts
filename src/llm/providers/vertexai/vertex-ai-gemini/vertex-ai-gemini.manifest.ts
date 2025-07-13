@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { LLMProviderManifest, LLMJsonModeSupport } from "../../llm-provider.types";
+import { LLMProviderManifest } from "../../llm-provider.types";
 import VertexAIGeminiLLM from "./vertex-ai-gemini-llm";
 import { LLMPurpose } from "../../../llm.types";
 import { BaseEnvVars } from "../../../../lifecycle/env.types";
@@ -53,7 +53,6 @@ export const vertexAIGeminiProviderManifest: LLMProviderManifest = {
     },
   },
   errorPatterns: [] as const, // VertexAI has no specific error patterns defined
-  jsonModeSupport: LLMJsonModeSupport.STRUCTURED,
   providerSpecificConfig: {
     temperature: llmConfig.DEFAULT_ZERO_TEMP,
     topP: llmConfig.DEFAULT_TOP_P_LOWEST,

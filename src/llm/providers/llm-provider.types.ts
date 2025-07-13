@@ -11,15 +11,6 @@ import {
 import { EnvVars } from "../../lifecycle/env.types";
 
 /**
- * Enum for JSON mode support levels
- */
-export enum LLMJsonModeSupport {
-  NATIVE = "native",
-  STRUCTURED = "structured",
-  NONE = "none",
-}
-
-/**
  * Interface for retry and timeout configuration used by LLMRouter
  */
 export interface LLMRetryConfig {
@@ -70,8 +61,6 @@ export interface LLMProviderManifest {
   };
   /** Provider-specific error patterns for token limits/overload */
   errorPatterns: readonly LLMErrorMsgRegExPattern[];
-  /** JSON mode support level for this provider */
-  jsonModeSupport: LLMJsonModeSupport;
   /** Provider-specific operational configuration */
   providerSpecificConfig?: LLMProviderSpecificConfig;
   /** Factory function to create an instance of the provider's LLMProviderImpl */

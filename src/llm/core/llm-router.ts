@@ -23,7 +23,6 @@ import type { PromptAdapter } from "../utils/prompting/prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";
 import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
-//import { LLMJsonModeSupport } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
 import { logErrorMsg } from "../../common/utils/error-utils";

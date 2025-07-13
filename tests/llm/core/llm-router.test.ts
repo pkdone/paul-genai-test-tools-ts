@@ -26,7 +26,6 @@ import { PromptAdapter } from "../../../src/llm/utils/prompting/prompt-adapter";
 import { LLMService } from "../../../src/llm/core/llm-service";
 import type { EnvVars } from "../../../src/lifecycle/env.types";
 import { describe, test, expect, jest } from "@jest/globals";
-import { LLMJsonModeSupport } from "../../../src/llm/providers/llm-provider.types";
 import type { LLMProviderManifest } from "../../../src/llm/providers/llm-provider.types";
 
 // Mock the dependencies
@@ -182,7 +181,6 @@ describe("LLM Router tests", () => {
       getLLMManifest: jest.fn().mockReturnValue({
         modelFamily: "OpenAI",
         providerName: "Mock OpenAI",
-        jsonModeSupport: LLMJsonModeSupport.NATIVE,
         providerSpecificConfig: testRetryConfig,
       }) as jest.MockedFunction<() => LLMProviderManifest>,
     };
