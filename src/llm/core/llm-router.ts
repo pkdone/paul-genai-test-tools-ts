@@ -166,13 +166,11 @@ export default class LLMRouter {
     options: LLMCompletionOptions,
     modelQualityOverride: LLMModelQuality | null = null,
   ): Promise<T | null> {
-    // Handle structured response with schema validation
     if (options.jsonSchema) {
       return this.executeStructuredCompletion<T>(resourceName, prompt, options, modelQualityOverride);
+    } else {
+      return this.executeRegularCompletion(resourceName, prompt, options, modelQualityOverride) as Promise<T | null>;
     }
-
-    // Regular completion flow
-    return this.executeRegularCompletion(resourceName, prompt, options, modelQualityOverride) as Promise<T | null>;
   }
 
   /**
