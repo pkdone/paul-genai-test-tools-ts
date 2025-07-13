@@ -42,12 +42,14 @@ export async function runService(serviceToken: symbol): Promise<void> {
 
     // Resolve service (await handles both sync and async resolution)
     const service = await container.resolve<Service | Promise<Service>>(serviceToken);
-    
+
     try {
       await service.execute();
     } catch (error) {
-      if (error instanceof TypeError && error.message.includes('execute')) {
-        throw new Error(`Service for token '${serviceToken.toString()}' could not be resolved or does not have a valid execute method.`);
+      if (error instanceof TypeError && error.message.includes("execute")) {
+        throw new Error(
+          `Service for token '${serviceToken.toString()}' could not be resolved or does not have a valid execute method.`,
+        );
       }
       throw error;
     }

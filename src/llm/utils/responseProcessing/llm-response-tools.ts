@@ -7,14 +7,18 @@ import {
   LLMContext,
   ResolvedLLMModelMetadata,
 } from "../../llm.types";
-import { BadResponseContentLLMError } from "../../errors/llm-errors.types";
+import {
+  BadResponseContentLLMError,
+  RejectionResponseLLMError,
+} from "../../errors/llm-errors.types";
 import { convertTextToJSON } from "../../../common/utils/json-tools";
 import { getErrorText } from "../../../common/utils/error-utils";
+import { logWithContext } from "../routerTracking/llm-router-logging";
 
 /**
  * Extract token usage information from LLM response metadata, defaulting missing
  * values.
- */
+ */ 
 export function extractTokensAmountFromMetadataDefaultingMissingValues(
   modelKey: string,
   tokenUsage: LLMResponseTokensUsage,
@@ -62,5 +66,47 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
     }
   } else {
     return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: responseContent };
+  }
+}
+
+/**
+ * Handles the outcome of an LLM call and determines the next action to take.
+ */
+export function handleUnsuccessfulLLMCallOutcome(
+  llmResponse: LLMFunctionResponse | null,
+  currentLLMIndex: number,
+  totalLLMCount: number,
+  context: LLMContext,
+  resourceName: string,
+): { shouldTerminate: boolean; shouldCropPrompt: boolean; shouldSwitchToNextLLM: boolean } {
+  const isOverloaded = !llmResponse || llmResponse.status === LLMResponseStatus.OVERLOADED;
+  const isExceeded = llmResponse?.status === LLMResponseStatus.EXCEEDED;
+  const canSwitchModel = currentLLMIndex + 1 < totalLLMCount;
+
+  if (isOverloaded) {
+    logWithContext(
+      `LLM problem processing prompt for completion with current LLM model because it is overloaded, timing out or is spitting out invalid JSON (if JSON was requested), even after retries `,
+      context,
+    );
+    return {
+      shouldTerminate: !canSwitchModel,
+      shouldCropPrompt: false,
+      shouldSwitchToNextLLM: canSwitchModel,
+    };
+  } else if (isExceeded) {
+    logWithContext(
+      `LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens ?? 0} plus completion tokens used ${llmResponse.tokensUage?.completionTokens ?? 0} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens ?? 0}, or: 2) the model's completion tokens limit`,
+      context,
+    );
+    return {
+      shouldTerminate: false,
+      shouldCropPrompt: !canSwitchModel,
+      shouldSwitchToNextLLM: canSwitchModel,
+    };
+  } else {
+    throw new RejectionResponseLLMError(
+      `An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource '${resourceName}' - response status received: '${llmResponse.status}'`,
+      llmResponse,
+    );
   }
 }

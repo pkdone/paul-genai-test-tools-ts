@@ -97,10 +97,14 @@ export const publicMethodSchema = z
     name: z.string().describe("The name of the method/function."),
     purpose: z.string().describe("Detailed purpose of the method/function in atleast 3 sentences."),
     parameters: z
-      .array(z.object({
-        name: z.string().describe("The name of the parameter."),
-        type: z.string().describe("The type of the parameter."),
-      }).passthrough())
+      .array(
+        z
+          .object({
+            name: z.string().describe("The name of the parameter."),
+            type: z.string().describe("The type of the parameter."),
+          })
+          .passthrough(),
+      )
       .optional()
       .describe("List parameters of the method/function."),
     returnType: z.string().describe("The return type of the method/function."),

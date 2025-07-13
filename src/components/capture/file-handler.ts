@@ -55,4 +55,4 @@ export class FileHandler<T extends SourceSummaryType = SourceSummaryType> {
   createPrompt(content: string): string {
     return createPromptFromConfig(SOURCES_SUMMARY_CAPTURE_TEMPLATE, this.config, content);
   }
-} 
+}

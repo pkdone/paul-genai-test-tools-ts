@@ -116,9 +116,7 @@ export default class SourcesRepositoryImpl implements SourcesRepository {
         "summary.classpath": 1,
       },
     };
-    return await this.collection
-      .find<ProjectedDatabaseIntegrationFields>(query, options)
-      .toArray();
+    return await this.collection.find<ProjectedDatabaseIntegrationFields>(query, options).toArray();
   }
 
   /**

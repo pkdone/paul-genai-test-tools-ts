@@ -34,11 +34,11 @@ export class FileSummarizer {
   ): Promise<SummaryResult> {
     try {
       if (content.trim().length === 0) return { success: false, error: "File is empty" };
-      
+
       // Use the factory to get the appropriate handler
       const handler = this.fileHandlerFactory.createHandler(filepath, type);
       const prompt = handler.createPrompt(content);
-      
+
       const llmResponse = await this.llmRouter.executeCompletion<SourceSummaryType>(
         filepath,
         prompt,
@@ -47,11 +47,11 @@ export class FileSummarizer {
           jsonSchema: handler.schema,
         },
       );
-      
+
       if (llmResponse === null) {
         return { success: false, error: "LLM returned null response" };
       }
-      
+
       return { success: true, data: llmResponse };
     } catch (error) {
       const errorMsg = `Failed to generate summary for '${filepath}'`;

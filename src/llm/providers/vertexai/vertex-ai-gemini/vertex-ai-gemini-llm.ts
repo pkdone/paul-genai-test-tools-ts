@@ -140,7 +140,10 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
     options?: LLMCompletionOptions,
   ) {
     // Invoke LLM
-    const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(modelKey, options);
+    const { modelParams, requestOptions } = this.buildFullCompletionLLMParameters(
+      modelKey,
+      options,
+    );
     const llm = this.vertexAiApiClient.getGenerativeModel(modelParams, requestOptions);
     const llmResponses = await llm.generateContent(prompt);
     const usageMetadata = llmResponses.response.usageMetadata;

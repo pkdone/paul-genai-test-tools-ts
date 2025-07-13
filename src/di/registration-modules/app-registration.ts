@@ -89,7 +89,10 @@ function registerLLMDependentComponents(): void {
   container.registerSingleton(TOKENS.FileSummarizer, FileSummarizer);
   container.registerSingleton(TOKENS.CodebaseToDBLoader, CodebaseToDBLoader);
   container.registerSingleton(TOKENS.CodeQuestioner, CodeQuestioner);
-  container.registerSingleton(TOKENS.DBCodeInsightsBackIntoDBGenerator, DBCodeInsightsBackIntoDBGenerator);
+  container.registerSingleton(
+    TOKENS.DBCodeInsightsBackIntoDBGenerator,
+    DBCodeInsightsBackIntoDBGenerator,
+  );
 }
 
 /**
@@ -117,8 +120,14 @@ function registerLLMDependentServices(): void {
   // Simplified registrations using tsyringe's automatic dependency injection
   container.registerSingleton(TOKENS.CodebaseQueryService, CodebaseQueryService);
   container.registerSingleton(TOKENS.CodebaseCaptureService, CodebaseCaptureService);
-  container.registerSingleton(TOKENS.InsightsFromDBGenerationService, InsightsFromDBGenerationService);
-  container.registerSingleton(TOKENS.OneShotGenerateInsightsService, OneShotGenerateInsightsService);
+  container.registerSingleton(
+    TOKENS.InsightsFromDBGenerationService,
+    InsightsFromDBGenerationService,
+  );
+  container.registerSingleton(
+    TOKENS.OneShotGenerateInsightsService,
+    OneShotGenerateInsightsService,
+  );
   container.registerSingleton(TOKENS.PluggableLLMsTestService, PluggableLLMsTestService);
 
   console.log("LLM-dependent services registered with simplified singleton registrations");

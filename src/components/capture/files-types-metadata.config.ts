@@ -1,4 +1,7 @@
-import { sourceFileSummarySchema, databaseIntegrationSchema } from "../../schemas/source-summaries.schema";
+import {
+  sourceFileSummarySchema,
+  databaseIntegrationSchema,
+} from "../../schemas/source-summaries.schema";
 import { z } from "zod";
 import { DynamicPromptReplaceVars } from "../../llm/utils/prompting/prompt-templator";
 
@@ -45,22 +48,28 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
     - Code uses a 3rd party framework/library for database access (set mechanism: 'OTHER')
     - Otherwise, if the code does not use a database, then set mechanism: 'NONE'
     (note, JMS and JNDI are not related to interacting with a dataase)`,
-    schema: sourceFileSummarySchema.pick({
-      classname: true,
-      classType: true,
-      classpath: true,
-      purpose: true,
-      implementation: true,
-      internalReferences: true,
-      externalReferences: true,
-      publicConstants: true,
-      publicMethods: true,
-      databaseIntegration: true,
-    }).extend({
-      // Add descriptions for LLM prompts
-      internalReferences: z.array(z.string()).describe("A list of internal classpaths referenced."),
-      externalReferences: z.array(z.string()).describe("A list of third-party classpaths referenced."),
-    }),
+    schema: sourceFileSummarySchema
+      .pick({
+        classname: true,
+        classType: true,
+        classpath: true,
+        purpose: true,
+        implementation: true,
+        internalReferences: true,
+        externalReferences: true,
+        publicConstants: true,
+        publicMethods: true,
+        databaseIntegration: true,
+      })
+      .extend({
+        // Add descriptions for LLM prompts
+        internalReferences: z
+          .array(z.string())
+          .describe("A list of internal classpaths referenced."),
+        externalReferences: z
+          .array(z.string())
+          .describe("A list of third-party classpaths referenced."),
+      }),
   },
   javascript: {
     fileContentDesc: "JavaScript/TypeScript code",
@@ -96,18 +105,28 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
  * A list of the stored procedure (if any) it defines - for each stored procedure, include the stored procedure's name, its purpose in detail, the number of lines of code in the stored procedure, and a complexity score or how complex the stored procedure's code is (the score must be have one of the following values: 'LOW', 'MEDIUM', 'HIGH') along with a reason for the chosen complexity score.
  * A list of the triggers (if any) it defines - for each trigger, include the trigger's name, its purpose in detail, the number of lines of code in the trigger, and a complexity score or how complex the trigger's code is (the score must be have one of the following values: 'LOW', 'MEDIUM', 'HIGH') along with a reason for the chosen complexity score.
  * The most prominent type of database integration it employs (if any), stating the mechanism used ('NONE', 'DDL', 'DML', 'SQL', 'STORED-PROCEDURE', or 'TRIGGER'), a description of the integration and an example code snippet that performs the database integration`,
-    schema: sourceFileSummarySchema.pick({
-      purpose: true,
-      implementation: true,
-      tables: true,
-      storedProcedures: true,
-      triggers: true,
-      databaseIntegration: true,
-    }).extend({
-      databaseIntegration: databaseIntegrationSchema.extend({
-        mechanism: z.enum(["NONE", "DDL", "DML", "SQL", "STORED-PROCEDURE", "TRIGGER", "FUNCTION"]),
+    schema: sourceFileSummarySchema
+      .pick({
+        purpose: true,
+        implementation: true,
+        tables: true,
+        storedProcedures: true,
+        triggers: true,
+        databaseIntegration: true,
+      })
+      .extend({
+        databaseIntegration: databaseIntegrationSchema.extend({
+          mechanism: z.enum([
+            "NONE",
+            "DDL",
+            "DML",
+            "SQL",
+            "STORED-PROCEDURE",
+            "TRIGGER",
+            "FUNCTION",
+          ]),
+        }),
       }),
-    }),
   },
   xml: {
     fileContentDesc: "XML code",

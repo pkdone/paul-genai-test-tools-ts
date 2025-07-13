@@ -19,6 +19,7 @@ import {
   BadResponseMetadataLLMError,
   RejectionResponseLLMError,
 } from "../../../src/llm/errors/llm-errors.types";
+import { handleUnsuccessfulLLMCallOutcome } from "../../../src/llm/utils/responseProcessing/llm-response-tools";
 import { z } from "zod";
 import LLMRouter from "../../../src/llm/core/llm-router";
 import LLMStats from "../../../src/llm/utils/routerTracking/llm-stats";
@@ -29,12 +30,18 @@ import { describe, test, expect, jest } from "@jest/globals";
 import type { LLMProviderManifest } from "../../../src/llm/providers/llm-provider.types";
 
 // Mock the dependencies
-jest.mock("../../../src/llm/utils/responseProcessing/llm-response-tools", () => ({
-  reducePromptSizeToTokenLimit: jest.fn((prompt: string) => {
-    // Simple mock implementation that reduces prompt by half
-    return prompt.substring(0, Math.floor(prompt.length * 0.5));
-  }),
-}));
+jest.mock("../../../src/llm/utils/responseProcessing/llm-response-tools", () => {
+  const actual = jest.requireActual("../../../src/llm/utils/responseProcessing/llm-response-tools");
+  return {
+    handleUnsuccessfulLLMCallOutcome: (actual as any).handleUnsuccessfulLLMCallOutcome,
+    extractTokensAmountFromMetadataDefaultingMissingValues: (actual as any).extractTokensAmountFromMetadataDefaultingMissingValues,
+    postProcessAsJSONIfNeededGeneratingNewResult: (actual as any).postProcessAsJSONIfNeededGeneratingNewResult,
+    reducePromptSizeToTokenLimit: jest.fn((prompt: string) => {
+      // Simple mock implementation that reduces prompt by half
+      return prompt.substring(0, Math.floor(prompt.length * 0.5));
+    }),
+  };
+});
 
 jest.mock("../../../src/llm/utils/routerTracking/llm-router-logging", () => ({
   log: jest.fn(),
@@ -177,7 +184,9 @@ describe("LLM Router tests", () => {
 
     // Create mock LLMService
     const mockLLMService: Partial<LLMService> = {
-      getLLMProvider: jest.fn().mockReturnValue(mockProvider) as jest.MockedFunction<(env: EnvVars) => LLMProviderImpl>,
+      getLLMProvider: jest.fn().mockReturnValue(mockProvider) as jest.MockedFunction<
+        (env: EnvVars) => LLMProviderImpl
+      >,
       getLLMManifest: jest.fn().mockReturnValue({
         modelFamily: "OpenAI",
         providerName: "Mock OpenAI",
@@ -434,51 +443,53 @@ describe("LLM Router tests", () => {
   });
 
   describe("generateEmbeddings method", () => {
-          test("should generate embeddings successfully", async () => {
-        const { router, mockProvider } = createLLMRouter();
-        const mockEmbeddings = [0.1, 0.2, 0.3, 0.4];
-        (mockProvider.generateEmbeddings as any).mockResolvedValue({
-          status: LLMResponseStatus.COMPLETED,
-          generated: mockEmbeddings,
-          request: "test content",
-          modelKey: "GPT_EMBEDDINGS_ADA002",
-          context: {},
-        });
-
-        const result = await router.generateEmbeddings("test-resource", "test content");
-
-        expect(result).toEqual(mockEmbeddings);
-        expect(mockProvider.generateEmbeddings).toHaveBeenCalled();
+    test("should generate embeddings successfully", async () => {
+      const { router, mockProvider } = createLLMRouter();
+      const mockEmbeddings = [0.1, 0.2, 0.3, 0.4];
+      (mockProvider.generateEmbeddings as any).mockResolvedValue({
+        status: LLMResponseStatus.COMPLETED,
+        generated: mockEmbeddings,
+        request: "test content",
+        modelKey: "GPT_EMBEDDINGS_ADA002",
+        context: {},
       });
 
-      test("should handle null response", async () => {
-        const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
-        (mockProvider.generateEmbeddings as any).mockResolvedValueOnce({
+      const result = await router.generateEmbeddings("test-resource", "test content");
+
+      expect(result).toEqual(mockEmbeddings);
+      expect(mockProvider.generateEmbeddings).toHaveBeenCalled();
+    });
+
+    test("should handle null response", async () => {
+      const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
+      (mockProvider.generateEmbeddings as any)
+        .mockResolvedValueOnce({
           status: LLMResponseStatus.OVERLOADED,
           request: "test content",
           modelKey: "GPT_EMBEDDINGS_ADA002",
           context: {},
-        }).mockResolvedValue(null);
+        })
+        .mockResolvedValue(null);
 
-        const result = await router.generateEmbeddings("test-resource", "test content");
+      const result = await router.generateEmbeddings("test-resource", "test content");
 
-        expect(result).toBeNull();
+      expect(result).toBeNull();
+    });
+
+    test("should throw error for invalid embeddings response", async () => {
+      const { router, mockProvider } = createLLMRouter();
+      (mockProvider.generateEmbeddings as any).mockResolvedValue({
+        status: LLMResponseStatus.COMPLETED,
+        generated: "invalid response",
+        request: "test content",
+        modelKey: "GPT_EMBEDDINGS_ADA002",
+        context: {},
       });
 
-      test("should throw error for invalid embeddings response", async () => {
-        const { router, mockProvider } = createLLMRouter();
-        (mockProvider.generateEmbeddings as any).mockResolvedValue({
-          status: LLMResponseStatus.COMPLETED,
-          generated: "invalid response",
-          request: "test content",
-          modelKey: "GPT_EMBEDDINGS_ADA002",
-          context: {},
-        });
-
-        await expect(router.generateEmbeddings("test-resource", "test content")).rejects.toThrow(
-          BadResponseMetadataLLMError,
-        );
-      });
+      await expect(router.generateEmbeddings("test-resource", "test content")).rejects.toThrow(
+        BadResponseMetadataLLMError,
+      );
+    });
   });
 
   describe("executeCompletion method", () => {
@@ -493,9 +504,14 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt", {
-        outputFormat: LLMOutputFormat.TEXT,
-      }, null);
+      const result = await router.executeCompletion(
+        "test-resource",
+        "test prompt",
+        {
+          outputFormat: LLMOutputFormat.TEXT,
+        },
+        null,
+      );
 
       expect(result).toBe(mockCompletion);
       expect(mockProvider.executeCompletionPrimary).toHaveBeenCalled();
@@ -512,9 +528,14 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt", {
-        outputFormat: LLMOutputFormat.JSON,
-      }, null);
+      const result = await router.executeCompletion(
+        "test-resource",
+        "test prompt",
+        {
+          outputFormat: LLMOutputFormat.JSON,
+        },
+        null,
+      );
 
       expect(result).toEqual(mockCompletion);
       expect(mockProvider.executeCompletionPrimary).toHaveBeenCalledWith(
@@ -552,17 +573,19 @@ describe("LLM Router tests", () => {
 
     test("should handle null response", async () => {
       const { router, mockProvider } = createLLMRouter({ maxRetryAttempts: 1 });
-      (mockProvider.executeCompletionPrimary as any).mockResolvedValueOnce({
-        status: LLMResponseStatus.OVERLOADED,
-        request: "test prompt",
-        modelKey: "GPT_COMPLETIONS_GPT4",
-        context: {},
-      }).mockResolvedValue({
-        status: LLMResponseStatus.OVERLOADED,
-        request: "test prompt",
-        modelKey: "GPT_COMPLETIONS_GPT4",
-        context: {},
-      });
+      (mockProvider.executeCompletionPrimary as any)
+        .mockResolvedValueOnce({
+          status: LLMResponseStatus.OVERLOADED,
+          request: "test prompt",
+          modelKey: "GPT_COMPLETIONS_GPT4",
+          context: {},
+        })
+        .mockResolvedValue({
+          status: LLMResponseStatus.OVERLOADED,
+          request: "test prompt",
+          modelKey: "GPT_COMPLETIONS_GPT4",
+          context: {},
+        });
       (mockProvider.executeCompletionSecondary as any).mockResolvedValue({
         status: LLMResponseStatus.OVERLOADED,
         request: "test prompt",
@@ -570,9 +593,14 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt", {
-        outputFormat: LLMOutputFormat.TEXT,
-      }, null);
+      const result = await router.executeCompletion(
+        "test-resource",
+        "test prompt",
+        {
+          outputFormat: LLMOutputFormat.TEXT,
+        },
+        null,
+      );
 
       expect(result).toBeNull();
     });
@@ -587,9 +615,14 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt", {
-        outputFormat: LLMOutputFormat.TEXT,
-      }, null);
+      const result = await router.executeCompletion(
+        "test-resource",
+        "test prompt",
+        {
+          outputFormat: LLMOutputFormat.TEXT,
+        },
+        null,
+      );
 
       expect(result).toBe(12345);
     });
@@ -637,7 +670,11 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 0,
         totalLLMCount: 2,
-        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
+        context: {
+          resource: "test-resource",
+          purpose: LLMPurpose.COMPLETIONS,
+          test: "context",
+        } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: false,
@@ -655,7 +692,11 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 1,
         totalLLMCount: 2,
-        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
+        context: {
+          resource: "test-resource",
+          purpose: LLMPurpose.COMPLETIONS,
+          test: "context",
+        } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: true,
@@ -678,7 +719,11 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 0,
         totalLLMCount: 2,
-        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
+        context: {
+          resource: "test-resource",
+          purpose: LLMPurpose.COMPLETIONS,
+          test: "context",
+        } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: false,
@@ -691,12 +736,7 @@ describe("LLM Router tests", () => {
     test.each(handleUnsuccessfulLLMCallOutcomeTestData)(
       "$description",
       ({ llmResponse, currentLLMIndex, totalLLMCount, context, resourceName, expected }) => {
-        const { router } = createLLMRouter();
-
-        // Access private method using TypeScript casting
-        const result = (
-          router as unknown as { handleUnsuccessfulLLMCallOutcome: (...args: unknown[]) => unknown }
-        ).handleUnsuccessfulLLMCallOutcome(
+        const result = handleUnsuccessfulLLMCallOutcome(
           llmResponse,
           currentLLMIndex,
           totalLLMCount,
@@ -715,7 +755,11 @@ describe("LLM Router tests", () => {
         llmResponse: null,
         currentLLMIndex: 1,
         totalLLMCount: 2,
-        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
+        context: {
+          resource: "test-resource",
+          purpose: LLMPurpose.COMPLETIONS,
+          test: "context",
+        } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: true,
@@ -738,7 +782,11 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 1,
         totalLLMCount: 2,
-        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
+        context: {
+          resource: "test-resource",
+          purpose: LLMPurpose.COMPLETIONS,
+          test: "context",
+        } as LLMContext,
         resourceName: "test-resource",
         expected: {
           shouldTerminate: false,
@@ -756,7 +804,11 @@ describe("LLM Router tests", () => {
         } as LLMFunctionResponse,
         currentLLMIndex: 0,
         totalLLMCount: 2,
-        context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS, test: "context" } as LLMContext,
+        context: {
+          resource: "test-resource",
+          purpose: LLMPurpose.COMPLETIONS,
+          test: "context",
+        } as LLMContext,
         resourceName: "test-resource",
         shouldThrow: true,
         expectedError: RejectionResponseLLMError,
@@ -775,15 +827,9 @@ describe("LLM Router tests", () => {
         shouldThrow,
         expectedError,
       }) => {
-        const { router } = createLLMRouter();
-
         if (shouldThrow) {
           expect(() => {
-            (
-              router as unknown as {
-                handleUnsuccessfulLLMCallOutcome: (...args: unknown[]) => unknown;
-              }
-            ).handleUnsuccessfulLLMCallOutcome(
+            handleUnsuccessfulLLMCallOutcome(
               llmResponse,
               currentLLMIndex,
               totalLLMCount,
@@ -792,11 +838,7 @@ describe("LLM Router tests", () => {
             );
           }).toThrow(expectedError);
         } else {
-          const elseResult = (
-            router as unknown as {
-              handleUnsuccessfulLLMCallOutcome: (...args: unknown[]) => unknown;
-            }
-          ).handleUnsuccessfulLLMCallOutcome(
+          const elseResult = handleUnsuccessfulLLMCallOutcome(
             llmResponse,
             currentLLMIndex,
             totalLLMCount,
@@ -996,12 +1038,21 @@ describe("LLM Router tests", () => {
   describe("Error handling and edge cases", () => {
     test("should handle LLM provider throwing unexpected errors", async () => {
       const { router, mockProvider } = createLLMRouter();
-      (mockProvider.executeCompletionPrimary as any).mockRejectedValue(new Error("Unexpected LLM error"));
-      (mockProvider.executeCompletionSecondary as any).mockRejectedValue(new Error("Unexpected LLM error"));
+      (mockProvider.executeCompletionPrimary as any).mockRejectedValue(
+        new Error("Unexpected LLM error"),
+      );
+      (mockProvider.executeCompletionSecondary as any).mockRejectedValue(
+        new Error("Unexpected LLM error"),
+      );
 
-      const result = await router.executeCompletion("test-resource", "test prompt", {
-        outputFormat: LLMOutputFormat.TEXT,
-      }, null);
+      const result = await router.executeCompletion(
+        "test-resource",
+        "test prompt",
+        {
+          outputFormat: LLMOutputFormat.TEXT,
+        },
+        null,
+      );
 
       expect(result).toBeNull();
     });
@@ -1031,9 +1082,14 @@ describe("LLM Router tests", () => {
       // Mock the prompt adapter to return empty string after cropping
       (router as any).promptAdapter.adaptPromptFromResponse = jest.fn().mockReturnValue("");
 
-      const result = await router.executeCompletion("test-resource", "test prompt", {
-        outputFormat: LLMOutputFormat.TEXT,
-      }, null);
+      const result = await router.executeCompletion(
+        "test-resource",
+        "test prompt",
+        {
+          outputFormat: LLMOutputFormat.TEXT,
+        },
+        null,
+      );
 
       expect(result).toBeNull();
     });
@@ -1047,9 +1103,14 @@ describe("LLM Router tests", () => {
         modelKey: "GPT_COMPLETIONS_GPT4",
         context: {},
       });
-      const result = await router.executeCompletion("test-resource", "test prompt", {
-        outputFormat: LLMOutputFormat.TEXT,
-      }, null);
+      const result = await router.executeCompletion(
+        "test-resource",
+        "test prompt",
+        {
+          outputFormat: LLMOutputFormat.TEXT,
+        },
+        null,
+      );
 
       expect(result).toBeNull();
     });
@@ -1065,9 +1126,14 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt", {
-        outputFormat: LLMOutputFormat.TEXT,
-      }, null);
+      const result = await router.executeCompletion(
+        "test-resource",
+        "test prompt",
+        {
+          outputFormat: LLMOutputFormat.TEXT,
+        },
+        null,
+      );
 
       expect(result).toBe(mockCompletion);
     });
@@ -1100,9 +1166,14 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      const result = await router.executeCompletion("test-resource", "test prompt", {
-        outputFormat: LLMOutputFormat.TEXT,
-      }, null);
+      const result = await router.executeCompletion(
+        "test-resource",
+        "test prompt",
+        {
+          outputFormat: LLMOutputFormat.TEXT,
+        },
+        null,
+      );
 
       expect(result).toBe(mockCompletion);
       expect(mockProvider.executeCompletionPrimary).toHaveBeenCalled();

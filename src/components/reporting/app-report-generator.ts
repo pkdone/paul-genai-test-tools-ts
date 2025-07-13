@@ -185,7 +185,7 @@ export default class AppReportGenerator {
 
       // Use Zod's safeParse as a type guard
       const parsed = appSummaryNameDescArraySchema.safeParse(result);
-      
+
       console.log(`Generated ${label} table`);
       return {
         category,

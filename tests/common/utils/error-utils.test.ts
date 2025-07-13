@@ -34,7 +34,7 @@ describe("Error utilities", () => {
       // Create an object with circular reference
       const circularObj: Record<string, unknown> = { name: "test" };
       circularObj.self = circularObj;
-      
+
       const result = getErrorText(circularObj);
       expect(result).toBe("<unknown-type>. (Unserializable object)");
     });

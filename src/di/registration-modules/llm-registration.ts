@@ -21,17 +21,18 @@ export function registerLLMServices(): void {
 /**
  * Initializes the LLMRouter asynchronously and registers it as a singleton in the container.
  * This isolates all async logic to a single initialization point.
- * 
+ *
  * @param modelFamily Optional model family override for testing
  * @returns Promise<LLMRouter> The initialized LLMRouter instance
  */
 export async function initializeAndRegisterLLMRouter(modelFamily?: string): Promise<LLMRouter> {
   // Initialize LLMService
-  const resolvedModelFamily = modelFamily ?? 
-    (container.isRegistered(TOKENS.LLMModelFamily) ? 
-      container.resolve<string>(TOKENS.LLMModelFamily) : 
-      'TestProvider');
-  
+  const resolvedModelFamily =
+    modelFamily ??
+    (container.isRegistered(TOKENS.LLMModelFamily)
+      ? container.resolve<string>(TOKENS.LLMModelFamily)
+      : "TestProvider");
+
   const service = new LLMService(resolvedModelFamily);
   await service.initialize();
   console.log("LLM Service initialized");
@@ -41,10 +42,10 @@ export async function initializeAndRegisterLLMRouter(modelFamily?: string): Prom
   const llmStats = container.resolve<LLMStats>(TOKENS.LLMStats);
   const promptAdapter = container.resolve<PromptAdapter>(TOKENS.PromptAdapter);
   const router = new LLMRouter(service, envVars, llmStats, promptAdapter);
-  
+
   // Register the initialized LLMRouter as a singleton
   container.registerInstance(TOKENS.LLMRouter, router);
   console.log("LLM Router initialized and registered as singleton");
-  
+
   return router;
 }

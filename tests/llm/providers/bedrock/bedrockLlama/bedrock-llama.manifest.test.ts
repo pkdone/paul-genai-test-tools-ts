@@ -1,4 +1,8 @@
-import { LLMPurpose, ResolvedLLMModelMetadata, LLMModelKeysSet } from "../../../../../src/llm/llm.types";
+import {
+  LLMPurpose,
+  ResolvedLLMModelMetadata,
+  LLMModelKeysSet,
+} from "../../../../../src/llm/llm.types";
 import { extractTokensAmountAndLimitFromErrorMsg } from "../../../../../src/llm/utils/responseProcessing/llm-error-pattern-parser";
 import {
   bedrockLlamaProviderManifest,
@@ -145,4 +149,4 @@ describe("Bedrock Llama Provider Tests", () => {
       expect(Object.keys(llm.getModelsNames()).length).toBe(3);
     });
   });
-}); 
+});

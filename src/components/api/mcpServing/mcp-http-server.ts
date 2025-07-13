@@ -134,7 +134,7 @@ export default class McpHttpServer {
         let transport: StreamableHTTPServerTransport;
         let body: unknown;
 
-        if (typeof sessionIdHeader === 'string' && this.transports.has(sessionIdHeader)) {
+        if (typeof sessionIdHeader === "string" && this.transports.has(sessionIdHeader)) {
           // Reuse existing transport
           const sessionId = sessionIdHeader; // Safely typed as string
           const existingTransport = this.transports.get(sessionId);

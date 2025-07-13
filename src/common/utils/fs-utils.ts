@@ -89,11 +89,11 @@ export async function buildDirDescendingListOfFiles(
   filenameIgnorePrefix: string,
 ): Promise<string[]> {
   const ignorePatterns = [
-    ...folderIgnoreList.map(folder => `**/${folder}/**`),
+    ...folderIgnoreList.map((folder) => `**/${folder}/**`),
     `**/${filenameIgnorePrefix}*`,
   ];
-  
-  const files = await glob('**/*', {
+
+  const files = await glob("**/*", {
     cwd: srcDirPath,
     absolute: true,
     onlyFiles: true,

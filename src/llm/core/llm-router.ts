@@ -16,7 +16,6 @@ import { RetryFunc } from "../../common/control/control.types";
 import {
   BadConfigurationLLMError,
   BadResponseMetadataLLMError,
-  RejectionResponseLLMError,
 } from "../errors/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
 import type { PromptAdapter } from "../utils/prompting/prompt-adapter";
@@ -26,6 +25,7 @@ import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
 import { logErrorMsg } from "../../common/utils/error-utils";
+import { handleUnsuccessfulLLMCallOutcome } from "../utils/responseProcessing/llm-response-tools";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -116,10 +116,7 @@ export default class LLMRouter {
   /**
    * Send the content to the LLM for it to generate and return the content's embedding.
    */
-  async generateEmbeddings(
-    resourceName: string,
-    content: string,
-  ): Promise<number[] | null> {
+  async generateEmbeddings(resourceName: string, content: string): Promise<number[] | null> {
     // Construct context internally using available information
     const context: LLMContext = {
       resource: resourceName,
@@ -137,7 +134,9 @@ export default class LLMRouter {
       return null;
     }
 
-    if (!(Array.isArray(contentResponse) && contentResponse.every((item) => typeof item === "number"))) {
+    if (
+      !(Array.isArray(contentResponse) && contentResponse.every((item) => typeof item === "number"))
+    ) {
       throw new BadResponseMetadataLLMError(
         "LLM response for embeddings was not an array of numbers",
         contentResponse,
@@ -149,9 +148,9 @@ export default class LLMRouter {
 
   /**
    * Send the prompt to the LLM for and retrieve the LLM's answer.
-   * 
+   *
    * When options.jsonSchema is provided, this method will:
-   * - Use native JSON mode capabilities where available 
+   * - Use native JSON mode capabilities where available
    * - Fall back to text parsing for providers that don't support structured output
    * - Validate the response against the provided Zod schema
    * - Return the validated, typed result
@@ -181,13 +180,9 @@ export default class LLMRouter {
       candidatesToUse,
       options,
     );
-    
+
     if (options.outputFormat === LLMOutputFormat.JSON) {
-      return this.validateAndReturnStructuredResponse<T>(
-        resourceName,
-        llmResponse,
-        options,
-      );
+      return this.validateAndReturnStructuredResponse<T>(resourceName, llmResponse, options);
     } else {
       return llmResponse as T | null;
     }
@@ -233,7 +228,7 @@ export default class LLMRouter {
       const validation = options.jsonSchema.safeParse(llmResponse);
 
       if (!validation.success) {
-        const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so discarding it. Issues: ${JSON.stringify(validation.error.issues) }`;
+        const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so discarding it. Issues: ${JSON.stringify(validation.error.issues)}`;
         logErrorMsg(errorMessage);
         return null;
       }
@@ -374,7 +369,7 @@ export default class LLMRouter {
         return null;
       }
 
-      const nextAction = this.handleUnsuccessfulLLMCallOutcome(
+      const nextAction = handleUnsuccessfulLLMCallOutcome(
         llmResponse,
         llmFuncIndex,
         llmFuncs.length,
@@ -408,48 +403,6 @@ export default class LLMRouter {
     }
 
     return null;
-  }
-
-  /**
-   * Handles the outcome of an LLM call and determines the next action to take.
-   */
-  private handleUnsuccessfulLLMCallOutcome(
-    llmResponse: LLMFunctionResponse | null,
-    currentLLMIndex: number,
-    totalLLMCount: number,
-    context: LLMContext,
-    resourceName: string,
-  ): { shouldTerminate: boolean; shouldCropPrompt: boolean; shouldSwitchToNextLLM: boolean } {
-    const isOverloaded = !llmResponse || llmResponse.status === LLMResponseStatus.OVERLOADED;
-    const isExceeded = llmResponse?.status === LLMResponseStatus.EXCEEDED;
-    const canSwitchModel = currentLLMIndex + 1 < totalLLMCount;
-
-    if (isOverloaded) {
-      logWithContext(
-        `LLM problem processing prompt for completion with current LLM model because it is overloaded, timing out or is spitting out invalid JSON (if JSON was requested), even after retries `,
-        context,
-      );
-      return {
-        shouldTerminate: !canSwitchModel,
-        shouldCropPrompt: false,
-        shouldSwitchToNextLLM: canSwitchModel,
-      };
-    } else if (isExceeded) {
-      logWithContext(
-        `LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens ?? 0} plus completion tokens used ${llmResponse.tokensUage?.completionTokens ?? 0} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens ?? 0}, or: 2) the model's completion tokens limit`,
-        context,
-      );
-      return {
-        shouldTerminate: false,
-        shouldCropPrompt: !canSwitchModel,
-        shouldSwitchToNextLLM: canSwitchModel,
-      };
-    } else {
-      throw new RejectionResponseLLMError(
-        `An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource '${resourceName}' - response status received: '${llmResponse.status}'`,
-        llmResponse,
-      );
-    }
   }
 
   /**

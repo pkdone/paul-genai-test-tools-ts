@@ -114,13 +114,9 @@ export class RawCodeToInsightsFileGenerator {
     let response = "";
 
     try {
-      const executionResult = await llmRouter.executeCompletion(
-        resource,
-        fullPrompt,
-        { 
-          outputFormat: LLMOutputFormat.TEXT,
-        },
-      );
+      const executionResult = await llmRouter.executeCompletion(resource, fullPrompt, {
+        outputFormat: LLMOutputFormat.TEXT,
+      });
 
       if (!executionResult) {
         response = "No response received from LLM.";
@@ -140,10 +136,10 @@ export class RawCodeToInsightsFileGenerator {
    * Dump code blocks content to a temporary file for debugging/inspection purposes.
    */
   private async dumpCodeBlocksToTempFile(codeBlocksContent: string): Promise<void> {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const tempFileName = `codebase-dump-${timestamp}.txt`;
     const tempFilePath = path.join(os.tmpdir(), tempFileName);
-    
+
     try {
       await writeFile(tempFilePath, codeBlocksContent);
       console.log(`Project code has been dumped to: ${tempFilePath}`);

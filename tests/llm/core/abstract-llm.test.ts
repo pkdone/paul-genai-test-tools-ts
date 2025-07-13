@@ -1,8 +1,6 @@
 import { LLMPurpose, ResolvedLLMModelMetadata } from "../../../src/llm/llm.types";
 import { extractTokensAmountFromMetadataDefaultingMissingValues } from "../../../src/llm/utils/responseProcessing/llm-response-tools";
-import {
-  AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT,
-} from "../../../src/llm/providers/bedrock/bedrockLlama/bedrock-llama.manifest";
+import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT } from "../../../src/llm/providers/bedrock/bedrockLlama/bedrock-llama.manifest";
 
 // Test-only constants
 const GPT_COMPLETIONS_GPT4_32k = "GPT_COMPLETIONS_GPT4_32k";
@@ -103,4 +101,4 @@ describe("Abstract LLM Token Extraction", () => {
       });
     });
   });
-}); 
+});

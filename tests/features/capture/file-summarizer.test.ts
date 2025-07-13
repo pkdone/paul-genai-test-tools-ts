@@ -147,20 +147,25 @@ describe("FileSummarizer", () => {
     mockFileHandlerFactory.createHandler.mockImplementation((filepath: string, type: string) => {
       // Determine the expected prompt based on file type (similar to real FileHandlerFactory logic)
       let promptType = "project file content";
-      
+
       // Map file types to expected prompts (matching the test expectations)
       // Handle case variations by normalizing to lowercase
       const normalizedType = type.toLowerCase();
       if (normalizedType === "java") {
         promptType = "Java code";
-      } else if (normalizedType === "js" || normalizedType === "javascript" || normalizedType === "ts" || normalizedType === "typescript") {
+      } else if (
+        normalizedType === "js" ||
+        normalizedType === "javascript" ||
+        normalizedType === "ts" ||
+        normalizedType === "typescript"
+      ) {
         promptType = "JavaScript/TypeScript code";
       } else if (normalizedType === "sql" || normalizedType === "ddl") {
         promptType = "database DDL/DML/SQL code";
       } else if (normalizedType === "md" || normalizedType === "markdown") {
         promptType = "Markdown content";
       }
-      
+
       // Handle filename-based mappings
       const filename = filepath.split("/").pop()?.toLowerCase();
       if (filename === "readme.md" || filename === "readme.txt" || filename === "readme") {
@@ -288,14 +293,10 @@ describe("FileSummarizer", () => {
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
         expect(result.success).toBe(true);
-        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
-          filepath,
-          expect.any(String),
-          {
-            outputFormat: LLMOutputFormat.JSON,
-            jsonSchema: expect.any(Object),
-          },
-        );
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(filepath, expect.any(String), {
+          outputFormat: LLMOutputFormat.JSON,
+          jsonSchema: expect.any(Object),
+        });
       });
 
       test("should use default handler for unknown file type", async () => {
@@ -548,14 +549,10 @@ describe("FileSummarizer", () => {
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
         expect(result.success).toBe(true);
-        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
-          filepath,
-          expect.any(String),
-          {
-            outputFormat: LLMOutputFormat.JSON,
-            jsonSchema: expect.any(Object),
-          },
-        );
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(filepath, expect.any(String), {
+          outputFormat: LLMOutputFormat.JSON,
+          jsonSchema: expect.any(Object),
+        });
       });
 
       test("should fall back to default handler when no mapping exists", async () => {
@@ -602,14 +599,15 @@ describe("FileSummarizer", () => {
 
         mockLLMRouter.executeCompletion.mockResolvedValue(mockSuccessResponse);
 
-        const promises = files.map(async (file) => 
-          await fileSummarizer.getFileSummaryAsJSON(file.filepath, file.type, file.content)
+        const promises = files.map(
+          async (file) =>
+            await fileSummarizer.getFileSummaryAsJSON(file.filepath, file.type, file.content),
         );
 
         const results = await Promise.all(promises);
 
         expect(results).toHaveLength(3);
-        results.forEach(result => {
+        results.forEach((result) => {
           expect(result.success).toBe(true);
         });
         expect(mockLLMRouter.executeCompletion).toHaveBeenCalledTimes(3);
@@ -625,14 +623,10 @@ describe("FileSummarizer", () => {
         const result = await fileSummarizer.getFileSummaryAsJSON(filepath, type, content);
 
         expect(result.success).toBe(true);
-        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(
-          filepath,
-          expect.any(String),
-          {
-            outputFormat: LLMOutputFormat.JSON,
-            jsonSchema: expect.any(Object),
-          },
-        );
+        expect(mockLLMRouter.executeCompletion).toHaveBeenCalledWith(filepath, expect.any(String), {
+          outputFormat: LLMOutputFormat.JSON,
+          jsonSchema: expect.any(Object),
+        });
       });
     });
   });
