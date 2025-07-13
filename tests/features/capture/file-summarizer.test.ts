@@ -11,6 +11,7 @@ import * as errorUtils from "../../../src/common/utils/error-utils";
 jest.mock("../../../src/llm/core/llm-router");
 jest.mock("../../../src/common/utils/error-utils", () => ({
   logErrorMsg: jest.fn(),
+  logErrorMsgAndDetail: jest.fn(),
   getErrorText: jest.fn((error: unknown) => {
     if (error && typeof error === "object" && "message" in error) {
       return String((error as { message: unknown }).message);
@@ -117,8 +118,8 @@ jest.mock("../../../src/llm/utils/prompting/prompt-templator", () => ({
 }));
 
 // LLMRouter is mocked, we'll create a mock instance directly
-const mockLogErrorMsg = errorUtils.logErrorMsg as jest.MockedFunction<
-  typeof errorUtils.logErrorMsg
+const mockLogErrorMsgAndDetail = errorUtils.logErrorMsgAndDetail as jest.MockedFunction<
+  typeof errorUtils.logErrorMsgAndDetail
 >;
 const mockGetErrorText = errorUtils.getErrorText as jest.MockedFunction<
   typeof errorUtils.getErrorText
@@ -358,8 +359,9 @@ describe("FileSummarizer", () => {
           expect(result.error).toContain(`Failed to generate summary for '${filepath}'`);
           expect(result.error).toContain(errorMessage);
         }
-        expect(mockLogErrorMsg).toHaveBeenCalledWith(
+        expect(mockLogErrorMsgAndDetail).toHaveBeenCalledWith(
           `Failed to generate summary for '${filepath}'`,
+          expect.any(Error),
         );
       });
 

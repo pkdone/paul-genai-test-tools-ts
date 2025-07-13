@@ -577,7 +577,7 @@ describe("LLM Router tests", () => {
       expect(result).toBeNull();
     });
 
-    test("should throw error for invalid completion response", async () => {
+    test("should return response as-is for TEXT format even with invalid type", async () => {
       const { router, mockProvider } = createLLMRouter();
       (mockProvider.executeCompletionPrimary as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
@@ -587,11 +587,11 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      await expect(router.executeCompletion("test-resource", "test prompt", {
+      const result = await router.executeCompletion("test-resource", "test prompt", {
         outputFormat: LLMOutputFormat.TEXT,
-      }, null)).rejects.toThrow(
-        BadResponseMetadataLLMError,
-      );
+      }, null);
+
+      expect(result).toBe(12345);
     });
   });
 
