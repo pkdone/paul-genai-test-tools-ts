@@ -292,7 +292,7 @@ export default class LLMRouter {
         return null;
       }
 
-      const nextAction = this.handleUnsuccessfulLLMCallOutcome(
+      const nextAction = this.determineUnsuccessfulLLMCallOutcomeAction(
         llmResponse,
         llmFuncIndex,
         llmFuncs.length,
@@ -339,7 +339,6 @@ export default class LLMRouter {
   ) {
     const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
     const retryConfig = this.getRetryConfiguration();
-
     const result = await withRetry(
       llmFunc as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,
       [prompt, context, options],
@@ -348,7 +347,6 @@ export default class LLMRouter {
       retryConfig.maxAttempts,
       retryConfig.minRetryDelayMillis,
     );
-
     return result;
   }
 
@@ -371,7 +369,7 @@ export default class LLMRouter {
   /**
    * Handles the outcome of an LLM call and determines the next action to take.
    */
-  private handleUnsuccessfulLLMCallOutcome(
+  private determineUnsuccessfulLLMCallOutcomeAction(
     llmResponse: LLMFunctionResponse | null,
     currentLLMIndex: number,
     totalLLMCount: number,
