@@ -20,12 +20,12 @@ import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
-import { validateAndReturnStructuredResponse } from "../utils/responseProcessing/llm-response-tools";
+import { validateAndReturnStructuredResponse } from "../utils/llmProcessing/llm-response-tools";
 import {
   getCompletionCandidates,
   buildCompletionCandidates,
   getRetryConfiguration,
-} from "../utils/requestProcessing/llm-request-tools";
+} from "../utils/llmProcessing/llm-request-tools";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying

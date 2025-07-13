@@ -3,7 +3,7 @@ import {
   ResolvedLLMModelMetadata,
   LLMModelKeysSet,
 } from "../../../../../src/llm/llm.types";
-import { extractTokensAmountAndLimitFromErrorMsg } from "../../../../../src/llm/utils/responseProcessing/llm-error-pattern-parser";
+import { extractTokensAmountAndLimitFromErrorMsg } from "../../../../../src/llm/utils/llmProcessing/llm-error-pattern-parser";
 import { azureOpenAIProviderManifest } from "../../../../../src/llm/providers/openai/azureOpenai/azure-openai.manifest";
 import { loadBaseEnvVarsOnly } from "../../../../../src/lifecycle/env";
 

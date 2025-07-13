@@ -24,11 +24,11 @@ import { LLMService } from "../../../src/llm/core/llm-service";
 import type { EnvVars } from "../../../src/lifecycle/env.types";
 import { describe, test, expect, jest } from "@jest/globals";
 import type { LLMProviderManifest } from "../../../src/llm/providers/llm-provider.types";
-import { getRetryConfiguration } from "../../../src/llm/utils/requestProcessing/llm-request-tools";
+import { getRetryConfiguration } from "../../../src/llm/utils/llmProcessing/llm-request-tools";
 
 // Mock the dependencies
-jest.mock("../../../src/llm/utils/responseProcessing/llm-response-tools", () => {
-  const actual = jest.requireActual("../../../src/llm/utils/responseProcessing/llm-response-tools");
+jest.mock("../../../src/llm/utils/llmProcessing/llm-response-tools", () => {
+  const actual = jest.requireActual("../../../src/llm/utils/llmProcessing/llm-response-tools");
   return {
     extractTokensAmountFromMetadataDefaultingMissingValues: (actual as any)
       .extractTokensAmountFromMetadataDefaultingMissingValues,
