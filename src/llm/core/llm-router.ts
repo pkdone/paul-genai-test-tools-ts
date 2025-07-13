@@ -23,7 +23,7 @@ import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
 import { logErrorMsg } from "../../common/utils/error-utils";
 import { handleUnsuccessfulLLMCallOutcome } from "../utils/responseProcessing/llm-response-tools";
-import { getCompletionCandidates } from "../utils/requestProcessing/llm-request-tools";
+import { getCompletionCandidates, buildCompletionCandidates } from "../utils/requestProcessing/llm-request-tools";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -57,7 +57,7 @@ export default class LLMRouter {
     this.modelsMetadata = this.llm.getModelsMetadata();
     const llmManifest = this.llmService.getLLMManifest();
     this.retryConfig = llmManifest.providerSpecificConfig ?? {};
-    this.completionCandidates = this.buildCompletionCandidates();
+    this.completionCandidates = buildCompletionCandidates(this.llm);
 
     if (this.completionCandidates.length === 0) {
       throw new BadConfigurationLLMError(
@@ -232,31 +232,7 @@ export default class LLMRouter {
 
 
 
-  /**
-   * Build completion candidates from the LLM provider.
-   */
-  private buildCompletionCandidates(): LLMCandidateFunction[] {
-    const candidates: LLMCandidateFunction[] = [];
 
-    // Add primary completion model as first candidate
-    candidates.push({
-      func: this.llm.executeCompletionPrimary.bind(this.llm),
-      modelQuality: LLMModelQuality.PRIMARY,
-      description: "Primary completion model",
-    });
-
-    // Add secondary completion model as fallback if available
-    const availableQualities = this.llm.getAvailableCompletionModelQualities();
-    if (availableQualities.includes(LLMModelQuality.SECONDARY)) {
-      candidates.push({
-        func: this.llm.executeCompletionSecondary.bind(this.llm),
-        modelQuality: LLMModelQuality.SECONDARY,
-        description: "Secondary completion model (fallback)",
-      });
-    }
-
-    return candidates;
-  }
 
   /**
    * Executes an LLM function applying a series of before and after non-functional aspects (e.g.
