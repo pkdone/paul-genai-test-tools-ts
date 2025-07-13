@@ -8,9 +8,7 @@ import {
   ResolvedLLMModelMetadata,
   LLMCompletionOptions,
 } from "../../llm.types";
-import {
-  BadResponseContentLLMError,
-} from "../../errors/llm-errors.types";
+import { BadResponseContentLLMError } from "../../errors/llm-errors.types";
 import { getErrorText, logErrorMsg } from "../../../common/utils/error-utils";
 
 /**
@@ -66,8 +64,6 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
     return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: responseContent };
   }
 }
-
-
 
 /**
  * Convert text content to JSON, trimming the content to only include the JSON part.

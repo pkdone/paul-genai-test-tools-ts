@@ -12,7 +12,7 @@ import {
 } from "../llm.types";
 import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
 import { RetryFunc } from "../../common/control/control.types";
-import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError } from "../errors/llm-errors.types";
+import { BadConfigurationLLMError, BadResponseContentLLMError } from "../errors/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
 import type { PromptAdapter } from "../utils/prompting/prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";
@@ -20,15 +20,12 @@ import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
-import {
-  validateAndReturnStructuredResponse,
-} from "../utils/responseProcessing/llm-response-tools";
+import { validateAndReturnStructuredResponse } from "../utils/responseProcessing/llm-response-tools";
 import {
   getCompletionCandidates,
   buildCompletionCandidates,
   getRetryConfiguration,
 } from "../utils/requestProcessing/llm-request-tools";
-
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -42,7 +39,7 @@ export default class LLMRouter {
   private readonly llm: LLMProviderImpl;
   private readonly modelsMetadata: Record<string, ResolvedLLMModelMetadata>;
   private readonly completionCandidates: LLMCandidateFunction[];
-  private readonly retryConfig: LLMRetryConfig;
+  private readonly providerRetryConfig: LLMRetryConfig;
 
   /**
    * Constructor.
@@ -61,7 +58,7 @@ export default class LLMRouter {
     this.llm = this.llmService.getLLMProvider(this.envVars);
     this.modelsMetadata = this.llm.getModelsMetadata();
     const llmManifest = this.llmService.getLLMManifest();
-    this.retryConfig = llmManifest.providerSpecificConfig ?? {};
+    this.providerRetryConfig = llmManifest.providerSpecificConfig ?? {};
     this.completionCandidates = buildCompletionCandidates(this.llm);
 
     if (this.completionCandidates.length === 0) {
@@ -289,7 +286,7 @@ export default class LLMRouter {
         return llmResponse.generated ?? null;
       } else if (llmResponse?.status === LLMResponseStatus.ERRORED) {
         logErrWithContext(llmResponse.error, context);
-        return null;
+        break;
       }
 
       const nextAction = this.determineUnsuccessfulLLMCallOutcomeAction(
@@ -338,7 +335,7 @@ export default class LLMRouter {
     options?: LLMCompletionOptions,
   ) {
     const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
-    const retryConfig = getRetryConfiguration(this.retryConfig);
+    const retryConfig = getRetryConfiguration(this.providerRetryConfig);
     const result = await withRetry(
       llmFunc as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,
       [prompt, context, options],
@@ -349,8 +346,6 @@ export default class LLMRouter {
     );
     return result;
   }
-
-
 
   /**
    * Handles the outcome of an LLM call and determines the next action to take.
@@ -387,10 +382,15 @@ export default class LLMRouter {
         shouldSwitchToNextLLM: canSwitchModel,
       };
     } else {
-      throw new RejectionResponseLLMError(
-        `An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource '${resourceName}' - response status received: '${llmResponse.status}'`,
-        llmResponse,
+      logWithContext(
+        `An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource '${resourceName}' - terminating response processing - response status received: '${llmResponse.status}'`,
+        context,
       );
+      return {
+        shouldTerminate: true,
+        shouldCropPrompt: false,
+        shouldSwitchToNextLLM: false,
+      };
     }
   }
 }

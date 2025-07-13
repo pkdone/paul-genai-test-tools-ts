@@ -15,7 +15,7 @@ import {
   LLMResponseTokensUsage,
   LLMOutputFormat,
 } from "../../../src/llm/llm.types";
-import { RejectionResponseLLMError } from "../../../src/llm/errors/llm-errors.types";
+
 import { z } from "zod";
 import LLMRouter from "../../../src/llm/core/llm-router";
 import LLMStats from "../../../src/llm/utils/routerTracking/llm-stats";
@@ -736,7 +736,9 @@ describe("LLM Router tests", () => {
       ({ llmResponse, currentLLMIndex, totalLLMCount, context, resourceName, expected }) => {
         const { router } = createLLMRouter();
         const result = (
-          router as unknown as { determineUnsuccessfulLLMCallOutcomeAction: (...args: unknown[]) => any }
+          router as unknown as {
+            determineUnsuccessfulLLMCallOutcomeAction: (...args: unknown[]) => any;
+          }
         ).determineUnsuccessfulLLMCallOutcomeAction(
           llmResponse,
           currentLLMIndex,
@@ -796,7 +798,7 @@ describe("LLM Router tests", () => {
         },
       },
       {
-        description: "unknown status should throw RejectionResponseLLMError",
+        description: "unknown status should return shouldTerminate true",
         llmResponse: {
           status: LLMResponseStatus.UNKNOWN,
           request: "test prompt",
@@ -811,8 +813,11 @@ describe("LLM Router tests", () => {
           test: "context",
         } as LLMContext,
         resourceName: "test-resource",
-        shouldThrow: true,
-        expectedError: RejectionResponseLLMError,
+        expected: {
+          shouldTerminate: true,
+          shouldCropPrompt: false,
+          shouldSwitchToNextLLM: false,
+        },
       },
     ];
 
@@ -825,34 +830,20 @@ describe("LLM Router tests", () => {
         context,
         resourceName,
         expected,
-        shouldThrow,
-        expectedError,
       }) => {
         const { router } = createLLMRouter();
-        if (shouldThrow) {
-          expect(() => {
-            (
-              router as unknown as { determineUnsuccessfulLLMCallOutcomeAction: (...args: unknown[]) => any }
-            ).determineUnsuccessfulLLMCallOutcomeAction(
-              llmResponse,
-              currentLLMIndex,
-              totalLLMCount,
-              context,
-              resourceName,
-            );
-          }).toThrow(expectedError);
-        } else {
-          const elseResult = (
-            router as unknown as { determineUnsuccessfulLLMCallOutcomeAction: (...args: unknown[]) => any }
-          ).determineUnsuccessfulLLMCallOutcomeAction(
-            llmResponse,
-            currentLLMIndex,
-            totalLLMCount,
-            context,
-            resourceName,
-          );
-          expect(elseResult).toEqual(expected);
-        }
+        const result = (
+          router as unknown as {
+            determineUnsuccessfulLLMCallOutcomeAction: (...args: unknown[]) => any;
+          }
+        ).determineUnsuccessfulLLMCallOutcomeAction(
+          llmResponse,
+          currentLLMIndex,
+          totalLLMCount,
+          context,
+          resourceName,
+        );
+        expect(result).toEqual(expected);
       },
     );
   });
