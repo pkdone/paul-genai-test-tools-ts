@@ -13,10 +13,7 @@ import {
 } from "../llm.types";
 import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
 import { RetryFunc } from "../../common/control/control.types";
-import {
-  BadConfigurationLLMError,
-  BadResponseMetadataLLMError,
-} from "../errors/llm-errors.types";
+import { BadConfigurationLLMError, BadResponseContentLLMError } from "../errors/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
 import type { PromptAdapter } from "../utils/prompting/prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";
@@ -26,6 +23,7 @@ import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
 import { logErrorMsg } from "../../common/utils/error-utils";
 import { handleUnsuccessfulLLMCallOutcome } from "../utils/responseProcessing/llm-response-tools";
+import { getCompletionCandidates } from "../utils/requestProcessing/llm-request-tools";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -55,15 +53,10 @@ export default class LLMRouter {
     private readonly llmStats: LLMStats,
     private readonly promptAdapter: PromptAdapter,
   ) {
-    // Derive the LLM provider and related configuration from the service
     this.llm = this.llmService.getLLMProvider(this.envVars);
     this.modelsMetadata = this.llm.getModelsMetadata();
-
-    // Get the retry configuration from the manifest
     const llmManifest = this.llmService.getLLMManifest();
     this.retryConfig = llmManifest.providerSpecificConfig ?? {};
-
-    // Configure completion candidates in order of preference
     this.completionCandidates = this.buildCompletionCandidates();
 
     if (this.completionCandidates.length === 0) {
@@ -137,10 +130,8 @@ export default class LLMRouter {
     if (
       !(Array.isArray(contentResponse) && contentResponse.every((item) => typeof item === "number"))
     ) {
-      throw new BadResponseMetadataLLMError(
-        "LLM response for embeddings was not an array of numbers",
-        contentResponse,
-      );
+      logErrWithContext(new BadResponseContentLLMError("LLM response for embeddings was not an array of numbers"), context);
+      return null;
     }
 
     return contentResponse;
@@ -165,7 +156,7 @@ export default class LLMRouter {
     modelQualityOverride: LLMModelQuality | null = null,
   ): Promise<T | null> {
     const { candidatesToUse, candidateFunctions } =
-      this.getCompletionCandidates(modelQualityOverride);
+      getCompletionCandidates(this.completionCandidates, modelQualityOverride);
     const context: LLMContext = {
       resource: resourceName,
       purpose: LLMPurpose.COMPLETIONS,
@@ -239,31 +230,7 @@ export default class LLMRouter {
     }
   }
 
-  /**
-   * Get completion candidates based on model quality override.
-   */
-  private getCompletionCandidates(modelQualityOverride: LLMModelQuality | null): {
-    candidatesToUse: LLMCandidateFunction[];
-    candidateFunctions: LLMFunction[];
-  } {
-    // Filter candidates based on model quality override if specified
-    const candidatesToUse = modelQualityOverride
-      ? this.completionCandidates.filter(
-          (candidate) => candidate.modelQuality === modelQualityOverride,
-        )
-      : this.completionCandidates;
 
-    if (candidatesToUse.length === 0) {
-      throw new BadConfigurationLLMError(
-        modelQualityOverride
-          ? `No completion candidates found for model quality: ${modelQualityOverride}`
-          : "No completion candidates available",
-      );
-    }
-
-    const candidateFunctions = candidatesToUse.map((candidate) => candidate.func);
-    return { candidatesToUse, candidateFunctions };
-  }
 
   /**
    * Build completion candidates from the LLM provider.

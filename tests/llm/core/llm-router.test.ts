@@ -16,7 +16,6 @@ import {
   LLMOutputFormat,
 } from "../../../src/llm/llm.types";
 import {
-  BadResponseMetadataLLMError,
   RejectionResponseLLMError,
 } from "../../../src/llm/errors/llm-errors.types";
 import { handleUnsuccessfulLLMCallOutcome } from "../../../src/llm/utils/responseProcessing/llm-response-tools";
@@ -476,7 +475,7 @@ describe("LLM Router tests", () => {
       expect(result).toBeNull();
     });
 
-    test("should throw error for invalid embeddings response", async () => {
+    test("should return null for invalid embeddings response", async () => {
       const { router, mockProvider } = createLLMRouter();
       (mockProvider.generateEmbeddings as any).mockResolvedValue({
         status: LLMResponseStatus.COMPLETED,
@@ -486,9 +485,8 @@ describe("LLM Router tests", () => {
         context: {},
       });
 
-      await expect(router.generateEmbeddings("test-resource", "test content")).rejects.toThrow(
-        BadResponseMetadataLLMError,
-      );
+      const result = await router.generateEmbeddings("test-resource", "test content");
+      expect(result).toBeNull();
     });
   });
 
