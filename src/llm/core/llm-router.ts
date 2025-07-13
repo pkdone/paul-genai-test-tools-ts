@@ -23,10 +23,10 @@ import type { PromptAdapter } from "../utils/prompting/prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";
 import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
-import { LLMJsonModeSupport } from "../providers/llm-provider.types";
+//import { LLMJsonModeSupport } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
-import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
+import { logErrorMsg } from "../../common/utils/error-utils";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -166,10 +166,31 @@ export default class LLMRouter {
     options: LLMCompletionOptions,
     modelQualityOverride: LLMModelQuality | null = null,
   ): Promise<T | null> {
-    if (options.jsonSchema) {
-      return this.executeStructuredCompletion<T>(resourceName, prompt, options, modelQualityOverride);
+    const { candidatesToUse, candidateFunctions } =
+      this.getCompletionCandidates(modelQualityOverride);
+    const context: LLMContext = {
+      resource: resourceName,
+      purpose: LLMPurpose.COMPLETIONS,
+      modelQuality: candidatesToUse[0].modelQuality,
+      outputFormat: options.outputFormat,
+    };
+    const llmResponse = await this.invokeLLMWithRetriesAndAdaptation(
+      resourceName,
+      prompt,
+      context,
+      candidateFunctions,
+      candidatesToUse,
+      options,
+    );
+    
+    if (options.outputFormat === LLMOutputFormat.JSON) {
+      return this.validateAndReturnStructuredResponse<T>(
+        resourceName,
+        llmResponse,
+        options,
+      );
     } else {
-      return this.executeRegularCompletion(resourceName, prompt, options, modelQualityOverride) as Promise<T | null>;
+      return llmResponse as T | null;
     }
   }
 
@@ -191,7 +212,7 @@ export default class LLMRouter {
   /**
    * Crops the prompt to fit within token limits when the current LLM exceeds capacity.
    */
-  cropPromptForTokenLimit(currentPrompt: string, llmResponse: LLMFunctionResponse): string {
+  private cropPromptForTokenLimit(currentPrompt: string, llmResponse: LLMFunctionResponse): string {
     this.llmStats.recordCrop();
     return this.promptAdapter.adaptPromptFromResponse(
       currentPrompt,
@@ -201,79 +222,36 @@ export default class LLMRouter {
   }
 
   /**
-   * Execute a structured completion with schema validation
+   * Validate the LLM response against a Zod schema if provided.
    */
-  private async executeStructuredCompletion<T>(
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+  private validateAndReturnStructuredResponse<T>(
     resourceName: string,
-    prompt: string,
+    llmResponse: LLMGeneratedContent | null,
     options: LLMCompletionOptions,
-    modelQualityOverride: LLMModelQuality | null,
-  ): Promise<T> {
-    const llmManifest = this.llmService.getLLMManifest();
-    const jsonModeSupport = llmManifest.jsonModeSupport;
-    let llmResponse: LLMGeneratedContent | null = null;
+  ): T | null {
+    if (options.jsonSchema) {
+      const validation = options.jsonSchema.safeParse(llmResponse);
 
-    if (jsonModeSupport === LLMJsonModeSupport.NATIVE || jsonModeSupport === LLMJsonModeSupport.STRUCTURED) {
-      // Use native JSON mode
-      const jsonOptions = {
-        ...options,
-        outputFormat: LLMOutputFormat.JSON,
-      };
-      llmResponse = await this.executeRegularCompletion(
-        resourceName,
-        prompt,
-        jsonOptions,
-        modelQualityOverride,
-      );
+      if (!validation.success) {
+        const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so discarding it. Issues: ${JSON.stringify(validation.error.issues) }`;
+        logErrorMsg(errorMessage);
+        return null;
+      }
+
+      return validation.data as T;
     } else {
-      // Fallback for providers with no native JSON mode
-      const textOptions = {
-        ...options,
-        outputFormat: LLMOutputFormat.TEXT,
-      };
-      llmResponse = await this.executeRegularCompletion(
-        resourceName,
-        prompt,
-        textOptions,
-        modelQualityOverride,
-      );
+      return llmResponse as T;
     }
-
-    if (
-      llmResponse === null ||
-      typeof llmResponse !== "object" ||
-      Array.isArray(llmResponse)
-    ) {
-      throw new Error(
-        `Failed to get a valid JSON object response for '${resourceName}'.`,
-      );
-    }
-
-    if (!options.jsonSchema) {
-      throw new Error(`jsonSchema is required for structured completion but was not provided for '${resourceName}'.`);
-    }
-
-    const validation = options.jsonSchema.safeParse(llmResponse);
-    if (!validation.success) {
-      const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation.`;
-      logErrorMsgAndDetail(errorMessage, validation.error.issues);
-      throw new Error(
-        errorMessage + ` Details: ${JSON.stringify(validation.error.issues)}`,
-      );
-    }
-
-    return validation.data as T;
   }
 
   /**
-   * Execute a regular completion without schema validation
+   * Get completion candidates based on model quality override.
    */
-  private async executeRegularCompletion(
-    resourceName: string,
-    prompt: string,
-    options: LLMCompletionOptions,
-    modelQualityOverride: LLMModelQuality | null,
-  ): Promise<LLMGeneratedContent | null> {
+  private getCompletionCandidates(modelQualityOverride: LLMModelQuality | null): {
+    candidatesToUse: LLMCandidateFunction[];
+    candidateFunctions: LLMFunction[];
+  } {
     // Filter candidates based on model quality override if specified
     const candidatesToUse = modelQualityOverride
       ? this.completionCandidates.filter(
@@ -290,29 +268,7 @@ export default class LLMRouter {
     }
 
     const candidateFunctions = candidatesToUse.map((candidate) => candidate.func);
-    const context: LLMContext = {
-      resource: resourceName,
-      purpose: LLMPurpose.COMPLETIONS,
-      modelQuality: candidatesToUse[0].modelQuality,
-      outputFormat: options.outputFormat,
-    };
-    const contentResponse = await this.invokeLLMWithRetriesAndAdaptation(
-      resourceName,
-      prompt,
-      context,
-      candidateFunctions,
-      candidatesToUse,
-      options,
-    );
-
-    if (typeof contentResponse !== "object" && typeof contentResponse !== "string") {
-      throw new BadResponseMetadataLLMError(
-        "LLM response for completion was not an object or string",
-        contentResponse,
-      );
-    }
-
-    return contentResponse;
+    return { candidatesToUse, candidateFunctions };
   }
 
   /**
