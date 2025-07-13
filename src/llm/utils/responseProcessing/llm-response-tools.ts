@@ -92,10 +92,10 @@ export function convertTextToJSON<T = Record<string, unknown>>(content: string):
 export function validateAndReturnStructuredResponse<T>(
   resourceName: string,
   llmResponse: LLMGeneratedContent | null,
-  options: LLMCompletionOptions,
+  completionOptions: LLMCompletionOptions,
 ): T | null {
-  if (options.jsonSchema) {
-    const validation = options.jsonSchema.safeParse(llmResponse);
+  if (llmResponse && completionOptions.jsonSchema) {
+    const validation = completionOptions.jsonSchema.safeParse(llmResponse);
 
     if (!validation.success) {
       const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so discarding it. Issues: ${JSON.stringify(validation.error.issues)}`;
