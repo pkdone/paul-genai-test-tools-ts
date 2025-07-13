@@ -13,7 +13,7 @@ import {
 } from "../llm.types";
 import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
 import { RetryFunc } from "../../common/control/control.types";
-import { BadConfigurationLLMError, BadResponseContentLLMError } from "../errors/llm-errors.types";
+import { BadConfigurationLLMError, BadResponseContentLLMError, RejectionResponseLLMError } from "../errors/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
 import type { PromptAdapter } from "../utils/prompting/prompt-adapter";
 import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";
@@ -22,13 +22,13 @@ import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
 import {
-  handleUnsuccessfulLLMCallOutcome,
   validateAndReturnStructuredResponse,
 } from "../utils/responseProcessing/llm-response-tools";
 import {
   getCompletionCandidates,
   buildCompletionCandidates,
 } from "../utils/requestProcessing/llm-request-tools";
+
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -292,7 +292,7 @@ export default class LLMRouter {
         return null;
       }
 
-      const nextAction = handleUnsuccessfulLLMCallOutcome(
+      const nextAction = this.handleUnsuccessfulLLMCallOutcome(
         llmResponse,
         llmFuncIndex,
         llmFuncs.length,
@@ -366,5 +366,47 @@ export default class LLMRouter {
       requestTimeoutMillis:
         this.retryConfig.requestTimeoutMillis ?? llmConfig.DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS,
     };
+  }
+
+  /**
+   * Handles the outcome of an LLM call and determines the next action to take.
+   */
+  private handleUnsuccessfulLLMCallOutcome(
+    llmResponse: LLMFunctionResponse | null,
+    currentLLMIndex: number,
+    totalLLMCount: number,
+    context: LLMContext,
+    resourceName: string,
+  ): { shouldTerminate: boolean; shouldCropPrompt: boolean; shouldSwitchToNextLLM: boolean } {
+    const isOverloaded = !llmResponse || llmResponse.status === LLMResponseStatus.OVERLOADED;
+    const isExceeded = llmResponse?.status === LLMResponseStatus.EXCEEDED;
+    const canSwitchModel = currentLLMIndex + 1 < totalLLMCount;
+
+    if (isOverloaded) {
+      logWithContext(
+        `LLM problem processing prompt for completion with current LLM model because it is overloaded, timing out or is spitting out invalid JSON (if JSON was requested), even after retries `,
+        context,
+      );
+      return {
+        shouldTerminate: !canSwitchModel,
+        shouldCropPrompt: false,
+        shouldSwitchToNextLLM: canSwitchModel,
+      };
+    } else if (isExceeded) {
+      logWithContext(
+        `LLM prompt tokens used ${llmResponse.tokensUage?.promptTokens ?? 0} plus completion tokens used ${llmResponse.tokensUage?.completionTokens ?? 0} exceeded EITHER: 1) the model's total token limit of ${llmResponse.tokensUage?.maxTotalTokens ?? 0}, or: 2) the model's completion tokens limit`,
+        context,
+      );
+      return {
+        shouldTerminate: false,
+        shouldCropPrompt: !canSwitchModel,
+        shouldSwitchToNextLLM: canSwitchModel,
+      };
+    } else {
+      throw new RejectionResponseLLMError(
+        `An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource '${resourceName}' - response status received: '${llmResponse.status}'`,
+        llmResponse,
+      );
+    }
   }
 }

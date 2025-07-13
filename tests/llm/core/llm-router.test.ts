@@ -16,7 +16,6 @@ import {
   LLMOutputFormat,
 } from "../../../src/llm/llm.types";
 import { RejectionResponseLLMError } from "../../../src/llm/errors/llm-errors.types";
-import { handleUnsuccessfulLLMCallOutcome } from "../../../src/llm/utils/responseProcessing/llm-response-tools";
 import { z } from "zod";
 import LLMRouter from "../../../src/llm/core/llm-router";
 import LLMStats from "../../../src/llm/utils/routerTracking/llm-stats";
@@ -30,7 +29,6 @@ import type { LLMProviderManifest } from "../../../src/llm/providers/llm-provide
 jest.mock("../../../src/llm/utils/responseProcessing/llm-response-tools", () => {
   const actual = jest.requireActual("../../../src/llm/utils/responseProcessing/llm-response-tools");
   return {
-    handleUnsuccessfulLLMCallOutcome: (actual as any).handleUnsuccessfulLLMCallOutcome,
     extractTokensAmountFromMetadataDefaultingMissingValues: (actual as any)
       .extractTokensAmountFromMetadataDefaultingMissingValues,
     postProcessAsJSONIfNeededGeneratingNewResult: (actual as any)
@@ -735,7 +733,10 @@ describe("LLM Router tests", () => {
     test.each(handleUnsuccessfulLLMCallOutcomeTestData)(
       "$description",
       ({ llmResponse, currentLLMIndex, totalLLMCount, context, resourceName, expected }) => {
-        const result = handleUnsuccessfulLLMCallOutcome(
+        const { router } = createLLMRouter();
+        const result = (
+          router as unknown as { handleUnsuccessfulLLMCallOutcome: (...args: unknown[]) => any }
+        ).handleUnsuccessfulLLMCallOutcome(
           llmResponse,
           currentLLMIndex,
           totalLLMCount,
@@ -826,9 +827,12 @@ describe("LLM Router tests", () => {
         shouldThrow,
         expectedError,
       }) => {
+        const { router } = createLLMRouter();
         if (shouldThrow) {
           expect(() => {
-            handleUnsuccessfulLLMCallOutcome(
+            (
+              router as unknown as { handleUnsuccessfulLLMCallOutcome: (...args: unknown[]) => any }
+            ).handleUnsuccessfulLLMCallOutcome(
               llmResponse,
               currentLLMIndex,
               totalLLMCount,
@@ -837,7 +841,9 @@ describe("LLM Router tests", () => {
             );
           }).toThrow(expectedError);
         } else {
-          const elseResult = handleUnsuccessfulLLMCallOutcome(
+          const elseResult = (
+            router as unknown as { handleUnsuccessfulLLMCallOutcome: (...args: unknown[]) => any }
+          ).handleUnsuccessfulLLMCallOutcome(
             llmResponse,
             currentLLMIndex,
             totalLLMCount,
