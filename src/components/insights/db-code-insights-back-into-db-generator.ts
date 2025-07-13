@@ -129,7 +129,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
       
       // Note: The explicit 'unknown' typing is needed to avoid unsafe assignment lint errors
       // because the schema config uses generic z.ZodType which resolves to 'any'
-      const llmResponse: unknown = await this.llmRouter.executeCompletion(
+      const llmResponse = await this.llmRouter.executeCompletion<PartialAppSummaryRecord>(
         resourceName,
         prompt,
         {
@@ -138,17 +138,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
         },
       );
       
-      // Use the category-specific schema to validate the response
-      const parsed = schema.safeParse(llmResponse);
-      
-      if (!parsed.success) {
-        console.warn(
-          `Schema validation failed for ${categoryLabel}: ${parsed.error.message}`,
-        );
-        return null;
-      }
-      
-      return parsed.data as PartialAppSummaryRecord;
+      return llmResponse;
     } catch (error) {
       console.warn(
         `${error instanceof Error ? error.message : "Unknown error"} for ${categoryLabel}`,
