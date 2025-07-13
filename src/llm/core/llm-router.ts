@@ -21,9 +21,9 @@ import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
-import { 
+import {
   handleUnsuccessfulLLMCallOutcome,
-  validateAndReturnStructuredResponse
+  validateAndReturnStructuredResponse,
 } from "../utils/responseProcessing/llm-response-tools";
 import {
   getCompletionCandidates,
@@ -213,8 +213,6 @@ export default class LLMRouter {
       this.modelsMetadata,
     );
   }
-
-
 
   /**
    * Executes an LLM function applying a series of before and after non-functional aspects (e.g.
