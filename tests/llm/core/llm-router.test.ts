@@ -823,14 +823,7 @@ describe("LLM Router tests", () => {
 
     test.each(determineUnsuccessfulLLMCallOutcomeActionErrorTestData)(
       "$description",
-      ({
-        llmResponse,
-        currentLLMIndex,
-        totalLLMCount,
-        context,
-        resourceName,
-        expected,
-      }) => {
+      ({ llmResponse, currentLLMIndex, totalLLMCount, context, resourceName, expected }) => {
         const { router } = createLLMRouter();
         const result = (
           router as unknown as {

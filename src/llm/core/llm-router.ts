@@ -222,9 +222,9 @@ export default class LLMRouter {
     resourceName: string,
     prompt: string,
     context: LLMContext,
-    llmFuncs: LLMFunction[],
-    candidates?: LLMCandidateFunction[],
-    options?: LLMCompletionOptions,
+    llmFunctions: LLMFunction[],
+    candidateModels?: LLMCandidateFunction[],
+    completionOptions?: LLMCompletionOptions,
   ) {
     let result: LLMGeneratedContent | null = null;
     const currentPrompt = prompt;
@@ -234,9 +234,9 @@ export default class LLMRouter {
         resourceName,
         currentPrompt,
         context,
-        llmFuncs,
-        candidates,
-        options,
+        llmFunctions,
+        candidateModels,
+        completionOptions,
       );
 
       if (!result) {
@@ -264,21 +264,21 @@ export default class LLMRouter {
     resourceName: string,
     initialPrompt: string,
     context: LLMContext,
-    llmFuncs: LLMFunction[],
-    candidates?: LLMCandidateFunction[],
-    options?: LLMCompletionOptions,
+    llmFunctions: LLMFunction[],
+    candidateModels?: LLMCandidateFunction[],
+    completionOptions?: LLMCompletionOptions,
   ): Promise<LLMGeneratedContent | null> {
     let currentPrompt = initialPrompt;
-    let llmFuncIndex = 0;
+    let llmFunctionIndex = 0;
 
     // Don't want to increment 'llmFuncIndex' before looping again, if going to crop prompt
     // (to enable us to try cropped prompt with same size LLM as last iteration)
-    while (llmFuncIndex < llmFuncs.length) {
+    while (llmFunctionIndex < llmFunctions.length) {
       const llmResponse = await this.executeLLMFuncWithRetries(
-        llmFuncs[llmFuncIndex],
+        llmFunctions[llmFunctionIndex],
         currentPrompt,
         context,
-        options,
+        completionOptions,
       );
 
       if (llmResponse?.status === LLMResponseStatus.COMPLETED) {
@@ -291,8 +291,8 @@ export default class LLMRouter {
 
       const nextAction = this.determineUnsuccessfulLLMCallOutcomeAction(
         llmResponse,
-        llmFuncIndex,
-        llmFuncs.length,
+        llmFunctionIndex,
+        llmFunctions.length,
         context,
         resourceName,
       );
@@ -313,12 +313,12 @@ export default class LLMRouter {
       }
 
       if (nextAction.shouldSwitchToNextLLM) {
-        if (candidates && llmFuncIndex + 1 < candidates.length) {
-          context.modelQuality = candidates[llmFuncIndex + 1].modelQuality;
+        if (candidateModels && llmFunctionIndex + 1 < candidateModels.length) {
+          context.modelQuality = candidateModels[llmFunctionIndex + 1].modelQuality;
         }
 
         this.llmStats.recordSwitch();
-        llmFuncIndex++;
+        llmFunctionIndex++;
       }
     }
 
@@ -329,18 +329,18 @@ export default class LLMRouter {
    * Send a prompt to an LLM for completion, retrying a number of times if the LLM is overloaded.
    */
   private async executeLLMFuncWithRetries(
-    llmFunc: LLMFunction,
+    llmFunction: LLMFunction,
     prompt: string,
     context: LLMContext,
-    options?: LLMCompletionOptions,
+    completionOptions?: LLMCompletionOptions,
   ) {
-    const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
+    const recordRetryFunction = this.llmStats.recordRetry.bind(this.llmStats);
     const retryConfig = getRetryConfiguration(this.providerRetryConfig);
     const result = await withRetry(
-      llmFunc as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,
-      [prompt, context, options],
+      llmFunction as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,
+      [prompt, context, completionOptions],
       (result: LLMFunctionResponse) => result.status === LLMResponseStatus.OVERLOADED,
-      recordRetryFunc,
+      recordRetryFunction,
       retryConfig.maxAttempts,
       retryConfig.minRetryDelayMillis,
     );
@@ -352,14 +352,14 @@ export default class LLMRouter {
    */
   private determineUnsuccessfulLLMCallOutcomeAction(
     llmResponse: LLMFunctionResponse | null,
-    currentLLMIndex: number,
+    currentLlmFunctionIndex: number,
     totalLLMCount: number,
     context: LLMContext,
     resourceName: string,
   ): { shouldTerminate: boolean; shouldCropPrompt: boolean; shouldSwitchToNextLLM: boolean } {
     const isOverloaded = !llmResponse || llmResponse.status === LLMResponseStatus.OVERLOADED;
     const isExceeded = llmResponse?.status === LLMResponseStatus.EXCEEDED;
-    const canSwitchModel = currentLLMIndex + 1 < totalLLMCount;
+    const canSwitchModel = currentLlmFunctionIndex + 1 < totalLLMCount;
 
     if (isOverloaded) {
       logWithContext(
