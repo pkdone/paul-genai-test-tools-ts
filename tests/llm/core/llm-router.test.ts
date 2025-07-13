@@ -15,9 +15,7 @@ import {
   LLMResponseTokensUsage,
   LLMOutputFormat,
 } from "../../../src/llm/llm.types";
-import {
-  RejectionResponseLLMError,
-} from "../../../src/llm/errors/llm-errors.types";
+import { RejectionResponseLLMError } from "../../../src/llm/errors/llm-errors.types";
 import { handleUnsuccessfulLLMCallOutcome } from "../../../src/llm/utils/responseProcessing/llm-response-tools";
 import { z } from "zod";
 import LLMRouter from "../../../src/llm/core/llm-router";
@@ -33,8 +31,10 @@ jest.mock("../../../src/llm/utils/responseProcessing/llm-response-tools", () => 
   const actual = jest.requireActual("../../../src/llm/utils/responseProcessing/llm-response-tools");
   return {
     handleUnsuccessfulLLMCallOutcome: (actual as any).handleUnsuccessfulLLMCallOutcome,
-    extractTokensAmountFromMetadataDefaultingMissingValues: (actual as any).extractTokensAmountFromMetadataDefaultingMissingValues,
-    postProcessAsJSONIfNeededGeneratingNewResult: (actual as any).postProcessAsJSONIfNeededGeneratingNewResult,
+    extractTokensAmountFromMetadataDefaultingMissingValues: (actual as any)
+      .extractTokensAmountFromMetadataDefaultingMissingValues,
+    postProcessAsJSONIfNeededGeneratingNewResult: (actual as any)
+      .postProcessAsJSONIfNeededGeneratingNewResult,
     reducePromptSizeToTokenLimit: jest.fn((prompt: string) => {
       // Simple mock implementation that reduces prompt by half
       return prompt.substring(0, Math.floor(prompt.length * 0.5));

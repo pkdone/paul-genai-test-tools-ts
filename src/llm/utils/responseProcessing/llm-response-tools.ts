@@ -18,7 +18,7 @@ import { logWithContext } from "../routerTracking/llm-router-logging";
 /**
  * Extract token usage information from LLM response metadata, defaulting missing
  * values.
- */ 
+ */
 export function extractTokensAmountFromMetadataDefaultingMissingValues(
   modelKey: string,
   tokenUsage: LLMResponseTokensUsage,

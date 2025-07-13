@@ -23,7 +23,10 @@ import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
 import { logErrorMsg } from "../../common/utils/error-utils";
 import { handleUnsuccessfulLLMCallOutcome } from "../utils/responseProcessing/llm-response-tools";
-import { getCompletionCandidates, buildCompletionCandidates } from "../utils/requestProcessing/llm-request-tools";
+import {
+  getCompletionCandidates,
+  buildCompletionCandidates,
+} from "../utils/requestProcessing/llm-request-tools";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -123,14 +126,15 @@ export default class LLMRouter {
       [this.llm.generateEmbeddings.bind(this.llm)],
     );
 
-    if (contentResponse === null) {
-      return null;
-    }
+    if (contentResponse === null) return null;
 
     if (
       !(Array.isArray(contentResponse) && contentResponse.every((item) => typeof item === "number"))
     ) {
-      logErrWithContext(new BadResponseContentLLMError("LLM response for embeddings was not an array of numbers"), context);
+      logErrWithContext(
+        new BadResponseContentLLMError("LLM response for embeddings was not an array of numbers"),
+        context,
+      );
       return null;
     }
 
@@ -155,8 +159,10 @@ export default class LLMRouter {
     options: LLMCompletionOptions,
     modelQualityOverride: LLMModelQuality | null = null,
   ): Promise<T | null> {
-    const { candidatesToUse, candidateFunctions } =
-      getCompletionCandidates(this.completionCandidates, modelQualityOverride);
+    const { candidatesToUse, candidateFunctions } = getCompletionCandidates(
+      this.completionCandidates,
+      modelQualityOverride,
+    );
     const context: LLMContext = {
       resource: resourceName,
       purpose: LLMPurpose.COMPLETIONS,
@@ -229,10 +235,6 @@ export default class LLMRouter {
       return llmResponse as T;
     }
   }
-
-
-
-
 
   /**
    * Executes an LLM function applying a series of before and after non-functional aspects (e.g.

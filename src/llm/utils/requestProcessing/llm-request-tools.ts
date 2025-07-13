@@ -18,9 +18,7 @@ export function getCompletionCandidates(
 } {
   // Filter candidates based on model quality override if specified
   const candidatesToUse = modelQualityOverride
-    ? completionCandidates.filter(
-        (candidate) => candidate.modelQuality === modelQualityOverride,
-      )
+    ? completionCandidates.filter((candidate) => candidate.modelQuality === modelQualityOverride)
     : completionCandidates;
 
   if (candidatesToUse.length === 0) {
