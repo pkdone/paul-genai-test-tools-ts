@@ -21,8 +21,10 @@ import type LLMStats from "../utils/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
-import { logErrorMsg } from "../../common/utils/error-utils";
-import { handleUnsuccessfulLLMCallOutcome } from "../utils/responseProcessing/llm-response-tools";
+import { 
+  handleUnsuccessfulLLMCallOutcome,
+  validateAndReturnStructuredResponse
+} from "../utils/responseProcessing/llm-response-tools";
 import {
   getCompletionCandidates,
   buildCompletionCandidates,
@@ -179,7 +181,7 @@ export default class LLMRouter {
     );
 
     if (options.outputFormat === LLMOutputFormat.JSON) {
-      return this.validateAndReturnStructuredResponse<T>(resourceName, llmResponse, options);
+      return validateAndReturnStructuredResponse<T>(resourceName, llmResponse, options);
     } else {
       return llmResponse as T | null;
     }
@@ -212,29 +214,7 @@ export default class LLMRouter {
     );
   }
 
-  /**
-   * Validate the LLM response against a Zod schema if provided.
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-  private validateAndReturnStructuredResponse<T>(
-    resourceName: string,
-    llmResponse: LLMGeneratedContent | null,
-    options: LLMCompletionOptions,
-  ): T | null {
-    if (options.jsonSchema) {
-      const validation = options.jsonSchema.safeParse(llmResponse);
 
-      if (!validation.success) {
-        const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so discarding it. Issues: ${JSON.stringify(validation.error.issues)}`;
-        logErrorMsg(errorMessage);
-        return null;
-      }
-
-      return validation.data as T;
-    } else {
-      return llmResponse as T;
-    }
-  }
 
   /**
    * Executes an LLM function applying a series of before and after non-functional aspects (e.g.

@@ -35,6 +35,7 @@ jest.mock("../../../src/llm/utils/responseProcessing/llm-response-tools", () => 
       .extractTokensAmountFromMetadataDefaultingMissingValues,
     postProcessAsJSONIfNeededGeneratingNewResult: (actual as any)
       .postProcessAsJSONIfNeededGeneratingNewResult,
+    validateAndReturnStructuredResponse: (actual as any).validateAndReturnStructuredResponse,
     reducePromptSizeToTokenLimit: jest.fn((prompt: string) => {
       // Simple mock implementation that reduces prompt by half
       return prompt.substring(0, Math.floor(prompt.length * 0.5));

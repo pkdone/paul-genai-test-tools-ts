@@ -6,13 +6,14 @@ import {
   LLMResponseStatus,
   LLMContext,
   ResolvedLLMModelMetadata,
+  LLMCompletionOptions,
 } from "../../llm.types";
 import {
   BadResponseContentLLMError,
   RejectionResponseLLMError,
 } from "../../errors/llm-errors.types";
 import { convertTextToJSON } from "../../../common/utils/json-tools";
-import { getErrorText } from "../../../common/utils/error-utils";
+import { getErrorText, logErrorMsg } from "../../../common/utils/error-utils";
 import { logWithContext } from "../routerTracking/llm-router-logging";
 
 /**
@@ -108,5 +109,29 @@ export function handleUnsuccessfulLLMCallOutcome(
       `An unknown error occurred while LLMRouter attempted to process the LLM invocation and response for resource '${resourceName}' - response status received: '${llmResponse.status}'`,
       llmResponse,
     );
+  }
+}
+
+/**
+ * Validate the LLM response against a Zod schema if provided.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+export function validateAndReturnStructuredResponse<T>(
+  resourceName: string,
+  llmResponse: LLMGeneratedContent | null,
+  options: LLMCompletionOptions,
+): T | null {
+  if (options.jsonSchema) {
+    const validation = options.jsonSchema.safeParse(llmResponse);
+
+    if (!validation.success) {
+      const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so discarding it. Issues: ${JSON.stringify(validation.error.issues)}`;
+      logErrorMsg(errorMessage);
+      return null;
+    }
+
+    return validation.data as T;
+  } else {
+    return llmResponse as T;
   }
 }
