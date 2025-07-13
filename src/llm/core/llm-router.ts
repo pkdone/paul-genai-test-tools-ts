@@ -1,4 +1,3 @@
-import { llmConfig } from "../llm.config";
 import {
   LLMContext,
   LLMFunction,
@@ -27,6 +26,7 @@ import {
 import {
   getCompletionCandidates,
   buildCompletionCandidates,
+  getRetryConfiguration,
 } from "../utils/requestProcessing/llm-request-tools";
 
 
@@ -338,7 +338,7 @@ export default class LLMRouter {
     options?: LLMCompletionOptions,
   ) {
     const recordRetryFunc = this.llmStats.recordRetry.bind(this.llmStats);
-    const retryConfig = this.getRetryConfiguration();
+    const retryConfig = getRetryConfiguration(this.retryConfig);
     const result = await withRetry(
       llmFunc as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,
       [prompt, context, options],
@@ -350,21 +350,7 @@ export default class LLMRouter {
     return result;
   }
 
-  /**
-   * Get retry configuration from provider-specific config with fallbacks to global config.
-   */
-  private getRetryConfiguration() {
-    return {
-      maxAttempts: this.retryConfig.maxRetryAttempts ?? llmConfig.DEFAULT_INVOKE_LLM_NUM_ATTEMPTS,
-      minRetryDelayMillis:
-        this.retryConfig.minRetryDelayMillis ?? llmConfig.DEFAULT_MIN_RETRY_DELAY_MILLIS,
-      maxRetryAdditionalDelayMillis:
-        this.retryConfig.maxRetryAdditionalDelayMillis ??
-        llmConfig.DEFAULT_MAX_RETRY_ADDITIONAL_MILLIS,
-      requestTimeoutMillis:
-        this.retryConfig.requestTimeoutMillis ?? llmConfig.DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS,
-    };
-  }
+
 
   /**
    * Handles the outcome of an LLM call and determines the next action to take.

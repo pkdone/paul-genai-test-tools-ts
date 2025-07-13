@@ -24,6 +24,7 @@ import { LLMService } from "../../../src/llm/core/llm-service";
 import type { EnvVars } from "../../../src/lifecycle/env.types";
 import { describe, test, expect, jest } from "@jest/globals";
 import type { LLMProviderManifest } from "../../../src/llm/providers/llm-provider.types";
+import { getRetryConfiguration } from "../../../src/llm/utils/requestProcessing/llm-request-tools";
 
 // Mock the dependencies
 jest.mock("../../../src/llm/utils/responseProcessing/llm-response-tools", () => {
@@ -655,8 +656,8 @@ describe("LLM Router tests", () => {
     });
   });
 
-  describe("handleUnsuccessfulLLMCallOutcome method", () => {
-    const handleUnsuccessfulLLMCallOutcomeTestData = [
+  describe("determineUnsuccessfulLLMCallOutcomeAction method", () => {
+    const determineUnsuccessfulLLMCallOutcomeActionTestData = [
       {
         description: "overloaded response with ability to switch models",
         llmResponse: {
@@ -730,13 +731,13 @@ describe("LLM Router tests", () => {
       },
     ];
 
-    test.each(handleUnsuccessfulLLMCallOutcomeTestData)(
+    test.each(determineUnsuccessfulLLMCallOutcomeActionTestData)(
       "$description",
       ({ llmResponse, currentLLMIndex, totalLLMCount, context, resourceName, expected }) => {
         const { router } = createLLMRouter();
         const result = (
-          router as unknown as { handleUnsuccessfulLLMCallOutcome: (...args: unknown[]) => any }
-        ).handleUnsuccessfulLLMCallOutcome(
+          router as unknown as { determineUnsuccessfulLLMCallOutcomeAction: (...args: unknown[]) => any }
+        ).determineUnsuccessfulLLMCallOutcomeAction(
           llmResponse,
           currentLLMIndex,
           totalLLMCount,
@@ -749,7 +750,7 @@ describe("LLM Router tests", () => {
     );
 
     // Test cases for errors
-    const handleUnsuccessfulLLMCallOutcomeErrorTestData = [
+    const determineUnsuccessfulLLMCallOutcomeActionErrorTestData = [
       {
         description: "null response (treated as overloaded) with no ability to switch",
         llmResponse: null,
@@ -815,7 +816,7 @@ describe("LLM Router tests", () => {
       },
     ];
 
-    test.each(handleUnsuccessfulLLMCallOutcomeErrorTestData)(
+    test.each(determineUnsuccessfulLLMCallOutcomeActionErrorTestData)(
       "$description",
       ({
         llmResponse,
@@ -831,8 +832,8 @@ describe("LLM Router tests", () => {
         if (shouldThrow) {
           expect(() => {
             (
-              router as unknown as { handleUnsuccessfulLLMCallOutcome: (...args: unknown[]) => any }
-            ).handleUnsuccessfulLLMCallOutcome(
+              router as unknown as { determineUnsuccessfulLLMCallOutcomeAction: (...args: unknown[]) => any }
+            ).determineUnsuccessfulLLMCallOutcomeAction(
               llmResponse,
               currentLLMIndex,
               totalLLMCount,
@@ -842,8 +843,8 @@ describe("LLM Router tests", () => {
           }).toThrow(expectedError);
         } else {
           const elseResult = (
-            router as unknown as { handleUnsuccessfulLLMCallOutcome: (...args: unknown[]) => any }
-          ).handleUnsuccessfulLLMCallOutcome(
+            router as unknown as { determineUnsuccessfulLLMCallOutcomeAction: (...args: unknown[]) => any }
+          ).determineUnsuccessfulLLMCallOutcomeAction(
             llmResponse,
             currentLLMIndex,
             totalLLMCount,
@@ -980,20 +981,8 @@ describe("LLM Router tests", () => {
   });
 
   describe("getRetryConfiguration method", () => {
-    interface RetryConfig {
-      maxAttempts: number;
-      minRetryDelayMillis: number;
-      maxRetryAdditionalDelayMillis: number;
-      requestTimeoutMillis: number;
-    }
-
     test("should use default config when no retry config provided", () => {
-      const { router } = createLLMRouter();
-
-      // Access private method
-      const result = (
-        router as unknown as { getRetryConfiguration: () => RetryConfig }
-      ).getRetryConfiguration();
+      const result = getRetryConfiguration({});
 
       // Should use defaults from llmConfig (mocked values in test environment)
       expect(result).toHaveProperty("maxAttempts");
@@ -1009,11 +998,8 @@ describe("LLM Router tests", () => {
         maxRetryAdditionalDelayMillis: 1000,
         requestTimeoutMillis: 60000,
       };
-      const { router } = createLLMRouter(customRetryConfig);
 
-      const result = (
-        router as unknown as { getRetryConfiguration: () => RetryConfig }
-      ).getRetryConfiguration();
+      const result = getRetryConfiguration(customRetryConfig);
 
       expect(result.maxAttempts).toBe(10);
       expect(result.minRetryDelayMillis).toBe(200);
@@ -1027,11 +1013,8 @@ describe("LLM Router tests", () => {
         requestTimeoutMillis: 45000,
         // minRetryDelayMillis and maxRetryAdditionalDelayMillis not provided
       };
-      const { router } = createLLMRouter(partialRetryConfig);
 
-      const result = (
-        router as unknown as { getRetryConfiguration: () => RetryConfig }
-      ).getRetryConfiguration();
+      const result = getRetryConfiguration(partialRetryConfig);
 
       expect(result.maxAttempts).toBe(8);
       expect(result.requestTimeoutMillis).toBe(45000);

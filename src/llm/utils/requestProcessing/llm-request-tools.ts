@@ -5,6 +5,8 @@ import {
   LLMProviderImpl,
 } from "../../llm.types";
 import { BadConfigurationLLMError } from "../../errors/llm-errors.types";
+import { llmConfig } from "../../llm.config";
+import type { LLMRetryConfig } from "../../providers/llm-provider.types";
 
 /**
  * Get completion candidates based on model quality override.
@@ -57,4 +59,20 @@ export function buildCompletionCandidates(llm: LLMProviderImpl): LLMCandidateFun
   }
 
   return candidates;
+}
+
+/**
+ * Get retry configuration from provider-specific config with fallbacks to global config.
+ */
+export function getRetryConfiguration(providerRetryConfig: LLMRetryConfig) {
+  return {
+    maxAttempts: providerRetryConfig.maxRetryAttempts ?? llmConfig.DEFAULT_INVOKE_LLM_NUM_ATTEMPTS,
+    minRetryDelayMillis:
+      providerRetryConfig.minRetryDelayMillis ?? llmConfig.DEFAULT_MIN_RETRY_DELAY_MILLIS,
+    maxRetryAdditionalDelayMillis:
+      providerRetryConfig.maxRetryAdditionalDelayMillis ??
+      llmConfig.DEFAULT_MAX_RETRY_ADDITIONAL_MILLIS,
+    requestTimeoutMillis:
+      providerRetryConfig.requestTimeoutMillis ?? llmConfig.DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS,
+  };
 }
