@@ -193,7 +193,7 @@ export interface LLMStatsCategoriesSummary {
   readonly FAILURE: LLMStatsCategoryStatus;
   readonly SWITCH: LLMStatsCategoryStatus;
   readonly OVERLOAD_RETRY: LLMStatsCategoryStatus;
-  readonly INVALID_SO_RETRY: LLMStatsCategoryStatus;
+  readonly HOPEFUL_RETRY: LLMStatsCategoryStatus;
   readonly CROP: LLMStatsCategoryStatus;
   readonly TOTAL?: LLMStatsCategoryStatus;
 }

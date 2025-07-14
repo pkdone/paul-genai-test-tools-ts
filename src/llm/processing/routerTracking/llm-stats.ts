@@ -21,7 +21,7 @@ export default class LLMStats {
       symbol: "?",
       count: 0,
     },
-    INVALID_SO_RETRY: {
+    HOPEFUL_RETRY: {
       description:
         "Retried calling LLM due to receiving a JSON invalid response (worth trying again)",
       symbol: "~",
@@ -73,7 +73,7 @@ export default class LLMStats {
    * Log LLM invalid JSON retry event occurrence and print its symbol
    */
   recordInvalidRetry() {
-    this.record(this.statusTypes.INVALID_SO_RETRY);
+    this.record(this.statusTypes.HOPEFUL_RETRY);
   }
 
   /**
