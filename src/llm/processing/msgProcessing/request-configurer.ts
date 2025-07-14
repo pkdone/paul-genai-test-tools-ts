@@ -9,33 +9,6 @@ import { llmConfig } from "../../llm.config";
 import type { LLMRetryConfig } from "../../providers/llm-provider.types";
 
 /**
- * Get completion candidates based on model quality override.
- */
-export function getCompletionCandidates(
-  completionCandidates: LLMCandidateFunction[],
-  modelQualityOverride: LLMModelQuality | null,
-): {
-  candidatesToUse: LLMCandidateFunction[];
-  candidateFunctions: LLMFunction[];
-} {
-  // Filter candidates based on model quality override if specified
-  const candidatesToUse = modelQualityOverride
-    ? completionCandidates.filter((candidate) => candidate.modelQuality === modelQualityOverride)
-    : completionCandidates;
-
-  if (candidatesToUse.length === 0) {
-    throw new BadConfigurationLLMError(
-      modelQualityOverride
-        ? `No completion candidates found for model quality: ${modelQualityOverride}`
-        : "No completion candidates available",
-    );
-  }
-
-  const candidateFunctions = candidatesToUse.map((candidate) => candidate.func);
-  return { candidatesToUse, candidateFunctions };
-}
-
-/**
  * Build completion candidates from the LLM provider.
  */
 export function buildCompletionCandidates(llm: LLMProviderImpl): LLMCandidateFunction[] {
@@ -62,6 +35,33 @@ export function buildCompletionCandidates(llm: LLMProviderImpl): LLMCandidateFun
 }
 
 /**
+ * Get completion candidates based on model quality override.
+ */
+export function getOverridenCompletionCandidates(
+  completionCandidates: LLMCandidateFunction[],
+  modelQualityOverride: LLMModelQuality | null,
+): {
+  candidatesToUse: LLMCandidateFunction[];
+  candidateFunctions: LLMFunction[];
+} {
+  // Filter candidates based on model quality override if specified
+  const candidatesToUse = modelQualityOverride
+    ? completionCandidates.filter((candidate) => candidate.modelQuality === modelQualityOverride)
+    : completionCandidates;
+
+  if (candidatesToUse.length === 0) {
+    throw new BadConfigurationLLMError(
+      modelQualityOverride
+        ? `No completion candidates found for model quality: ${modelQualityOverride}`
+        : "No completion candidates available",
+    );
+  }
+
+  const candidateFunctions = candidatesToUse.map((candidate) => candidate.func);
+  return { candidatesToUse, candidateFunctions };
+}
+
+/**
  * Get retry configuration from provider-specific config with fallbacks to global config.
  */
 export function getRetryConfiguration(providerRetryConfig: LLMRetryConfig) {
@@ -75,4 +75,4 @@ export function getRetryConfiguration(providerRetryConfig: LLMRetryConfig) {
     requestTimeoutMillis:
       providerRetryConfig.requestTimeoutMillis ?? llmConfig.DEFAULT_REQUEST_WAIT_TIMEOUT_MILLIS,
   };
-}
+} 

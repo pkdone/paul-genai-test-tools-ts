@@ -14,18 +14,18 @@ import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
 import { RetryFunc } from "../../common/control/control.types";
 import { BadConfigurationLLMError, BadResponseContentLLMError } from "../errors/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
-import type { PromptAdapter } from "../utils/prompting/prompt-adapter";
-import { log, logErrWithContext, logWithContext } from "../utils/routerTracking/llm-router-logging";
-import type LLMStats from "../utils/routerTracking/llm-stats";
+import type { PromptAdapter } from "../processing/prompting/prompt-adapter";
+import { log, logErrWithContext, logWithContext } from "../processing/routerTracking/llm-router-logging";
+import type LLMStats from "../processing/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
-import { validateAndReturnStructuredResponse } from "../utils/llmProcessing/llm-response-tools";
+import { validateAndReturnStructuredResponse } from "../processing/msgProcessing/llm-response-tools";
 import {
-  getCompletionCandidates,
+  getOverridenCompletionCandidates,
   buildCompletionCandidates,
   getRetryConfiguration,
-} from "../utils/llmProcessing/llm-request-tools";
+} from "../processing/msgProcessing/request-configurer";
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -158,7 +158,7 @@ export default class LLMRouter {
     options: LLMCompletionOptions,
     modelQualityOverride: LLMModelQuality | null = null,
   ): Promise<T | null> {
-    const { candidatesToUse, candidateFunctions } = getCompletionCandidates(
+    const { candidatesToUse, candidateFunctions } = getOverridenCompletionCandidates(
       this.completionCandidates,
       modelQualityOverride,
     );

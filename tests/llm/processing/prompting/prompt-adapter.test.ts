@@ -10,7 +10,7 @@ import {
   PromptAdapter,
   TokenLimitReductionStrategy,
   PromptAdaptationStrategy,
-} from "../../../../src/llm/utils/prompting/prompt-adapter";
+} from "../../../../src/llm/processing/prompting/prompt-adapter";
 
 // Test-only constants
 const GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4";

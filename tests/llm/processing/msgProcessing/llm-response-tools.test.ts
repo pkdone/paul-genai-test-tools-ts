@@ -8,7 +8,7 @@ import {
 import {
   extractTokensAmountFromMetadataDefaultingMissingValues,
   postProcessAsJSONIfNeededGeneratingNewResult,
-} from "../../../../src/llm/utils/llmProcessing/llm-response-tools";
+} from "../../../../src/llm/processing/msgProcessing/llm-response-tools";
 
 // Test-only constants
 const GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4";

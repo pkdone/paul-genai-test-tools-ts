@@ -1,5 +1,5 @@
 import { LLMPurpose, ResolvedLLMModelMetadata } from "../../../src/llm/llm.types";
-import { extractTokensAmountFromMetadataDefaultingMissingValues } from "../../../src/llm/utils/llmProcessing/llm-response-tools";
+import { extractTokensAmountFromMetadataDefaultingMissingValues } from "../../../src/llm/processing/msgProcessing/llm-response-tools";
 import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT } from "../../../src/llm/providers/bedrock/bedrockLlama/bedrock-llama.manifest";
 
 // Test-only constants

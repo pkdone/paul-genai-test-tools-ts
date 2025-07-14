@@ -18,17 +18,17 @@ import {
 
 import { z } from "zod";
 import LLMRouter from "../../../src/llm/core/llm-router";
-import LLMStats from "../../../src/llm/utils/routerTracking/llm-stats";
-import { PromptAdapter } from "../../../src/llm/utils/prompting/prompt-adapter";
+import LLMStats from "../../../src/llm/processing/routerTracking/llm-stats";
+import { PromptAdapter } from "../../../src/llm/processing/prompting/prompt-adapter";
 import { LLMService } from "../../../src/llm/core/llm-service";
 import type { EnvVars } from "../../../src/lifecycle/env.types";
 import { describe, test, expect, jest } from "@jest/globals";
 import type { LLMProviderManifest } from "../../../src/llm/providers/llm-provider.types";
-import { getRetryConfiguration } from "../../../src/llm/utils/llmProcessing/llm-request-tools";
+import { getRetryConfiguration } from "../../../src/llm/processing/msgProcessing/request-configurer";
 
 // Mock the dependencies
-jest.mock("../../../src/llm/utils/llmProcessing/llm-response-tools", () => {
-  const actual = jest.requireActual("../../../src/llm/utils/llmProcessing/llm-response-tools");
+jest.mock("../../../src/llm/processing/msgProcessing/llm-response-tools", () => {
+const actual = jest.requireActual("../../../src/llm/processing/msgProcessing/llm-response-tools");
   return {
     extractTokensAmountFromMetadataDefaultingMissingValues: (actual as any)
       .extractTokensAmountFromMetadataDefaultingMissingValues,
@@ -42,13 +42,13 @@ jest.mock("../../../src/llm/utils/llmProcessing/llm-response-tools", () => {
   };
 });
 
-jest.mock("../../../src/llm/utils/routerTracking/llm-router-logging", () => ({
+jest.mock("../../../src/llm/processing/routerTracking/llm-router-logging", () => ({
   log: jest.fn(),
   logErrWithContext: jest.fn(),
   logWithContext: jest.fn(),
 }));
 
-jest.mock("../../../src/llm/utils/routerTracking/llm-stats", () => {
+jest.mock("../../../src/llm/processing/routerTracking/llm-stats", () => {
   return jest.fn().mockImplementation(() => ({
     recordSuccess: jest.fn(),
     recordFailure: jest.fn(),
@@ -62,7 +62,7 @@ jest.mock("../../../src/llm/utils/routerTracking/llm-stats", () => {
   }));
 });
 
-jest.mock("../../../src/llm/utils/prompting/prompt-adapter", () => ({
+jest.mock("../../../src/llm/processing/prompting/prompt-adapter", () => ({
   PromptAdapter: jest.fn().mockImplementation(() => ({
     adaptPromptFromResponse: jest.fn((prompt: string) => {
       return prompt.substring(0, Math.floor(prompt.length * 0.5));

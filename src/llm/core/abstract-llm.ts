@@ -19,8 +19,8 @@ import { getErrorText } from "../../common/utils/error-utils";
 import {
   extractTokensAmountFromMetadataDefaultingMissingValues,
   postProcessAsJSONIfNeededGeneratingNewResult,
-} from "../utils/llmProcessing/llm-response-tools";
-import { extractTokensAmountAndLimitFromErrorMsg } from "../utils/llmProcessing/llm-error-pattern-parser";
+} from "../processing/msgProcessing/llm-response-tools";
+import { extractTokensAmountAndLimitFromErrorMsg } from "../processing/msgProcessing/response-error-pattern-parser";
 import { BadConfigurationLLMError } from "../errors/llm-errors.types";
 
 /**

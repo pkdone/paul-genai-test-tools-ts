@@ -14,7 +14,7 @@ For example, two code reviwers have already made the follwing suggestions which 
 *   **Suggestion for Improvement:** Decompose `LLMRouter` into a set of collaborating strategy objects. The core logic for retries, model switching, and prompt adaptation should be extracted into their own strategy classes (e.g., `RetryStrategy`, `ModelFallbackStrategy`). The `LLMRouter` would then be simplified to an orchestrator that injects and uses these strategies. This would make the individual components easier to test and maintain, and allow for more flexible combinations of behaviors.
 *   **Affected Files:**
     *   `src/llm/core/llm-router.ts`
-    *   `src/llm/utils/prompting/prompt-adapter.ts` (could be evolved into a broader strategy)
+    *   `src/llm/processing/prompting/prompt-adapter.ts` (could be evolved into a broader strategy)
  
  
 2. Refactor Complex Conditional Logic in `LLMRouter`

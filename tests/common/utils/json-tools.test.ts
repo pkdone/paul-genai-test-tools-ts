@@ -1,4 +1,4 @@
-import { convertTextToJSON } from "../../../src/llm/utils/llmProcessing/llm-response-tools";
+import { convertTextToJSON } from "../../../src/llm/processing/msgProcessing/llm-response-tools";
 
 // Test interfaces for generic type testing
 interface TestUser {
