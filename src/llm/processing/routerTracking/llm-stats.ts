@@ -23,7 +23,7 @@ export default class LLMStats {
     },
     HOPEFUL_RETRY: {
       description:
-        "Retried calling LLM due to receiving a JSON invalid response (worth trying again)",
+        "Retried calling LLM due to invalid JSON response (worth trying again)",
       symbol: "~",
       count: 0,
     },
