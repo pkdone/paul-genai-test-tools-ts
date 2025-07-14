@@ -239,8 +239,9 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
       if (options.jsonSchema) {
         const jsonSchema = zodToJsonSchema(options.jsonSchema);
         delete jsonSchema.$schema;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-        generationConfig.responseSchema = jsonSchema as any;
+        // TODO: restore
+        // Xeslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+        //generationConfig.responseSchema = jsonSchema as any;
       }
     }
 

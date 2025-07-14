@@ -390,7 +390,7 @@ export default class LLMRouter {
 
     if (isOverloaded) {
       logWithContext(
-        `LLM problem processing prompt for completion with current LLM model because it is overloaded, timing out or is spitting out invalid JSON (if JSON was requested), even after retries `,
+        `LLM problem processing completion with current LLM model because it is overloaded, timing out or is spitting out invalid JSON (if JSON was requested), even after retries `,
         context,
       );
       return {
