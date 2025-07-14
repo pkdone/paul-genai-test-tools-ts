@@ -1,5 +1,5 @@
 import pRetry from "p-retry";
-import { RetryFunc, CheckResultFunc, LogRetryEventFunc } from "./control.types";
+import { RetryFunc, CheckResultThrowIfRetryFunc, LogRetryEventFunc } from "./control.types";
 
 interface FailedAttemptError extends Error {
   readonly attemptNumber: number;
@@ -18,7 +18,7 @@ interface RetryOptions {
  *
  * @param asyncTryFunc The asynchronous function to retry.
  * @param args Arguments to pass to the async function (now strongly typed).
- * @param checkResultForNeedToRetryFunc A function that takes the result and decides whether to retry.
+ * @param checkResultThrowIfRetryFunc A function that takes the result and decides whether to retry.
  * @param logRetryEventFunc Function to call to record the retry event (optional).
  * @param maxAttempts Maximum number of attempts.
  * @param minRetryDelay Minimum delay between retries in milliseconds.
@@ -28,7 +28,7 @@ interface RetryOptions {
 export async function withRetry<TArgs extends unknown[], TReturn>(
   asyncTryFunc: RetryFunc<TArgs, TReturn>,
   args: TArgs,
-  checkResultForNeedToRetryFunc: CheckResultFunc<TReturn>,
+  checkResultThrowIfRetryFunc: CheckResultThrowIfRetryFunc<TReturn>,
   logRetryEventFunc: LogRetryEventFunc | null = null,
   maxAttempts = 3,
   minRetryDelay = 7000,
@@ -37,20 +37,14 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
     return await pRetry(
       async () => {
         const result = await asyncTryFunc(...args);
-
-        if (checkResultForNeedToRetryFunc(result)) {
-          // Throwing an error triggers a retry by p-retry
-          throw new Error("Result indicates a retry is needed.");
-        }
-
+        checkResultThrowIfRetryFunc(result);
         return result;
       },
       {
         retries: maxAttempts - 1, // p-retry uses `retries` (number of retries, not total attempts)
         minTimeout: minRetryDelay,
-        onFailedAttempt: (_error: FailedAttemptError) => {
-          void _error; // Keep _error around in case useful for debugging
-          if (logRetryEventFunc) logRetryEventFunc();
+        onFailedAttempt: (error: FailedAttemptError) => {
+          if (logRetryEventFunc) logRetryEventFunc(error);
         },
       } as RetryOptions,
     );

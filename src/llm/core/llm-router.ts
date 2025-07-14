@@ -31,6 +31,7 @@ import {
   getRetryConfiguration,
 } from "../processing/msgProcessing/request-configurer";
 import { logErrorMsg } from "../../common/utils/error-utils";
+import { FailedAttemptError } from "p-retry";
 
 /**
  * Temporary function to handle schema validation until the import issue is resolved
@@ -361,17 +362,31 @@ export default class LLMRouter {
     context: LLMContext,
     completionOptions?: LLMCompletionOptions,
   ) {
-    const recordRetryFunction = this.llmStats.recordRetry.bind(this.llmStats);
+    const checkResultThrowIfRetryFunc = (result: LLMFunctionResponse) => {
+      // TODO: get status signs from config
+      if (result.status === LLMResponseStatus.OVERLOADED) throw new Error("$");
+      if (result.status === LLMResponseStatus.INVALID) throw new Error("~");
+    };
+    // TODO: fix
+    //const recordRetryFunction = this.llmStats.recordRetry.bind(this.llmStats);
+    const recordRetryFunction = this.logRetryOrInvalidEvent.bind(this.llmStats);
     const retryConfig = getRetryConfiguration(this.providerRetryConfig);
     const result = await withRetry(
       llmFunction as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,
       [prompt, context, completionOptions],
-      (result: LLMFunctionResponse) => result.status === LLMResponseStatus.OVERLOADED,
-      recordRetryFunction,
+      checkResultThrowIfRetryFunc,
+      recordRetryFunction, // Retry if overloaded received or invalid JSON was discocered (worth trying again)
       retryConfig.maxAttempts,
       retryConfig.minRetryDelayMillis,
     );
     return result;
+  }
+
+  /**
+   * Send a prompt to an LLM for completion, retrying a number of times if the LLM is overloaded.
+   */
+  private logRetryOrInvalidEvent(error: FailedAttemptError) {
+    console.log(error.message);
   }
 
   /**
@@ -384,13 +399,25 @@ export default class LLMRouter {
     context: LLMContext,
     resourceName: string,
   ): { shouldTerminate: boolean; shouldCropPrompt: boolean; shouldSwitchToNextLLM: boolean } {
+    const isInvalidResponse = !llmResponse || llmResponse.status === LLMResponseStatus.INVALID;
     const isOverloaded = !llmResponse || llmResponse.status === LLMResponseStatus.OVERLOADED;
     const isExceeded = llmResponse?.status === LLMResponseStatus.EXCEEDED;
     const canSwitchModel = currentLlmFunctionIndex + 1 < totalLLMCount;
 
-    if (isOverloaded) {
+    if (isInvalidResponse) {
       logWithContext(
-        `LLM problem processing completion with current LLM model because it is overloaded, timing out or is spitting out invalid JSON (if JSON was requested), even after retries `,
+        `Unable to extract a valid response from the current LLM model - invalid JSON being received even after retries `,
+        context,
+      );
+      return {
+        shouldTerminate: !canSwitchModel,
+        shouldCropPrompt: false,
+        shouldSwitchToNextLLM: canSwitchModel,
+      };
+    }
+    else if (isOverloaded) {
+      logWithContext(
+        `LLM problem processing completion with current LLM model because it is overloaded, or timing out, even after retries `,
         context,
       );
       return {

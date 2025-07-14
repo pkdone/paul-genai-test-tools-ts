@@ -237,7 +237,7 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
       generationConfig.responseMimeType = llmConfig.LLM_RESPONSE_JSON_CONTENT_TYPE;
 
       // Only force Vertex AI to use the JSON schema if the schema shape does not contain some
-      // schema definiton elements that the Vertex AI API chokes on - otherwise VertexAI throws 
+      // schema definiton elements that the Vertex AI API chokes on - otherwise VertexAI throws
       // ClientError - INVALID_ARGUMENT - fieldViolations errors
       if (options.jsonSchema && !options.trickySchema) {
         const jsonSchema = zodToJsonSchema(options.jsonSchema);

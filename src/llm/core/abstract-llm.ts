@@ -280,7 +280,7 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
           );
         }
         context.jsonParseError = getErrorText(error);
-        return { ...skeletonResult, status: LLMResponseStatus.OVERLOADED };
+        return { ...skeletonResult, status: LLMResponseStatus.INVALID };
       }
     } else {
       return { ...skeletonResult, status: LLMResponseStatus.COMPLETED, generated: responseContent };

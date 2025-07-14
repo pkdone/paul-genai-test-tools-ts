@@ -127,6 +127,7 @@ export enum LLMResponseStatus {
   COMPLETED = "completed",
   EXCEEDED = "exceeded",
   OVERLOADED = "overloaded",
+  INVALID = "invalid",
   ERRORED = "error",
 }
 

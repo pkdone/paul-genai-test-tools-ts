@@ -151,12 +151,12 @@ export default class DBCodeInsightsBackIntoDBGenerator {
     const config = summaryCategoriesConfig[type];
     return createPromptFromConfig(
       this.APP_CATEGORY_SUMMARIZER_TEMPLATE,
-              {
-          instructions: config.description,
-          schema: config.schema,
-          fileContentDesc: "source files",
-          trickySchema: false,
-        },
+      {
+        instructions: config.description,
+        schema: config.schema,
+        fileContentDesc: "source files",
+        trickySchema: false,
+      },
       codeContent,
     );
   }
