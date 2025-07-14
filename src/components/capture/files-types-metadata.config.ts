@@ -70,7 +70,7 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
           .array(z.string())
           .describe("A list of third-party classpaths referenced."),
       }),
-    responseContainsCode: false,
+    responseContainsCode: true,
   },
   javascript: {
     fileContentDesc: "JavaScript/TypeScript code",
@@ -86,17 +86,15 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
       externalReferences: true,
       databaseIntegration: true,
     }),
-    responseContainsCode: false,
+    responseContainsCode: true,
   },
   default: {
     fileContentDesc: "project file content",
     instructions: `* ${COMMON_INSTRUCTIONS.PURPOSE}
-* ${COMMON_INSTRUCTIONS.IMPLEMENTATION} 
-* ${COMMON_INSTRUCTIONS.DB_INTEGRATION}.`,
+* ${COMMON_INSTRUCTIONS.IMPLEMENTATION}.`,
     schema: sourceFileSummarySchema.pick({
       purpose: true,
       implementation: true,
-      databaseIntegration: true,
     }),
     responseContainsCode: false,
   },
@@ -130,17 +128,15 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
           ]),
         }),
       }),
-    responseContainsCode: false,
+    responseContainsCode: true,
   },
   xml: {
     fileContentDesc: "XML code",
     instructions: `* ${COMMON_INSTRUCTIONS.PURPOSE}
-* ${COMMON_INSTRUCTIONS.IMPLEMENTATION}
-* ${COMMON_INSTRUCTIONS.DB_INTEGRATION}`,
+* ${COMMON_INSTRUCTIONS.IMPLEMENTATION}`,
     schema: sourceFileSummarySchema.pick({
       purpose: true,
       implementation: true,
-      databaseIntegration: true,
     }),
     responseContainsCode: false,
   },
@@ -163,12 +159,10 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
   markdown: {
     fileContentDesc: "Markdown content",
     instructions: `* ${COMMON_INSTRUCTIONS.PURPOSE}
-* ${COMMON_INSTRUCTIONS.IMPLEMENTATION}
-* The type of database integration the markdown content implies that the application uses (if any), stating the mechanism used, a description of the integration and an example code snippet that performs the database integration`,
+* ${COMMON_INSTRUCTIONS.IMPLEMENTATION}`,
     schema: sourceFileSummarySchema.pick({
       purpose: true,
       implementation: true,
-      databaseIntegration: true,
     }),
     responseContainsCode: false,
   },
