@@ -45,7 +45,11 @@ const testModelsMetadata: Record<string, ResolvedLLMModelMetadata> = {
 
 // Test concrete class that extends AbstractLLM to test token extraction functionality
 class TestLLM extends AbstractLLM {
-  private mockTokenUsage: LLMResponseTokensUsage = { promptTokens: 10, completionTokens: 20, maxTotalTokens: 100 };
+  private mockTokenUsage: LLMResponseTokensUsage = {
+    promptTokens: 10,
+    completionTokens: 20,
+    maxTotalTokens: 100,
+  };
 
   constructor() {
     const modelsKeys: LLMModelKeysSet = {
@@ -105,9 +109,9 @@ describe("Abstract LLM Token Extraction", () => {
         maxTotalTokens: -1,
       };
       testLLM.setMockTokenUsage(tokenUsage);
-      
+
       const result = await testLLM.executeCompletionPrimary("test prompt", testContext);
-      
+
       expect(result.tokensUage).toStrictEqual({
         completionTokens: 0,
         promptTokens: 200,
@@ -122,9 +126,9 @@ describe("Abstract LLM Token Extraction", () => {
         maxTotalTokens: -1,
       };
       testLLM.setMockTokenUsage(tokenUsage);
-      
+
       const result = await testLLM.executeCompletionPrimary("test prompt", testContext);
-      
+
       expect(result.tokensUage).toStrictEqual({
         completionTokens: 0,
         promptTokens: 32760,
@@ -139,9 +143,9 @@ describe("Abstract LLM Token Extraction", () => {
         maxTotalTokens: -1,
       };
       testLLM.setMockTokenUsage(tokenUsage);
-      
+
       const result = await testLLM.executeCompletionPrimary("test prompt", testContext);
-      
+
       expect(result.tokensUage).toStrictEqual({
         completionTokens: 200,
         promptTokens: 32569,
@@ -157,9 +161,13 @@ describe("Abstract LLM Token Extraction", () => {
       };
       const errorPatterns: LLMErrorMsgRegExPattern[] = [];
       const providerConfig: LLMProviderSpecificConfig = {};
-      
+
       class TestLlamaLLM extends AbstractLLM {
-        private mockTokenUsage: LLMResponseTokensUsage = { promptTokens: 10, completionTokens: 20, maxTotalTokens: 100 };
+        private mockTokenUsage: LLMResponseTokensUsage = {
+          promptTokens: 10,
+          completionTokens: 20,
+          maxTotalTokens: 100,
+        };
 
         constructor() {
           super(modelsKeys, testModelsMetadata, errorPatterns, providerConfig);
@@ -198,9 +206,9 @@ describe("Abstract LLM Token Extraction", () => {
         maxTotalTokens: -1,
       };
       llamaLLM.setMockTokenUsage(tokenUsage);
-      
+
       const result = await llamaLLM.executeCompletionPrimary("test prompt", testContext);
-      
+
       expect(result.tokensUage).toStrictEqual({
         completionTokens: 0,
         promptTokens: 243,
