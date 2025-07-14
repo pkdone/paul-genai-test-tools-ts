@@ -236,6 +236,9 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
     if (options?.outputFormat === LLMOutputFormat.JSON) {
       generationConfig.responseMimeType = llmConfig.LLM_RESPONSE_JSON_CONTENT_TYPE;
 
+      // Only force Vertex AI to use the JSON schema if the response does not contain code as today
+      // its API doesn't treat code block encoding correctly - gets ClientError - INVALID_ARGUMENT -
+      // fieldViolations errors
       if (options.jsonSchema && !options.responseContainsCode) {
         const jsonSchema = zodToJsonSchema(options.jsonSchema);
         delete jsonSchema.$schema;
