@@ -1,9 +1,11 @@
 import pRetry from "p-retry";
 import { RetryFunc, CheckResultThrowIfRetryFunc, LogRetryEventFunc } from "./control.types";
+import { LLMResponseStatus } from "../../llm/llm.types";
 
 interface FailedAttemptError extends Error {
   readonly attemptNumber: number;
   readonly retriesLeft: number;
+  readonly status?: LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID;
 }
 
 interface RetryOptions {
@@ -49,7 +51,7 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
       } as RetryOptions,
     );
   } catch {
-    // p-retry throws if all attempts fail. We can catch it and return null to match previous behavior.
+    // p-retry throws if all attempts fail - we catch it and return null 
     //console.error("All retry attempts failed");
     return null;
   }

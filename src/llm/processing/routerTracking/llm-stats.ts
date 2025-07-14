@@ -16,11 +16,16 @@ export default class LLMStats {
       symbol: "+",
       count: 0,
     },
-    RETRY: {
+    OVERLOAD_RETRY: {
       description: "Retried calling LLM due to overload or network issue",
       symbol: "?",
       count: 0,
     },
+    INVALID_SO_RETRY: {
+      description: "Retried calling LLM due to receiving a JSON invalid response (worth trying again)",
+      symbol: "~",
+      count: 0,
+    },    
     CROP: {
       description: "Cropping prompt due to excessive size, before resending",
       symbol: "-",
@@ -57,10 +62,17 @@ export default class LLMStats {
   }
 
   /**
-   * Log LLM retry event occurrence and print its symbol
+   * Log LLM overload retry event occurrence and print its symbol
    */
-  recordRetry() {
-    this.record(this.statusTypes.RETRY);
+  recordOverloadRetry() {
+    this.record(this.statusTypes.OVERLOAD_RETRY);
+  }
+
+  /**
+   * Log LLM invalid JSON retry event occurrence and print its symbol
+   */
+  recordInvalidRetry() {
+    this.record(this.statusTypes.INVALID_SO_RETRY);
   }
 
   /**

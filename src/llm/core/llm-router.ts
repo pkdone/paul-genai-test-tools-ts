@@ -8,7 +8,6 @@ import {
   LLMFunctionResponse,
   ResolvedLLMModelMetadata,
   LLMCompletionOptions,
-  LLMOutputFormat,
 } from "../llm.types";
 import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
 import { RetryFunc } from "../../common/control/control.types";
@@ -30,33 +29,17 @@ import {
   buildCompletionCandidates,
   getRetryConfiguration,
 } from "../processing/msgProcessing/request-configurer";
-import { logErrorMsg } from "../../common/utils/error-utils";
 import { FailedAttemptError } from "p-retry";
+import { validateSchemaIfNeededAndReturnResponse } from "../processing/msgProcessing/content-tools";
 
-/**
- * Temporary function to handle schema validation until the import issue is resolved
- */
-function validateSchemaIfNeededAndReturnResponse(
-  content: LLMGeneratedContent | null,
-  completionOptions: LLMCompletionOptions,
-  resourceName = "content",
-) {
-  if (
-    content &&
-    completionOptions.outputFormat === LLMOutputFormat.JSON &&
-    completionOptions.jsonSchema
+// Custom error class with status field
+export class RetryStatusError extends Error {
+  constructor(
+    message: string,
+    readonly status: LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID
   ) {
-    const validation = completionOptions.jsonSchema.safeParse(content);
-
-    if (!validation.success) {
-      const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so returning null. Issues: ${JSON.stringify(validation.error.issues)}`;
-      logErrorMsg(errorMessage);
-      return null;
-    }
-
-    return validation.data;
-  } else {
-    return content;
+    super(message);
+    this.name = "RetryStatusError";
   }
 }
 
@@ -209,7 +192,7 @@ export default class LLMRouter {
       candidatesToUse,
       options,
     );
-    return validateSchemaIfNeededAndReturnResponse(llmResponse, options, resourceName) as T | null;
+    return validateSchemaIfNeededAndReturnResponse(llmResponse, options, resourceName);
   }
 
   /**
@@ -362,20 +345,12 @@ export default class LLMRouter {
     context: LLMContext,
     completionOptions?: LLMCompletionOptions,
   ) {
-    const checkResultThrowIfRetryFunc = (result: LLMFunctionResponse) => {
-      // TODO: get status signs from config
-      if (result.status === LLMResponseStatus.OVERLOADED) throw new Error("$");
-      if (result.status === LLMResponseStatus.INVALID) throw new Error("~");
-    };
-    // TODO: fix
-    //const recordRetryFunction = this.llmStats.recordRetry.bind(this.llmStats);
-    const recordRetryFunction = this.logRetryOrInvalidEvent.bind(this.llmStats);
     const retryConfig = getRetryConfiguration(this.providerRetryConfig);
     const result = await withRetry(
       llmFunction as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,
       [prompt, context, completionOptions],
-      checkResultThrowIfRetryFunc,
-      recordRetryFunction, // Retry if overloaded received or invalid JSON was discocered (worth trying again)
+      this.checkResultThrowIfRetryFunc.bind(this),
+      this.logRetryOrInvalidEvent.bind(this),
       retryConfig.maxAttempts,
       retryConfig.minRetryDelayMillis,
     );
@@ -383,10 +358,24 @@ export default class LLMRouter {
   }
 
   /**
-   * Send a prompt to an LLM for completion, retrying a number of times if the LLM is overloaded.
+   * Check the result and throw an error if the LLM is overloaded or the response is invalid
    */
-  private logRetryOrInvalidEvent(error: FailedAttemptError) {
-    console.log(error.message);
+  private checkResultThrowIfRetryFunc(result: LLMFunctionResponse) {
+    if (result.status === LLMResponseStatus.OVERLOADED)
+      throw new RetryStatusError("LLM is overloaded", LLMResponseStatus.OVERLOADED);
+    if (result.status === LLMResponseStatus.INVALID) 
+      throw new RetryStatusError("LLM response is invalid", LLMResponseStatus.INVALID);
+  }
+
+  /**
+   * Log retry events with status-specific handling
+   */
+  private logRetryOrInvalidEvent(error: FailedAttemptError & { status?: LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID }) {
+    if (error.status === LLMResponseStatus.INVALID) {
+      this.llmStats.recordInvalidRetry();
+    } else {
+      this.llmStats.recordOverloadRetry();
+    }
   }
 
   /**
