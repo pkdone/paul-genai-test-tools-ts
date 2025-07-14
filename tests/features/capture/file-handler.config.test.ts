@@ -65,6 +65,7 @@ describe("File Handler Configuration", () => {
         fileContentDesc: "test content",
         instructions: "test instructions",
         schema: sourceFileSummarySchema,
+        responseContainsCode: false,
       };
       const testHandler = new FileHandler(testConfig);
 
@@ -79,6 +80,7 @@ describe("File Handler Configuration", () => {
         fileContentDesc: "test content",
         instructions: "test instructions",
         schema: sourceFileSummarySchema.pick({ purpose: true, implementation: true }),
+        responseContainsCode: false,
       };
       const typedHandler = new FileHandler(typedConfig);
 

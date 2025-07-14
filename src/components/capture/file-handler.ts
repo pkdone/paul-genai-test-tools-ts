@@ -50,6 +50,13 @@ export class FileHandler<T extends SourceSummaryType = SourceSummaryType> {
   }
 
   /**
+   * Gets whether the response contains code.
+   */
+  get responseContainsCode(): boolean {
+    return this.config.responseContainsCode;
+  }
+
+  /**
    * Creates a prompt for the given file content.
    */
   createPrompt(content: string): string {

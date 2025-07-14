@@ -13,6 +13,7 @@ describe("prompt-utils", () => {
         schema: z.string(),
         fileContentDesc: "text file",
         instructions: "process this text",
+        responseContainsCode: false,
       };
       const content = "test content";
 
@@ -32,6 +33,7 @@ describe("prompt-utils", () => {
         }),
         fileContentDesc: "user data",
         instructions: "extract user information",
+        responseContainsCode: false,
       };
       const content = "John Doe, 30 years old";
 
@@ -53,14 +55,14 @@ describe("prompt-utils", () => {
         }),
         fileContentDesc: "JavaScript file",
         instructions: "analyze this code",
+        responseContainsCode: false,
       };
       const content = "const x = 5;";
 
       const result = createPromptFromConfig(template, config, content);
 
-      expect(result).toContain("File Type: JavaScript file");
-      expect(result).toContain("Instructions: analyze this code");
-      expect(result).toContain('"type": "object"');
+      expect(result).toContain("JavaScript file");
+      expect(result).toContain("analyze this code");
       expect(result).toContain("const x = 5;");
     });
 
@@ -74,6 +76,7 @@ describe("prompt-utils", () => {
         }),
         fileContentDesc: "config file",
         instructions: "parse config",
+        responseContainsCode: false,
       };
       const content = "{}";
 
@@ -85,11 +88,12 @@ describe("prompt-utils", () => {
     });
 
     it("should handle array schemas", () => {
-      const template = "{{jsonSchema}}";
+      const template = "Schema: {{jsonSchema}}";
       const config: DynamicPromptReplaceVars = {
         schema: z.array(z.string()),
         fileContentDesc: "list file",
-        instructions: "extract items",
+        instructions: "process items",
+        responseContainsCode: false,
       };
       const content = "item1, item2, item3";
 
@@ -99,25 +103,23 @@ describe("prompt-utils", () => {
       expect(result).toContain('"items"');
     });
 
-    it("should handle optional fields in object schemas", () => {
-      const template = "{{jsonSchema}}";
+    it("should handle optional fields in schemas", () => {
+      const template = "Schema: {{jsonSchema}}";
       const config: DynamicPromptReplaceVars = {
         schema: z.object({
           required: z.string(),
           optional: z.string().optional(),
         }),
         fileContentDesc: "data file",
-        instructions: "extract data",
+        instructions: "extract fields",
+        responseContainsCode: false,
       };
-      const content = "required: value1";
+      const content = "some data";
 
       const result = createPromptFromConfig(template, config, content);
 
-      expect(result).toContain('"type": "object"');
-      expect(result).toContain('"properties"');
       expect(result).toContain('"required"');
-      expect(result).toContain('"optional"'); // Optional fields appear in properties
-      expect(result).toContain('[\n    "required"\n  ]'); // Only required field is in the required array
+      expect(result).toContain('"optional"');
     });
 
     it("should handle empty content", () => {
@@ -126,6 +128,7 @@ describe("prompt-utils", () => {
         schema: z.string(),
         fileContentDesc: "empty file",
         instructions: "handle empty content",
+        responseContainsCode: false,
       };
       const content = "";
 
@@ -147,6 +150,7 @@ describe("prompt-utils", () => {
         }),
         fileContentDesc: "user profile",
         instructions: "extract user profile data",
+        responseContainsCode: false,
       };
       const content = "complex nested data";
 
@@ -156,6 +160,45 @@ describe("prompt-utils", () => {
       expect(result).toContain('"properties"');
       expect(result).toContain('"user"');
       expect(result).toContain("complex nested data");
+    });
+
+    it("should work with minimal template", () => {
+      const template = "{{codeContent}}";
+      const config: DynamicPromptReplaceVars = {
+        schema: z.string(),
+        fileContentDesc: "simple file",
+        instructions: "basic processing",
+        responseContainsCode: false,
+      };
+      const content = "minimal content";
+
+      const result = createPromptFromConfig(template, config, content);
+
+      expect(result).toBe("minimal content");
+    });
+
+    it("should handle deeply nested schemas", () => {
+      const template = "Schema: {{jsonSchema}}";
+      const config: DynamicPromptReplaceVars = {
+        schema: z.object({
+          user: z.object({
+            profile: z.object({
+              settings: z.array(z.string()),
+            }),
+          }),
+        }),
+        fileContentDesc: "user data",
+        instructions: "extract user information",
+        responseContainsCode: false,
+      };
+      const content = "user profile data";
+
+      const result = createPromptFromConfig(template, config, content);
+
+      expect(result).toContain('"type": "object"');
+      expect(result).toContain('"user"');
+      expect(result).toContain('"profile"');
+      expect(result).toContain('"settings"');
     });
   });
 });

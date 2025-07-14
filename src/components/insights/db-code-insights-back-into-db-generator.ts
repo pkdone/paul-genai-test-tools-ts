@@ -155,6 +155,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
         instructions: config.description,
         schema: config.schema,
         fileContentDesc: "source files",
+        responseContainsCode: false,
       },
       codeContent,
     );

@@ -236,12 +236,11 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
     if (options?.outputFormat === LLMOutputFormat.JSON) {
       generationConfig.responseMimeType = llmConfig.LLM_RESPONSE_JSON_CONTENT_TYPE;
 
-      if (options.jsonSchema) {
+      if (options.jsonSchema && !options.responseContainsCode) {
         const jsonSchema = zodToJsonSchema(options.jsonSchema);
         delete jsonSchema.$schema;
-        // TODO: restore
-        // Xeslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-        //generationConfig.responseSchema = jsonSchema as any;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+        generationConfig.responseSchema = jsonSchema as any;
       }
     }
 

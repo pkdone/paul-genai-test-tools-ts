@@ -70,6 +70,7 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
           .array(z.string())
           .describe("A list of third-party classpaths referenced."),
       }),
+    responseContainsCode: false,
   },
   javascript: {
     fileContentDesc: "JavaScript/TypeScript code",
@@ -85,6 +86,7 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
       externalReferences: true,
       databaseIntegration: true,
     }),
+    responseContainsCode: false,
   },
   default: {
     fileContentDesc: "project file content",
@@ -96,6 +98,7 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
       implementation: true,
       databaseIntegration: true,
     }),
+    responseContainsCode: false,
   },
   sql: {
     fileContentDesc: "database DDL/DML/SQL code",
@@ -127,6 +130,7 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
           ]),
         }),
       }),
+    responseContainsCode: false,
   },
   xml: {
     fileContentDesc: "XML code",
@@ -138,6 +142,7 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
       implementation: true,
       databaseIntegration: true,
     }),
+    responseContainsCode: false,
   },
   jsp: {
     fileContentDesc: "JSP code",
@@ -153,6 +158,7 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
       externalReferences: true,
       dataInputFields: true,
     }),
+    responseContainsCode: false,
   },
   markdown: {
     fileContentDesc: "Markdown content",
@@ -164,5 +170,6 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
       implementation: true,
       databaseIntegration: true,
     }),
+    responseContainsCode: false,
   },
 } as const;
