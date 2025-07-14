@@ -2,9 +2,9 @@ import { LLMOutputFormat } from "../../../../src/llm/llm.types";
 import {
   convertTextToJSONAndOptionallyValidate,
   validateSchemaIfNeededAndReturnResponse,
-} from "../../../../src/llm/processing/msgProcessing/llm-response-tools";
+} from "../../../../src/llm/processing/msgProcessing/content-tools";
 
-describe("llm-response-tools", () => {
+describe("content-tools", () => {
   // Note: extractTokensAmountFromMetadataDefaultingMissingValues and
   // postProcessAsJSONIfNeededGeneratingNewResult have been moved to AbstractLLM
   // as protected methods and are now tested in tests/llm/core/abstract-llm.test.ts
