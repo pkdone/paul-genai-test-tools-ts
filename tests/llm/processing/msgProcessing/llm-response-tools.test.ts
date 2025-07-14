@@ -1,227 +1,72 @@
 import {
-  LLMPurpose,
-  LLMResponseStatus,
-  LLMContext,
-  LLMFunctionResponse,
-  LLMResponseTokensUsage,
   LLMOutputFormat,
 } from "../../../../src/llm/llm.types";
 import {
-  extractTokensAmountFromMetadataDefaultingMissingValues,
-  postProcessAsJSONIfNeededGeneratingNewResult,
+  convertTextToJSONAndOptionallyValidate,
+  validateSchemaIfNeededAndReturnResponse,
 } from "../../../../src/llm/processing/msgProcessing/llm-response-tools";
 
-// Test-only constants
-const GPT_COMPLETIONS_GPT4 = "GPT_COMPLETIONS_GPT4";
-
-const testMetadata = {
-  [GPT_COMPLETIONS_GPT4]: {
-    modelKey: GPT_COMPLETIONS_GPT4,
-    urn: "gpt-4",
-    purpose: LLMPurpose.COMPLETIONS,
-    maxCompletionTokens: 4096,
-    maxTotalTokens: 8192,
-  },
-  GPT_EMBEDDINGS_GPT4: {
-    modelKey: "GPT_EMBEDDINGS_GPT4",
-    urn: "text-embedding-ada-002",
-    purpose: LLMPurpose.EMBEDDINGS,
-    maxCompletionTokens: 0,
-    maxTotalTokens: 8191,
-  },
-};
-
 describe("llm-response-tools", () => {
-  describe("extractTokensAmountFromMetadataDefaultingMissingValues", () => {
-    test("should return original values when all are positive", () => {
-      const tokenUsage: LLMResponseTokensUsage = {
-        promptTokens: 100,
-        completionTokens: 50,
-        maxTotalTokens: 8192,
-      };
-
-      const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        GPT_COMPLETIONS_GPT4,
-        tokenUsage,
-        testMetadata,
-      );
-
-      expect(result.promptTokens).toBe(100);
-      expect(result.completionTokens).toBe(50);
-      expect(result.maxTotalTokens).toBe(8192);
+  // Note: extractTokensAmountFromMetadataDefaultingMissingValues and 
+  // postProcessAsJSONIfNeededGeneratingNewResult have been moved to AbstractLLM 
+  // as protected methods and are now tested in tests/llm/core/abstract-llm.test.ts
+  
+  describe("convertTextToJSONAndOptionallyValidate", () => {
+    test("should convert valid JSON string to object", () => {
+      const jsonString = '{"key": "value", "number": 42}';
+      const result = convertTextToJSONAndOptionallyValidate(jsonString);
+      
+      expect(result).toEqual({ key: "value", number: 42 });
     });
 
-    test("should default negative completionTokens to 0", () => {
-      const tokenUsage: LLMResponseTokensUsage = {
-        promptTokens: 100,
-        completionTokens: -1,
-        maxTotalTokens: 8192,
-      };
-
-      const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        GPT_COMPLETIONS_GPT4,
-        tokenUsage,
-        testMetadata,
-      );
-
-      expect(result.promptTokens).toBe(100);
-      expect(result.completionTokens).toBe(0);
-      expect(result.maxTotalTokens).toBe(8192);
+    test("should handle JSON with surrounding text", () => {
+      const textWithJson = 'Some text before {"key": "value"} some text after';
+      const result = convertTextToJSONAndOptionallyValidate(textWithJson);
+      
+      expect(result).toEqual({ key: "value" });
     });
 
-    test("should default negative maxTotalTokens to model metadata value", () => {
-      const tokenUsage: LLMResponseTokensUsage = {
-        promptTokens: 100,
-        completionTokens: 50,
-        maxTotalTokens: -1,
-      };
-
-      const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        GPT_COMPLETIONS_GPT4,
-        tokenUsage,
-        testMetadata,
-      );
-
-      expect(result.promptTokens).toBe(100);
-      expect(result.completionTokens).toBe(50);
-      expect(result.maxTotalTokens).toBe(8192); // From testMetadata
+    test("should handle array JSON", () => {
+      const arrayJson = '[{"item": 1}, {"item": 2}]';
+      const result = convertTextToJSONAndOptionallyValidate(arrayJson);
+      
+      expect(result).toEqual([{ item: 1 }, { item: 2 }]);
     });
 
-    test("should calculate promptTokens when negative", () => {
-      const tokenUsage: LLMResponseTokensUsage = {
-        promptTokens: -1,
-        completionTokens: 50,
-        maxTotalTokens: 8192,
-      };
-
-      const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        GPT_COMPLETIONS_GPT4,
-        tokenUsage,
-        testMetadata,
+    test("should throw error for invalid JSON", () => {
+      const invalidJson = 'not valid json';
+      
+      expect(() => convertTextToJSONAndOptionallyValidate(invalidJson)).toThrow(
+        "Generated content is invalid - no JSON content found"
       );
-
-      expect(result.promptTokens).toBe(8192 - 50 + 1); // maxTotalTokens - completionTokens + 1
-      expect(result.completionTokens).toBe(50);
-      expect(result.maxTotalTokens).toBe(8192);
     });
 
-    test("should calculate promptTokens ensuring it's at least 1", () => {
-      const tokenUsage: LLMResponseTokensUsage = {
-        promptTokens: -1,
-        completionTokens: 8192,
-        maxTotalTokens: 8192,
-      };
-
-      const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        GPT_COMPLETIONS_GPT4,
-        tokenUsage,
-        testMetadata,
+    test("should throw error for non-string input", () => {
+      const nonStringInput = 123;
+      
+      expect(() => convertTextToJSONAndOptionallyValidate(nonStringInput as unknown as string)).toThrow(
+        "Generated content is not a string"
       );
-
-      expect(result.promptTokens).toBe(1); // Math.max(1, 8192 - 8192 + 1) = Math.max(1, 1) = 1
-      expect(result.completionTokens).toBe(8192);
-      expect(result.maxTotalTokens).toBe(8192);
-    });
-
-    test("should handle all negative values", () => {
-      const tokenUsage: LLMResponseTokensUsage = {
-        promptTokens: -1,
-        completionTokens: -5,
-        maxTotalTokens: -10,
-      };
-
-      const result = extractTokensAmountFromMetadataDefaultingMissingValues(
-        GPT_COMPLETIONS_GPT4,
-        tokenUsage,
-        testMetadata,
-      );
-
-      expect(result.promptTokens).toBe(8192 - 0 + 1); // maxTotalTokens - completionTokens + 1
-      expect(result.completionTokens).toBe(0);
-      expect(result.maxTotalTokens).toBe(8192);
     });
   });
 
-  describe("postProcessAsJSONIfNeededGeneratingNewResult", () => {
-    const skeletonResult: LLMFunctionResponse = {
-      status: LLMResponseStatus.UNKNOWN,
-      request: "test request",
-      modelKey: GPT_COMPLETIONS_GPT4,
-      context: { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS },
-      tokensUage: { promptTokens: 100, completionTokens: 50, maxTotalTokens: 8192 },
-    };
-
-    test("should return COMPLETED status for COMPLETIONS with string content and asJson=false", () => {
-      const responseContent = "This is a plain text response";
-      const context: LLMContext = { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS };
-
-      const result = postProcessAsJSONIfNeededGeneratingNewResult(
-        skeletonResult,
-        GPT_COMPLETIONS_GPT4,
-        LLMPurpose.COMPLETIONS,
-        responseContent,
-        { outputFormat: LLMOutputFormat.TEXT },
-        context,
-        testMetadata,
-      );
-
-      expect(result.status).toBe(LLMResponseStatus.COMPLETED);
-      expect(result.generated).toBe(responseContent);
+  describe("validateSchemaIfNeededAndReturnResponse", () => {
+    test("should return content when no schema validation needed", () => {
+      const content = { key: "value" };
+      const options = { outputFormat: LLMOutputFormat.TEXT };
+      
+      const result = validateSchemaIfNeededAndReturnResponse(content, options);
+      
+      expect(result).toEqual(content);
     });
 
-    test("should return COMPLETED status for COMPLETIONS with valid JSON content and asJson=true", () => {
-      const responseContent = '{"key": "value", "number": 42}';
-      const context: LLMContext = { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS };
-
-      const result = postProcessAsJSONIfNeededGeneratingNewResult(
-        skeletonResult,
-        GPT_COMPLETIONS_GPT4,
-        LLMPurpose.COMPLETIONS,
-        responseContent,
-        { outputFormat: LLMOutputFormat.JSON },
-        context,
-        testMetadata,
-      );
-
-      expect(result.status).toBe(LLMResponseStatus.COMPLETED);
-      expect(result.generated).toEqual({ key: "value", number: 42 });
-    });
-
-    test("should return OVERLOADED status for COMPLETIONS with invalid JSON content and asJson=true", () => {
-      const responseContent = "This is not valid JSON {";
-      const context: LLMContext = { resource: "test-resource", purpose: LLMPurpose.COMPLETIONS };
-
-      const result = postProcessAsJSONIfNeededGeneratingNewResult(
-        skeletonResult,
-        GPT_COMPLETIONS_GPT4,
-        LLMPurpose.COMPLETIONS,
-        responseContent,
-        { outputFormat: LLMOutputFormat.JSON },
-        context,
-        testMetadata,
-      );
-
-      expect(result.status).toBe(LLMResponseStatus.OVERLOADED);
-      expect(result.generated).toBeUndefined();
-      expect(context.jsonParseError).toBeDefined();
-    });
-
-    test("should return COMPLETED status for non-COMPLETIONS task type", () => {
-      const responseContent = [0.1, 0.2, 0.3]; // Embedding vector
-      const context: LLMContext = { resource: "test-resource", purpose: LLMPurpose.EMBEDDINGS };
-
-      const result = postProcessAsJSONIfNeededGeneratingNewResult(
-        skeletonResult,
-        "GPT_EMBEDDINGS_GPT4",
-        LLMPurpose.EMBEDDINGS,
-        responseContent,
-        { outputFormat: LLMOutputFormat.TEXT },
-        context,
-        testMetadata,
-      );
-
-      expect(result.status).toBe(LLMResponseStatus.COMPLETED);
-      expect(result.generated).toEqual(responseContent);
+    test("should return null for null content", () => {
+      const content = null;
+      const options = { outputFormat: LLMOutputFormat.JSON };
+      
+      const result = validateSchemaIfNeededAndReturnResponse(content, options);
+      
+      expect(result).toBeNull();
     });
   });
 });

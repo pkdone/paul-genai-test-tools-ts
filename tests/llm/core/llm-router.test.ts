@@ -27,20 +27,8 @@ import type { LLMProviderManifest } from "../../../src/llm/providers/llm-provide
 import { getRetryConfiguration } from "../../../src/llm/processing/msgProcessing/request-configurer";
 
 // Mock the dependencies
-jest.mock("../../../src/llm/processing/msgProcessing/llm-response-tools", () => {
-  const actual = jest.requireActual("../../../src/llm/processing/msgProcessing/llm-response-tools");
-  return {
-    extractTokensAmountFromMetadataDefaultingMissingValues: (actual as any)
-      .extractTokensAmountFromMetadataDefaultingMissingValues,
-    postProcessAsJSONIfNeededGeneratingNewResult: (actual as any)
-      .postProcessAsJSONIfNeededGeneratingNewResult,
-    validateAndReturnStructuredResponse: (actual as any).validateAndReturnStructuredResponse,
-    reducePromptSizeToTokenLimit: jest.fn((prompt: string) => {
-      // Simple mock implementation that reduces prompt by half
-      return prompt.substring(0, Math.floor(prompt.length * 0.5));
-    }),
-  };
-});
+// Note: extractTokensAmountFromMetadataDefaultingMissingValues and 
+// postProcessAsJSONIfNeededGeneratingNewResult have been moved to AbstractLLM class
 
 jest.mock("../../../src/llm/processing/routerTracking/llm-router-logging", () => ({
   log: jest.fn(),
