@@ -22,10 +22,11 @@ export default class LLMStats {
       count: 0,
     },
     INVALID_SO_RETRY: {
-      description: "Retried calling LLM due to receiving a JSON invalid response (worth trying again)",
+      description:
+        "Retried calling LLM due to receiving a JSON invalid response (worth trying again)",
       symbol: "~",
       count: 0,
-    },    
+    },
     CROP: {
       description: "Cropping prompt due to excessive size, before resending",
       symbol: "-",

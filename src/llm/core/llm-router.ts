@@ -36,7 +36,7 @@ import { validateSchemaIfNeededAndReturnResponse } from "../processing/msgProces
 export class RetryStatusError extends Error {
   constructor(
     message: string,
-    readonly status: LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID
+    readonly status: LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID,
   ) {
     super(message);
     this.name = "RetryStatusError";
@@ -363,14 +363,18 @@ export default class LLMRouter {
   private checkResultThrowIfRetryFunc(result: LLMFunctionResponse) {
     if (result.status === LLMResponseStatus.OVERLOADED)
       throw new RetryStatusError("LLM is overloaded", LLMResponseStatus.OVERLOADED);
-    if (result.status === LLMResponseStatus.INVALID) 
+    if (result.status === LLMResponseStatus.INVALID)
       throw new RetryStatusError("LLM response is invalid", LLMResponseStatus.INVALID);
   }
 
   /**
    * Log retry events with status-specific handling
    */
-  private logRetryOrInvalidEvent(error: FailedAttemptError & { status?: LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID }) {
+  private logRetryOrInvalidEvent(
+    error: FailedAttemptError & {
+      status?: LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID;
+    },
+  ) {
     if (error.status === LLMResponseStatus.INVALID) {
       this.llmStats.recordInvalidRetry();
     } else {
@@ -403,8 +407,7 @@ export default class LLMRouter {
         shouldCropPrompt: false,
         shouldSwitchToNextLLM: canSwitchModel,
       };
-    }
-    else if (isOverloaded) {
+    } else if (isOverloaded) {
       logWithContext(
         `LLM problem processing completion with current LLM model because it is overloaded, or timing out, even after retries `,
         context,

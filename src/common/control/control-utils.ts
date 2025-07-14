@@ -51,7 +51,7 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
       } as RetryOptions,
     );
   } catch {
-    // p-retry throws if all attempts fail - we catch it and return null 
+    // p-retry throws if all attempts fail - we catch it and return null
     //console.error("All retry attempts failed");
     return null;
   }
