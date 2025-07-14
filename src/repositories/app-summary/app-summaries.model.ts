@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { generateMDBJSONSchema, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
+import { zodToJsonSchemaForMDB, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
 import {
   nameDescSchema,
   appDescriptionKeyValPairSchema,
@@ -69,5 +69,5 @@ export type ProjectedAppSummaryDescAndLLMProvider = z.infer<
  * Generate JSON schema for application summary records
  */
 export function getJSONSchema() {
-  return generateMDBJSONSchema(appSummaryRecordSchema);
+  return zodToJsonSchemaForMDB(appSummaryRecordSchema);
 }

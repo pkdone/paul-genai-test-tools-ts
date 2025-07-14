@@ -6,10 +6,10 @@ import {
   HarmBlockThreshold,
   GoogleApiError,
   ClientError,
+  GenerationConfig,
 } from "@google-cloud/vertexai";
 import * as aiplatform from "@google-cloud/aiplatform";
 const { helpers } = aiplatform;
-//import { zodToJsonSchema } from "zod-to-json-schema";
 import { llmConfig } from "../../../llm.config";
 import {
   LLMModelKeysSet,
@@ -17,7 +17,7 @@ import {
   ResolvedLLMModelMetadata,
   LLMErrorMsgRegExPattern,
   LLMCompletionOptions,
-  //LLMOutputFormat,
+  LLMOutputFormat,
 } from "../../../llm.types";
 import { getErrorText, logErrorMsgAndDetail } from "../../../../common/utils/error-utils";
 import AbstractLLM from "../../../core/abstract-llm";
@@ -28,6 +28,7 @@ import {
 } from "../../../errors/llm-errors.types";
 import { VERTEX_GEMINI } from "./vertex-ai-gemini.manifest";
 import { LLMProviderSpecificConfig } from "../../llm-provider.types";
+import { zodToJsonSchema } from "zod-to-json-schema";
 const VERTEXAI_TERMINAL_FINISH_REASONS = [
   FinishReason.BLOCKLIST,
   FinishReason.PROHIBITED_CONTENT,
@@ -222,10 +223,9 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
   /**
    * Assemble the GCP API parameters structure for the given model and prompt.
    */
-  private buildFullCompletionLLMParameters(modelKey: string, _options?: LLMCompletionOptions) {
-    void _options; // Avoid linting error
+  private buildFullCompletionLLMParameters(modelKey: string, options?: LLMCompletionOptions) {
     const config = this.providerSpecificConfig;
-    const generationConfig = {
+    const generationConfig: GenerationConfig = {
       candidateCount: 1,
       topP: config.topP ?? llmConfig.DEFAULT_TOP_P_LOWEST,
       topK: config.topK ?? llmConfig.DEFAULT_TOP_K_LOWEST,
@@ -233,16 +233,16 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
       maxOutputTokens: this.llmModelsMetadata[modelKey].maxCompletionTokens,
     };
 
-    // TODO: this needs fixing for JSON mode - throws error if set
-    /*
-    // Add structured JSON output support
-    if (options?.outputFormat === LLMOutputFormat.JSON && options.jsonSchema) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      (generationConfig as any).responseMimeType = llmConfig.LLM_RESPONSE_JSON_CONTENT_TYPE;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      (generationConfig as any).responseSchema = zodToJsonSchema(options.jsonSchema);
+    if (options?.outputFormat === LLMOutputFormat.JSON) {
+      generationConfig.responseMimeType = llmConfig.LLM_RESPONSE_JSON_CONTENT_TYPE;
+
+      if (options.jsonSchema) {
+        const jsonSchema = zodToJsonSchema(options.jsonSchema);         
+        delete jsonSchema.$schema;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+        generationConfig.responseSchema = jsonSchema as any;
+      }
     }
-    */
 
     const modelParams = {
       model: this.llmModelsMetadata[modelKey].urn,

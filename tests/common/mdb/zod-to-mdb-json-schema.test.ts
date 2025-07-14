@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Decimal128 } from "bson";
 import {
-  generateMDBJSONSchema,
+  zodToJsonSchemaForMDB,
   zBsonObjectId,
   zBsonDecimal128,
   zBsonDate,
@@ -19,7 +19,7 @@ describe("zod-to-mdb-json-schema", () => {
     });
 
     test("should convert basic schema with custom BSON types", () => {
-      const result = generateMDBJSONSchema(UserSchema);
+      const result = zodToJsonSchemaForMDB(UserSchema);
 
       // Basic structure checks
       expect(result).toBeDefined();
@@ -68,7 +68,7 @@ describe("zod-to-mdb-json-schema", () => {
         metadata: z.record(z.string(), z.unknown()),
       });
 
-      const result = generateMDBJSONSchema(ComplexSchema);
+      const result = zodToJsonSchemaForMDB(ComplexSchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
 
       expect(schema.properties).toBeDefined();
@@ -86,7 +86,7 @@ describe("zod-to-mdb-json-schema", () => {
 
     test("should handle empty schema", () => {
       const EmptySchema = z.object({});
-      const result = generateMDBJSONSchema(EmptySchema);
+      const result = zodToJsonSchemaForMDB(EmptySchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
 
       expect(schema).toHaveProperty("type", "object");
@@ -103,7 +103,7 @@ describe("zod-to-mdb-json-schema", () => {
         withRegex: z.string().regex(/^[a-z]+$/),
       });
 
-      const result = generateMDBJSONSchema(StringSchema);
+      const result = zodToJsonSchemaForMDB(StringSchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
 
       // String with min length
@@ -143,7 +143,7 @@ describe("zod-to-mdb-json-schema", () => {
         withMax: z.number().max(10),
       });
 
-      const result = generateMDBJSONSchema(NumberSchema);
+      const result = zodToJsonSchemaForMDB(NumberSchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
 
       // Regular number
@@ -181,7 +181,7 @@ describe("zod-to-mdb-json-schema", () => {
         exactLength: z.array(z.string()).length(3),
       });
 
-      const result = generateMDBJSONSchema(ArraySchema);
+      const result = zodToJsonSchemaForMDB(ArraySchema);
       const schema = result as unknown as { properties: Record<string, unknown> };
 
       // Regular array
@@ -217,7 +217,7 @@ describe("zod-to-mdb-json-schema", () => {
         defaultValue: z.string().default("default"),
       });
 
-      const result = generateMDBJSONSchema(UnionSchema);
+      const result = zodToJsonSchemaForMDB(UnionSchema);
       const schema = result as unknown as {
         properties: Record<string, unknown>;
         required?: string[];

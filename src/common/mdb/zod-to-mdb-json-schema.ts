@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { zodToJsonSchema, ignoreOverride } from "zod-to-json-schema";
+import { ignoreOverride } from "zod-to-json-schema";
 import type { JsonSchema7Type } from "zod-to-json-schema";
 import { ObjectId, Decimal128 } from "bson";
+import { zodToJsonSchemaNormalized } from "../utils/json-schema-utils";
 
 export const zBsonObjectId = z.custom<ObjectId>().describe("bson:objectId");
 export const zBsonDecimal128 = z.custom<Decimal128>().describe("bson:decimal128");
@@ -26,12 +27,6 @@ const mongoSchemaOptions = {
   },
 };
 
-export function generateMDBJSONSchema(schema: z.ZodObject<z.ZodRawShape>) {
-  // Generate the JSON schema
-  const jsonSchema = zodToJsonSchema(schema, mongoSchemaOptions);
-
-  // Remove the $schema property which MongoDB doesn't support
-  const { $schema, ...mdbSchema } = jsonSchema;
-  void $schema; // Avoid linting error
-  return mdbSchema;
+export function zodToJsonSchemaForMDB(schema: z.ZodObject<z.ZodRawShape>) {
+  return zodToJsonSchemaNormalized(schema, mongoSchemaOptions);
 }

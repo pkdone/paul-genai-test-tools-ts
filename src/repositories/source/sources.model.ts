@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { generateMDBJSONSchema, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
+import { zodToJsonSchemaForMDB, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
 import { sourceFileSummarySchema } from "../../schemas/source-summaries.schema";
 // Note, `.passthrough()` sets "additionalProperties": true
 
@@ -128,5 +128,5 @@ export interface ProjectedFileTypesCountAndLines {
  * Generate JSON schema for source file records
  */
 export function getJSONSchema() {
-  return generateMDBJSONSchema(sourceRecordSchema);
+  return zodToJsonSchemaForMDB(sourceRecordSchema);
 }
