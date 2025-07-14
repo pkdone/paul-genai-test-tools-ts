@@ -10,9 +10,9 @@ import {
   LLMCompletionOptions,
 } from "../llm.types";
 import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
-import { RetryFunc } from "../../common/control/control.types";
 import { BadConfigurationLLMError, BadResponseContentLLMError } from "../errors/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
+import { RetryFunc } from "../../common/control/control.types";
 import type { PromptAdapter } from "../processing/prompting/prompt-adapter";
 import {
   log,
@@ -346,7 +346,11 @@ export default class LLMRouter {
     completionOptions?: LLMCompletionOptions,
   ) {
     const retryConfig = getRetryConfiguration(this.providerRetryConfig);
-    const result = await withRetry(
+    const result = await withRetry<
+      [string, LLMContext, LLMCompletionOptions?], 
+      LLMFunctionResponse, 
+      LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID
+    >(
       llmFunction as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,
       [prompt, context, completionOptions],
       this.checkResultThrowIfRetryFunc.bind(this),

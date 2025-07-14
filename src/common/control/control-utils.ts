@@ -1,23 +1,25 @@
 import pRetry from "p-retry";
 import { RetryFunc, CheckResultThrowIfRetryFunc, LogRetryEventFunc } from "./control.types";
-import { LLMResponseStatus } from "../../llm/llm.types";
 
-interface FailedAttemptError extends Error {
+interface FailedAttemptError<TStatus = never> extends Error {
   readonly attemptNumber: number;
   readonly retriesLeft: number;
-  readonly status?: LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID;
+  readonly status?: TStatus;
 }
 
-interface RetryOptions {
+interface RetryOptions<TStatus = never> {
   retries?: number;
   minTimeout?: number;
-  onFailedAttempt?: (error: FailedAttemptError) => void;
+  onFailedAttempt?: (error: FailedAttemptError<TStatus>) => void;
 }
 
 /**
  * Generic retry mechanism for asynchronous functions using exponential backoff.
  * It wraps the `p-retry` library to provide a consistent retry strategy.
  *
+ * @template TArgs The arguments tuple type for the async function
+ * @template TReturn The return type of the async function
+ * @template TStatus The type of status that can be associated with retry errors
  * @param asyncTryFunc The asynchronous function to retry.
  * @param args Arguments to pass to the async function (now strongly typed).
  * @param checkResultThrowIfRetryFunc A function that takes the result and decides whether to retry.
@@ -27,11 +29,11 @@ interface RetryOptions {
  * @returns The result of the asynchronous function, if successful.
  * @throws {Error} if all retry attempts fail.
  */
-export async function withRetry<TArgs extends unknown[], TReturn>(
+export async function withRetry<TArgs extends unknown[], TReturn, TStatus = never>(
   asyncTryFunc: RetryFunc<TArgs, TReturn>,
   args: TArgs,
   checkResultThrowIfRetryFunc: CheckResultThrowIfRetryFunc<TReturn>,
-  logRetryEventFunc: LogRetryEventFunc | null = null,
+  logRetryEventFunc: LogRetryEventFunc<TStatus> | null = null,
   maxAttempts = 3,
   minRetryDelay = 7000,
 ): Promise<TReturn | null> {
@@ -45,10 +47,10 @@ export async function withRetry<TArgs extends unknown[], TReturn>(
       {
         retries: maxAttempts - 1, // p-retry uses `retries` (number of retries, not total attempts)
         minTimeout: minRetryDelay,
-        onFailedAttempt: (error: FailedAttemptError) => {
+        onFailedAttempt: (error: FailedAttemptError<TStatus>) => {
           if (logRetryEventFunc) logRetryEventFunc(error);
         },
-      } as RetryOptions,
+      } as RetryOptions<TStatus>,
     );
   } catch {
     // p-retry throws if all attempts fail - we catch it and return null

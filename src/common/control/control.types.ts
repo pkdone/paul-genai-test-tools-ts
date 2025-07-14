@@ -1,5 +1,4 @@
 import { FailedAttemptError } from "p-retry";
-import { LLMResponseStatus } from "../../llm/llm.types";
 
 /**
  * Type to define the retry function with improved type safety using generics
@@ -13,7 +12,8 @@ export type CheckResultThrowIfRetryFunc<T> = (result: T) => void;
 
 /**
  * Type to define the log retry event function with status support
+ * @template TStatus The type of status that can be associated with retry errors
  */
-export type LogRetryEventFunc = (
-  error: FailedAttemptError & { status?: LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID },
+export type LogRetryEventFunc<TStatus = never> = (
+  error: FailedAttemptError & { status?: TStatus },
 ) => void;
