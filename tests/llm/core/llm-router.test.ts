@@ -28,7 +28,7 @@ import { getRetryConfiguration } from "../../../src/llm/processing/msgProcessing
 
 // Mock the dependencies
 jest.mock("../../../src/llm/processing/msgProcessing/llm-response-tools", () => {
-const actual = jest.requireActual("../../../src/llm/processing/msgProcessing/llm-response-tools");
+  const actual = jest.requireActual("../../../src/llm/processing/msgProcessing/llm-response-tools");
   return {
     extractTokensAmountFromMetadataDefaultingMissingValues: (actual as any)
       .extractTokensAmountFromMetadataDefaultingMissingValues,

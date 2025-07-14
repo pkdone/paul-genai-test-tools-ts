@@ -1,7 +1,10 @@
 import { ZodType, ZodTypeDef } from "zod";
 import { zodToJsonSchema, Options } from "zod-to-json-schema";
 
-export function zodToJsonSchemaNormalized(schema: ZodType<unknown, ZodTypeDef, unknown>, options?: string | Partial<Options>) {
+export function zodToJsonSchemaNormalized(
+  schema: ZodType<unknown, ZodTypeDef, unknown>,
+  options?: string | Partial<Options>,
+) {
   // Generate the JSON schema
   const jsonSchema = zodToJsonSchema(schema, options);
 

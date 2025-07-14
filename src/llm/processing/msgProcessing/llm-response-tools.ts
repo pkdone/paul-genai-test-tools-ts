@@ -42,11 +42,12 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
   modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
   logProcessingWarning = false,
 ): LLMFunctionResponse {
-  const asJson = completionOptions?.outputFormat === LLMOutputFormat.JSON;
-  
   if (taskType === LLMPurpose.COMPLETIONS) {
     try {
-      const generatedContent = asJson ? convertTextToJSON(responseContent) : responseContent;
+      const generatedContent =
+        completionOptions?.outputFormat === LLMOutputFormat.JSON
+          ? convertTextToJSONAndOptionallyValidate(responseContent, completionOptions)
+          : responseContent;
       return {
         ...skeletonResult,
         status: LLMResponseStatus.COMPLETED,
@@ -67,12 +68,14 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
 }
 
 /**
- * Convert text content to JSON, trimming the content to only include the JSON part.
- * @param content The content containing JSON (must be a string)
- * @returns The parsed JSON object with the specified type
+ * Convert text content to JSON, trimming the content to only include the JSON part and optionally
+ * validate it against a Zod schema.
  */
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export function convertTextToJSON<T = Record<string, unknown>>(content: LLMGeneratedContent): T {
+export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknown>>(
+  content: LLMGeneratedContent,
+  completionOptions?: LLMCompletionOptions,
+): T {
   if (typeof content !== "string") {
     throw new Error(`Generated content is not a string: ${JSON.stringify(content)}`);
   }
@@ -83,23 +86,44 @@ export function convertTextToJSON<T = Record<string, unknown>>(content: LLMGener
   const match = jsonRegex.exec(content);
 
   if (!match) {
-    throw new Error(`Invalid input: No JSON content found for text: ${content}`);
+    throw new Error(`Generated content is invalid - no JSON content found for text: ${content}`);
   }
 
-  const jsonString = match[0];
-  return JSON.parse(jsonString) as T;
+  // Validate the content as JSON
+  const jsonContent = JSON.parse(match[0]) as T;
+
+  // Validate the JSON content against a Zod schema if provided
+  if (completionOptions) {
+    const validatedContent = validateSchemaIfNeededAndReturnResponse<T>(
+      jsonContent as LLMGeneratedContent,
+      completionOptions,
+      "content",
+    );
+    if (validatedContent === null)
+      throw new Error(
+        `Generated content is JSON but not valid according to the Zod schema: ${JSON.stringify(content)}`,
+      );
+    return validatedContent;
+  }
+
+  return jsonContent;
 }
 
 /**
- * Validate the LLM response against a Zod schema if provided.
+ * Validate the LLM response content against a Zod schema if provided returning null if validation
+ * fails (having logged the error).
  */
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export function validateAndReturnStructuredResponse<T>(
+export function validateSchemaIfNeededAndReturnResponse<T>(
   content: LLMGeneratedContent | null,
   completionOptions: LLMCompletionOptions,
   resourceName = "content",
 ): T | null {
-  if (content && completionOptions.jsonSchema) {
+  if (
+    content &&
+    completionOptions.outputFormat === LLMOutputFormat.JSON &&
+    completionOptions.jsonSchema
+  ) {
     const validation = completionOptions.jsonSchema.safeParse(content);
 
     if (!validation.success) {

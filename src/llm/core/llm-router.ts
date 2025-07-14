@@ -15,17 +15,49 @@ import { RetryFunc } from "../../common/control/control.types";
 import { BadConfigurationLLMError, BadResponseContentLLMError } from "../errors/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
 import type { PromptAdapter } from "../processing/prompting/prompt-adapter";
-import { log, logErrWithContext, logWithContext } from "../processing/routerTracking/llm-router-logging";
+import {
+  log,
+  logErrWithContext,
+  logWithContext,
+} from "../processing/routerTracking/llm-router-logging";
 import type LLMStats from "../processing/routerTracking/llm-stats";
 import type { LLMRetryConfig } from "../providers/llm-provider.types";
 import { LLMService } from "./llm-service";
 import type { EnvVars } from "../../lifecycle/env.types";
-import { validateAndReturnStructuredResponse } from "../processing/msgProcessing/llm-response-tools";
+
 import {
   getOverridenCompletionCandidates,
   buildCompletionCandidates,
   getRetryConfiguration,
 } from "../processing/msgProcessing/request-configurer";
+import { logErrorMsg } from "../../common/utils/error-utils";
+
+/**
+ * Temporary function to handle schema validation until the import issue is resolved
+ */
+function validateSchemaIfNeededAndReturnResponse(
+  content: LLMGeneratedContent | null,
+  completionOptions: LLMCompletionOptions,
+  resourceName = "content",
+) {
+  if (
+    content &&
+    completionOptions.outputFormat === LLMOutputFormat.JSON &&
+    completionOptions.jsonSchema
+  ) {
+    const validation = completionOptions.jsonSchema.safeParse(content);
+
+    if (!validation.success) {
+      const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so returning null. Issues: ${JSON.stringify(validation.error.issues)}`;
+      logErrorMsg(errorMessage);
+      return null;
+    }
+
+    return validation.data;
+  } else {
+    return content;
+  }
+}
 
 /**
  * Class for loading the required LLMs as specified by various environment settings and applying
@@ -176,12 +208,7 @@ export default class LLMRouter {
       candidatesToUse,
       options,
     );
-
-    if (options.outputFormat === LLMOutputFormat.JSON) {
-      return validateAndReturnStructuredResponse<T>(llmResponse, options, resourceName);
-    } else {
-      return llmResponse as T | null;
-    }
+    return validateSchemaIfNeededAndReturnResponse(llmResponse, options, resourceName) as T | null;
   }
 
   /**

@@ -1,4 +1,4 @@
-import { convertTextToJSON } from "../../../src/llm/processing/msgProcessing/llm-response-tools";
+import { convertTextToJSONAndOptionallyValidate } from "../../../src/llm/processing/msgProcessing/llm-response-tools";
 
 // Test interfaces for generic type testing
 interface TestUser {
@@ -42,13 +42,15 @@ describe("JSON utilities", () => {
     ];
 
     test.each(validJsonTestData)("with $description", ({ input, expected }) => {
-      const result = convertTextToJSON(input);
+      const result = convertTextToJSONAndOptionallyValidate(input);
       expect(result).toEqual(expected);
     });
 
     test("throws on invalid JSON", () => {
       const text = "No JSON here";
-      expect(() => convertTextToJSON(text)).toThrow("Invalid input: No JSON content found");
+      expect(() => convertTextToJSONAndOptionallyValidate(text)).toThrow(
+        "Generated content is invalid - no JSON content found",
+      );
     });
 
     test("throws on non-string input", () => {
@@ -59,14 +61,14 @@ describe("JSON utilities", () => {
       ];
 
       testCases.forEach(({ input, expected }) => {
-        expect(() => convertTextToJSON(input)).toThrow(expected);
+        expect(() => convertTextToJSONAndOptionallyValidate(input)).toThrow(expected);
       });
     });
 
     test("returns typed result with generic type parameter", () => {
       const userJson =
         'Text before {"name": "John Doe", "age": 30, "email": "john@example.com"} text after';
-      const user = convertTextToJSON<TestUser>(userJson);
+      const user = convertTextToJSONAndOptionallyValidate<TestUser>(userJson);
 
       // TypeScript should now provide type safety for these properties
       expect(user.name).toBe("John Doe");
@@ -77,7 +79,7 @@ describe("JSON utilities", () => {
     test("returns complex typed result with nested objects", () => {
       const configJson =
         'Prefix {"enabled": true, "settings": {"timeout": 5000, "retries": 3}} suffix';
-      const config = convertTextToJSON<TestConfig>(configJson);
+      const config = convertTextToJSONAndOptionallyValidate<TestConfig>(configJson);
 
       // TypeScript should provide type safety for nested properties
       expect(config.enabled).toBe(true);
@@ -87,7 +89,7 @@ describe("JSON utilities", () => {
 
     test("defaults to Record<string, unknown> when no type parameter provided", () => {
       const input = 'Text {"dynamic": "content", "count": 42} more text';
-      const result = convertTextToJSON(input); // No type parameter
+      const result = convertTextToJSONAndOptionallyValidate(input); // No type parameter
 
       expect(result).toEqual({ dynamic: "content", count: 42 });
       // The result should be of type Record<string, unknown>
