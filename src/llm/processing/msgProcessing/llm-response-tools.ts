@@ -61,7 +61,7 @@ export function validateSchemaIfNeededAndReturnResponse<T>(
     const validation = completionOptions.jsonSchema.safeParse(content);
 
     if (!validation.success) {
-      const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so returning null. Issues: ${JSON.stringify(validation.error.issues)}`;
+      const errorMessage = `Zod schema validation failed for '${resourceName}' so returning null. Validation issues: ${JSON.stringify(validation.error.issues)}`;
       logErrorMsg(errorMessage);
       return null;
     }
