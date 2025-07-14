@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary } from "../../llm.types";
+import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary, LLMStatsCategoriesBase } from "../../llm.types";
 
 /**
  * Class for accumulating and tracking statistics of LLM invocation result types.
@@ -8,7 +8,7 @@ import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary } from "../../llm.typ
 export default class LLMStats {
   // Private fields
   private readonly doPrintEventTicks: boolean;
-  private readonly statusTypes: Record<string, LLMStatsCategoryStatus> = {
+  private readonly statusTypes: Record<keyof LLMStatsCategoriesBase, LLMStatsCategoryStatus> = {
     SUCCESS: { description: "LLM invocation suceeded", symbol: ">", count: 0 },
     FAILURE: { description: "LLM invocation failed so no data produced", symbol: "!", count: 0 },
     SWITCH: {

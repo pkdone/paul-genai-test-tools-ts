@@ -186,15 +186,21 @@ export interface LLMStatsCategoryStatus {
 }
 
 /**
- * Type to define the status types
+ * Base interface for LLM statistics categories (excluding computed fields)
  */
-export interface LLMStatsCategoriesSummary {
+export interface LLMStatsCategoriesBase {
   readonly SUCCESS: LLMStatsCategoryStatus;
   readonly FAILURE: LLMStatsCategoryStatus;
   readonly SWITCH: LLMStatsCategoryStatus;
   readonly OVERLOAD_RETRY: LLMStatsCategoryStatus;
   readonly HOPEFUL_RETRY: LLMStatsCategoryStatus;
   readonly CROP: LLMStatsCategoryStatus;
+}
+
+/**
+ * Type to define the status types summary including computed fields
+ */
+export interface LLMStatsCategoriesSummary extends LLMStatsCategoriesBase {
   readonly TOTAL?: LLMStatsCategoryStatus;
 }
 
