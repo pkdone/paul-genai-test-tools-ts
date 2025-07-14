@@ -173,7 +173,7 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
    * Extract token usage information from LLM response metadata, defaulting missing
    * values.
    */
-  protected extractTokensAmountFromMetadataDefaultingMissingValues(
+  private extractTokensAmountFromMetadataDefaultingMissingValues(
     modelKey: string,
     tokenUsage: LLMResponseTokensUsage,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
@@ -189,7 +189,7 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
    * Post-process the LLM response, converting it to JSON if necessary, and build the
    * response metadaat object.
    */
-  protected postProcessAsJSONIfNeededGeneratingNewResult(
+  private postProcessAsJSONIfNeededGeneratingNewResult(
     skeletonResult: LLMFunctionResponse,
     modelKey: string,
     taskType: LLMPurpose,
