@@ -45,7 +45,7 @@ export class FileSummarizer {
         {
           outputFormat: LLMOutputFormat.JSON,
           jsonSchema: handler.schema,
-          responseContainsCode: handler.responseContainsCode,
+          trickySchema: handler.trickySchema,
         },
       );
 

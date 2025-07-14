@@ -52,8 +52,8 @@ export class FileHandler<T extends SourceSummaryType = SourceSummaryType> {
   /**
    * Gets whether the response contains code.
    */
-  get responseContainsCode(): boolean {
-    return this.config.responseContainsCode;
+  get trickySchema(): boolean {
+    return this.config.trickySchema;
   }
 
   /**

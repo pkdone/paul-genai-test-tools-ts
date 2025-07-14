@@ -61,7 +61,7 @@ export interface LLMCompletionOptions {
   /** Zod schema for structured output providers that support it */
   jsonSchema?: z.ZodType<unknown>;
   /** Whether the response is expected to contain code - defaults to false */
-  responseContainsCode?: boolean;
+  trickySchema?: boolean;
 }
 
 /**

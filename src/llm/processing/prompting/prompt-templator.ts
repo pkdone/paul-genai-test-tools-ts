@@ -16,7 +16,7 @@ export interface DynamicPromptReplaceVars {
   schema: z.ZodType;
   fileContentDesc: string;
   instructions: string;
-  responseContainsCode: boolean;
+  trickySchema: boolean;
 }
 
 /**
