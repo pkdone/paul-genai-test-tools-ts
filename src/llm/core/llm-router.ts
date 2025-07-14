@@ -178,7 +178,7 @@ export default class LLMRouter {
     );
 
     if (options.outputFormat === LLMOutputFormat.JSON) {
-      return validateAndReturnStructuredResponse<T>(resourceName, llmResponse, options);
+      return validateAndReturnStructuredResponse<T>(llmResponse, options, resourceName);
     } else {
       return llmResponse as T | null;
     }

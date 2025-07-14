@@ -9,7 +9,6 @@ import {
   ResolvedLLMModelMetadata,
   LLMErrorMsgRegExPattern,
   LLMCompletionOptions,
-  LLMOutputFormat,
 } from "../llm.types";
 import {
   LLMImplSpecificResponseSummary,
@@ -178,13 +177,13 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
     taskType: LLMPurpose,
     request: string,
     context: LLMContext,
-    options?: LLMCompletionOptions,
+    completionOptions?: LLMCompletionOptions,
   ): Promise<LLMFunctionResponse> {
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, modelKey };
 
     try {
       const { isIncompleteResponse, responseContent, tokenUsage } =
-        await this.invokeImplementationSpecificLLM(taskType, modelKey, request, options);
+        await this.invokeImplementationSpecificLLM(taskType, modelKey, request, completionOptions);
 
       if (isIncompleteResponse) {
         // Often occurs if combination of prompt + generated completion execeed the max token limit (e.g. actual internal LLM completion has been executed and the completion has been cut short)
@@ -203,7 +202,7 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
           modelKey,
           taskType,
           responseContent,
-          options?.outputFormat === LLMOutputFormat.JSON,
+          completionOptions,
           context,
           this.llmModelsMetadata,
         );

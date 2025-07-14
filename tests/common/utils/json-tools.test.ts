@@ -51,6 +51,18 @@ describe("JSON utilities", () => {
       expect(() => convertTextToJSON(text)).toThrow("Invalid input: No JSON content found");
     });
 
+    test("throws on non-string input", () => {
+      const testCases = [
+        { input: { key: "value" }, expected: 'Generated content is not a string: {"key":"value"}' },
+        { input: [1, 2, 3], expected: "Generated content is not a string: [1,2,3]" },
+        { input: null, expected: "Generated content is not a string: null" },
+      ];
+
+      testCases.forEach(({ input, expected }) => {
+        expect(() => convertTextToJSON(input)).toThrow(expected);
+      });
+    });
+
     test("returns typed result with generic type parameter", () => {
       const userJson =
         'Text before {"name": "John Doe", "age": 30, "email": "john@example.com"} text after';

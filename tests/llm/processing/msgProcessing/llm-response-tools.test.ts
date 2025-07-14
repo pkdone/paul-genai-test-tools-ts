@@ -4,6 +4,7 @@ import {
   LLMContext,
   LLMFunctionResponse,
   LLMResponseTokensUsage,
+  LLMOutputFormat,
 } from "../../../../src/llm/llm.types";
 import {
   extractTokensAmountFromMetadataDefaultingMissingValues,
@@ -159,7 +160,7 @@ describe("llm-response-tools", () => {
         GPT_COMPLETIONS_GPT4,
         LLMPurpose.COMPLETIONS,
         responseContent,
-        false,
+        { outputFormat: LLMOutputFormat.TEXT },
         context,
         testMetadata,
       );
@@ -177,7 +178,7 @@ describe("llm-response-tools", () => {
         GPT_COMPLETIONS_GPT4,
         LLMPurpose.COMPLETIONS,
         responseContent,
-        true,
+        { outputFormat: LLMOutputFormat.JSON },
         context,
         testMetadata,
       );
@@ -195,7 +196,7 @@ describe("llm-response-tools", () => {
         GPT_COMPLETIONS_GPT4,
         LLMPurpose.COMPLETIONS,
         responseContent,
-        true,
+        { outputFormat: LLMOutputFormat.JSON },
         context,
         testMetadata,
       );
@@ -214,7 +215,7 @@ describe("llm-response-tools", () => {
         "GPT_EMBEDDINGS_GPT4",
         LLMPurpose.EMBEDDINGS,
         responseContent,
-        false,
+        { outputFormat: LLMOutputFormat.TEXT },
         context,
         testMetadata,
       );

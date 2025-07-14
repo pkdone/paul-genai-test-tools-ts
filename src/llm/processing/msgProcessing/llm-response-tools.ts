@@ -7,8 +7,9 @@ import {
   LLMContext,
   ResolvedLLMModelMetadata,
   LLMCompletionOptions,
+  LLMOutputFormat,
 } from "../../llm.types";
-import { BadResponseContentLLMError } from "../../errors/llm-errors.types";
+
 import { getErrorText, logErrorMsg } from "../../../common/utils/error-utils";
 
 /**
@@ -36,15 +37,15 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
   modelKey: string,
   taskType: LLMPurpose,
   responseContent: LLMGeneratedContent,
-  asJson: boolean,
+  completionOptions: LLMCompletionOptions | undefined,
   context: LLMContext,
   modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
   logProcessingWarning = false,
 ): LLMFunctionResponse {
+  const asJson = completionOptions?.outputFormat === LLMOutputFormat.JSON;
+  
   if (taskType === LLMPurpose.COMPLETIONS) {
     try {
-      if (typeof responseContent !== "string")
-        throw new BadResponseContentLLMError("Generated content is not a string", responseContent);
       const generatedContent = asJson ? convertTextToJSON(responseContent) : responseContent;
       return {
         ...skeletonResult,
@@ -67,11 +68,15 @@ export function postProcessAsJSONIfNeededGeneratingNewResult(
 
 /**
  * Convert text content to JSON, trimming the content to only include the JSON part.
- * @param content The text content containing JSON
+ * @param content The content containing JSON (must be a string)
  * @returns The parsed JSON object with the specified type
  */
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export function convertTextToJSON<T = Record<string, unknown>>(content: string): T {
+export function convertTextToJSON<T = Record<string, unknown>>(content: LLMGeneratedContent): T {
+  if (typeof content !== "string") {
+    throw new Error(`Generated content is not a string: ${JSON.stringify(content)}`);
+  }
+
   // This regex finds the first '{' or '[' and matches until the corresponding '}' or ']'.
   // It's more robust than simple indexOf/lastIndexOf.
   const jsonRegex = /({[\s\S]*}|\[[\s\S]*\])/;
@@ -90,21 +95,21 @@ export function convertTextToJSON<T = Record<string, unknown>>(content: string):
  */
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function validateAndReturnStructuredResponse<T>(
-  resourceName: string,
-  llmResponse: LLMGeneratedContent | null,
+  content: LLMGeneratedContent | null,
   completionOptions: LLMCompletionOptions,
+  resourceName = "content",
 ): T | null {
-  if (llmResponse && completionOptions.jsonSchema) {
-    const validation = completionOptions.jsonSchema.safeParse(llmResponse);
+  if (content && completionOptions.jsonSchema) {
+    const validation = completionOptions.jsonSchema.safeParse(content);
 
     if (!validation.success) {
-      const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so discarding it. Issues: ${JSON.stringify(validation.error.issues)}`;
+      const errorMessage = `LLM response for '${resourceName}' failed Zod schema validation so returning null. Issues: ${JSON.stringify(validation.error.issues)}`;
       logErrorMsg(errorMessage);
       return null;
     }
 
     return validation.data as T;
   } else {
-    return llmResponse as T;
+    return content as T;
   }
 }
