@@ -1,13 +1,13 @@
-import { 
-  LLMPurpose, 
-  ResolvedLLMModelMetadata, 
-  LLMModelKeysSet, 
+import {
+  LLMPurpose,
+  ResolvedLLMModelMetadata,
+  LLMModelKeysSet,
   LLMErrorMsgRegExPattern,
   LLMResponseTokensUsage,
 } from "../../../src/llm/llm.types";
-import { 
-  LLMImplSpecificResponseSummary, 
-  LLMProviderSpecificConfig 
+import {
+  LLMImplSpecificResponseSummary,
+  LLMProviderSpecificConfig,
 } from "../../../src/llm/providers/llm-provider.types";
 import AbstractLLM from "../../../src/llm/core/abstract-llm";
 import { AWS_COMPLETIONS_LLAMA_V31_405B_INSTRUCT } from "../../../src/llm/providers/bedrock/bedrockLlama/bedrock-llama.manifest";
@@ -51,7 +51,7 @@ class TestLLM extends AbstractLLM {
     };
     const errorPatterns: LLMErrorMsgRegExPattern[] = [];
     const providerConfig: LLMProviderSpecificConfig = {};
-    
+
     super(modelsKeys, testModelsMetadata, errorPatterns, providerConfig);
   }
 
@@ -61,7 +61,11 @@ class TestLLM extends AbstractLLM {
     tokenUsage: LLMResponseTokensUsage,
     modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
   ): LLMResponseTokensUsage {
-    return this.extractTokensAmountFromMetadataDefaultingMissingValues(modelKey, tokenUsage, modelsMetadata);
+    return this.extractTokensAmountFromMetadataDefaultingMissingValues(
+      modelKey,
+      tokenUsage,
+      modelsMetadata,
+    );
   }
 
   getModelFamily(): string {

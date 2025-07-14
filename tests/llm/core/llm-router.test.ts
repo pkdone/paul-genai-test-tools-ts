@@ -27,7 +27,7 @@ import type { LLMProviderManifest } from "../../../src/llm/providers/llm-provide
 import { getRetryConfiguration } from "../../../src/llm/processing/msgProcessing/request-configurer";
 
 // Mock the dependencies
-// Note: extractTokensAmountFromMetadataDefaultingMissingValues and 
+// Note: extractTokensAmountFromMetadataDefaultingMissingValues and
 // postProcessAsJSONIfNeededGeneratingNewResult have been moved to AbstractLLM class
 
 jest.mock("../../../src/llm/processing/routerTracking/llm-router-logging", () => ({
