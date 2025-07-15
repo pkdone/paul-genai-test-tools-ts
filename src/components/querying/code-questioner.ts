@@ -14,7 +14,7 @@ import { TOKENS } from "../../di/tokens";
  */
 function createCodebaseQueryPrompt(question: string, codeContent: string): string {
   return fillPrompt(
-    `Act as a programmer. I've provided the content of some source code files below in the section marked 'CODE'. Using all that code for context, answer the question a developer has asked about the code, where their question is shown in the section marked 'QUESTION' below. Provide your answer in a few paragraphs, referring to specific evidence in the provided code.
+    `Act as a senior developer. I've provided the content of some source code files below in the section marked 'CODE'. Using all that code for context, answer the question a developer has asked about the code, where their question is shown in the section marked 'QUESTION' below. Provide your answer in a few paragraphs, referring to specific evidence in the provided code.
 
 QUESTION:
 {{question}}

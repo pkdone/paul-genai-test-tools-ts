@@ -20,7 +20,7 @@ import { createPromptFromConfig } from "../../llm/processing/prompting/prompt-te
 export default class DBCodeInsightsBackIntoDBGenerator {
   // Base template for all insights generation prompts
   private readonly APP_CATEGORY_SUMMARIZER_TEMPLATE =
-    "Act as a programmer analyzing the code in a legacy application. Take the list of paths and descriptions of its {{fileContentDesc}} shown below in the section marked 'SOURCES', and based on their content, return a JSON response that contains {{specificInstructions}}.\n\nThe JSON response must follow this JSON schema:\n```json\n{{jsonSchema}}\n```\n\n{{forceJSON}}\n\nSOURCES:\n{{codeContent}}";
+    "Act as a senior developer analyzing the code in a legacy application. Take the list of paths and descriptions of its {{fileContentDesc}} shown below in the section marked 'SOURCES', and based on their content, return a JSON response that contains {{specificInstructions}}.\n\nThe JSON response must follow this JSON schema:\n```json\n{{jsonSchema}}\n```\n\n{{forceJSON}}\n\nSOURCES:\n{{codeContent}}";
   private readonly llmProviderDescription: string;
 
   /**
