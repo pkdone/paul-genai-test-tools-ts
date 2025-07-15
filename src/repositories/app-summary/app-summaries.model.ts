@@ -9,6 +9,7 @@ import {
   technologiesKeyValPairSchema,
   aggregatesKeyValPairSchema,
   repositoriesKeyValPairSchema,
+  potentialMicroservicesKeyValPairSchema,
 } from "../../schemas/app-summary-categories.schema";
 
 /**
@@ -31,6 +32,7 @@ export const appSummaryRecordSchema = z
     aggregates: aggregatesKeyValPairSchema.shape.aggregates.optional(),
     entities: entitiesKeyValPairSchema.shape.entities.optional(),
     repositories: repositoriesKeyValPairSchema.shape.repositories.optional(),
+    potentialMicroservices: potentialMicroservicesKeyValPairSchema.shape.potentialMicroservices.optional(),
   })
   .passthrough();
 

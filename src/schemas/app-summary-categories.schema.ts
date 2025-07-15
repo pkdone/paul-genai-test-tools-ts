@@ -24,6 +24,7 @@ export const AppSummaryCategoryEnum = z.enum([
   "aggregates",
   "entities",
   "repositories",
+  "potentialMicroservices",
 ]);
 
 /**
@@ -91,4 +92,13 @@ export const repositoriesKeyValPairSchema = z.object({
   repositories: z
     .array(nameDescSchema)
     .describe("A list of Domain-Driven Design repositories that provide access to aggregate persistence."),
+});
+
+/**
+ * Schema for arrays of potential microservices name-description pairs
+ */
+export const potentialMicroservicesKeyValPairSchema = z.object({
+  potentialMicroservices: z
+    .array(nameDescSchema)
+    .describe("A list of recommended microservices to modernize the monolithic application, each following the Single Responsibility Principle with defined CRUD operations and REST API endpoints."),
 });

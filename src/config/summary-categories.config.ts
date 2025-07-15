@@ -8,6 +8,7 @@ import {
   technologiesKeyValPairSchema,
   aggregatesKeyValPairSchema,
   repositoriesKeyValPairSchema,
+  potentialMicroservicesKeyValPairSchema,
 } from "../schemas/app-summary-categories.schema";
 
 export type SummaryCategory = z.infer<typeof AppSummaryCategoryEnum>;
@@ -55,5 +56,10 @@ export const summaryCategoriesConfig: Record<
     label: "Repositories", 
     description: "a concise list of Domain Driven Design repositories that provide access to aggregate persistence.",
     schema: repositoriesKeyValPairSchema,
+  },
+  potentialMicroservices: {
+    label: "Potential Microservices",
+    description: "a concise list of recommended microservices to modernize the monolithic application architecture, each following the Single Responsibility Principle with defined CRUD operations and REST API endpoints.",
+    schema: potentialMicroservicesKeyValPairSchema,
   },
 };
