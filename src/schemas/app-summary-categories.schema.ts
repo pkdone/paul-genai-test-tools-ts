@@ -20,7 +20,7 @@ export const businessActivitySchema = z
     activity: z.string().describe("The name of the business activity step."),
     description: z
       .string()
-      .describe("A detailed description of the business activity step."),
+      .describe("A detailed description of the business activity step using business language."),
   })
   .passthrough();
 

@@ -51,7 +51,7 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
 export function validateSchemaIfNeededAndReturnResponse<T>(
   content: LLMGeneratedContent | null,
   completionOptions: LLMCompletionOptions,
-  resourceName = "content",
+  resourceName: string,
 ): T | null {
   if (
     content &&

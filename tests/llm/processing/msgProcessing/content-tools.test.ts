@@ -53,7 +53,7 @@ describe("content-tools", () => {
       const content = { key: "value" };
       const options = { outputFormat: LLMOutputFormat.TEXT };
 
-      const result = validateSchemaIfNeededAndReturnResponse(content, options);
+      const result = validateSchemaIfNeededAndReturnResponse(content, options, "test-content");
 
       expect(result).toEqual(content);
     });
@@ -62,7 +62,7 @@ describe("content-tools", () => {
       const content = null;
       const options = { outputFormat: LLMOutputFormat.JSON };
 
-      const result = validateSchemaIfNeededAndReturnResponse(content, options);
+      const result = validateSchemaIfNeededAndReturnResponse(content, options, "test-null-content");
 
       expect(result).toBeNull();
     });
