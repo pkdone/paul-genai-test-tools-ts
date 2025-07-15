@@ -18,10 +18,12 @@ export const nameDescSchema = z
  */
 export const AppSummaryCategoryEnum = z.enum([
   "appDescription",
-  "boundedContexts",
-  "businessEntities",
-  "businessProcesses",
   "technologies",
+  "businessProcesses",
+  "boundedContexts",
+  "aggregates",
+  "entities",
+  "repositories",
 ]);
 
 /**
@@ -36,21 +38,14 @@ export const appDescriptionKeyValPairSchema = z.object({
 });
 
 /**
- * Schema for arrays of bounded contexts name-description pairs
+ * / Schema for `generate-technologies.prompt`
  */
-export const boundedContextsKeyValPairSchema = z.object({
-  boundedContexts: z
+export const technologiesKeyValPairSchema = z.object({
+  technologies: z
     .array(nameDescSchema)
-    .describe("A list of bounded contexts from a Domain Driven Design perspective"),
-});
-
-/**
- * Schema for arrays of business entities name-description pairs
- */
-export const businessEntitiesKeyValPairSchema = z.object({
-  businessEntities: z
-    .array(nameDescSchema)
-    .describe("A list of the application's main business entities."),
+    .describe(
+      "A list of key external and host platform technologies depended on by the application.",
+    ),
 });
 
 /**
@@ -62,11 +57,38 @@ export const businessProcessesKeyValPairSchema = z.object({
     .describe("A list of the application's main business processes."),
 });
 
-// Schema for `generate-technologies.prompt`
-export const technologiesKeyValPairSchema = z.object({
-  technologies: z
+/**
+ * Schema for arrays of bounded contexts name-description pairs
+ */
+export const boundedContextsKeyValPairSchema = z.object({
+  boundedContexts: z
     .array(nameDescSchema)
-    .describe(
-      "A list of key external and host platform technologies depended on by the application.",
-    ),
+    .describe("A list of Domain-Driven Design Bounded Contexts that define explicit boundaries around related business capabilities and their models."),
+});
+
+/**
+ * Schema for arrays of aggregates name-description pairs
+ */
+export const aggregatesKeyValPairSchema = z.object({
+  aggregates: z
+    .array(nameDescSchema)
+    .describe("A list of Domain-Driven Design aggregates that enforce business rules and maintain consistency."),
+});
+
+/**
+ * Schema for arrays of entities name-description pairs
+ */
+export const entitiesKeyValPairSchema = z.object({
+  entities: z
+    .array(nameDescSchema)
+    .describe("A list of Domain-Driven Design entities that represent core business concepts and contain business logic."),
+});
+
+/**
+ * Schema for arrays of repositories name-description pairs  
+ */
+export const repositoriesKeyValPairSchema = z.object({
+  repositories: z
+    .array(nameDescSchema)
+    .describe("A list of Domain-Driven Design repositories that provide access to aggregate persistence."),
 });

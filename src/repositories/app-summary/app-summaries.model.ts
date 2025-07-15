@@ -4,9 +4,11 @@ import {
   nameDescSchema,
   appDescriptionKeyValPairSchema,
   boundedContextsKeyValPairSchema,
-  businessEntitiesKeyValPairSchema,
+  entitiesKeyValPairSchema,
   businessProcessesKeyValPairSchema,
   technologiesKeyValPairSchema,
+  aggregatesKeyValPairSchema,
+  repositoriesKeyValPairSchema,
 } from "../../schemas/app-summary-categories.schema";
 
 /**
@@ -23,10 +25,12 @@ export const appSummaryRecordSchema = z
     projectName: z.string(),
     llmProvider: z.string(),
     appDescription: appDescriptionKeyValPairSchema.shape.appDescription.optional(),
-    boundedContexts: boundedContextsKeyValPairSchema.shape.boundedContexts.optional(),
-    businessEntities: businessEntitiesKeyValPairSchema.shape.businessEntities.optional(),
     businessProcesses: businessProcessesKeyValPairSchema.shape.businessProcesses.optional(),
     technologies: technologiesKeyValPairSchema.shape.technologies.optional(),
+    boundedContexts: boundedContextsKeyValPairSchema.shape.boundedContexts.optional(),
+    aggregates: aggregatesKeyValPairSchema.shape.aggregates.optional(),
+    entities: entitiesKeyValPairSchema.shape.entities.optional(),
+    repositories: repositoriesKeyValPairSchema.shape.repositories.optional(),
   })
   .passthrough();
 

@@ -20,7 +20,7 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
   const match = jsonRegex.exec(content);
 
   if (!match) {
-    throw new Error(`Generated content is invalid - no JSON content found for text: ${content}`);
+    throw new Error(`Generated content is invalid - no JSON content found for text: '${content}'`);
   }
 
   // Validate the content as JSON

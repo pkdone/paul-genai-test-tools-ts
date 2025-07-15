@@ -3,9 +3,11 @@ import {
   appDescriptionKeyValPairSchema,
   AppSummaryCategoryEnum,
   boundedContextsKeyValPairSchema,
-  businessEntitiesKeyValPairSchema,
+  entitiesKeyValPairSchema,
   businessProcessesKeyValPairSchema,
   technologiesKeyValPairSchema,
+  aggregatesKeyValPairSchema,
+  repositoriesKeyValPairSchema,
 } from "../schemas/app-summary-categories.schema";
 
 export type SummaryCategory = z.infer<typeof AppSummaryCategoryEnum>;
@@ -23,25 +25,35 @@ export const summaryCategoriesConfig: Record<
     description: "the detailed description of the application's purpose and implementation.",
     schema: appDescriptionKeyValPairSchema,
   },
-  boundedContexts: {
-    label: "Bounded Contexts",
-    description: "a concise list of the bounded contexts from a Domain Driven Design perspective.",
-    schema: boundedContextsKeyValPairSchema,
-  },
-  businessEntities: {
-    label: "Business Entities",
-    description: "a concise list of the application's main business entities.",
-    schema: businessEntitiesKeyValPairSchema,
+  technologies: {
+    label: "Technologies",
+    description:
+      "a concise list of key external and host platform technologies depended on by the application.",
+    schema: technologiesKeyValPairSchema,
   },
   businessProcesses: {
     label: "Business Processes",
     description: "a concise list of the application's main business processes.",
     schema: businessProcessesKeyValPairSchema,
   },
-  technologies: {
-    label: "Technologies",
-    description:
-      "a concise list of key external and host platform technologies depended on by the application.",
-    schema: technologiesKeyValPairSchema,
+  boundedContexts: {
+    label: "Bounded Contexts",
+    description: "a concise list of Domain-Driven Design Bounded Contexts that define explicit boundaries around related business capabilities and their models.",
+    schema: boundedContextsKeyValPairSchema,
+  },
+  aggregates: {
+    label: "Aggregates",
+    description: "a concise list of Domain Driven Design aggregates that enforce business rules and maintain consistency.",
+    schema: aggregatesKeyValPairSchema,
+  },
+  entities: {
+    label: "Entities",
+    description: "a concise list of Domain-Driven Design entities that represent core business concepts and contain business logic.",
+    schema: entitiesKeyValPairSchema,
+  },
+  repositories: {
+    label: "Repositories", 
+    description: "a concise list of Domain Driven Design repositories that provide access to aggregate persistence.",
+    schema: repositoriesKeyValPairSchema,
   },
 };

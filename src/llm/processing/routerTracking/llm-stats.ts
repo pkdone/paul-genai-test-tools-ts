@@ -17,13 +17,13 @@ export default class LLMStats {
       count: 0,
     },
     OVERLOAD_RETRY: {
-      description: "Retried calling LLM due to overload or network issue",
+      description: "Retried calling LLM due to provider overload or network issue",
       symbol: "?",
       count: 0,
     },
     HOPEFUL_RETRY: {
       description:
-        "Retried calling LLM due to invalid JSON response (hopeful re-attempt)",
+        "Retried calling LLM due to invalid JSON response (a hopeful re-attempt)",
       symbol: "~",
       count: 0,
     },

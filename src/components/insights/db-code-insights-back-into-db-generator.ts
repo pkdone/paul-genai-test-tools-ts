@@ -14,7 +14,7 @@ import { createPromptFromConfig } from "../../llm/processing/prompting/prompt-te
 
 /**
  * Generates metadata in database collections to capture application information,
- * such as business entities and processes, for a given project.
+ * such as entities and processes, for a given project.
  */
 @injectable()
 export default class DBCodeInsightsBackIntoDBGenerator {
@@ -38,7 +38,7 @@ export default class DBCodeInsightsBackIntoDBGenerator {
 
   /**
    * Gathers metadata about all classes in an application and uses an LLM to identify
-   * the business entities and processes for the application, storing the results
+   * the entities and processes for the application, storing the results
    * in the database.
    */
   async generateSummariesDataInDB(): Promise<void> {
