@@ -13,6 +13,33 @@ export const nameDescSchema = z
   .passthrough();
 
 /**
+ * Schema for business activities/steps within a business process
+ */
+export const businessActivitySchema = z
+  .object({
+    activity: z.string().describe("The name of the business activity step."),
+    description: z
+      .string()
+      .describe("A detailed description of the business activity step."),
+  })
+  .passthrough();
+
+/**
+ * Schema for business processes with key activities
+ */
+export const businessProcessSchema = z
+  .object({
+    name: z.string().describe("The name of the business process."),
+    description: z
+      .string()
+      .describe("A detailed description of the business process in at least 5 sentences."),
+    keyBusinessActivities: z
+      .array(businessActivitySchema)
+      .describe("An array of key business activity steps that are linearly conducted by this process."),
+  })
+  .passthrough();
+
+/**
  * Zod schema for application summary categories
  * This is used to validate the category names in app summaries
  */
@@ -54,8 +81,8 @@ export const technologiesKeyValPairSchema = z.object({
  */
 export const businessProcessesKeyValPairSchema = z.object({
   businessProcesses: z
-    .array(nameDescSchema)
-    .describe("A list of the application's main business processes."),
+    .array(businessProcessSchema)
+    .describe("A list of the application's main business processes with their key business activities."),
 });
 
 /**

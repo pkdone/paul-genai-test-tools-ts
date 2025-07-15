@@ -34,7 +34,7 @@ export const summaryCategoriesConfig: Record<
   },
   businessProcesses: {
     label: "Business Processes",
-    description: "a concise list of the application's main business processes.",
+    description: "a concise list of the application's main business processes with their key business activity steps that are linearly conducted by each process.",
     schema: businessProcessesKeyValPairSchema,
   },
   boundedContexts: {
