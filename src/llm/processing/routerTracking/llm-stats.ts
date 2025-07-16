@@ -1,5 +1,9 @@
 import { injectable } from "tsyringe";
-import { LLMStatsCategoryStatus, LLMStatsCategoriesSummary, LLMStatsCategoriesBase } from "../../llm.types";
+import {
+  LLMStatsCategoryStatus,
+  LLMStatsCategoriesSummary,
+  LLMStatsCategoriesBase,
+} from "../../llm.types";
 
 /**
  * Class for accumulating and tracking statistics of LLM invocation result types.
@@ -22,8 +26,7 @@ export default class LLMStats {
       count: 0,
     },
     HOPEFUL_RETRY: {
-      description:
-        "Retried calling LLM due to invalid JSON response (a hopeful re-attempt)",
+      description: "Retried calling LLM due to invalid JSON response (a hopeful re-attempt)",
       symbol: "~",
       count: 0,
     },

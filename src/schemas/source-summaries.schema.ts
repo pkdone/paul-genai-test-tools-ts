@@ -24,7 +24,9 @@ export const databaseIntegrationSchema = z
         "FUNCTION",
         "OTHER",
       ])
-      .describe("The database integration mechanism used - it can only be one of the values specified - choose 'OTHER' if no values match."),
+      .describe(
+        "The database integration mechanism used - it can only be one of the values specified - choose 'OTHER' if no values match.",
+      ),
     description: z
       .string()
       .describe(
@@ -95,7 +97,11 @@ export const dataInputFieldSchema = z
 export const publicMethodSchema = z
   .object({
     name: z.string().describe("The name of the method/function."),
-    purpose: z.string().describe("Detailed purpose of the method/function and what business logic decisions it makes (where relevant), in at least 5 sentences."),
+    purpose: z
+      .string()
+      .describe(
+        "Detailed purpose of the method/function and what business logic decisions it makes (where relevant), in at least 5 sentences.",
+      ),
     parameters: z
       .array(
         z
@@ -126,7 +132,9 @@ export const sourceFileSummarySchema = z
       .describe("A detailed definition of the file's purpose in at least 4 sentences."),
     implementation: z
       .string()
-      .describe("A detailed definition of the file's implementation, and what business logic decisions it makes (where relevant), in at least 5 sentences."),
+      .describe(
+        "A detailed definition of the file's implementation, and what business logic decisions it makes (where relevant), in at least 5 sentences.",
+      ),
     classname: z.string().optional().describe("The name of the main public class or interface."),
     classpath: z.string().optional().describe("The fully qualified classpath."),
     classType: z

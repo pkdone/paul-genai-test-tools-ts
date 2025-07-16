@@ -35,7 +35,9 @@ export const businessProcessSchema = z
       .describe("A detailed description of the business process in at least 5 sentences."),
     keyBusinessActivities: z
       .array(businessActivitySchema)
-      .describe("An array of key business activity steps that are linearly conducted by this process."),
+      .describe(
+        "An array of key business activity steps that are linearly conducted by this process.",
+      ),
   })
   .passthrough();
 
@@ -82,7 +84,9 @@ export const technologiesKeyValPairSchema = z.object({
 export const businessProcessesKeyValPairSchema = z.object({
   businessProcesses: z
     .array(businessProcessSchema)
-    .describe("A list of the application's main business processes with their key business activities."),
+    .describe(
+      "A list of the application's main business processes with their key business activities.",
+    ),
 });
 
 /**
@@ -91,7 +95,9 @@ export const businessProcessesKeyValPairSchema = z.object({
 export const boundedContextsKeyValPairSchema = z.object({
   boundedContexts: z
     .array(nameDescSchema)
-    .describe("A list of Domain-Driven Design Bounded Contexts that define explicit boundaries around related business capabilities and their models."),
+    .describe(
+      "A list of Domain-Driven Design Bounded Contexts that define explicit boundaries around related business capabilities and their models.",
+    ),
 });
 
 /**
@@ -100,7 +106,9 @@ export const boundedContextsKeyValPairSchema = z.object({
 export const aggregatesKeyValPairSchema = z.object({
   aggregates: z
     .array(nameDescSchema)
-    .describe("A list of Domain-Driven Design aggregates that enforce business rules and maintain consistency."),
+    .describe(
+      "A list of Domain-Driven Design aggregates that enforce business rules and maintain consistency.",
+    ),
 });
 
 /**
@@ -109,16 +117,20 @@ export const aggregatesKeyValPairSchema = z.object({
 export const entitiesKeyValPairSchema = z.object({
   entities: z
     .array(nameDescSchema)
-    .describe("A list of Domain-Driven Design entities that represent core business concepts and contain business logic."),
+    .describe(
+      "A list of Domain-Driven Design entities that represent core business concepts and contain business logic.",
+    ),
 });
 
 /**
- * Schema for arrays of repositories name-description pairs  
+ * Schema for arrays of repositories name-description pairs
  */
 export const repositoriesKeyValPairSchema = z.object({
   repositories: z
     .array(nameDescSchema)
-    .describe("A list of Domain-Driven Design repositories that provide access to aggregate persistence."),
+    .describe(
+      "A list of Domain-Driven Design repositories that provide access to aggregate persistence.",
+    ),
 });
 
 /**
@@ -127,5 +139,7 @@ export const repositoriesKeyValPairSchema = z.object({
 export const potentialMicroservicesKeyValPairSchema = z.object({
   potentialMicroservices: z
     .array(nameDescSchema)
-    .describe("A list of recommended microservices to modernize the monolithic application, each following the Single Responsibility Principle with defined CRUD operations and REST API endpoints."),
+    .describe(
+      "A list of recommended microservices to modernize the monolithic application, each following the Single Responsibility Principle with defined CRUD operations and REST API endpoints.",
+    ),
 });

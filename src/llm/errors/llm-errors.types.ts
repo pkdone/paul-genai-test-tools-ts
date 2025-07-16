@@ -13,10 +13,7 @@ export abstract class LLMError extends Error {
   /**
    * Protected helper method to build consistent error messages with payload information.
    */
-  protected static buildMessage(
-    msg: string,
-    payload?: unknown,
-  ): string {
+  protected static buildMessage(msg: string, payload?: unknown): string {
     const stringifiedPayload = JSON.stringify(payload);
     const suffix = stringifiedPayload ? `: ${stringifiedPayload}` : "";
     return `${msg}${suffix}`;
@@ -35,7 +32,7 @@ export class BadResponseContentLLMError extends LLMError {
   /**
    * Constructor.
    */
-  constructor(message: string, content?: unknown ) {
+  constructor(message: string, content?: unknown) {
     super(BadResponseContentLLMError.name, LLMError.buildMessage(message, content));
     this.content = JSON.stringify(content);
   }

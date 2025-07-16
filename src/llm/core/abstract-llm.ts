@@ -263,7 +263,12 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
       try {
         const generatedContent =
           completionOptions.outputFormat === LLMOutputFormat.JSON
-            ? convertTextToJSONAndOptionallyValidate(responseContent, context.resource, completionOptions, doWarnOnError)
+            ? convertTextToJSONAndOptionallyValidate(
+                responseContent,
+                context.resource,
+                completionOptions,
+                doWarnOnError,
+              )
             : responseContent;
         return {
           ...skeletonResult,
@@ -305,4 +310,3 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
    */
   protected abstract isTokenLimitExceeded(error: unknown): boolean;
 }
-

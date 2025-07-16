@@ -146,10 +146,7 @@ export default class LLMRouter {
     if (
       !(Array.isArray(contentResponse) && contentResponse.every((item) => typeof item === "number"))
     ) {
-      logErrWithContext(
-        ("LLM response for embeddings was not an array of numbers"),
-        context,
-      );
+      logErrWithContext("LLM response for embeddings was not an array of numbers", context);
       return null;
     }
 
@@ -347,8 +344,8 @@ export default class LLMRouter {
   ) {
     const retryConfig = getRetryConfiguration(this.providerRetryConfig);
     const result = await withRetry<
-      [string, LLMContext, LLMCompletionOptions?], 
-      LLMFunctionResponse, 
+      [string, LLMContext, LLMCompletionOptions?],
+      LLMFunctionResponse,
       LLMResponseStatus.OVERLOADED | LLMResponseStatus.INVALID
     >(
       llmFunction as RetryFunc<[string, LLMContext, LLMCompletionOptions?], LLMFunctionResponse>,

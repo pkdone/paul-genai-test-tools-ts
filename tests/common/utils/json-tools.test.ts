@@ -51,22 +51,19 @@ describe("JSON utilities", () => {
     test("throws on invalid JSON", () => {
       const text = "No JSON here";
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
-      expect(() => convertTextToJSONAndOptionallyValidate(text, "content", completionOptions)).toThrow(
-        "doesn't contain valid JSON content for text",
-      );
+      expect(() =>
+        convertTextToJSONAndOptionallyValidate(text, "content", completionOptions),
+      ).toThrow("doesn't contain valid JSON content for text");
     });
 
     test("throws on non-string input", () => {
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
-      const testCases = [
-        { input: { key: "value" } },
-        { input: [1, 2, 3] },
-        { input: null },
-      ];
+      const testCases = [{ input: { key: "value" } }, { input: [1, 2, 3] }, { input: null }];
 
       testCases.forEach(({ input }) => {
-        expect(() => convertTextToJSONAndOptionallyValidate(input, "content", completionOptions))
-          .toThrow("Generated content is not a string, text");
+        expect(() =>
+          convertTextToJSONAndOptionallyValidate(input, "content", completionOptions),
+        ).toThrow("Generated content is not a string, text");
       });
     });
 
@@ -74,7 +71,11 @@ describe("JSON utilities", () => {
       const userJson =
         'Text before {"name": "John Doe", "age": 30, "email": "john@example.com"} text after';
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
-      const user = convertTextToJSONAndOptionallyValidate<TestUser>(userJson, "content", completionOptions);
+      const user = convertTextToJSONAndOptionallyValidate<TestUser>(
+        userJson,
+        "content",
+        completionOptions,
+      );
 
       // TypeScript should now provide type safety for these properties
       expect(user.name).toBe("John Doe");
@@ -86,7 +87,11 @@ describe("JSON utilities", () => {
       const configJson =
         'Prefix {"enabled": true, "settings": {"timeout": 5000, "retries": 3}} suffix';
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
-      const config = convertTextToJSONAndOptionallyValidate<TestConfig>(configJson, "content", completionOptions);
+      const config = convertTextToJSONAndOptionallyValidate<TestConfig>(
+        configJson,
+        "content",
+        completionOptions,
+      );
 
       // TypeScript should provide type safety for nested properties
       expect(config.enabled).toBe(true);

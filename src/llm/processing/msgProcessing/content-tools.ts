@@ -14,7 +14,10 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
   doWarnOnError = false,
 ): T {
   if (typeof content !== "string") {
-    throw new BadResponseContentLLMError("Generated content is not a string, text", JSON.stringify(content));
+    throw new BadResponseContentLLMError(
+      "Generated content is not a string, text",
+      JSON.stringify(content),
+    );
   }
 
   // This regex finds the first '{' or '[' and matches until the corresponding '}' or ']'.
@@ -22,7 +25,10 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
   const match = jsonRegex.exec(content);
 
   if (!match) {
-    throw new BadResponseContentLLMError(`LLM response for resource '${resourceName}' doesn't contain valid JSON content for text`, content);
+    throw new BadResponseContentLLMError(
+      `LLM response for resource '${resourceName}' doesn't contain valid JSON content for text`,
+      content,
+    );
   }
 
   let jsonContent: T;
@@ -32,7 +38,9 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
   } catch (_error: unknown) {
     void _error;
     throw new BadResponseContentLLMError(
-      `LLM response for resource '${resourceName}' cannot be parsed to JSON for text`, content);
+      `LLM response for resource '${resourceName}' cannot be parsed to JSON for text`,
+      content,
+    );
   }
 
   const validatedContent = validateSchemaIfNeededAndReturnResponse<T>(
@@ -46,7 +54,7 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
     const contentTextWithNoNewlines = content.replace(/\n/g, " ");
     throw new BadResponseContentLLMError(
       `LLM response for resource '${resourceName}' can be turned into JSON but doesn't validate with the supplied JSON schema`,
-      contentTextWithNoNewlines
+      contentTextWithNoNewlines,
     );
   }
 

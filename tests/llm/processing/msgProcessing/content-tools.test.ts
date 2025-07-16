@@ -13,7 +13,11 @@ describe("content-tools", () => {
     test("should convert valid JSON string to object", () => {
       const jsonString = '{"key": "value", "number": 42}';
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
-      const result = convertTextToJSONAndOptionallyValidate(jsonString, "content", completionOptions);
+      const result = convertTextToJSONAndOptionallyValidate(
+        jsonString,
+        "content",
+        completionOptions,
+      );
 
       expect(result).toEqual({ key: "value", number: 42 });
     });
@@ -21,7 +25,11 @@ describe("content-tools", () => {
     test("should handle JSON with surrounding text", () => {
       const textWithJson = 'Some text before {"key": "value"} some text after';
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
-      const result = convertTextToJSONAndOptionallyValidate(textWithJson, "content", completionOptions);
+      const result = convertTextToJSONAndOptionallyValidate(
+        textWithJson,
+        "content",
+        completionOptions,
+      );
 
       expect(result).toEqual({ key: "value" });
     });
@@ -29,7 +37,11 @@ describe("content-tools", () => {
     test("should handle array JSON", () => {
       const arrayJson = '[{"item": 1}, {"item": 2}]';
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
-      const result = convertTextToJSONAndOptionallyValidate(arrayJson, "content", completionOptions);
+      const result = convertTextToJSONAndOptionallyValidate(
+        arrayJson,
+        "content",
+        completionOptions,
+      );
 
       expect(result).toEqual([{ item: 1 }, { item: 2 }]);
     });
@@ -38,9 +50,9 @@ describe("content-tools", () => {
       const invalidJson = "not valid json";
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
 
-      expect(() => convertTextToJSONAndOptionallyValidate(invalidJson, "content", completionOptions)).toThrow(
-        "doesn't contain valid JSON content for text",
-      );
+      expect(() =>
+        convertTextToJSONAndOptionallyValidate(invalidJson, "content", completionOptions),
+      ).toThrow("doesn't contain valid JSON content for text");
     });
 
     test("should throw error for non-string input", () => {
@@ -48,7 +60,11 @@ describe("content-tools", () => {
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
 
       expect(() =>
-        convertTextToJSONAndOptionallyValidate(nonStringInput as unknown as string, "content", completionOptions),
+        convertTextToJSONAndOptionallyValidate(
+          nonStringInput as unknown as string,
+          "content",
+          completionOptions,
+        ),
       ).toThrow("Generated content is not a string");
     });
   });
