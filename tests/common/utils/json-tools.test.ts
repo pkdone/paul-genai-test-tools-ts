@@ -42,13 +42,13 @@ describe("JSON utilities", () => {
     ];
 
     test.each(validJsonTestData)("with $description", ({ input, expected }) => {
-      const result = convertTextToJSONAndOptionallyValidate(input);
+      const result = convertTextToJSONAndOptionallyValidate(input, "content");
       expect(result).toEqual(expected);
     });
 
     test("throws on invalid JSON", () => {
       const text = "No JSON here";
-      expect(() => convertTextToJSONAndOptionallyValidate(text)).toThrow(
+      expect(() => convertTextToJSONAndOptionallyValidate(text, "content")).toThrow(
         "Generated content is invalid - no JSON content found",
       );
     });
@@ -61,14 +61,14 @@ describe("JSON utilities", () => {
       ];
 
       testCases.forEach(({ input, expected }) => {
-        expect(() => convertTextToJSONAndOptionallyValidate(input)).toThrow(expected);
+        expect(() => convertTextToJSONAndOptionallyValidate(input, "content")).toThrow(expected);
       });
     });
 
     test("returns typed result with generic type parameter", () => {
       const userJson =
         'Text before {"name": "John Doe", "age": 30, "email": "john@example.com"} text after';
-      const user = convertTextToJSONAndOptionallyValidate<TestUser>(userJson);
+      const user = convertTextToJSONAndOptionallyValidate<TestUser>(userJson, "content");
 
       // TypeScript should now provide type safety for these properties
       expect(user.name).toBe("John Doe");
@@ -79,7 +79,7 @@ describe("JSON utilities", () => {
     test("returns complex typed result with nested objects", () => {
       const configJson =
         'Prefix {"enabled": true, "settings": {"timeout": 5000, "retries": 3}} suffix';
-      const config = convertTextToJSONAndOptionallyValidate<TestConfig>(configJson);
+      const config = convertTextToJSONAndOptionallyValidate<TestConfig>(configJson, "content");
 
       // TypeScript should provide type safety for nested properties
       expect(config.enabled).toBe(true);
@@ -89,7 +89,7 @@ describe("JSON utilities", () => {
 
     test("defaults to Record<string, unknown> when no type parameter provided", () => {
       const input = 'Text {"dynamic": "content", "count": 42} more text';
-      const result = convertTextToJSONAndOptionallyValidate(input); // No type parameter
+      const result = convertTextToJSONAndOptionallyValidate(input, "content"); // No type parameter
 
       expect(result).toEqual({ dynamic: "content", count: 42 });
       // The result should be of type Record<string, unknown>

@@ -12,21 +12,21 @@ describe("content-tools", () => {
   describe("convertTextToJSONAndOptionallyValidate", () => {
     test("should convert valid JSON string to object", () => {
       const jsonString = '{"key": "value", "number": 42}';
-      const result = convertTextToJSONAndOptionallyValidate(jsonString);
+      const result = convertTextToJSONAndOptionallyValidate(jsonString, "content");
 
       expect(result).toEqual({ key: "value", number: 42 });
     });
 
     test("should handle JSON with surrounding text", () => {
       const textWithJson = 'Some text before {"key": "value"} some text after';
-      const result = convertTextToJSONAndOptionallyValidate(textWithJson);
+      const result = convertTextToJSONAndOptionallyValidate(textWithJson, "content");
 
       expect(result).toEqual({ key: "value" });
     });
 
     test("should handle array JSON", () => {
       const arrayJson = '[{"item": 1}, {"item": 2}]';
-      const result = convertTextToJSONAndOptionallyValidate(arrayJson);
+      const result = convertTextToJSONAndOptionallyValidate(arrayJson, "content");
 
       expect(result).toEqual([{ item: 1 }, { item: 2 }]);
     });
@@ -34,7 +34,7 @@ describe("content-tools", () => {
     test("should throw error for invalid JSON", () => {
       const invalidJson = "not valid json";
 
-      expect(() => convertTextToJSONAndOptionallyValidate(invalidJson)).toThrow(
+      expect(() => convertTextToJSONAndOptionallyValidate(invalidJson, "content")).toThrow(
         "Generated content is invalid - no JSON content found",
       );
     });
@@ -43,7 +43,7 @@ describe("content-tools", () => {
       const nonStringInput = 123;
 
       expect(() =>
-        convertTextToJSONAndOptionallyValidate(nonStringInput as unknown as string),
+        convertTextToJSONAndOptionallyValidate(nonStringInput as unknown as string, "content"),
       ).toThrow("Generated content is not a string");
     });
   });

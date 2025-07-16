@@ -8,6 +8,7 @@ import { logErrorMsg } from "../../../common/utils/error-utils";
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknown>>(
   content: LLMGeneratedContent,
+  resourceName: string,
   completionOptions?: LLMCompletionOptions,
 ): T {
   if (typeof content !== "string") {
@@ -31,7 +32,7 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
     const validatedContent = validateSchemaIfNeededAndReturnResponse<T>(
       jsonContent as LLMGeneratedContent,
       completionOptions,
-      "content",
+      resourceName,
     );
     
     if (validatedContent === null)

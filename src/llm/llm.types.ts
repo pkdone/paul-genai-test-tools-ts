@@ -115,8 +115,8 @@ export interface LLMContext {
   modelQuality?: LLMModelQuality;
   /** The desired output format */
   outputFormat?: LLMOutputFormat;
-  /** Error text when JSON parsing fails during response processing */
-  jsonParseError?: string;
+  /** Error text when JSON parsing / validating fails during response processing */
+  resoponseContentParseError?: string;
 }
 
 /**

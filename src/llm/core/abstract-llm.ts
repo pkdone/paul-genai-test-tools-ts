@@ -199,12 +199,10 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
       } else {
         return this.postProcessAsJSONIfNeededGeneratingNewResult(
           skeletonResponse,
-          modelKey,
           taskType,
           responseContent,
           completionOptions,
           context,
-          this.llmModelsMetadata,
         );
       }
     } catch (error: unknown) {
@@ -254,19 +252,16 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
    */
   private postProcessAsJSONIfNeededGeneratingNewResult(
     skeletonResult: LLMFunctionResponse,
-    modelKey: string,
     taskType: LLMPurpose,
     responseContent: LLMGeneratedContent,
     completionOptions: LLMCompletionOptions | undefined,
     context: LLMContext,
-    modelsMetadata: Record<string, ResolvedLLMModelMetadata>,
-    logProcessingWarning = false,
   ): LLMFunctionResponse {
     if (taskType === LLMPurpose.COMPLETIONS) {
       try {
         const generatedContent =
           completionOptions?.outputFormat === LLMOutputFormat.JSON
-            ? convertTextToJSONAndOptionallyValidate(responseContent, completionOptions)
+            ? convertTextToJSONAndOptionallyValidate(responseContent, context.resource, completionOptions)
             : responseContent;
         return {
           ...skeletonResult,
@@ -274,12 +269,10 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
           generated: generatedContent,
         };
       } catch (error: unknown) {
-        if (logProcessingWarning) {
-          console.warn(
-            `LLM response for model '${modelsMetadata[modelKey].urn}' cannot be parsed to JSON so marking as overloaded just to be able to try again in the hope of a better response for the next attempt - Error: ${getErrorText(error)}`,
-          );
-        }
-        context.jsonParseError = getErrorText(error);
+        console.warn(
+          `LLM response for resource '${context.resource}' cannot be parsed to JSON - will re-attempt - Error: ${getErrorText(error)}`,
+        );
+        context.resoponseContentParseError = getErrorText(error);
         return { ...skeletonResult, status: LLMResponseStatus.INVALID };
       }
     } else {
