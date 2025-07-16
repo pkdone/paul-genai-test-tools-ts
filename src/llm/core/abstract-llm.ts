@@ -17,7 +17,7 @@ import {
   LLMImplSpecificResponseSummary,
   LLMProviderSpecificConfig,
 } from "../providers/llm-provider.types";
-import { getErrorText } from "../../common/utils/error-utils";
+import { getErrorText, logErrorMsg } from "../../common/utils/error-utils";
 import { convertTextToJSONAndOptionallyValidate } from "../processing/msgProcessing/content-tools";
 import { extractTokensAmountAndLimitFromErrorMsg } from "../processing/msgProcessing/response-error-pattern-parser";
 import { BadConfigurationLLMError } from "../errors/llm-errors.types";
@@ -180,6 +180,7 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
     completionOptions?: LLMCompletionOptions,
   ): Promise<LLMFunctionResponse> {
     const skeletonResponse = { status: LLMResponseStatus.UNKNOWN, request, context, modelKey };
+    completionOptions ??= { outputFormat: LLMOutputFormat.TEXT };
 
     try {
       const { isIncompleteResponse, responseContent, tokenUsage } =
@@ -254,13 +255,13 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
     skeletonResult: LLMFunctionResponse,
     taskType: LLMPurpose,
     responseContent: LLMGeneratedContent,
-    completionOptions: LLMCompletionOptions | undefined,
+    completionOptions: LLMCompletionOptions,
     context: LLMContext,
   ): LLMFunctionResponse {
     if (taskType === LLMPurpose.COMPLETIONS) {
       try {
         const generatedContent =
-          completionOptions?.outputFormat === LLMOutputFormat.JSON
+          completionOptions.outputFormat === LLMOutputFormat.JSON
             ? convertTextToJSONAndOptionallyValidate(responseContent, context.resource, completionOptions)
             : responseContent;
         return {
@@ -269,10 +270,8 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
           generated: generatedContent,
         };
       } catch (error: unknown) {
-        console.warn(
-          `LLM response for resource '${context.resource}' cannot be parsed to JSON - will re-attempt - Error: ${getErrorText(error)}`,
-        );
         context.resoponseContentParseError = getErrorText(error);
+        logErrorMsg(getErrorText(error));
         return { ...skeletonResult, status: LLMResponseStatus.INVALID };
       }
     } else {
@@ -305,3 +304,4 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
    */
   protected abstract isTokenLimitExceeded(error: unknown): boolean;
 }
+

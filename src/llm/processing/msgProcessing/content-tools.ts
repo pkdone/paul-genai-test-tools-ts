@@ -1,5 +1,6 @@
 import { LLMGeneratedContent, LLMCompletionOptions, LLMOutputFormat } from "../../llm.types";
-import { logErrorMsg } from "../../../common/utils/error-utils";
+import { getErrorText, logErrorMsg } from "../../../common/utils/error-utils";
+import { BadResponseContentLLMError } from "../../errors/llm-errors.types";
 
 /**
  * Convert text content to JSON, trimming the content to only include the JSON part and optionally
@@ -9,37 +10,42 @@ import { logErrorMsg } from "../../../common/utils/error-utils";
 export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknown>>(
   content: LLMGeneratedContent,
   resourceName: string,
-  completionOptions?: LLMCompletionOptions,
+  completionOptions: LLMCompletionOptions,
 ): T {
   if (typeof content !== "string") {
-    throw new Error(`Generated content is not a string: ${JSON.stringify(content)}`);
+    throw new BadResponseContentLLMError(`Generated content is not a string: ${JSON.stringify(content)}`);
   }
 
   // This regex finds the first '{' or '[' and matches until the corresponding '}' or ']'.
-  // It's more robust than simple indexOf/lastIndexOf.
   const jsonRegex = /({[\s\S]*}|\[[\s\S]*\])/;
   const match = jsonRegex.exec(content);
 
   if (!match) {
-    throw new Error(`Generated content is invalid - no JSON content found for text: '${content}'`);
+    throw new BadResponseContentLLMError(`LLM response for resource '${resourceName}' doesn't contain value JSON content for text: '${content}'`);
   }
 
-  // Validate the content as JSON
-  const jsonContent = JSON.parse(match[0]) as T;
+  let jsonContent: T = {} as T;
+
+  try {
+    jsonContent = JSON.parse(match[0]) as T;
+  } catch (error: unknown) {
+    throw new BadResponseContentLLMError(
+      `LLM response for resource '${resourceName}' cannot be parsed to JSON for text: '${content}' - Error: ${getErrorText(error)}`,
+    );
+  }
 
   // Validate the JSON content against a Zod schema if provided
-  if (completionOptions) {
-    const validatedContent = validateSchemaIfNeededAndReturnResponse<T>(
-      jsonContent as LLMGeneratedContent,
-      completionOptions,
-      resourceName,
-    );
+  if (
+    completionOptions.outputFormat === LLMOutputFormat.JSON &&
+    completionOptions.jsonSchema
+  ) {    
+    const validation = completionOptions.jsonSchema.safeParse(content);
     
-    if (validatedContent === null)
-      throw new Error(
-        `Generated content is JSON but not valid according to the Zod schema: ${JSON.stringify(content)}`,
+    if (!validation.success) {
+      throw new BadResponseContentLLMError(
+        `LLM response for resource '${resourceName}' can be turned into JSON but doesn't validate with the supplied JSON schema - content: ${content}`
       );
-    return validatedContent;
+    }
   }
 
   return jsonContent;

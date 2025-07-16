@@ -1,4 +1,5 @@
 import { convertTextToJSONAndOptionallyValidate } from "../../../src/llm/processing/msgProcessing/content-tools";
+import { LLMOutputFormat } from "../../../src/llm/llm.types";
 
 // Test interfaces for generic type testing
 interface TestUser {
@@ -42,18 +43,21 @@ describe("JSON utilities", () => {
     ];
 
     test.each(validJsonTestData)("with $description", ({ input, expected }) => {
-      const result = convertTextToJSONAndOptionallyValidate(input, "content");
+      const completionOptions = { outputFormat: LLMOutputFormat.JSON };
+      const result = convertTextToJSONAndOptionallyValidate(input, "content", completionOptions);
       expect(result).toEqual(expected);
     });
 
     test("throws on invalid JSON", () => {
       const text = "No JSON here";
-      expect(() => convertTextToJSONAndOptionallyValidate(text, "content")).toThrow(
-        "Generated content is invalid - no JSON content found",
+      const completionOptions = { outputFormat: LLMOutputFormat.JSON };
+      expect(() => convertTextToJSONAndOptionallyValidate(text, "content", completionOptions)).toThrow(
+        "doesn't contain value JSON content for text",
       );
     });
 
     test("throws on non-string input", () => {
+      const completionOptions = { outputFormat: LLMOutputFormat.JSON };
       const testCases = [
         { input: { key: "value" }, expected: 'Generated content is not a string: {"key":"value"}' },
         { input: [1, 2, 3], expected: "Generated content is not a string: [1,2,3]" },
@@ -61,14 +65,15 @@ describe("JSON utilities", () => {
       ];
 
       testCases.forEach(({ input, expected }) => {
-        expect(() => convertTextToJSONAndOptionallyValidate(input, "content")).toThrow(expected);
+        expect(() => convertTextToJSONAndOptionallyValidate(input, "content", completionOptions)).toThrow(expected);
       });
     });
 
     test("returns typed result with generic type parameter", () => {
       const userJson =
         'Text before {"name": "John Doe", "age": 30, "email": "john@example.com"} text after';
-      const user = convertTextToJSONAndOptionallyValidate<TestUser>(userJson, "content");
+      const completionOptions = { outputFormat: LLMOutputFormat.JSON };
+      const user = convertTextToJSONAndOptionallyValidate<TestUser>(userJson, "content", completionOptions);
 
       // TypeScript should now provide type safety for these properties
       expect(user.name).toBe("John Doe");
@@ -79,7 +84,8 @@ describe("JSON utilities", () => {
     test("returns complex typed result with nested objects", () => {
       const configJson =
         'Prefix {"enabled": true, "settings": {"timeout": 5000, "retries": 3}} suffix';
-      const config = convertTextToJSONAndOptionallyValidate<TestConfig>(configJson, "content");
+      const completionOptions = { outputFormat: LLMOutputFormat.JSON };
+      const config = convertTextToJSONAndOptionallyValidate<TestConfig>(configJson, "content", completionOptions);
 
       // TypeScript should provide type safety for nested properties
       expect(config.enabled).toBe(true);
@@ -89,7 +95,8 @@ describe("JSON utilities", () => {
 
     test("defaults to Record<string, unknown> when no type parameter provided", () => {
       const input = 'Text {"dynamic": "content", "count": 42} more text';
-      const result = convertTextToJSONAndOptionallyValidate(input, "content"); // No type parameter
+      const completionOptions = { outputFormat: LLMOutputFormat.JSON };
+      const result = convertTextToJSONAndOptionallyValidate(input, "content", completionOptions); // No type parameter
 
       expect(result).toEqual({ dynamic: "content", count: 42 });
       // The result should be of type Record<string, unknown>
