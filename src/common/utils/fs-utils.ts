@@ -82,11 +82,15 @@ export async function getTextLines(filePath: string): Promise<string[]> {
 
 /**
  * Build the list of files descending from a directory
+ * 
+ * If `orderByLargestSizeFileFirst` is true, the files are sorted by size, largest first, otherwise
+ * in the natural (abritrary) order from glob.
  */
 export async function buildDirDescendingListOfFiles(
   srcDirPath: string,
   folderIgnoreList: readonly string[],
   filenameIgnorePrefix: string,
+  orderByLargestSizeFileFirst = false,
 ): Promise<string[]> {
   const ignorePatterns = [
     ...folderIgnoreList.map((folder) => `**/${folder}/**`),
@@ -100,5 +104,26 @@ export async function buildDirDescendingListOfFiles(
     ignore: ignorePatterns,
   });
 
-  return files.sort((a, b) => b.localeCompare(a));
+  if (orderByLargestSizeFileFirst) {
+    // Get file sizes and sort by size (largest first)
+    const filesWithSizes = await Promise.all(
+      files.map(async (file) => {
+        try {
+          const stats = await fs.stat(file);
+          return { file, size: stats.size };
+        } catch (error) {
+          // If we can't get the file size, treat it as size 0
+          logErrorMsgAndDetail(`Unable to get file size for: ${file}`, error);
+          return { file, size: 0 };
+        }
+      })
+    );
+
+    return filesWithSizes
+      .sort((a, b) => b.size - a.size) // Sort by size, largest first
+      .map(({ file }) => file);
+  }
+
+  // If not ordering by size, return files in natural ordering from glob
+  return files;
 }

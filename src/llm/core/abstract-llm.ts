@@ -257,13 +257,13 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
     responseContent: LLMGeneratedContent,
     completionOptions: LLMCompletionOptions,
     context: LLMContext,
-    doWarnOnError = true,  // TODO: flip to false
+    doWarnOnError = false,
   ): LLMFunctionResponse {
     if (taskType === LLMPurpose.COMPLETIONS) {
       try {
         const generatedContent =
           completionOptions.outputFormat === LLMOutputFormat.JSON
-            ? convertTextToJSONAndOptionallyValidate(responseContent, context.resource, completionOptions)
+            ? convertTextToJSONAndOptionallyValidate(responseContent, context.resource, completionOptions, doWarnOnError)
             : responseContent;
         return {
           ...skeletonResult,

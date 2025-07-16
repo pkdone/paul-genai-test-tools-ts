@@ -41,6 +41,7 @@ export default class CodebaseToDBLoader {
       srcDirPath,
       appConfig.FOLDER_IGNORE_LIST,
       appConfig.FILENAME_PREFIX_IGNORE,
+      true,
     );
     await this.insertSourceContentIntoDB(
       srcFilepaths,
