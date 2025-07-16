@@ -221,7 +221,7 @@ describe("LLM Router tests", () => {
       const { router } = createLLMRouter();
       const description = router.getModelsUsedDescription();
       expect(description).toBe(
-        "OpenAI (embeddings: text-embedding-ada-002, completions: primary: gpt-4, secondary: gpt-3.5-turbo)",
+        "OpenAI (embeddings: text-embedding-ada-002, completions - primary: gpt-4, secondary: gpt-3.5-turbo)",
       );
     });
 

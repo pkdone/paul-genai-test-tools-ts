@@ -114,7 +114,7 @@ export default class LLMRouter {
         return `${candidate.modelQuality}: ${modelId}`;
       })
       .join(", ");
-    return `${this.llm.getModelFamily()} (embeddings: ${embeddings}, completions: ${candidateDescriptions})`;
+    return `${this.llm.getModelFamily()} (embeddings: ${embeddings}, completions - ${candidateDescriptions})`;
   }
 
   /**
