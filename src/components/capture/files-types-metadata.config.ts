@@ -125,6 +125,7 @@ export const filesTypeMetatadataConfig: Record<string, DynamicPromptReplaceVars>
             "STORED-PROCEDURE",
             "TRIGGER",
             "FUNCTION",
+            "OTHER",
           ]),
         }),
       }),

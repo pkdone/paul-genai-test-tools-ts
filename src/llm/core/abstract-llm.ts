@@ -257,6 +257,7 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
     responseContent: LLMGeneratedContent,
     completionOptions: LLMCompletionOptions,
     context: LLMContext,
+    doWarnOnError = true,  // TODO: flip to false
   ): LLMFunctionResponse {
     if (taskType === LLMPurpose.COMPLETIONS) {
       try {
@@ -271,7 +272,7 @@ export default abstract class AbstractLLM implements LLMProviderImpl {
         };
       } catch (error: unknown) {
         context.resoponseContentParseError = getErrorText(error);
-        logErrorMsg(getErrorText(error));
+        if (doWarnOnError) logErrorMsg(getErrorText(error));
         return { ...skeletonResult, status: LLMResponseStatus.INVALID };
       }
     } else {

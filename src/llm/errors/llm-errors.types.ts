@@ -12,18 +12,14 @@ export abstract class LLMError extends Error {
 
   /**
    * Protected helper method to build consistent error messages with payload information.
-   * @param baseMessage The base error message
-   * @param payloadLabel The label for the payload (e.g., "Content", "Reason")
-   * @param payload The payload to be stringified and included in the message
-   * @returns The formatted message string
    */
   protected static buildMessage(
-    baseMessage: string,
-    payloadLabel: string,
-    payload: unknown,
+    msg: string,
+    payload?: unknown,
   ): string {
     const stringifiedPayload = JSON.stringify(payload);
-    return `${baseMessage}. ${payloadLabel}: ${stringifiedPayload}`;
+    const suffix = stringifiedPayload ? `: ${stringifiedPayload}` : "";
+    return `${msg}${suffix}`;
   }
 }
 
@@ -39,8 +35,8 @@ export class BadResponseContentLLMError extends LLMError {
   /**
    * Constructor.
    */
-  constructor(message: string, content: unknown = null) {
-    super(BadResponseContentLLMError.name, LLMError.buildMessage(message, "Content", content));
+  constructor(message: string, content?: unknown ) {
+    super(BadResponseContentLLMError.name, LLMError.buildMessage(message, content));
     this.content = JSON.stringify(content);
   }
 }
@@ -58,8 +54,8 @@ export class BadResponseMetadataLLMError extends LLMError {
   /**
    * Constructor.
    */
-  constructor(message: string, metadata: unknown = null) {
-    super(BadResponseMetadataLLMError.name, LLMError.buildMessage(message, "Metadata", metadata));
+  constructor(message: string, metadata?: unknown) {
+    super(BadResponseMetadataLLMError.name, LLMError.buildMessage(message, metadata));
     this.metadata = JSON.stringify(metadata);
   }
 }
@@ -76,8 +72,8 @@ export class BadConfigurationLLMError extends LLMError {
   /**
    * Constructor.
    */
-  constructor(message: string, config: unknown = null) {
-    super(BadConfigurationLLMError.name, LLMError.buildMessage(message, "Config", config));
+  constructor(message: string, config?: unknown) {
+    super(BadConfigurationLLMError.name, LLMError.buildMessage(message, config));
     this.config = JSON.stringify(config);
   }
 }
@@ -94,8 +90,8 @@ export class RejectionResponseLLMError extends LLMError {
   /**
    * Constructor.
    */
-  constructor(message: string, reason: unknown = null) {
-    super(RejectionResponseLLMError.name, LLMError.buildMessage(message, "Reason", reason));
+  constructor(message: string, reason?: unknown) {
+    super(RejectionResponseLLMError.name, LLMError.buildMessage(message, reason));
     this.reason = JSON.stringify(reason);
   }
 }

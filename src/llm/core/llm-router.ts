@@ -10,7 +10,7 @@ import {
   LLMCompletionOptions,
 } from "../llm.types";
 import type { LLMProviderImpl, LLMCandidateFunction } from "../llm.types";
-import { BadConfigurationLLMError, BadResponseContentLLMError } from "../errors/llm-errors.types";
+import { BadConfigurationLLMError } from "../errors/llm-errors.types";
 import { withRetry } from "../../common/control/control-utils";
 import { RetryFunc } from "../../common/control/control.types";
 import type { PromptAdapter } from "../processing/prompting/prompt-adapter";
@@ -147,7 +147,7 @@ export default class LLMRouter {
       !(Array.isArray(contentResponse) && contentResponse.every((item) => typeof item === "number"))
     ) {
       logErrWithContext(
-        new BadResponseContentLLMError("LLM response for embeddings was not an array of numbers"),
+        ("LLM response for embeddings was not an array of numbers"),
         context,
       );
       return null;

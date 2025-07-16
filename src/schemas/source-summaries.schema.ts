@@ -24,7 +24,7 @@ export const databaseIntegrationSchema = z
         "FUNCTION",
         "OTHER",
       ])
-      .describe("The database integration mechanism used."),
+      .describe("The database integration mechanism used - it can only be one of the values specified - choose 'OTHER' if no values match."),
     description: z
       .string()
       .describe(

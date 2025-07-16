@@ -6,7 +6,7 @@ import { readFile, buildDirDescendingListOfFiles } from "../../common/utils/fs-u
 import { getFileSuffix } from "../../common/utils/path-utils";
 import { countLines } from "../../common/utils/text-utils";
 import pLimit from "p-limit";
-import { logErrorMsg, logErrorMsgAndDetail } from "../../common/utils/error-utils";
+import { logErrorMsgAndDetail } from "../../common/utils/error-utils";
 import { FileSummarizer } from "./file-summarizer";
 import type { SourcesRepository } from "../../repositories/source/sources.repository.interface";
 import type { SourceRecord } from "../../repositories/source/sources.model";
@@ -143,8 +143,6 @@ export default class CodebaseToDBLoader {
 
     const contentVectorResult = await this.getContentEmbeddings(filepath, content);
     const contentVector = contentVectorResult ?? undefined;
-
-    // Build the source file record with conditional optional fields
     const sourceFileRecord: SourceRecord = {
       projectName: projectName,
       filename,
@@ -157,13 +155,7 @@ export default class CodebaseToDBLoader {
       ...(summaryVector !== undefined && { summaryVector }),
       ...(contentVector !== undefined && { contentVector }),
     };
-
-    try {
-      await this.sourcesRepository.insertSource(sourceFileRecord);
-    } catch (error: unknown) {
-      logErrorMsg(`Problem inserting source file metadata into the database: ${filepath}`);
-      throw error;
-    }
+    await this.sourcesRepository.insertSource(sourceFileRecord);
   }
 
   /**

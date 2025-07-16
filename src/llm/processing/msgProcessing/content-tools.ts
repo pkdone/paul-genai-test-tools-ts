@@ -1,5 +1,5 @@
 import { LLMGeneratedContent, LLMCompletionOptions, LLMOutputFormat } from "../../llm.types";
-import { getErrorText, logErrorMsg } from "../../../common/utils/error-utils";
+import { logErrorMsg } from "../../../common/utils/error-utils";
 import { BadResponseContentLLMError } from "../../errors/llm-errors.types";
 
 /**
@@ -11,9 +11,10 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
   content: LLMGeneratedContent,
   resourceName: string,
   completionOptions: LLMCompletionOptions,
+  doWarnOnError = false,
 ): T {
   if (typeof content !== "string") {
-    throw new BadResponseContentLLMError(`Generated content is not a string: ${JSON.stringify(content)}`);
+    throw new BadResponseContentLLMError("Generated content is not a string, text", JSON.stringify(content));
   }
 
   // This regex finds the first '{' or '[' and matches until the corresponding '}' or ']'.
@@ -21,34 +22,35 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
   const match = jsonRegex.exec(content);
 
   if (!match) {
-    throw new BadResponseContentLLMError(`LLM response for resource '${resourceName}' doesn't contain value JSON content for text: '${content}'`);
+    throw new BadResponseContentLLMError(`LLM response for resource '${resourceName}' doesn't contain valid JSON content for text`, content);
   }
 
-  let jsonContent: T = {} as T;
+  let jsonContent: T;
 
   try {
     jsonContent = JSON.parse(match[0]) as T;
-  } catch (error: unknown) {
+  } catch (_error: unknown) {
+    void _error;
     throw new BadResponseContentLLMError(
-      `LLM response for resource '${resourceName}' cannot be parsed to JSON for text: '${content}' - Error: ${getErrorText(error)}`,
+      `LLM response for resource '${resourceName}' cannot be parsed to JSON for text`, content);
+  }
+
+  const validatedContent = validateSchemaIfNeededAndReturnResponse<T>(
+    jsonContent as Record<string, unknown>,
+    completionOptions,
+    resourceName,
+    doWarnOnError,
+  );
+
+  if (validatedContent === null) {
+    const contentTextWithNoNewlines = content.replace(/\n/g, " ");
+    throw new BadResponseContentLLMError(
+      `LLM response for resource '${resourceName}' can be turned into JSON but doesn't validate with the supplied JSON schema`,
+      contentTextWithNoNewlines
     );
   }
 
-  // Validate the JSON content against a Zod schema if provided
-  if (
-    completionOptions.outputFormat === LLMOutputFormat.JSON &&
-    completionOptions.jsonSchema
-  ) {    
-    const validation = completionOptions.jsonSchema.safeParse(content);
-    
-    if (!validation.success) {
-      throw new BadResponseContentLLMError(
-        `LLM response for resource '${resourceName}' can be turned into JSON but doesn't validate with the supplied JSON schema - content: ${content}`
-      );
-    }
-  }
-
-  return jsonContent;
+  return validatedContent;
 }
 
 /**
@@ -60,6 +62,7 @@ export function validateSchemaIfNeededAndReturnResponse<T>(
   content: LLMGeneratedContent | null,
   completionOptions: LLMCompletionOptions,
   resourceName: string,
+  doWarnOnError = false,
 ): T | null {
   if (
     content &&
@@ -70,7 +73,7 @@ export function validateSchemaIfNeededAndReturnResponse<T>(
 
     if (!validation.success) {
       const errorMessage = `Zod schema validation failed for '${resourceName}' so returning null. Validation issues: ${JSON.stringify(validation.error.issues)}`;
-      logErrorMsg(errorMessage);
+      if (doWarnOnError) logErrorMsg(errorMessage);
       return null;
     }
 

@@ -39,7 +39,7 @@ describe("content-tools", () => {
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
 
       expect(() => convertTextToJSONAndOptionallyValidate(invalidJson, "content", completionOptions)).toThrow(
-        "doesn't contain value JSON content for text",
+        "doesn't contain valid JSON content for text",
       );
     });
 

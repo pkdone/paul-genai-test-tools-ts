@@ -52,20 +52,21 @@ describe("JSON utilities", () => {
       const text = "No JSON here";
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
       expect(() => convertTextToJSONAndOptionallyValidate(text, "content", completionOptions)).toThrow(
-        "doesn't contain value JSON content for text",
+        "doesn't contain valid JSON content for text",
       );
     });
 
     test("throws on non-string input", () => {
       const completionOptions = { outputFormat: LLMOutputFormat.JSON };
       const testCases = [
-        { input: { key: "value" }, expected: 'Generated content is not a string: {"key":"value"}' },
-        { input: [1, 2, 3], expected: "Generated content is not a string: [1,2,3]" },
-        { input: null, expected: "Generated content is not a string: null" },
+        { input: { key: "value" } },
+        { input: [1, 2, 3] },
+        { input: null },
       ];
 
-      testCases.forEach(({ input, expected }) => {
-        expect(() => convertTextToJSONAndOptionallyValidate(input, "content", completionOptions)).toThrow(expected);
+      testCases.forEach(({ input }) => {
+        expect(() => convertTextToJSONAndOptionallyValidate(input, "content", completionOptions))
+          .toThrow("Generated content is not a string, text");
       });
     });
 
