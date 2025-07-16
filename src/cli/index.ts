@@ -9,10 +9,22 @@ import { getServiceConfiguration } from "../di/registration-modules/service-conf
  * 2. Run phase: Execute the specified service using the bootstrapped container
  */
 export async function runApplication(serviceToken: symbol): Promise<void> {
-  // Phase 1: Bootstrap - Set up the DI container
-  const config = getServiceConfiguration(serviceToken);
-  await bootstrapContainer(config);
-
-  // Phase 2: Run - Execute the service using the bootstrapped container
-  await runService(serviceToken);
+  const keepAlive = setInterval(() => {
+    // Prevent process from exiting prematurely by keeping the event loop active
+    // See comment in finally block below
+  }, 30000); // Empty timer every 30 seconds
+    
+  try {
+    const config = getServiceConfiguration(serviceToken);
+    await bootstrapContainer(config);
+    await runService(serviceToken);
+  } catch (error) {
+    console.error('Application error:', error);
+    process.exitCode = 1;
+  } finally {
+    // Known Node.js + AWS SDK pattern - many AWS SDK applications need this keep-alive pattern to
+    // prevent premature termination during long-running cloud operations
+    clearInterval(keepAlive);
+    process.exit();
+  }
 }

@@ -33,6 +33,7 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
       completionOptions,
       "content",
     );
+    
     if (validatedContent === null)
       throw new Error(
         `Generated content is JSON but not valid according to the Zod schema: ${JSON.stringify(content)}`,

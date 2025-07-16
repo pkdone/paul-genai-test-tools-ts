@@ -396,7 +396,7 @@ export default class LLMRouter {
     context: LLMContext,
     resourceName: string,
   ): { shouldTerminate: boolean; shouldCropPrompt: boolean; shouldSwitchToNextLLM: boolean } {
-    const isInvalidResponse = !llmResponse || llmResponse.status === LLMResponseStatus.INVALID;
+    const isInvalidResponse = llmResponse?.status === LLMResponseStatus.INVALID;
     const isOverloaded = !llmResponse || llmResponse.status === LLMResponseStatus.OVERLOADED;
     const isExceeded = llmResponse?.status === LLMResponseStatus.EXCEEDED;
     const canSwitchModel = currentLlmFunctionIndex + 1 < totalLLMCount;
@@ -413,7 +413,7 @@ export default class LLMRouter {
       };
     } else if (isOverloaded) {
       logWithContext(
-        `LLM problem processing completion with current LLM model because it is overloaded, or timing out, even after retries `,
+        `LLM problem processing prompt with current LLM model because it is overloaded, or timing out, even after retries `,
         context,
       );
       return {
