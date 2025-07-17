@@ -189,7 +189,9 @@ export default class VertexAIGeminiLLM extends AbstractLLM {
 
       if (
         errMsg.includes("reason given: recitation") ||
-        errMsg.includes("exception posting request to model")
+        errMsg.includes("exception posting request to model") ||
+        errMsg.includes("internal server error") ||
+        errMsg.includes("deadline exceeded")
       ) {
         return true;
       }

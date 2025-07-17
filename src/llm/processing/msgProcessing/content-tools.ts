@@ -15,7 +15,7 @@ export function convertTextToJSONAndOptionallyValidate<T = Record<string, unknow
 ): T {
   if (typeof content !== "string") {
     throw new BadResponseContentLLMError(
-      "Generated content is not a string, text",
+      "LLM response for resource '${resourceName}' is not a string, content",
       JSON.stringify(content),
     );
   }
