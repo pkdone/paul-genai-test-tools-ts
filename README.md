@@ -179,9 +179,9 @@ Using metadata about the source files that was captued the `sources` collection,
 
 ## Demonstrated LLM Capabilities For This Project
 
-Tested on 17-July-2025:
+Tested on 17-July-2025 with the legacy Java Petstore J2EE application:
 
-| LLM Hosting/API Provider | LLMs | Insight Quality (1-5: 1=low, 5=high) | Speed (the time it takes to extract insights from all source files of the Java PetStore application \- may include waits with retries) | Average Error Rate (files that can’t be processed by LLM even after retries, or where requests had to be truncated to fit context window limits) |
+| LLM Hosting/API Provider | LLMs | Insight Quality (1-5: 1=low, 5=high) | Speed (time taken to extract insights from all source files incluing waits/restries) | Average Error Rate (files not processed even after retries or had to be truncated to fit context window) |
 | :---- | :---- | :---: | :---: | :---: |
 | Azure OpenAI | GPT4o | 4 | 2:54 mins | 0.4 % |
 | GCP VertexAI | Gemini 2.5 Pro \+ Flash | 5 | 13:44 mins | 0.6 % |
