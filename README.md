@@ -192,7 +192,7 @@ Tested on 17-July-2025 with the legacy Java Petstore J2EE application:
 | AWS Bedrock | Deepseek R1 | 3.5 | 10:12 mins | 1 % |
 
 
-1. **Insight Quality**: 1 - 5, 1= Low, 5 = High
+1. **Insight Quality**: 1 - 5, 1 = Low, 5 = High
 
 1. **Speed**: Time taken to extract insights from all source files incluing for waits/restries
 
