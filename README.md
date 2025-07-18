@@ -186,15 +186,18 @@ Tested on 17-July-2025 with the legacy Java Petstore J2EE application:
 | Azure OpenAI | GPT4o | 4 | 2:54 mins | 0.4 % |
 | GCP VertexAI | Gemini 2.5 Pro \+ Flash | 5 | 13:44 mins | 0.6 % |
 | AWS Bedrock | Claude Sonnet 4.0 & 3.7 | 4 | 23:47 mins | 1.1 % |
-|  | Amazon Nova Pro 1.0 Pro \+ Lite | 3.5 | 9:30 mins  | 0.8 % |
-|  | Meta Llama Instruct 3-3-70b \+ 2-90b  | 2 | 39:53 mins | 43 %  |
-|  | Mistral Large 2402 \+ 2407 | 2 | 15:12 mins | 24 % |
-|  | Deepseek R1 | 3.5 | 10:12 mins | 1 % |
+| AWS Bedrock | Amazon Nova Pro 1.0 Pro \+ Lite | 3.5 | 9:30 mins  | 0.8 % |
+| AWS Bedrock | Meta Llama Instruct 3-3-70b \+ 2-90b  | 2 | 39:53 mins | 43 %  |
+| AWS Bedrock | Mistral Large 2402 \+ 2407 | 2 | 15:12 mins | 24 % |
+| AWS Bedrock | Deepseek R1 | 3.5 | 10:12 mins | 1 % |
 
 
-    1. Insight Quality: 1-5, 1=low, 5=high
-    1. Speed: Time taken to extract insights from all source files incluing waits/restries
-    1. Average Error Rate: Request which the LLM could not process even after retries and where the prompt had to be truncated to fit the LLM's context window
+1. **Insight Quality**: 1-5, 1=low, 5=high
+
+1. **Speed**: Time taken to extract insights from all source files incluing for waits/restries
+
+1. **Error Rate**: Proportion of requests that the LLM could not process even after retries or where the prompt had to be truncated to fit the LLM's context window
+
 
 ## LLM Routing Abstraction
 
