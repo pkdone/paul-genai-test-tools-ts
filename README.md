@@ -181,7 +181,7 @@ Using metadata about the source files that was captued the `sources` collection,
 
 Tested on 17-July-2025 with the legacy Java Petstore J2EE application:
 
-| LLM Hosting/API Provider | LLMs | Insight Quality (1-5: 1=low, 5=high) | Speed (time taken to extract insights from all source files incluing waits/restries) | Average Error Rate (files not processed even after retries or had to be truncated to fit context window) |
+| LLM Hosting/API Provider | LLMs | Insight Quality <sup>1</sup> | Speed <sup>2</sup> | Average Error Rate <sup>3</sup> |
 | :---- | :---- | :---: | :---: | :---: |
 | Azure OpenAI | GPT4o | 4 | 2:54 mins | 0.4 % |
 | GCP VertexAI | Gemini 2.5 Pro \+ Flash | 5 | 13:44 mins | 0.6 % |
@@ -191,6 +191,10 @@ Tested on 17-July-2025 with the legacy Java Petstore J2EE application:
 |  | Mistral Large 2402 \+ 2407 | 2 | 15:12 mins | 24 % |
 |  | Deepseek R1 | 3.5 | 10:12 mins | 1 % |
 
+
+    1. Insight Quality: 1-5, 1=low, 5=high
+    1. Speed: Time taken to extract insights from all source files incluing waits/restries
+    1. Average Error Rate: Request which the LLM could not process even after retries and where the prompt had to be truncated to fit the LLM's context window
 
 ## LLM Routing Abstraction
 
