@@ -82,7 +82,7 @@
     <%- include('partials/file-types-summary', { fileTypesData: fileTypesData }) %>
 
     <% categorizedData.forEach(category => { %>
-      <%- include('partials/category-table', { label: category.label, data: category.data, convertToDisplayName: convertToDisplayName }) %>
+      <%- include('partials/category-table', { category: category.category, label: category.label, data: category.data, convertToDisplayName: convertToDisplayName }) %>
     <% }); %>
 
     <%- include('partials/db-integrations', { dbInteractions: dbInteractions, procsAndTriggers: procsAndTriggers, convertToDisplayName: convertToDisplayName }) %>

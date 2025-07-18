@@ -183,7 +183,7 @@ Tested on 17-July-2025 with the legacy Java Petstore J2EE application:
 
 | LLM Hosting/API Provider | LLMs | Insight Quality <sup>1</sup> | Speed <sup>2</sup> | Average Error Rate <sup>3</sup> |
 | :---- | :---- | :---: | :---: | :---: |
-| Azure OpenAI | GPT4o | 4 | 2:54 mins | 0.4 % |
+| Azure OpenAI | GPT4o | 4 | 1:47 mins | 0.4 % |
 | GCP VertexAI | Gemini 2.5 Pro \+ Flash | 5 | 13:44 mins | 0.6 % |
 | AWS Bedrock | Claude Sonnet 4.0 & 3.7 | 4 | 23:47 mins | 1.1 % |
 | AWS Bedrock | Amazon Nova Pro 1.0 Pro \+ Lite | 3.5 | 9:30 mins  | 0.8 % |
@@ -210,4 +210,3 @@ The `LLMRouter` class (see `src/llm/llm-router.js`) performs various tasks to en
 * **Automatically Fails Over To A Backup LLM**.  If the primary LLM's API response is consistently struggling to correctly process a particular prompt (e.g. repeated timeouts, repeated token limits exceeded), it automatically sends the request to a secondary LLM from the same family (if one has been specified).
 * **Reactively Crop Excessively Large Prompt**.  If the LLM response error indicates the prompt is too big, shortens it to the size instructed by the LLM's API response, if specified; otherwise, estimates the appropriate shorter size to apply - note, it only crops after first trying the full prompt with the backup secondary LLM first, in case that has a larger accomodating limit).
 * **Provide LLM Invocation Statistics**.  Gathers LLM invocation statistics (successes, failures, retries, truncations, etc.), logging each event and then providing a final summary table of totals at the end of the run.
-

@@ -32,8 +32,7 @@ export const appSummaryRecordSchema = z
     aggregates: aggregatesSchema.shape.aggregates.optional(),
     entities: entitiesSchema.shape.entities.optional(),
     repositories: repositoriesSchema.shape.repositories.optional(),
-    potentialMicroservices:
-      potentialMicroservicesSchema.shape.potentialMicroservices.optional(),
+    potentialMicroservices: potentialMicroservicesSchema.shape.potentialMicroservices.optional(),
   })
   .passthrough();
 

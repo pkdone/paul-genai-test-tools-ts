@@ -260,7 +260,7 @@ describe("McpHttpServer Integration Tests", () => {
       const transportConstructorCall = jest.mocked(StreamableHTTPServerTransport).mock.calls[0];
       const options = transportConstructorCall[0];
       if (options.onsessioninitialized) {
-        options.onsessioninitialized(sessionId);
+        void options.onsessioninitialized(sessionId);
       }
 
       // Reset mocks
@@ -368,7 +368,7 @@ describe("McpHttpServer Integration Tests", () => {
       const transportConstructorCall = jest.mocked(StreamableHTTPServerTransport).mock.calls[0];
       const options = transportConstructorCall[0];
       if (options.onsessioninitialized) {
-        options.onsessioninitialized(sessionId);
+        void options.onsessioninitialized(sessionId);
       }
 
       // Set up console.log spy to verify cleanup message

@@ -38,12 +38,14 @@ export class ReportGenerationService implements Service {
     console.log(cleanSrcDirPath);
     await clearDirectory(appConfig.OUTPUT_DIR);
     console.log(`Creating report for project: ${this.projectName}`);
-    const htmlFilePath = path.join(appConfig.OUTPUT_DIR, appConfig.OUTPUT_SUMMARY_HTML_FILE);
 
+    // Generate HTML report (also generates JSON files for each category)
+    const htmlFilePath = path.join(appConfig.OUTPUT_DIR, appConfig.OUTPUT_SUMMARY_HTML_FILE);
     await writeFile(
       htmlFilePath,
       await this.appReportGenerator.generateHTMLReport(this.projectName),
     );
+
     console.log(`View generated report in a browser: file://${path.resolve(htmlFilePath)}`);
   }
 }

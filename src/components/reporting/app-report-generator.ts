@@ -42,7 +42,7 @@ export default class AppReportGenerator {
     const appStats = await this.getAppStatistics(projectName);
     const fileTypesData =
       await this.sourcesRepository.getProjectFileTypesCountAndLines(projectName);
-    const categorizedData = await this.getCategorizedData(projectName);
+    const categorizedData = await this.buildCategoriesData(projectName);
     const dbInteractions = await this.buildDBInteractionList(projectName);
     const procsAndTriggers = await this.buildDBStoredProcsTriggersSummaryList(projectName);
     return await this.htmlFormatter.generateCompleteHTMLReport(
@@ -105,10 +105,7 @@ export default class AppReportGenerator {
       // Process stored procedures
       for (const sp of summary.storedProcedures ?? []) {
         procsAndTriggers.procs.total++;
-
-        // Trust incrementComplexityCount to handle all cases including invalid ones
         this.incrementComplexityCount(procsAndTriggers.procs, sp.complexity);
-
         procsAndTriggers.procs.list.push({
           path: record.filepath,
           type: "STORED PROCEDURE",
@@ -123,10 +120,7 @@ export default class AppReportGenerator {
       // Process triggers
       for (const trig of summary.triggers ?? []) {
         procsAndTriggers.trigs.total++;
-
-        // Trust incrementComplexityCount to handle all cases including invalid ones
         this.incrementComplexityCount(procsAndTriggers.trigs, trig.complexity);
-
         procsAndTriggers.trigs.list.push({
           path: record.filepath,
           type: "TRIGGER",
@@ -167,34 +161,35 @@ export default class AppReportGenerator {
   }
 
   /**
-   * Collect categorized data for all categories
+   * Build categorized data for all categories.
    */
-  private async getCategorizedData(
+  private async buildCategoriesData(
     projectName: string,
   ): Promise<{ category: string; label: string; data: AppSummaryNameDescArray }[]> {
     const categoryKeys = AppSummaryCategoryEnum.options.filter(
       (key) => key !== appConfig.APP_DESCRIPTION_KEY,
     );
 
-    const promises = categoryKeys.map(async (category) => {
+    const categorizedData: { category: string; label: string; data: AppSummaryNameDescArray }[] =
+      [];
+
+    for (const category of categoryKeys) {
       const label = summaryCategoriesConfig[category].label;
       const result = await this.appSummariesRepository.getProjectAppSummaryField(
         projectName,
         category as keyof AppSummaryRecord,
       );
-
-      // Use Zod's safeParse as a type guard
       const parsed = appSummaryNameDescArraySchema.safeParse(result);
-
-      console.log(`Generated ${label} table`);
-      return {
+      const data = parsed.success ? parsed.data : [];
+      categorizedData.push({
         category,
         label,
-        data: parsed.success ? parsed.data : [], // Use validated data or an empty array
-      };
-    });
+        data,
+      });
+      console.log(`Generated ${label} table`);
+    }
 
-    return Promise.all(promises);
+    return categorizedData;
   }
 
   /**

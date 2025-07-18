@@ -20,7 +20,7 @@ describe("AnalysisDataServer", () => {
     container.clearInstances();
   });
 
-  it("should return an array of objects where each object has keys 'name' and 'description'", async () => {
+  it("should return an array of objects where each object has keys 'name', 'description', and 'keyBusinessActivities'", async () => {
     // Resolve the service under test directly from the container
     const analysisDataServer = container.resolve<InsightsDataServer>(TOKENS.InsightsDataServer);
 
@@ -43,9 +43,11 @@ describe("AnalysisDataServer", () => {
     result.forEach((item) => {
       expect(item).toHaveProperty("name");
       expect(item).toHaveProperty("description");
+      expect(item).toHaveProperty("keyBusinessActivities");
       expect(typeof item.name).toBe("string");
       expect(typeof item.description).toBe("string");
-      expect(Object.keys(item)).toHaveLength(2);
+      expect(Array.isArray(item.keyBusinessActivities)).toBe(true);
+      expect(Object.keys(item)).toHaveLength(3);
     });
   }, 15000); // Increase timeout to 15 seconds for integration test
 });

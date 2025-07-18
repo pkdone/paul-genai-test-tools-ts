@@ -1,14 +1,27 @@
 import { z } from "zod";
 
 /**
+ * Zod schema for application summary categories
+ * This is used to validate the category names in app summaries
+ */
+export const AppSummaryCategoryEnum = z.enum([
+  "appDescription",
+  "technologies",
+  "businessProcesses",
+  "boundedContexts",
+  "aggregates",
+  "entities",
+  "repositories",
+  "potentialMicroservices",
+]);
+
+/**
  * Schema for name-description pairs used for insights
  */
 export const nameDescSchema = z
   .object({
     name: z.string().describe("The name of the item."),
-    description: z
-      .string()
-      .describe("A detailed description of the item in at least 5 sentences."),
+    description: z.string().describe("A detailed description of the item in at least 5 sentences."),
   })
   .passthrough();
 
@@ -29,7 +42,11 @@ export const businessActivitySchema = z
  */
 export const businessProcessSchema = z
   .object({
-    name: z.string().describe("The name of the 'logical'business process that reflects how part of the applicaiton operates."),
+    name: z
+      .string()
+      .describe(
+        "The name of the 'logical'business process that reflects how part of the applicaiton operates.",
+      ),
     description: z
       .string()
       .describe("A detailed description of the business process in at least 5 sentences."),
@@ -40,21 +57,6 @@ export const businessProcessSchema = z
       ),
   })
   .passthrough();
-
-/**
- * Zod schema for application summary categories
- * This is used to validate the category names in app summaries
- */
-export const AppSummaryCategoryEnum = z.enum([
-  "appDescription",
-  "technologies",
-  "businessProcesses",
-  "boundedContexts",
-  "aggregates",
-  "entities",
-  "repositories",
-  "potentialMicroservices",
-]);
 
 /**
  * Schema for application description
@@ -108,13 +110,19 @@ export const aggregateSchema = z
     name: z.string().describe("The name of the domain-driven design aggregate."),
     description: z
       .string()
-      .describe("A detailed description of the domain-driven design aggregate and its business rules that should exist for this application in at least 5 sentences."),
+      .describe(
+        "A detailed description of the domain-driven design aggregate and its business rules that should exist for this application in at least 5 sentences.",
+      ),
     entities: z
       .array(z.string())
-      .describe("A list of' logical' domain-driven design entity names that are managed by this aggregate."),
+      .describe(
+        "A list of' logical' domain-driven design entity names that are managed by this aggregate.",
+      ),
     repository: z
       .string()
-      .describe("The name of the 'logical' domain-driven design repository associated with this aggregate for persistence."),
+      .describe(
+        "The name of the 'logical' domain-driven design repository associated with this aggregate for persistence.",
+      ),
   })
   .passthrough();
 
@@ -123,10 +131,16 @@ export const aggregateSchema = z
  */
 export const repositorySchema = z
   .object({
-    name: z.string().describe("The name of the domain-driven repository that should be present for this application."),
+    name: z
+      .string()
+      .describe(
+        "The name of the domain-driven repository that should be present for this application.",
+      ),
     description: z
       .string()
-      .describe("A detailed description of the potential repository and its persistence responsibilities in at least 5 sentences."),
+      .describe(
+        "A detailed description of the potential repository and its persistence responsibilities in at least 5 sentences.",
+      ),
     aggregate: z
       .string()
       .describe("The name of the 'logical' aggregate that this repository is associated with."),
@@ -171,7 +185,11 @@ export const repositoriesSchema = z.object({
  */
 export const crudOperationSchema = z
   .object({
-    operation: z.string().describe("The potential CRUD operation name that should exist for this microservice (e.g., Create User, Update Profile)."),
+    operation: z
+      .string()
+      .describe(
+        "The potential CRUD operation name that should exist for this microservice (e.g., Create User, Update Profile).",
+      ),
     method: z.string().describe("The HTTP method (GET, POST, PUT, DELETE, PATCH)."),
     description: z
       .string()
@@ -184,11 +202,13 @@ export const crudOperationSchema = z
  */
 export const restEndpointSchema = z
   .object({
-    path: z.string().describe("The potential REST API endpoint path that should exist for this microservice  (e.g., /api/users/{id})."),
-    method: z.string().describe("The HTTP method (GET, POST, PUT, DELETE, PATCH)."),
-    description: z
+    path: z
       .string()
-      .describe("A detailed description of what this endpoint would do."),
+      .describe(
+        "The potential REST API endpoint path that should exist for this microservice  (e.g., /api/users/{id}).",
+      ),
+    method: z.string().describe("The HTTP method (GET, POST, PUT, DELETE, PATCH)."),
+    description: z.string().describe("A detailed description of what this endpoint would do."),
   })
   .passthrough();
 
@@ -197,10 +217,16 @@ export const restEndpointSchema = z
  */
 export const microserviceEntitySchema = z
   .object({
-    name: z.string().describe("The name of the 'logical'  domain-driven design entity that should exist for this microservice."),
+    name: z
+      .string()
+      .describe(
+        "The name of the 'logical'  domain-driven design entity that should exist for this microservice.",
+      ),
     description: z
       .string()
-      .describe("A detailed description of the potntial  domain-driven design entity and its purpose."),
+      .describe(
+        "A detailed description of the potntial  domain-driven design entity and its purpose.",
+      ),
     attributes: z
       .array(z.string())
       .describe("Key attributes or properties of this potential entity.")
@@ -216,7 +242,9 @@ export const potentialMicroserviceSchema = z
     name: z.string().describe("The name of the potential microservice."),
     description: z
       .string()
-      .describe("A detailed description of the potential microservice's purpose and responsibilities in at least 5 sentences."),
+      .describe(
+        "A detailed description of the potential microservice's purpose and responsibilities in at least 5 sentences.",
+      ),
     entities: z
       .array(microserviceEntitySchema)
       .describe(
@@ -224,14 +252,10 @@ export const potentialMicroserviceSchema = z
       ),
     endpoints: z
       .array(restEndpointSchema)
-      .describe(
-        "A list of REST API endpoints that this potential microservice would expose.",
-      ),
+      .describe("A list of REST API endpoints that this potential microservice would expose."),
     operations: z
       .array(crudOperationSchema)
-      .describe(
-        "A list of CRUD operations that this potential microservice would support.",
-      ),
+      .describe("A list of CRUD operations that this potential microservice would support."),
   })
   .passthrough();
 
