@@ -75,16 +75,16 @@
     </style>
   </head>
   <body>
-    <h1>Codebase Analysis Tool (CAT) Report</h1>
+    <h1>Codebase Analysis Tool (CAT) Report <a href="<%= jsonFilesConfig.dataFiles.completeReport %>" target="_blank" style="font-size: 0.7em; margin-left: 10px; text-decoration: none; color: #007cba;">[JSON]</a></h1>
     <hr/>
 
-    <%- include('partials/app-statistics', { appStats: appStats }) %>
-    <%- include('partials/file-types-summary', { fileTypesData: fileTypesData }) %>
+    <%- include('partials/app-statistics', { appStats: appStats, jsonFilesConfig: jsonFilesConfig }) %>
+    <%- include('partials/file-types-summary', { fileTypesData: fileTypesData, jsonFilesConfig: jsonFilesConfig }) %>
 
     <% categorizedData.forEach(category => { %>
-      <%- include('partials/category-table', { category: category.category, label: category.label, data: category.data, convertToDisplayName: convertToDisplayName }) %>
+      <%- include('partials/category-table', { category: category.category, label: category.label, data: category.data, convertToDisplayName: convertToDisplayName, jsonFilesConfig: jsonFilesConfig }) %>
     <% }); %>
 
-    <%- include('partials/db-integrations', { dbInteractions: dbInteractions, procsAndTriggers: procsAndTriggers, convertToDisplayName: convertToDisplayName }) %>
+    <%- include('partials/db-integrations', { dbInteractions: dbInteractions, procsAndTriggers: procsAndTriggers, convertToDisplayName: convertToDisplayName, jsonFilesConfig: jsonFilesConfig }) %>
   </body>
 </html> 

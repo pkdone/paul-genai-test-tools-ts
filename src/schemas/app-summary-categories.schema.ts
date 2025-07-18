@@ -159,11 +159,47 @@ export const aggregatesSchema = z.object({
 });
 
 /**
+ * Schema for domain-driven design entities for microservices
+ */
+export const microserviceEntitySchema = z
+  .object({
+    name: z
+      .string()
+      .describe(
+        "The name of the 'logical'  domain-driven design entity that should exist for this microservice.",
+      ),
+    description: z
+      .string()
+      .describe(
+        "A detailed description of the potntial  domain-driven design entity and its purpose.",
+      ),
+    attributes: z
+      .array(z.string())
+      .describe("Key attributes or properties of this potential entity.")
+      .optional(),
+  })
+  .passthrough();
+
+/**
+ * Schema for individual domain-driven design entities with relationships
+ */
+export const entitySchema = z
+  .object({
+    name: z.string().describe("The name of the domain-driven design entity."),
+    description: z.string().describe("A detailed description of the entity in at least 5 sentences."),
+    relatedEntities: z
+      .array(z.string())
+      .describe("A list of names of other entities that this entity would be linked to in an entity-relationship style model.")
+      .optional(),
+  })
+  .passthrough();
+
+/**
  * Schema for entities in the application
  */
 export const entitiesSchema = z.object({
   entities: z
-    .array(nameDescSchema)
+    .array(entitySchema)
     .describe(
       "A list of domain-driven design entities that should exist to represent core business concepts and contain business logic.",
     ),
@@ -209,28 +245,6 @@ export const restEndpointSchema = z
       ),
     method: z.string().describe("The HTTP method (GET, POST, PUT, DELETE, PATCH)."),
     description: z.string().describe("A detailed description of what this endpoint would do."),
-  })
-  .passthrough();
-
-/**
- * Schema for domain-driven design entities for microservices
- */
-export const microserviceEntitySchema = z
-  .object({
-    name: z
-      .string()
-      .describe(
-        "The name of the 'logical'  domain-driven design entity that should exist for this microservice.",
-      ),
-    description: z
-      .string()
-      .describe(
-        "A detailed description of the potntial  domain-driven design entity and its purpose.",
-      ),
-    attributes: z
-      .array(z.string())
-      .describe("Key attributes or properties of this potential entity.")
-      .optional(),
   })
   .passthrough();
 
