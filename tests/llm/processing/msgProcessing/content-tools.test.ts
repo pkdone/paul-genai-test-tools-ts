@@ -65,7 +65,7 @@ describe("content-tools", () => {
           "content",
           completionOptions,
         ),
-      ).toThrow("Generated content is not a string");
+      ).toThrow("LLM response for resource");
     });
   });
 

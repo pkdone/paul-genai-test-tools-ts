@@ -11,8 +11,7 @@ import { llmConfig } from "../../../llm.config";
 
 // Environment variable name constants
 const BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY = "BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY";
-// TODO: restore
-//const BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY_KEY = "BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY";
+const BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY_KEY = "BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY";
 
 // Exported constants
 export const BEDROCK_CLAUDE = "BedrockClaude";
@@ -34,8 +33,7 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
   envSchema: z.object({
     [BEDROCK_TITAN_EMBEDDINGS_MODEL_KEY]: z.string().min(1),
     [BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY]: z.string().min(1),
-    // TODO: restore
-    //[BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY_KEY]: z.string().min(1),
+    [BEDROCK_CLAUDE_COMPLETIONS_MODEL_SECONDARY_KEY]: z.string().min(1),
   }),
   models: {
     embeddings: {
@@ -45,15 +43,6 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
       dimensions: 1024,
       maxTotalTokens: 8192,
     },
-    // TODO: resore
-    primaryCompletion: {
-      modelKey: AWS_COMPLETIONS_CLAUDE_V37,
-      urnEnvKey: BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY,
-      purpose: LLMPurpose.COMPLETIONS,
-      maxCompletionTokens: 65536,
-      maxTotalTokens: 200000,
-    },
-    /*
     primaryCompletion: {
       modelKey: AWS_COMPLETIONS_CLAUDE_V40,
       urnEnvKey: BEDROCK_CLAUDE_COMPLETIONS_MODEL_PRIMARY_KEY,
@@ -68,7 +57,6 @@ export const bedrockClaudeProviderManifest: LLMProviderManifest = {
       maxCompletionTokens: 65536,
       maxTotalTokens: 200000,
     },
-    */
   },
   errorPatterns: BEDROCK_COMMON_ERROR_PATTERNS,
   providerSpecificConfig: {

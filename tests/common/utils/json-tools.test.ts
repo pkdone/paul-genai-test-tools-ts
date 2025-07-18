@@ -63,7 +63,7 @@ describe("JSON utilities", () => {
       testCases.forEach(({ input }) => {
         expect(() =>
           convertTextToJSONAndOptionallyValidate(input, "content", completionOptions),
-        ).toThrow("Generated content is not a string, text");
+        ).toThrow("LLM response for resource");
       });
     });
 

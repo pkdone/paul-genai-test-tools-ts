@@ -24,7 +24,7 @@ You can also [view an example of a full report generated](https://fuzzy-robot-r4
     npm install
     ```
 
-1. TODO: check link. Ensure you have the codebase for a sample application ready to access on your local filesystem. You can also [download a zip of some example projects](https://drive.google.com/file/d/1rDSOiLOH0xq3Hc5k8i3DvZpCDVvDccr1/view?usp=sharing) for testing. Note the current version of these tools work better with Java-based codebases, but over time, many more programming languages will be supported equally.
+1. Ensure you have the codebase for a sample application ready to access on your local filesystem. You can also [download a zip of some example projects](https://drive.google.com/file/d/1rDSOiLOH0xq3Hc5k8i3DvZpCDVvDccr1/view?usp=sharing) for testing. Note the current version of these tools work better with Java-based codebases, but over time, many more programming languages will be supported equally.
 
 1. Ensure you have can leverage LLMs from OpenAI/Azure GPT, GCP Vertex AI or AWS Bedrock API, with the following three models types available to use, along with appropriate API keys / credentials:
 
@@ -43,7 +43,7 @@ You can also [view an example of a full report generated](https://fuzzy-robot-r4
     - Set your MongoDB URL and codebase directory path
     - Add the specific environment variables required for your chosen LLM provider
     
-    The system uses a **manifest-driven approach** - you only need to configure environment variables for your selected LLM provider. The application will automatically validate only the variables required for your chosen provider and provide clear error messages if any are missing. See the TODO section "Application to LLM Authentication And URN Notes" for help on determing the correct URNs for you to specify in the `.env` file.
+    The system uses a **manifest-driven approach** - you only need to configure environment variables for your selected LLM provider. The application will automatically validate only the variables required for your chosen provider and provide clear error messages if any are missing. See the section [Application to LLM Authentication And URN Notes](#application-to-llm-authentication-and-urn-notes) for help on determing the correct URNs for you to specify in the `.env` file.
 
 1. Ensure you have a running MongoDB [Atlas](https://www.mongodb.com/atlas) version 7.0 or greater dedicated cluster of any size/tier. You can even use an 'M0' free-tier version, although for some uses cases, the free-tier storage limit of 512MB may be insufficient. Ensure the approprate network and database access rights are configured. Optional because some use cases won't neeed a database. 
 
@@ -63,7 +63,7 @@ Alternatively, you also run the `./dist/src/cli/c*.js` JavaScript files (first c
 
 ## How To Run Main Tasks
 
-(for a summary of the purpose of these tools, see the section TODO "Analysis And Summary Capture Process")
+(for a summary of the purpose of these tools, see the section [Analysis And Summary Capture Process](#analysis-and-summary-capture-process))
 
 1. **BUILD THE PROJECT SOURCES**: First build the project (compiles TypeScript and moves some HTML template files to project's executable path) by executing the the following command.
 
@@ -78,7 +78,7 @@ Alternatively, you also run the `./dist/src/cli/c*.js` JavaScript files (first c
     node ./dist/src/cli/capture-codebase.js
     ```
 
-    Note 1. If you are getting LLM provider authentication/authorisaton errors when you executed the task, see the TODO section "Application to LLM Authentication And URN Notes" for help on configuring LLM provider credentials correctly.
+    Note 1. If you are getting LLM provider authentication/authorisaton errors when you executed the task, see the section [Application to LLM Authentication And URN Notes](#application-to-llm-authentication-and-urn-notes) for help on configuring LLM provider credentials correctly.
 
     Note 2. The taks will take around 10 minutes or more to execute, depending on the complexity of the source project. This tool employs asynchronous IO and concurrency, but inevitably, the LLM you provide to the tool will take time to respond to requests and often apply throttling, which will be the main causes of slowdown. If you see messages with the character `?` in the tool's output, this indicates that the LLM is returning an "overloaded" response, and hence, the tool will transparently pause each affected LLM request job and then retry after a short wait.
 
@@ -177,9 +177,19 @@ The `capture-codebase` tool captures metadata about all the files in the codebas
 Using metadata about the source files that was captued the `sources` collection, the subsequent `capture-insights` tool uses an LLM to generate insights of various aspects of the application persisted into the database collection `appsummaries`. This captured information includes an outline of the application's purpose plus a list its technologies, business processes, DDD bounded contexts, DDD aggregates, DDD entities,, DDD repositories, and potential microservices.
 
 
-## Demonstrated LLM Metrics For This Project
+## Demonstrated LLM Capabilities For This Project
 
-TODO: Add table of LLM qualities experienced
+Tested on 17-July-2025:
+
+| LLM Hosting/API Provider | LLMs | Insight Quality (1-5: 1=low, 5=high) | Speed (the time it takes to extract insights from all source files of the Java PetStore application \- may include waits with retries) | Average Error Rate (files that can’t be processed by LLM even after retries, or where requests had to be truncated to fit context window limits) |
+| :---- | :---- | :---: | :---: | :---: |
+| Azure OpenAI | GPT4o | 4 | 2:54 mins | 0.4 % |
+| GCP VertexAI | Gemini 2.5 Pro \+ Flash | 5 | 13:44 mins | 0.6 % |
+| AWS Bedrock | Claude Sonnet 4.0 & 3.7 | 4 | 23:47 mins | 1.1 % |
+|  | Amazon Nova Pro 1.0 Pro \+ Lite | 3.5 | 9:30 mins  | 0.8 % |
+|  | Meta Llama Instruct 3-3-70b \+ 2-90b  | 2 | 39:53 mins | 43 %  |
+|  | Mistral Large 2402 \+ 2407 | 2 | 15:12 mins | 24 % |
+|  | Deepseek R1 | 3.5 | 10:12 mins | 1 % |
 
 
 ## LLM Routing Abstraction
