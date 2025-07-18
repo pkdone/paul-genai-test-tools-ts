@@ -2,14 +2,14 @@ import { z } from "zod";
 import { zodToJsonSchemaForMDB, zBsonObjectId } from "../../common/mdb/zod-to-mdb-json-schema";
 import {
   nameDescSchema,
-  appDescriptionKeyValPairSchema,
-  boundedContextsKeyValPairSchema,
-  entitiesKeyValPairSchema,
-  businessProcessesKeyValPairSchema,
-  technologiesKeyValPairSchema,
-  aggregatesKeyValPairSchema,
-  repositoriesKeyValPairSchema,
-  potentialMicroservicesKeyValPairSchema,
+  appDescriptionSchema,
+  boundedContextsSchema,
+  entitiesSchema,
+  businessProcessesSchema,
+  technologiesSchema,
+  aggregatesSchema,
+  repositoriesSchema,
+  potentialMicroservicesSchema,
 } from "../../schemas/app-summary-categories.schema";
 
 /**
@@ -25,15 +25,15 @@ export const appSummaryRecordSchema = z
     _id: zBsonObjectId,
     projectName: z.string(),
     llmProvider: z.string(),
-    appDescription: appDescriptionKeyValPairSchema.shape.appDescription.optional(),
-    businessProcesses: businessProcessesKeyValPairSchema.shape.businessProcesses.optional(),
-    technologies: technologiesKeyValPairSchema.shape.technologies.optional(),
-    boundedContexts: boundedContextsKeyValPairSchema.shape.boundedContexts.optional(),
-    aggregates: aggregatesKeyValPairSchema.shape.aggregates.optional(),
-    entities: entitiesKeyValPairSchema.shape.entities.optional(),
-    repositories: repositoriesKeyValPairSchema.shape.repositories.optional(),
+    appDescription: appDescriptionSchema.shape.appDescription.optional(),
+    businessProcesses: businessProcessesSchema.shape.businessProcesses.optional(),
+    technologies: technologiesSchema.shape.technologies.optional(),
+    boundedContexts: boundedContextsSchema.shape.boundedContexts.optional(),
+    aggregates: aggregatesSchema.shape.aggregates.optional(),
+    entities: entitiesSchema.shape.entities.optional(),
+    repositories: repositoriesSchema.shape.repositories.optional(),
     potentialMicroservices:
-      potentialMicroservicesKeyValPairSchema.shape.potentialMicroservices.optional(),
+      potentialMicroservicesSchema.shape.potentialMicroservices.optional(),
   })
   .passthrough();
 
